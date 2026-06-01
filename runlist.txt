@@ -1,0 +1,19 @@
+# Config list for run_list.py — one TOML path per line.
+# Blank lines and #-comments are ignored. Relative paths resolve against this
+# file's directory (and the current directory). Edit freely to pick a subset.
+#
+#   python run_list.py runlist.txt            # run each
+#   python run_list.py runlist.txt --check    # validate each
+
+# configs/kitti_stereo.toml
+configs/kitti_slam.toml
+# configs/euroc_inertial.toml
+# configs/euroc_mono.toml
+# configs/euroc_v1_eval.toml
+# configs/tum_rgbd.toml
+# configs/tartan_multicam.toml
+# configs/robotcar_mono.toml
+# configs/generic_inertial.toml
+# configs/usb_stereo_video.toml
+# configs/webcam_mono.toml
+# configs/realsense_stereo.toml

@@ -1,0 +1,26 @@
+# Live Intel RealSense stereo odometry (OdometryMode.Multicamera).
+# Requires `pyrealsense2` and a connected camera. The rig (intrinsics +
+# baseline) is read from the device itself, so no [rig] table is needed.
+
+[run]
+verbosity = 1
+warm_up_gpu = true
+
+[input]
+type = "realsense"
+width = 640
+height = 360
+fps = 30
+warmup_frames = 60
+disable_emitter = true        # IR emitter pattern hurts feature tracking
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+async_sba = false
+
+[output]
+trajectory = "out/realsense_stereo_tum.txt"
+timestamp_unit = "ns"
+visualize = true              # live viz via rerun (if installed)

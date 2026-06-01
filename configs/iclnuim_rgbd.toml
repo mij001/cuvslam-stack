@@ -1,0 +1,43 @@
+# Paper benchmark: ICL-NUIM (Handa et al. 2014), Mono-Depth / RGBD mode.
+# Uses the TUM-RGB-D-compatible ICL-NUIM release (rgb.txt / depth.txt + a
+# *.gt.freiburg ground-truth file), so the `tum` source associates RGB+depth
+# by timestamp. Synthetic, perfect depth; depth scale 5000 (same as TUM).
+#
+# Download (living room kt0, TUM format):
+#   https://www.doc.ic.ac.uk/~ahanda/VaFRIC/iclnuim.html  ("TUM RGB-D Compatible")
+
+[run]
+verbosity = 1
+
+[input]
+type = "tum"
+path = "datasets/iclnuim/living_room_traj0_frei_png"
+# rig_yaml omitted -> rig comes from [rig] below
+max_time_diff = 0.02
+max_gap = 0.5
+
+[odometry]
+odometry_mode = "RGBD"
+async_sba = true
+enable_final_landmarks_export = true
+  [odometry.rgbd]
+  depth_scale_factor = 5000.0      # ICL-NUIM/TUM uint16 depth -> metres
+  depth_camera_id = 0
+
+# ICL-NUIM pinhole intrinsics (640x480). Verify against your sequence.
+[[rig.cameras]]
+size = [640, 480]
+focal = [481.20, 480.00]
+principal = [319.50, 239.50]
+
+[output]
+trajectory = "out/iclnuim_lr0_tum.txt"
+timestamp_unit = "s"
+
+[eval]
+ground_truth = "livingRoom0.gt.freiburg"   # TUM-format GT shipped with the sequence
+gt_format = "tum"
+gt_time_unit = "s"
+align = "se3"
+rpe_distances = [0.25, 0.5, 1, 2]
+report = "out/iclnuim_lr0_eval.txt"

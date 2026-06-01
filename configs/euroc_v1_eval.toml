@@ -1,0 +1,33 @@
+# EuRoC Vicon Room V1_01 stereo odometry WITH automatic evaluation.
+# Runs the euroc source (rig + IMU built from sensor.yaml), then computes ATE,
+# RPE, avgRTE and avgRE against the Vicon ground truth. This mirrors the paper's
+# EuRoC ATE benchmark.
+#
+# Point [input].path at your extracted mav0 directory.
+
+[run]
+verbosity = 1
+
+[input]
+type = "euroc"
+path = "datasets/euroc/vicon_room1/V1_01_easy/mav0"
+use_imu = false                       # stereo (Multicamera); set true for Inertial
+
+[odometry]
+odometry_mode = "Multicamera"
+rectified_stereo_camera = false       # EuRoC images are distorted
+async_sba = false
+enable_final_landmarks_export = true
+
+[output]
+trajectory = "out/euroc_v1_01_tum.txt"
+timestamp_unit = "ns"
+
+[eval]
+ground_truth = "state_groundtruth_estimate0/data.csv"
+gt_format = "euroc"
+align = "se3"                          # rigid alignment (stereo has metric scale)
+apply_gt_extrinsic = "auto"            # move GT body frame -> cam0 frame
+max_time_diff = 0.02
+rpe_distances = [1, 2, 4, 8, 16]       # metres (EuRoC trajectories are short)
+report = "out/euroc_v1_01_eval.txt"

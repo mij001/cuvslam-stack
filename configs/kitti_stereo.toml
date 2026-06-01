@@ -1,0 +1,47 @@
+# KITTI stereo visual odometry (OdometryMode.Multicamera).
+# Input: a folder of grayscale PNGs per camera (the generic image_folder source).
+# Calibration is given explicitly here — transcribe it from the sequence's
+# calib.txt (projection matrices P0/P1). Values below are the standard KITTI
+# grayscale intrinsics; the right-camera x-translation is baseline = -P1[0,3]/fx.
+
+[run]
+verbosity = 1
+
+[input]
+type = "image_folder"
+root = "../examples/kitti/dataset/sequences/06"
+
+  [[input.cameras]]
+  images = "image_0/*.png"
+
+  [[input.cameras]]
+  images = "image_1/*.png"
+
+  [input.timestamps]
+  mode = "file"
+  path = "times.txt"
+  unit = "s"
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+async_sba = false
+enable_final_landmarks_export = true
+
+[[rig.cameras]]                       # left (cam0) — rig origin
+size = [1241, 376]
+focal = [718.856, 718.856]
+principal = [607.1928, 185.2157]
+
+[[rig.cameras]]                       # right (cam1)
+size = [1241, 376]
+focal = [718.856, 718.856]
+principal = [607.1928, 185.2157]
+  [rig.cameras.rig_from_camera]
+  translation = [0.537150653, 0.0, 0.0]   # stereo baseline in metres
+
+[output]
+trajectory = "out/kitti_06_trajectory.txt"
+timestamp_unit = "s"
+visualize = false

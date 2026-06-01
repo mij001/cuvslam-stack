@@ -1,0 +1,36 @@
+# Live monocular webcam via the generic OpenCV video source
+# (OdometryMode.Mono). Requires opencv-python. Mono gives accurate rotation but
+# no metric scale — good for a quick "does my camera track?" check.
+#
+# Calibrate your camera and put the real intrinsics in [rig]; the values below
+# are placeholders for a 640x480 webcam.
+
+[run]
+verbosity = 1
+warm_up_gpu = true
+
+[input]
+type = "video"
+
+  [[input.cameras]]
+  source = "0"               # webcam device index (or "rtsp://..." / file path)
+  grayscale = true
+
+  [input.timing]
+  mode = "wallclock"         # realtime timestamps from the wall clock
+
+[odometry]
+odometry_mode = "Mono"
+
+[[rig.cameras]]
+size = [640, 480]
+focal = [600.0, 600.0]       # <-- replace with your calibrated intrinsics
+principal = [320.0, 240.0]
+  [rig.cameras.distortion]
+  model = "Pinhole"
+  parameters = []
+
+[output]
+trajectory = "out/webcam_mono_tum.txt"
+timestamp_unit = "ns"
+visualize = true

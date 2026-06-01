@@ -1,0 +1,56 @@
+# Paper benchmark: KITTI odometry (Geiger et al. 2013), Stereo mode, WITH eval.
+# The paper evaluates sequences 00-10 (ground-truth poses available) and reports
+# relative translation/rotation over 100-800 m segments following the KITTI
+# leaderboard methodology (Appendix A.1.1 / Fig 10: avg 0.85 % and 0.0025 deg/m).
+#
+# KITTI ground-truth poses (poses/<seq>.txt) are a SEPARATE download from the
+# odometry images (https://www.cvlibs.net/datasets/kitti/eval_odometry.php).
+# Transcribe intrinsics from each sequence's calib.txt (P0/P1) — values below are
+# for the supplied sequence 06 (1226x370, fx=fy=707.0912).
+
+[run]
+verbosity = 1
+
+[input]
+type = "image_folder"
+root = "../cuvslam_datasets/dataset/sequences/06"
+
+  [[input.cameras]]
+  images = "image_0/*.png"
+
+  [[input.cameras]]
+  images = "image_1/*.png"
+
+  [input.timestamps]
+  mode = "fps"                      # 10 Hz, index-aligned with the KITTI GT poses
+  fps = 10.0
+
+[odometry]
+odometry_mode = "Multicamera"
+rectified_stereo_camera = true
+async_sba = false
+enable_final_landmarks_export = true
+
+[[rig.cameras]]
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+
+[[rig.cameras]]
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+  [rig.cameras.rig_from_camera]
+  translation = [0.5371655, 0.0, 0.0]
+
+[output]
+trajectory = "out/kitti_06_tum.txt"
+timestamp_unit = "ns"
+
+[eval]
+ground_truth = "../cuvslam_datasets/dataset/poses/06.txt"   # KITTI GT poses (separate download)
+gt_format = "kitti"
+gt_fps = 10.0                       # KITTI is ~10 Hz; index-timed GT
+align = "se3"
+rpe_distances = "kitti"             # 100,200,...,800 m segments (leaderboard method)
+report = "out/kitti_06_eval.txt"

@@ -1,0 +1,15 @@
+# Core (always needed)
+numpy
+pillow
+pyyaml
+scipy
+tomli; python_version < "3.11"
+
+# The cuVSLAM Python module itself must be installed separately, e.g.:
+#   pip install cuvslam-*.whl     (from the cuVSLAM releases page)
+# or built from source per the repository README.
+
+# Optional extras (only needed for specific features):
+rerun-sdk==0.22.1     # [output].visualize = true
+#   opencv-python         # Bayer demosaicing (e.g. Oxford RobotCar)
+#   pyrealsense2          # type = "realsense" live camera

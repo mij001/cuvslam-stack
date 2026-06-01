@@ -1,0 +1,23 @@
+# EuRoC MAV monocular odometry (OdometryMode.Mono).
+# Vision-only, single camera, accurate rotation but no metric scale. Useful as a
+# calibration sanity check before enabling stereo/inertial modes.
+#
+# The euroc source still builds a 2-camera rig; Mono mode uses the primary
+# camera only, and we disable IMU here.
+
+[run]
+verbosity = 1
+
+[input]
+type = "euroc"
+path = "../examples/euroc/dataset/mav0"
+use_imu = false
+
+[odometry]
+odometry_mode = "Mono"
+rectified_stereo_camera = false
+
+[output]
+trajectory = "out/euroc_mh01_mono_tum.txt"
+timestamp_unit = "ns"
+visualize = false

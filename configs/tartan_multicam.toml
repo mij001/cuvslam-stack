@@ -1,0 +1,28 @@
+# TartanGround multi-camera (6 stereo pairs = 12 cameras) visual odometry
+# (OdometryMode.Multicamera). The edex source reads the rig from the .edex JSON
+# and loads per-camera image folders.
+
+[run]
+verbosity = 1
+
+[input]
+type = "edex"
+edex = "../examples/multicamera_edex/tartan_ground.edex"
+layout = "folders"
+data_root = "../examples/multicamera_edex/dataset/tartan_ground/OldTownFall/Data_anymal/P2000"
+camera_names = [
+  "lcam_front", "rcam_front", "lcam_back",  "rcam_back",
+  "lcam_left",  "rcam_left",  "lcam_right", "rcam_right",
+  "lcam_top",   "rcam_top",   "lcam_bottom","rcam_bottom",
+]
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+enable_final_landmarks_export = true
+
+[output]
+trajectory = "out/tartan_multicam_tum.txt"
+timestamp_unit = "ns"
+visualize = false

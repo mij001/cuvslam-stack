@@ -1,0 +1,41 @@
+# Stereo USB camera or recorded stereo video via the generic OpenCV video
+# source (OdometryMode.Multicamera). Many USB stereo cameras present both views
+# packed side-by-side in one frame; `split = "sbs"` cuts that into left/right.
+# For a recorded clip, set source to a file path (e.g. "clips/stereo.mp4").
+
+[run]
+verbosity = 1
+
+[input]
+type = "video"
+
+  [[input.cameras]]
+  source = "0"               # one device delivering a side-by-side stereo frame
+  split = "sbs"              # -> two images (left half, right half)
+  grayscale = true
+
+  [input.timing]
+  mode = "auto"              # wallclock for live devices, file-fps for files
+  fps = 30
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+
+# Two cameras because split=sbs yields two images. Replace with real calibration.
+[[rig.cameras]]
+size = [640, 480]
+focal = [600.0, 600.0]
+principal = [320.0, 240.0]
+
+[[rig.cameras]]
+size = [640, 480]
+focal = [600.0, 600.0]
+principal = [320.0, 240.0]
+  [rig.cameras.rig_from_camera]
+  translation = [0.12, 0.0, 0.0]   # stereo baseline in metres
+
+[output]
+trajectory = "out/usb_stereo_tum.txt"
+timestamp_unit = "ns"

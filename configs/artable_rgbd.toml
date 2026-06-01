@@ -1,0 +1,51 @@
+# Paper benchmark: AR-table (Chen et al. 2023), Mono-Depth / RGBD mode.
+# Per the paper (Appendix A.1.3 / Table 5): Intel RealSense D455, RGB + aligned
+# depth at 848x480. Static masks of 24 px on each side and 10 px at the bottom
+# hide the unreliable depth edges. Sequences table_01 .. table_08 (seqs 3,4,5,8
+# have long depth dropouts; the paper segmented and merged those).
+#
+# This uses the generic image_folder source (rgb folder + aligned depth folder).
+# Set the globs, depth units and the D455 intrinsics to match your recording.
+
+[run]
+verbosity = 1
+
+[input]
+type = "image_folder"
+root = "datasets/artable/table_01"
+
+  [[input.cameras]]
+  images = "rgb/*.png"
+  depth  = "depth/*.png"           # aligned uint16 depth
+
+  [input.timestamps]
+  mode = "filename"                # or "file" with a times.txt, or "fps"
+  unit = "s"
+
+[odometry]
+odometry_mode = "RGBD"
+async_sba = true
+enable_final_landmarks_export = true
+  [odometry.rgbd]
+  depth_scale_factor = 1000.0      # D455 depth is millimetres
+  depth_camera_id = 0
+
+# RealSense D455 color intrinsics at 848x480 — replace with your device values.
+[[rig.cameras]]
+size = [848, 480]
+focal = [422.0, 422.0]
+principal = [424.0, 240.0]
+border_left = 24                   # paper masks: 24 px sides, 10 px bottom
+border_right = 24
+border_bottom = 10
+
+[output]
+trajectory = "out/artable_table01_tum.txt"
+timestamp_unit = "s"
+
+# AR-table ships ground truth; the paper reports ATE (cm) + rotation (deg).
+# [eval]
+# ground_truth = "groundtruth.txt"
+# gt_format = "tum"
+# align = "se3"
+# rpe_distances = [0.25, 0.5, 1, 2]

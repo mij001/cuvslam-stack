@@ -1,0 +1,22 @@
+# EuRoC MAV stereo-inertial odometry (OdometryMode.Inertial).
+# The euroc source reads cam0/cam1/imu0 sensor*.yaml and builds the rig + IMU
+# calibration automatically, and interleaves IMU samples with stereo frames.
+
+[run]
+verbosity = 1
+
+[input]
+type = "euroc"
+path = "../examples/euroc/dataset/mav0"
+use_imu = true
+
+[odometry]
+odometry_mode = "Inertial"
+rectified_stereo_camera = false      # EuRoC images are distorted (Brown/Fisheye)
+async_sba = false
+enable_final_landmarks_export = true
+
+[output]
+trajectory = "out/euroc_mh01_inertial_tum.txt"
+timestamp_unit = "ns"
+visualize = false

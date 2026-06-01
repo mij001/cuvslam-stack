@@ -1,0 +1,30 @@
+# Paper benchmark: R2B (NVIDIA proprietary real-world), Multi-Stereo mode.
+# 4 hardware-synchronized stereo cameras (8 images/frame). Produced by the Isaac
+# ROS edex extractor as a `frame_metadata.jsonl` manifest + `stereo.edex` rig.
+# This is the same data the repo's track_multicamera_r2b.py example uses.
+#
+# See examples/multicamera_edex/README.md (R2B Galileo) for obtaining the data.
+
+[run]
+verbosity = 1
+
+[input]
+type = "edex"
+edex = "datasets/r2b_galileo_edex/stereo.edex"
+layout = "jsonl"                       # frames listed in frame_metadata.jsonl
+data_root = "datasets/r2b_galileo_edex"
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = false        # R2B images are unrectified (distorted)
+enable_final_landmarks_export = true
+
+# Optional SLAM (the paper reports ~40% accuracy gain in Multi-Stereo SLAM):
+# [slam]
+# enabled = true
+# sync_mode = false
+
+[output]
+trajectory = "out/r2b_tum.txt"
+timestamp_unit = "ns"

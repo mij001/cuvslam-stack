@@ -1,0 +1,34 @@
+# Paper benchmark: TartanAir V2 (Wang et al. 2023), Multi-Stereo mode.
+# TartanAir V2 ships 6 stereo pairs (12 cameras). Convert a trajectory to the
+# EDEX layout with the repo tool `tools/tartanair_to_edex`, then this `edex`
+# source reads the rig from the .edex and the per-camera image folders — exactly
+# like the TartanGround config.
+#
+#   python tools/tartanair_to_edex/...  -> produces <seq>.edex + image_<cam>/ folders
+
+[run]
+verbosity = 1
+
+[input]
+type = "edex"
+edex = "datasets/tartanair_v2/<seq>/tartanair_v2.edex"
+layout = "folders"
+data_root = "datasets/tartanair_v2/<seq>"
+camera_names = [
+  "lcam_front", "rcam_front", "lcam_back",  "rcam_back",
+  "lcam_left",  "rcam_left",  "lcam_right", "rcam_right",
+  "lcam_top",   "rcam_top",   "lcam_bottom","rcam_bottom",
+]
+image_pattern = "{frame:06d}_{name}.png"
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+enable_final_landmarks_export = true
+
+[output]
+trajectory = "out/tartanair_v2_tum.txt"
+timestamp_unit = "ns"
+# TartanAir GT poses are per-camera NED text files; alignment-based eval needs a
+# frame conversion not wired here, so this config tracks (no [eval]).

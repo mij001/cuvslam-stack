@@ -1,0 +1,47 @@
+# TUM RGB-D monocular-depth odometry (OdometryMode.RGBD).
+# The tum source associates rgb.txt/depth.txt by timestamp and reads the single
+# camera intrinsics + depth scale from the rig yaml. Static border masks exclude
+# unreliable depth at the image edges.
+
+[run]
+verbosity = 1
+
+[input]
+type = "tum"
+path = "../examples/tum/dataset/rgbd_dataset_freiburg3_long_office_household"
+rig_yaml = "freiburg3_rig.yaml"
+max_time_diff = 0.02
+max_gap = 0.5
+
+[odometry]
+odometry_mode = "RGBD"
+async_sba = true
+enable_final_landmarks_export = true
+# depth_scale_factor is auto-filled from the rig yaml; override here if needed:
+#   [odometry.rgbd]
+#   depth_scale_factor = 5000.0
+#   depth_camera_id = 0
+#   enable_depth_stereo_tracking = false
+
+# Border masks (the tum source provides a 1-camera rig; we add masks via [rig]).
+[[rig.cameras]]
+size = [640, 480]
+focal = [535.4, 539.2]
+principal = [320.1, 247.6]
+border_top = 20
+border_bottom = 20
+border_left = 10
+border_right = 50
+
+[output]
+trajectory = "out/tum_fr3_rgbd_tum.txt"
+timestamp_unit = "s"
+visualize = false
+
+[eval]
+ground_truth = "groundtruth.txt"   # TUM RGB-D ships this (timestamp tx ty tz qx qy qz qw)
+gt_format = "tum"
+gt_time_unit = "s"
+align = "se3"
+rpe_distances = [0.25, 0.5, 1, 2]
+report = "out/tum_fr3_rgbd_eval.txt"

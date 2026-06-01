@@ -1,0 +1,40 @@
+# Oxford RobotCar — an "arbitrary" dataset driven through the generic
+# image_folder source (OdometryMode.Mono). RobotCar centre-camera frames are
+# stored as raw Bayer (GBRG) images, so we demosaic them on load.
+#
+# Download via the RobotCar SDK; point `images` at the centre camera frames.
+# Intrinsics below are the published centre-camera values — replace with the
+# exact model from the RobotCar `models/` directory for best accuracy. A static
+# bottom mask hides the car hood (see README robotcar example).
+
+[run]
+verbosity = 1
+
+[input]
+type = "image_folder"
+root = "datasets/robotcar/2014-05-19-13-20-57"
+
+  [[input.cameras]]
+  images = "stereo/centre/*.png"
+  bayer = "GBRG"                  # demosaic raw Bayer -> BGR
+
+  [input.timestamps]
+  mode = "filename"              # RobotCar filenames are UNIX microsecond stamps
+  unit = "us"
+
+[odometry]
+odometry_mode = "Mono"
+
+[[rig.cameras]]
+size = [1280, 960]
+focal = [964.828979, 964.828979]
+principal = [643.788025, 484.407990]
+border_bottom = 160              # mask the car hood at the bottom of the frame
+  [rig.cameras.distortion]
+  model = "Pinhole"
+  parameters = []
+
+[output]
+trajectory = "out/robotcar_mono_tum.txt"
+timestamp_unit = "us"
+visualize = false

@@ -1,0 +1,74 @@
+# Generic recorded stereo-inertial dataset via the image_folder source
+# (OdometryMode.Inertial). This shows how ANY dataset — images in folders plus
+# an IMU CSV — can drive inertial tracking without a dataset-specific loader.
+#
+# This particular config is wired to the EuRoC raw data so it runs as-is, but
+# the mechanism is generic: point the camera globs and [input.imu] at your own
+# files, and put your calibration in [rig].
+
+[run]
+verbosity = 1
+max_frames = 400
+
+[input]
+type = "image_folder"
+root = "examples/euroc/dataset/mav0"
+
+  [[input.cameras]]
+  images = "cam0/data/*.png"
+
+  [[input.cameras]]
+  images = "cam1/data/*.png"
+
+  [input.timestamps]
+  mode = "filename"            # EuRoC frames are named <timestamp_ns>.png
+  unit = "ns"
+
+  [input.imu]
+  path = "imu0/data.csv"
+  format = "euroc"             # timestamp[ns], wx,wy,wz, ax,ay,az  (header skipped)
+  # generic alternative:
+  #   format = "generic"
+  #   columns = ["timestamp", "gx","gy","gz", "ax","ay","az"]
+  #   timestamp_unit = "ns"
+  #   angular_unit = "rad"
+
+[odometry]
+odometry_mode = "Inertial"
+rectified_stereo_camera = false
+async_sba = false
+enable_final_landmarks_export = true
+
+# ---- calibration (cam0 is the rig origin) -------------------------------- #
+[[rig.cameras]]
+size = [752, 480]
+focal = [460.9855048, 459.6789259]
+principal = [366.0992347, 249.2215761]
+  [rig.cameras.distortion]
+  model = "Fisheye"
+  parameters = [-0.0062748193, 0.0290055197, -0.0343885601, 0.0148304345]
+
+[[rig.cameras]]
+size = [752, 480]
+focal = [459.5698303, 458.2095785]
+principal = [379.5888919, 255.9525259]
+  [rig.cameras.rig_from_camera]
+  rotation = [0.00706116, 0.00066964, 0.0010992, 0.99997424]
+  translation = [0.1099839, -0.0005322, 0.0004407]
+  [rig.cameras.distortion]
+  model = "Fisheye"
+  parameters = [0.0030523153, 0.0022729296, -0.0023088087, 0.0020314115]
+
+[rig.imu]
+gyroscope_noise_density = 0.00016968
+accelerometer_noise_density = 0.002
+gyroscope_random_walk = 1.9393e-05
+accelerometer_random_walk = 0.003
+frequency = 200.0
+  [rig.imu.rig_from_imu]
+  rotation = [0.00675372, -0.00746848, -0.7017791, 0.71232346]
+  translation = [0.0683705, -0.0158797, -0.0035799]
+
+[output]
+trajectory = "out/generic_inertial_tum.txt"
+timestamp_unit = "ns"
