@@ -1,9 +1,10 @@
 # cuVSLAM stack — umbrella project.
 #
 # Layout: the TOML runner lives at the repo root; NVIDIA cuVSLAM is a pinned git
-# submodule in cuvslam/ (release 15.0 @ efdfbe56), overlaid at build time with
-# the patches in patches/ (our Podman/CUDA-13 wheel tooling). This keeps the
-# submodule pristine and the build reproducible anywhere:
+# submodule in cuvslam_src/ (release 15.0 @ efdfbe56), overlaid at build time
+# with the patches in patches/ (our Podman/CUDA-13 wheel tooling). This keeps the
+# submodule pristine and the build reproducible anywhere. The submodule is named
+# cuvslam_src (not cuvslam) so it never shadows the installed `cuvslam` package.
 #
 #   make wheel   -> init submodule, apply patches, build the wheel (Podman)
 #   make verify  -> install the wheel (setup_env) and run a TOML config
@@ -12,10 +13,10 @@
 .DEFAULT_GOAL := help
 
 TOML := configs/kitti_eval.toml
-DIST := $(CURDIR)/cuvslam/dist
+DIST := $(CURDIR)/cuvslam_src/dist
 
 help:
-	@echo "make wheel   - init the cuvslam submodule, apply patches/, build the wheel (Podman, CUDA 13, py3.10)"
+	@echo "make wheel   - init the cuvslam_src submodule, apply patches/, build the wheel (Podman, CUDA 13, py3.10)"
 	@echo "make verify  - install the built wheel via setup_env and run $(TOML)"
 	@echo "make check   - install the built wheel and validate $(TOML)"
 	@echo "make clean   - remove the runner venv"
@@ -24,17 +25,17 @@ help:
 
 # Fetch the pinned cuVSLAM source.
 init:
-	git submodule update --init cuvslam
+	git submodule update --init cuvslam_src
 
 # Idempotently overlay the build tooling onto the pinned submodule.
 patch: init
-	@if [ ! -f cuvslam/build_wheel.sh ]; then \
-	  ( cd cuvslam && git apply ../patches/*.patch ) && chmod +x cuvslam/build_wheel.sh && echo "patches applied"; \
+	@if [ ! -f cuvslam_src/build_wheel.sh ]; then \
+	  ( cd cuvslam_src && git apply ../patches/*.patch ) && chmod +x cuvslam_src/build_wheel.sh && echo "patches applied"; \
 	else echo "patches already applied"; fi
 
-# Build libcuvslam (cmake) + the scikit-build-core wheel -> cuvslam/dist/.
+# Build libcuvslam (cmake) + the scikit-build-core wheel -> cuvslam_src/dist/.
 wheel: patch
-	cd cuvslam && ./build_wheel.sh
+	cd cuvslam_src && ./build_wheel.sh
 
 # Install the freshly built wheel into the runner venv and run a config.
 verify:
@@ -48,8 +49,8 @@ check:
 clean:
 	./cleanup_env.sh
 
-# Revert cuvslam/ to the pristine pinned commit (drops the overlay + build output).
+# Revert cuvslam_src/ to the pristine pinned commit (drops the overlay + build output).
 unpatch:
-	-cd cuvslam && git checkout -- . && git clean -fdq
+	-cd cuvslam_src && git checkout -- . && git clean -fdq
 
 all: wheel verify

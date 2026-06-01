@@ -1,5 +1,5 @@
 [submodule "cuvslam"]
-	path = cuvslam
+	path = cuvslam_src
 	url = https://github.com/nvidia-isaac/cuVSLAM.git
 	# Pinned to release 15.0 (efdfbe56). The build overlays patches/ onto it, so
 	# ignore the resulting worktree dirt in `git status` of the superproject.

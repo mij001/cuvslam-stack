@@ -9,7 +9,8 @@
 # Environment overrides:
 #   PYBIN=python3.10     interpreter used to create the venv (must match the wheel)
 #   VENV=/path           venv location (default: ./cuvslam_venv)
-#   WHEEL=/path/...whl   explicit wheel (default: newest ../dist/cuvslam-*.whl)
+#   WHEEL=/path/...whl   explicit wheel (default: newest cuvslam wheel found in
+#                        cuvslam_src/dist, dist, or ../dist)
 #
 set -euo pipefail
 
@@ -18,7 +19,9 @@ cd "$HERE"
 
 PYBIN="${PYBIN:-python3.10}"
 VENV="${VENV:-$HERE/cuvslam_venv}"
-WHEEL="${WHEEL:-$(ls -t "$HERE"/../dist/cuvslam-*.whl 2>/dev/null | head -1 || true)}"
+# Search the umbrella build output (cuvslam_src/dist) first, then local dist, then
+# the sibling dist of the standalone runner layout.
+WHEEL="${WHEEL:-$(ls -t "$HERE"/cuvslam_src/dist/cuvslam-*.whl "$HERE"/dist/cuvslam-*.whl "$HERE"/../dist/cuvslam-*.whl 2>/dev/null | head -1 || true)}"
 
 # Echo each command before running it (so every executed command is visible).
 run() { echo "+ $*"; "$@"; }

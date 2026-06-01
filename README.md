@@ -6,14 +6,16 @@ single-TOML **runner**. The main project is *not* the runner — it ties togethe
 ```
 cuvslam-stack/                 (this repo — the main project)
 ├── cuvslam_runner/ run.py configs/ setup_env.sh ...   the TOML runner (at the root)
-├── cuvslam/                   git submodule -> nvidia-isaac/cuVSLAM @ efdfbe56 (release 15.0)
+├── cuvslam_src/               git submodule -> nvidia-isaac/cuVSLAM @ efdfbe56 (release 15.0)
 ├── patches/                   our build tooling, applied onto the pristine submodule
 └── Makefile                   build the wheel + verify, reproducibly
 ```
 
-The `cuvslam/` submodule is pinned to upstream commit `efdfbe56` and kept
+The `cuvslam_src/` submodule is pinned to upstream commit `efdfbe56` and kept
 **pristine**; the Podman/CUDA-13 wheel tooling lives in `patches/` and is applied
-at build time (`git apply`). So a clean clone reproduces the exact wheel anywhere:
+at build time (`git apply`). (It is named `cuvslam_src`, not `cuvslam`, so the
+source directory never shadows the installed `cuvslam` Python package.) So a clean
+clone reproduces the exact wheel anywhere:
 
 ```bash
 git clone --recurse-submodules <this-repo> && cd cuvslam-stack
@@ -23,7 +25,7 @@ make verify    # install that wheel via setup_env.sh and run configs/kitti_eval.
 ```
 
 `make` targets: `wheel`, `verify`, `check`, `clean`, `unpatch`, `all`. The wheel
-lands in `cuvslam/dist/`; `verify` passes it to the runner's `setup_env.sh`.
+lands in `cuvslam_src/dist/`; `verify` passes it to the runner's `setup_env.sh`.
 
 The rest of this README documents the runner itself.
 
