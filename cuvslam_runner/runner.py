@@ -243,6 +243,7 @@ def run(config: Config) -> dict:
             result = _run_eval(config, est_ts, est_tr, est_qt)
             summary["ate_rmse_m"] = round(result.ate["rmse"], 5)
             summary["avg_rte_pct"] = round(result.rpe["avg_trans_pct"], 4)
+            summary["rpe_rot_deg_per_m"] = round(result.rpe["avg_rot_deg_per_m"], 6)
             summary["avg_re_deg"] = round(result.rpe["avg_rot_deg"], 4)
             if result.rpe_delta is not None:
                 summary["rpe_delta_t_m"] = round(result.rpe_delta["trans_rmse_m"], 4)
