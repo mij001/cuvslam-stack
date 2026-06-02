@@ -21,3 +21,11 @@ rectified_stereo_camera = false
 trajectory = "out/euroc_mh01_mono_tum.txt"
 timestamp_unit = "ns"
 visualize = false
+
+[eval]
+ground_truth = "state_groundtruth_estimate0/data.csv"
+gt_format = "euroc"
+align = "sim3"                     # Mono is up-to-scale -> similarity (scale-correcting) alignment
+apply_gt_extrinsic = "auto"
+rpe_distances = [8, 16, 32]
+report = "out/euroc_mh01_mono_eval.txt"

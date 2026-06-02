@@ -73,3 +73,36 @@ are intentionally not included.
 Multi-stereo GT (TartanAir/TartanGround) uses per-camera NED pose files; a
 frame-converting GT loader isn't wired, so those configs track without `[eval]`.
 EuRoC/TUM/KITTI GT formats are fully supported for ATE/RPE.
+
+## Reproducing the paper's metrics (and why naive numbers look off)
+
+The runner reports the paper's three metrics — `avgRTE %`, `avgRE deg`,
+`RMSE APE` — but two methodology choices matter, and getting them wrong makes
+results look far worse than the paper:
+
+1. **RPE segment length (avgRTE/avgRE).** The paper uses the **Geiger/KITTI**
+   relative-error metric over **100–800 m** segments (Appendix Fig 10). avgRTE is
+   `translation_error / segment_length`, so **short segments inflate it** — at
+   1 m a few-cm error is several percent, at 100–800 m the same drift is <1%.
+   Early configs used 1–16 m segments and so reported ~5 % instead of <1 %.
+   Use `rpe_distances = "kitti"` for KITTI-scale data; for short trajectories the
+   absolute avgRTE depends on the chosen segment length and is **not** directly
+   comparable to the paper's cross-dataset Table 2 value.
+2. **RMSE APE alignment.** The paper aligns **with scale correction** (Sim(3) /
+   evo `--correct_scale`). For metric modes the difference is small; for `Mono`
+   it is required. Use `align = "sim3"` (or `auto`, which picks sim3 for Mono).
+
+**Verified — KITTI seq06, SLAM, against the official GT poses:**
+
+| Metric | Paper (KITTI) | This runner (seq06) |
+|---|---|---|
+| avgRTE | 0.85 % (Fig 10, seq 00–10 avg) | **0.77 %** |
+| RPE rotation | 0.0025 deg/m (Fig 10) | **0.0027 deg/m** |
+| RMSE APE | 1.98 (Table 2, seq avg, scale-corrected) | **1.08 m** (sim3) / 1.17 m (se3) |
+
+seq06 is an easy loop, so being a touch better than the multi-sequence average is
+expected — there is no accuracy regression. KITTI GT poses are associated **by
+frame index** (they are 1:1 with frames), independent of the estimate's timestamps.
+
+For evo users, convert the KITTI GT to TUM first (`kitti_poses_to_tum.py`), then
+`evo_ape tum gt_tum.txt est.txt -a --correct_scale` reproduces the same APE.

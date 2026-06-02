@@ -72,3 +72,10 @@ frequency = 200.0
 [output]
 trajectory = "out/generic_inertial_tum.txt"
 timestamp_unit = "ns"
+
+[eval]
+ground_truth = "state_groundtruth_estimate0/data.csv"
+gt_format = "euroc"
+align = "se3"
+rpe_distances = [8, 16, 32]
+report = "out/generic_inertial_eval.txt"

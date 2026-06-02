@@ -284,6 +284,7 @@ def _run_eval(config: Config, ts: List[int], tr: List[list], qt: List[list]):
         align=align,
         max_diff_ns=int(spec.max_time_diff * 1e9),
         rpe_distances=spec.rpe_distances,
+        index_assoc=(spec.gt_format == "kitti"),  # KITTI GT is 1:1 with frames
     )
     report = ev.format_report(result, title=os.path.basename(gt_path))
     print("\n" + report + "\n")

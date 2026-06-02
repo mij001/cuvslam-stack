@@ -29,5 +29,5 @@ gt_format = "euroc"
 align = "se3"                          # rigid alignment (stereo has metric scale)
 apply_gt_extrinsic = "auto"            # move GT body frame -> cam0 frame
 max_time_diff = 0.02
-rpe_distances = [1, 2, 4, 8, 16]       # metres (EuRoC trajectories are short)
+rpe_distances = [8, 16, 32]            # larger segments avoid short-baseline inflation
 report = "out/euroc_v1_01_eval.txt"

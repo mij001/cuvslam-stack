@@ -39,5 +39,5 @@ ground_truth = "livingRoom0.gt.freiburg"   # TUM-format GT shipped with the sequ
 gt_format = "tum"
 gt_time_unit = "s"
 align = "se3"
-rpe_distances = [0.25, 0.5, 1, 2]
+rpe_distances = [1, 2, 4]
 report = "out/iclnuim_lr0_eval.txt"

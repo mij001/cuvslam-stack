@@ -45,3 +45,10 @@ principal = [607.1928, 185.2157]
 trajectory = "out/kitti_06_trajectory.txt"
 timestamp_unit = "s"
 visualize = false
+
+[eval]
+ground_truth = "../examples/kitti/dataset/poses/06.txt"   # KITTI GT poses (separate download)
+gt_format = "kitti"
+align = "se3"
+rpe_distances = "kitti"            # 100-800 m segments (matches the paper / KITTI leaderboard)
+report = "out/kitti_06_stereo_eval.txt"

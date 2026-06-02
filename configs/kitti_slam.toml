@@ -48,4 +48,13 @@ principal = [601.8873, 183.1104]
 trajectory = "out/kitti_06_slam_tum.txt"
 pose_source = "slam"
 save_map = "out/kitti_06_map"
-visualize = true
+visualize = false
+
+[eval]
+ground_truth = "../cuvslam_datasets/dataset/poses/06.txt"   # KITTI GT poses (separate download)
+gt_format = "kitti"
+gt_fps = 10.0                       # KITTI is ~10 Hz; index-timed GT
+align = "se3"
+rpe_distances = "kitti"             # 100,200,...,800 m segments (leaderboard method)
+report = "out/kitti_06_eval.txt"
+

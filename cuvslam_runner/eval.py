@@ -263,8 +263,16 @@ class EvalResult:
 def evaluate(est: Trajectory, gt: Trajectory, *,
              align: str = "se3",
              max_diff_ns: int = 20_000_000,
-             rpe_distances: Optional[List[float]] = None) -> EvalResult:
-    ei, gi = associate(est, gt, max_diff_ns)
+             rpe_distances: Optional[List[float]] = None,
+             index_assoc: bool = False) -> EvalResult:
+    if index_assoc:
+        # KITTI-style: GT poses are 1:1 with frames, so pair by index rather than
+        # by (possibly mismatched) timestamps.
+        n = min(len(est.poses), len(gt.poses))
+        ei = np.arange(n)
+        gi = np.arange(n)
+    else:
+        ei, gi = associate(est, gt, max_diff_ns)
     if len(ei) < 3:
         raise ValueError(
             f"Only {len(ei)} GT/estimate matches within "
@@ -296,6 +304,8 @@ def evaluate(est: Trajectory, gt: Trajectory, *,
     res.ape_full_rmse = float(np.sqrt(np.mean(ape_full ** 2)))
     res.traj_length_m = float(_path_lengths(gt_xyz)[-1])
 
+    if rpe_distances == "kitti":
+        rpe_distances = [100, 200, 300, 400, 500, 600, 700, 800]
     if rpe_distances is None:
         L = res.traj_length_m
         rpe_distances = [d for d in (1, 2, 4, 8, 16, 32, 64) if d < L] or [max(L / 4, 0.1)]

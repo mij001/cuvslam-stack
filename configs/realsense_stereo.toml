@@ -24,3 +24,11 @@ async_sba = false
 trajectory = "out/realsense_stereo_tum.txt"
 timestamp_unit = "ns"
 visualize = true              # live viz via rerun (if installed)
+
+# No public ground truth is wired for this source. Add [eval] once you have a GT
+# trajectory in a supported format (gt_format = euroc | tum | kitti). Example:
+# [eval]
+# ground_truth = "groundtruth.txt"
+# gt_format = "tum"
+# align = "se3"                # use "sim3" for Mono (up-to-scale)
+# rpe_distances = [1, 2, 4]    # for KITTI-scale data use rpe_distances = "kitti"

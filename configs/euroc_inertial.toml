@@ -20,3 +20,11 @@ enable_final_landmarks_export = true
 trajectory = "out/euroc_mh01_inertial_tum.txt"
 timestamp_unit = "ns"
 visualize = false
+
+[eval]
+ground_truth = "state_groundtruth_estimate0/data.csv"
+gt_format = "euroc"
+align = "se3"
+apply_gt_extrinsic = "auto"
+rpe_distances = [8, 16, 32]
+report = "out/euroc_mh01_inertial_eval.txt"

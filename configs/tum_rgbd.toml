@@ -43,5 +43,5 @@ ground_truth = "groundtruth.txt"   # TUM RGB-D ships this (timestamp tx ty tz qx
 gt_format = "tum"
 gt_time_unit = "s"
 align = "se3"
-rpe_distances = [0.25, 0.5, 1, 2]
+rpe_distances = [1, 2, 4]
 report = "out/tum_fr3_rgbd_eval.txt"

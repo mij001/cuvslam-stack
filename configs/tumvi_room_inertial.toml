@@ -79,5 +79,5 @@ ground_truth = "mocap0/data.csv"   # TUM-VI mocap, EuRoC column order
 gt_format = "euroc"
 align = "se3"
 apply_gt_extrinsic = "none"        # mocap frame; rigid alignment handles the offset
-rpe_distances = [1, 2, 4, 8]       # note: paper reports RMSE RPE over 1-second segments
+rpe_distances = [2, 4, 8]          # paper reports RMSE RPE over 1-second segments
 report = "out/tumvi_room1_eval.txt"

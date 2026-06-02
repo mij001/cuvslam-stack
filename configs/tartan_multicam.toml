@@ -26,3 +26,11 @@ enable_final_landmarks_export = true
 trajectory = "out/tartan_multicam_tum.txt"
 timestamp_unit = "ns"
 visualize = false
+
+# No public ground truth is wired for this source. Add [eval] once you have a GT
+# trajectory in a supported format (gt_format = euroc | tum | kitti). Example:
+# [eval]
+# ground_truth = "groundtruth.txt"
+# gt_format = "tum"
+# align = "se3"                # use "sim3" for Mono (up-to-scale)
+# rpe_distances = [1, 2, 4]    # for KITTI-scale data use rpe_distances = "kitti"
