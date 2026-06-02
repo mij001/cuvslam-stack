@@ -23,9 +23,11 @@ help:
 	@echo "make unpatch - revert the submodule overlay back to pristine efdfbe56"
 	@echo "make all     - wheel + verify"
 
-# Fetch the pinned cuVSLAM source.
+# Fetch the pinned cuVSLAM source. Skip LFS smudge -- the build needs only the
+# source (libs/, python/, CMake), not the example media stored in Git LFS, and
+# pulling LFS blobs is slow and can stall on a fresh clone.
 init:
-	git submodule update --init cuvslam_src
+	GIT_LFS_SKIP_SMUDGE=1 git submodule update --init cuvslam_src
 
 # Idempotently overlay the build tooling onto the pinned submodule.
 patch: init

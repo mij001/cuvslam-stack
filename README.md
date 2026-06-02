@@ -18,11 +18,15 @@ source directory never shadows the installed `cuvslam` Python package.) So a cle
 clone reproduces the exact wheel anywhere:
 
 ```bash
-git clone --recurse-submodules <this-repo> && cd cuvslam-stack
-make wheel     # init submodule -> apply patches -> build the cuVSLAM wheel (Podman, Python 3.10, CUDA 13)
+git clone https://github.com/mij001/cuvslam-stack && cd cuvslam-stack
+make wheel     # fetch the pinned cuVSLAM submodule -> apply patches -> build the wheel (Podman, Python 3.10, CUDA 13)
 make verify    # install that wheel via setup_env.sh and run configs/kitti_eval.toml
-# (already cloned without submodules? run: git submodule update --init cuvslam)
 ```
+
+`make wheel` runs `git submodule update --init` for you (with `GIT_LFS_SKIP_SMUDGE=1`,
+since the build needs only the source, not the LFS-stored example media). Don't
+`git clone --recurse-submodules` — that pulls the upstream LFS assets and is slow;
+let `make` fetch the submodule instead (or `GIT_LFS_SKIP_SMUDGE=1 git submodule update --init cuvslam_src`).
 
 `make` targets: `wheel`, `verify`, `check`, `clean`, `unpatch`, `all`. The wheel
 lands in `cuvslam_src/dist/`; `verify` passes it to the runner's `setup_env.sh`.
