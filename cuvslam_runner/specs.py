@@ -138,6 +138,10 @@ class RunSpec:
 class OutputSpec:
     trajectory: str = ""             # path to TUM-format trajectory file ("" = none)
     pose_source: str = "auto"        # auto | odometry | slam
+    # For SLAM: "optimized" rewrites the trajectory from the final pose graph
+    # (get_all_slam_poses) -- smooth, no loop-closure jumps; this is what the paper
+    # evaluates. "online" keeps the per-frame track() poses (real-time, with jumps).
+    slam_pose_mode: str = "optimized"  # optimized | online
     timestamp_unit: str = "s"        # unit for the trajectory timestamp column
     save_map: str = ""               # folder to save SLAM map ("" = none)
     visualize: bool = False          # enable rerun visualization if installed

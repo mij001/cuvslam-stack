@@ -302,18 +302,21 @@ def _parse_output(table: Optional[dict]) -> OutputSpec:
         return spec
     _check_keys(
         table,
-        {"trajectory", "pose_source", "timestamp_unit", "save_map",
-         "visualize", "print_every"},
+        {"trajectory", "pose_source", "slam_pose_mode", "timestamp_unit",
+         "save_map", "visualize", "print_every"},
         "output",
     )
     spec.trajectory = str(table.get("trajectory", ""))
     spec.pose_source = str(table.get("pose_source", "auto"))
+    spec.slam_pose_mode = str(table.get("slam_pose_mode", "optimized"))
     spec.timestamp_unit = str(table.get("timestamp_unit", "s"))
     spec.save_map = str(table.get("save_map", ""))
     spec.visualize = bool(table.get("visualize", False))
     spec.print_every = int(table.get("print_every", 50))
     if spec.pose_source not in ("auto", "odometry", "slam"):
         raise ConfigError("[output].pose_source must be auto|odometry|slam")
+    if spec.slam_pose_mode not in ("optimized", "online"):
+        raise ConfigError("[output].slam_pose_mode must be optimized|online")
     if spec.timestamp_unit not in ("s", "ms", "us", "ns"):
         raise ConfigError("[output].timestamp_unit must be s|ms|us|ns")
     return spec

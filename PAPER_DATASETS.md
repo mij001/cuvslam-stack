@@ -125,3 +125,36 @@ and `evo_rpe --delta 10 --delta_unit f --all_pairs` (identical to 4 dp); the
 matching pairs). evo has no "seconds" unit, so `unit="s"` is a timestamp-based
 extension (correct under variable frame rate) that equals the frame count at the
 nominal fps.
+
+## Reproducing the paper exactly — checklist
+
+To match the report's procedure (not just "a number"), four things must line up.
+The first was a real deviation and is now fixed; the others are settings.
+
+1. **SLAM trajectory = the optimized pose graph.** The paper evaluates the
+   smoothed `get_all_slam_poses()` trajectory, *not* the per-frame `track()`
+   poses (which jump at loop closures). The runner now does this by default
+   (`[output] slam_pose_mode = "optimized"`); set `"online"` only if you want the
+   real-time, jumpy poses. Effect on KITTI seq06 SLAM: ATE 1.17 m -> 0.89 m,
+   avgRTE 0.77 % -> 0.55 %.
+2. **Same cuVSLAM build.** Use the wheel from this repo's pinned submodule
+   (release 15.0 @ efdfbe56) via `make wheel`.
+3. **Same metric definitions.**
+   * RMSE APE — align **with scale correction**: `[eval] align = "sim3"` (or evo
+     `-a --correct_scale`).
+   * avgRTE / avgRE — KITTI 100-800 m segments: `rpe_distances = "kitti"`
+     (reproduces Fig 10). For the short-trajectory datasets the report's
+     "RMSE RPE over 1 s" is `rpe_delta = 1`, `rpe_delta_unit = "s"`.
+4. **All sequences, then average.** Table 2/Fig 10 KITTI is the mean over
+   sequences **00-10**; a single sequence (e.g. seq06, an easy loop) will be
+   better than the average. Run each sequence and average the per-sequence
+   metrics. Likewise EuRoC/TUM use the specific sequence subsets in Appendix A.
+
+**Honest limits.** A single-sequence result is not the paper's multi-sequence
+average. And Table 2's "avgRTE without segmentation" is computed by an
+unpublished script whose exact normalisation I could not recover; the two
+well-defined conventions it could be (KITTI 100-800 m segments, and TUM
+fixed-delta RPE) are both implemented and cross-checked against evo, so report
+whichever matches the specific table/figure you are comparing to. The
+**RMSE APE (scale-corrected)** is unambiguous and is the most reliable number to
+compare.

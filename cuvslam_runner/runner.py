@@ -205,6 +205,25 @@ def run(config: Config) -> dict:
     finally:
         source.close()
 
+    # SLAM: replace the online (jumpy) per-frame poses with the optimized pose
+    # graph (get_all_slam_poses) -- the smooth trajectory the paper evaluates.
+    if (config.slam.enabled and pose_source == "slam"
+            and config.output.slam_pose_mode == "optimized"):
+        optimized = tracker.get_all_slam_poses()  # List[PoseStamped], pose-graph-corrected
+        if optimized:
+            print(f"[runner] using {len(optimized)} optimized SLAM poses "
+                  f"(get_all_slam_poses); online frames tracked: {frames_tracked}")
+            if writer is not None:
+                writer = TrajectoryWriter(config.output.trajectory, config.output.timestamp_unit)
+                for ps in optimized:
+                    writer.add(ps.timestamp_ns, ps.pose.translation, ps.pose.rotation)
+            if collect_eval:
+                est_ts = [int(ps.timestamp_ns) for ps in optimized]
+                est_tr = [list(ps.pose.translation) for ps in optimized]
+                est_qt = [list(ps.pose.rotation) for ps in optimized]
+        else:
+            print("[runner] get_all_slam_poses returned nothing; keeping online SLAM poses")
+
     if writer is not None and len(writer):
         writer.save()
         print(f"[runner] wrote {len(writer)} poses to {config.output.trajectory}")
