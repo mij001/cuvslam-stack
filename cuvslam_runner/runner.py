@@ -225,6 +225,9 @@ def run(config: Config) -> dict:
             summary["ate_rmse_m"] = round(result.ate["rmse"], 5)
             summary["avg_rte_pct"] = round(result.rpe["avg_trans_pct"], 4)
             summary["avg_re_deg"] = round(result.rpe["avg_rot_deg"], 4)
+            if result.rpe_delta is not None:
+                summary["rpe_delta_t_m"] = round(result.rpe_delta["trans_rmse_m"], 4)
+                summary["rpe_delta_r_deg"] = round(result.rpe_delta["rot_rmse_deg"], 4)
         except Exception as exc:  # noqa: BLE001 - evaluation must not crash a run
             print(f"[eval] evaluation failed: {exc}")
 
@@ -285,6 +288,9 @@ def _run_eval(config: Config, ts: List[int], tr: List[list], qt: List[list]):
         max_diff_ns=int(spec.max_time_diff * 1e9),
         rpe_distances=spec.rpe_distances,
         index_assoc=(spec.gt_format == "kitti"),  # KITTI GT is 1:1 with frames
+        rpe_delta_value=spec.rpe_delta,           # optional TUM fixed-delta RPE
+        rpe_delta_unit=spec.rpe_delta_unit,
+        rpe_all_pairs=spec.rpe_all_pairs,
     )
     report = ev.format_report(result, title=os.path.basename(gt_path))
     print("\n" + report + "\n")

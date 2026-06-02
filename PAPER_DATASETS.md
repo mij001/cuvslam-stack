@@ -106,3 +106,22 @@ frame index** (they are 1:1 with frames), independent of the estimate's timestam
 
 For evo users, convert the KITTI GT to TUM first (`kitti_poses_to_tum.py`), then
 `evo_ape tum gt_tum.txt est.txt -a --correct_scale` reproduces the same APE.
+
+### Two RPE flavours in `[eval]` (and the evo cross-check)
+
+The runner now computes **both** relative-error conventions, so each dataset can
+use the one the paper used:
+
+* **Distance-segment RPE** (`rpe_distances`, KITTI/Geiger) — `avgRTE %`,
+  `deg/m`. Use `"kitti"` (100–800 m) for KITTI-scale data; reproduces Fig 10.
+* **Fixed-delta RPE** (`rpe_delta` + `rpe_delta_unit = s|f|m`, TUM/Sturm) —
+  reported as **RMSE in metres / degrees** over a fixed delta, e.g. the paper's
+  TUM-VI "RMSE RPE over 1 second": `rpe_delta = 1`, `rpe_delta_unit = "s"`.
+
+`cuvslam_runner/eval.py:rpe_delta` is numerically cross-checked against `evo_rpe`:
+on KITTI seq06 the 10-frame RMSE is **0.3233 m / 0.1976 deg** from both this code
+and `evo_rpe --delta 10 --delta_unit f --all_pairs` (identical to 4 dp); the
+100 m all-pairs RMSE agrees to ~0.7 % (evo applies a small delta tolerance when
+matching pairs). evo has no "seconds" unit, so `unit="s"` is a timestamp-based
+extension (correct under variable frame rate) that equals the frame count at the
+nominal fps.

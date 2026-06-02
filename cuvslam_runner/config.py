@@ -240,7 +240,8 @@ def _parse_eval(table: Optional[dict]) -> EvalSpec:
     _check_keys(
         table,
         {"enabled", "ground_truth", "gt_format", "gt_time_unit", "gt_fps",
-         "align", "apply_gt_extrinsic", "max_time_diff", "rpe_distances", "report"},
+         "align", "apply_gt_extrinsic", "max_time_diff", "rpe_distances",
+         "rpe_delta", "rpe_delta_unit", "rpe_all_pairs", "report"},
         "eval",
     )
     spec.enabled = bool(table.get("enabled", True))
@@ -266,6 +267,12 @@ def _parse_eval(table: Optional[dict]) -> EvalSpec:
             spec.rpe_distances = [100, 200, 300, 400, 500, 600, 700, 800]
         else:
             spec.rpe_distances = [float(x) for x in rd]
+    if "rpe_delta" in table:
+        spec.rpe_delta = float(table["rpe_delta"])
+    spec.rpe_delta_unit = str(table.get("rpe_delta_unit", "s"))
+    if spec.rpe_delta_unit not in ("s", "f", "m"):
+        raise ConfigError("[eval].rpe_delta_unit must be s|f|m")
+    spec.rpe_all_pairs = bool(table.get("rpe_all_pairs", True))
     spec.report = str(table.get("report", ""))
     if spec.enabled and not spec.ground_truth:
         raise ConfigError("[eval] is enabled but no 'ground_truth' path was given.")

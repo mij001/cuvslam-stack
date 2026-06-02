@@ -33,7 +33,13 @@ def main(argv=None) -> int:
                    help="apply this cam0 sensor.yaml T_BS to move EuRoC GT into the cam0 frame")
     p.add_argument("--max-time-diff", type=float, default=0.02, help="association window (s)")
     p.add_argument("--rpe-distances", default="",
-                   help='comma-separated metres, or "kitti" for 100..800; empty=auto')
+                   help='KITTI distance-segment RPE: comma-separated metres, or "kitti" for 100..800; empty=auto')
+    p.add_argument("--rpe-delta", type=float, default=None,
+                   help="also report TUM fixed-delta RPE over this delta (e.g. 1)")
+    p.add_argument("--rpe-delta-unit", default="s", choices=["s", "f", "m"],
+                   help="unit for --rpe-delta: s=seconds, f=frames, m=metres (default s)")
+    p.add_argument("--rpe-non-overlapping", action="store_true",
+                   help="use non-overlapping delta pairs instead of evo's --all_pairs")
     p.add_argument("--report", default="", help="optional path to write the report")
     args = p.parse_args(argv)
 
@@ -57,7 +63,11 @@ def main(argv=None) -> int:
 
     result = ev.evaluate(est, gt, align=args.align,
                          max_diff_ns=int(args.max_time_diff * 1e9),
-                         rpe_distances=rpe_distances)
+                         rpe_distances=rpe_distances,
+                         index_assoc=(args.gt_format == "kitti"),
+                         rpe_delta_value=args.rpe_delta,
+                         rpe_delta_unit=args.rpe_delta_unit,
+                         rpe_all_pairs=not args.rpe_non_overlapping)
     report = ev.format_report(result, title=os.path.basename(args.ground_truth))
     print(report)
     if args.report:

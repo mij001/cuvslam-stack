@@ -155,7 +155,12 @@ class EvalSpec:
     align: str = "auto"             # auto | se3 | sim3 | none  (auto: sim3 for Mono)
     apply_gt_extrinsic: str = "auto"  # auto | euroc_cam0 | none
     max_time_diff: float = 0.02      # s, association window
-    rpe_distances: Optional[List[float]] = None  # metres; None = auto, "kitti" handled in parser
+    rpe_distances: Optional[List[float]] = None  # KITTI distance-segment RPE: metres; None=auto, "kitti" handled in parser
+    # Optional TUM-style fixed-delta RPE (Sturm 2012 / evo_rpe), e.g. the paper's
+    # TUM-VI "RMSE RPE over 1 second": rpe_delta=1, rpe_delta_unit="s".
+    rpe_delta: Optional[float] = None        # None disables it
+    rpe_delta_unit: str = "s"                # s (seconds) | f (frames) | m (metres)
+    rpe_all_pairs: bool = True               # all overlapping pairs (evo --all_pairs) vs non-overlapping
     report: str = ""                 # optional path to write the report text
 
 

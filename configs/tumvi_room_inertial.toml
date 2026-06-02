@@ -81,3 +81,5 @@ align = "se3"
 apply_gt_extrinsic = "none"        # mocap frame; rigid alignment handles the offset
 rpe_distances = [2, 4, 8]          # paper reports RMSE RPE over 1-second segments
 report = "out/tumvi_room1_eval.txt"
+rpe_delta = 1                      # TUM-style RPE over a 1-second delta (Sturm 2012 / evo_rpe), matches
+rpe_delta_unit = "s"               # the paper TUM-VI "RMSE RPE over 1 second"; reported as m / deg RMSE

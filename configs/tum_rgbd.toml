@@ -45,3 +45,5 @@ gt_time_unit = "s"
 align = "se3"
 rpe_distances = [1, 2, 4]
 report = "out/tum_fr3_rgbd_eval.txt"
+rpe_delta = 1                      # TUM-style RPE over a 1-second delta (Sturm 2012 / evo_rpe), matches
+rpe_delta_unit = "s"               # the paper TUM-VI "RMSE RPE over 1 second"; reported as m / deg RMSE
