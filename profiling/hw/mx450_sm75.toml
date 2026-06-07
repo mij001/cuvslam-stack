@@ -1,0 +1,58 @@
+# Hardware descriptor — NVIDIA GeForce MX450 (this development laptop)
+#
+# Structural values below were read from the CUDA runtime (cudaGetDeviceProperties)
+# and nvidia-smi on this box; clocks/bandwidth flagged `verify` should be confirmed
+# with the Empirical Roofline Toolkit (ERT) before appearing in any published number.
+#
+# Role: PROTOTYPE / development target. Small caches + low bandwidth make memory
+# bottlenecks MORE visible (good for finding PiM-favourable behaviour), but 2 GB
+# VRAM caps the input resolution / frame window cuVSLAM can run.
+
+[device]
+name         = "NVIDIA GeForce MX450"
+arch         = "Turing"
+compute_cap  = "7.5"          # sm_75
+sms          = 14
+cuda_cores   = 896            # 14 SM x 64 FP32 lanes (Turing)
+role         = "prototype"
+
+[memory]
+l2_bytes              = 524288     # 512 KiB  (measured) — note: much smaller than the Ada's 12 MB
+l1_shared_per_sm_bytes = 65536     # 64 KiB unified L1/shared per SM (measured)
+vram_bytes            = 2147483648 # 2 GiB nominal (runtime reports ~1691 MiB usable)
+dram_bus_bits         = 64         # measured
+dram_gbps_theoretical = 80.0       # verify: 64-bit GDDR6; nvidia-smi max mem clock 3501 MHz implies up to ~112 GB/s
+dram_gbps_measured    = 0.0        # TODO: fill from ERT
+ecc                   = false      # measured (MX450 has no ECC)
+
+[compute]
+fp32_tflops_theoretical = 3.8      # verify: 896 lanes x 2 (FMA) x ~2.1 GHz boost
+clock_max_graphics_mhz  = 2100     # nvidia-smi clocks.max.graphics
+clock_max_memory_mhz    = 3501     # nvidia-smi clocks.max.memory
+
+# Reuse-distance / roofline crossover thresholds derived from the cache sizes above.
+# (cite these as THIS hardware's, not generic.)
+[roofline]
+l1_fits_below_bytes  = 65536       # < 64 KiB  -> fits in L1
+l2_fits_below_bytes  = 524288      # < 512 KiB -> fits in L2
+dram_above_bytes     = 524288      # > 512 KiB -> DRAM access
+
+[run]
+# Laptop GPU: clock locking is generally NOT supported (nvidia-smi -lgc fails).
+# Record the (variable) clocks per run in metadata.json instead of enforcing them.
+enforce_clock_locks = false
+persistence_mode    = true
+cpu_governor        = "performance"
+
+[accelsim]
+# Turing sm_75 IS a natively validated Accel-Sim config — convenient for prototyping
+# the (currently driver-blocked) simulation track once NVBit is usable here.
+base_config = "SM75_RTX2060"
+note        = "closest stock config; adjust SM=14, L2=512KiB, 64-bit bus"
+
+[notes]
+text = """
+Driver 610.43.02 / CUDA 13.2. ncu 2026.2 + nsys 2026.1 work here. NVBit does NOT
+(its release caps CUDA driver <= 575). This descriptor is for nsys/ncu prototyping;
+real characterization numbers come from the RTX 2000 Ada workstation.
+"""

@@ -3,3 +3,14 @@ __pycache__/
 out/
 cuvslam_venv/
 results/
+
+# Large external clones / vendored deps — fetched, not tracked.
+# See profiling/PROFILING_PLAN.md §10 for provenance + how to obtain them.
+external_repos/
+
+# Profiling raw artifacts / reports (regenerated, large)
+*.ncu-rep
+*.nsys-rep
+
+# Large reference PDFs — keep the .md guides under suggestions_and_summuries/, not the PDFs
+suggestions_and_summuries/*.pdf

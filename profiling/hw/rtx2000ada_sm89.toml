@@ -1,0 +1,57 @@
+# Hardware descriptor — NVIDIA RTX 2000 Ada Generation (workstation target)
+#
+# This is the GPU the onboarding doc targets (Dell Precision 7875). It is the
+# REAL-RESULTS target: the hardware-characterization numbers in the report should
+# come from here, not the MX450. Values below are from the onboarding doc /
+# NVIDIA spec; confirm structural ones with deviceQuery on the workstation and the
+# bandwidth/FP32 ceilings with ERT before publishing.
+
+[device]
+name         = "NVIDIA RTX 2000 Ada Generation"
+arch         = "Ada Lovelace"
+compute_cap  = "8.9"          # sm_89  (AD107)
+sms          = 22
+cuda_cores   = 2816
+role         = "production"   # real-results target
+
+[memory]
+l2_bytes              = 12582912    # 12 MiB
+l1_shared_per_sm_bytes = 131072     # 128 KiB per SM (adaptive L1/shared)
+vram_bytes            = 17179869184 # 16 GiB GDDR6 (ECC-capable)
+dram_bus_bits         = 128
+dram_gbps_theoretical = 224.0       # 128-bit x 14 Gbps; verify with ERT (expect ~80-90% achievable)
+dram_gbps_measured    = 0.0         # TODO: ERT on the workstation
+ecc                   = true        # LEAVE ENABLED (silent bit-flips otherwise)
+
+[compute]
+fp32_tflops_theoretical = 12.0
+tdp_watts               = 70
+
+[roofline]
+l1_fits_below_bytes  = 131072       # < 128 KiB -> L1
+l2_fits_below_bytes  = 12582912     # < 12 MiB  -> L2
+dram_above_bytes     = 12582912     # > 12 MiB  -> DRAM
+unified_paging_above_bytes = 17179869184  # > 16 GiB -> UM paging
+
+[run]
+# Workstation: clocks SHOULD be locked for measurement reproducibility.
+enforce_clock_locks = true
+graphics_clock_mhz  = 1620          # base; the highest frequency that won't thermal-throttle at 70 W
+memory_clock_mhz    = 7000
+persistence_mode    = true
+cpu_governor        = "performance"
+
+[accelsim]
+# Ada (sm_89 / AD107) is NOT a stock-validated Accel-Sim config. Build one by
+# adapting the Turing config (closest cache-hierarchy ancestor) and calibrate to
+# NCU microbenchmarks within ~5% (report deltas, not absolutes).
+base_config = "SM75_RTX2060"
+note        = "adapt to 22 SM, 12 MiB L2, 128-bit GDDR6 @ 224 GB/s; calibrate vs ERT/NCU"
+
+[notes]
+text = """
+This is also the host where the DAMOV/NVBit/Accel-Sim track can unblock: if the
+workstation runs a CUDA driver <= 575, NVBit mem_trace + locality.cpp + Accel-Sim
+become available (see PROFILING_PLAN.md §3, Slice 3). Confirm the driver version
+there before assuming the data-movement track is runnable.
+"""

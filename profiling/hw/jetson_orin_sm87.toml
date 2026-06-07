@@ -1,0 +1,52 @@
+# Hardware descriptor — NVIDIA Jetson AGX Orin (Phase 3.5 deployment target)
+#
+# The platform cuVSLAM is actually marketed for. Distinct because memory is
+# UNIFIED (CPU+GPU share one LPDDR5 pool; no discrete VRAM, no PCIe transfer),
+# which is scientifically interesting for the PiM argument. Profile here only
+# after the workstation pipeline is stable. Confirm all values on-device.
+
+[device]
+name         = "NVIDIA Jetson AGX Orin (64 GB)"
+arch         = "Ampere"
+compute_cap  = "8.7"          # sm_87
+sms          = 16
+cuda_cores   = 2048
+role         = "deployment"
+
+[memory]
+unified               = true        # CPU+GPU share LPDDR5 — no host<->device copy
+l2_bytes              = 4194304     # 4 MiB (verify on-device)
+l1_shared_per_sm_bytes = 167936     # ~164 KiB per SM (Ampere adaptive); verify
+vram_bytes            = 0           # N/A (unified); use system RAM pool
+dram_type             = "LPDDR5"
+dram_gbps_theoretical = 204.8       # 64 GB variant; verify
+dram_gbps_measured    = 0.0
+ecc                   = false       # configurable; record actual state
+
+[compute]
+fp32_tflops_theoretical = 5.3       # verify (power-mode dependent)
+power_mode_watts        = 60        # 15-60 W configurable; record the mode used
+
+[roofline]
+l2_fits_below_bytes  = 4194304
+dram_above_bytes     = 4194304
+
+[run]
+enforce_clock_locks = true          # use jetson_clocks / nvpmodel; record the mode
+persistence_mode    = true
+cpu_governor        = "performance"
+
+[accelsim]
+# Orin's GPU does NOT share the workstation's config. Either build a separate
+# sm_87 config or fall back to NCU counters (lower fidelity) — state the choice.
+base_config = "SM86_RTX3070"
+note        = "sm_87 is closest to sm_86; or rely on on-device NCU counters"
+
+[notes]
+text = """
+Unified-memory-specific analysis to add here: where allocations end up
+(cudaMemRangeGetAttribute, pageable_memory_access) and what 'near-data' even means
+when there is no host/device split. The address->data-structure mapping pipeline
+and the dataset suite port without rework; only this descriptor + the Accel-Sim
+config change.
+"""
