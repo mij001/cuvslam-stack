@@ -1,0 +1,53 @@
+# Profiling workload — KITTI seq06 stereo (Multicamera/Performance), bounded window.
+#
+# Purpose: a short, deterministic cuVSLAM run for nsys/ncu to wrap. Intrinsics are
+# seq06's own calib.txt (image size 1226x370 — NOT the 1241x376 generic config).
+# No [eval]: profiling characterizes kernels, not trajectory accuracy, and skipping
+# eval keeps the wrapped run fast on a 2 GB GPU.
+#
+# Frame window is intentionally small; ncu bounds *kernels* via --launch-skip/-count.
+# Override the window from profile.py with --frames START:COUNT if needed.
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 60        # ~60 stereo frames is plenty of kernel launches for ncu
+
+[input]
+type = "image_folder"
+root = "/home/m_inomal/Projects/cuvslam_datasets/dataset/sequences/06"
+
+  [[input.cameras]]
+  images = "image_0/*.png"
+
+  [[input.cameras]]
+  images = "image_1/*.png"
+
+  [input.timestamps]
+  mode = "file"
+  path = "times.txt"
+  unit = "s"
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+async_sba = false
+enable_final_landmarks_export = true
+
+[[rig.cameras]]                       # left (cam0) — rig origin
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+
+[[rig.cameras]]                       # right (cam1)
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+  [rig.cameras.rig_from_camera]
+  translation = [0.537150653, 0.0, 0.0]   # stereo baseline (m), from -P1[0,3]/fx
+
+[output]
+trajectory = "/tmp/kitti06_profile_traj.txt"
+timestamp_unit = "s"
+visualize = false
