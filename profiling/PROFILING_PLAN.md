@@ -185,14 +185,16 @@ the persistence taxonomy, the DAMOV classification goal) is retained.
 
 ## 8. Milestones (adapted from the v5 table)
 
-| # | Milestone | Concrete artifact |
-|---|---|---|
-| M1 | Harness operational | `profile.py` + nsys/ncu wrappers + `hw/` descriptors; versioned `results/` |
-| M2 | **First NCU report** | a real cuVSLAM `.ncu-rep` + parsed per-kernel table (Slice 1 done) |
-| M3 | DAG + roofline | kernel→stage DAG, hierarchical roofline, bottleneck screen (Slice 2) |
-| M4 | Bandwidth + classification | per-stage DRAM bandwidth bars; DAMOV-style class table |
-| M5 | Data-movement track | NVBit/locality/Accel-Sim unblocked on a ≤575-driver host (Slice 3) |
-| M6 | Workstation re-run | the whole pipeline on RTX 2000 Ada via `--hw rtx2000ada_sm89` |
+| # | Milestone | Concrete artifact | Status |
+|---|---|---|---|
+| M1 | Harness operational | `profile.py` + nsys/ncu wrappers + `hw/` descriptors; versioned `results/` | ✅ |
+| M2 | **First NCU report** | a real cuVSLAM `.ncu-rep` + parsed per-kernel table (Slice 1 done) | ✅ |
+| M3 | DAG + roofline | kernel→stage DAG, roofline w/ FLOP counters, bottleneck screen (`analysis/`) | ✅ |
+| M4 | Bandwidth + first report | per-stage DRAM bandwidth; committed report under `reports/` incl. the loop-closure (cold-persistent) delta | ✅ |
+| M4.5 | Run-anywhere headless | `${CUVSLAM_DATASETS}` configs, `env/gen_hw_descriptor.py`, `check_env.sh`, `fetch_datasets.sh`, `run_characterization.sh`, GPU-free tests | ✅ |
+| M5 | Data-movement track | NVBit/locality/Accel-Sim unblocked on a ≤575-driver host (Slice 3; gated in `blocked/`) | 🔴 gated |
+| M6 | Workstation re-run | the whole pipeline on RTX 2000 Ada via `--hw rtx2000ada_sm89` (+ locked clocks, ≥5 repeats, ERT ceilings) | ⏳ next |
+| M7 | Source-level attribution | TaggedAllocator + NVTX from-source build → data-structure-level claims (onboarding §11.2) | ⏳ |
 
 ---
 

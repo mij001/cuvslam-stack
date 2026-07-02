@@ -30,16 +30,20 @@ STAGES: dict[str, tuple[str, str]] = {
 
 # ordered (regex, stage) rules over the BASE kernel name
 _RULES: list[tuple[str, str]] = [
-    # SLAM layer first: only present with [slam] enabled; names from cuvslam source
-    (r"loop|bow|vocab|localiz|relocal|pose_graph|posegraph|graph_optim|map_match|"
-     r"keyframe|covis|essential|sim3|icp", "slam_loop"),
+    # SLAM layer first: only present with [slam] enabled. st_build_cache /
+    # st_track_with_cache are the keyframe-cache build/match kernels (observed
+    # only in [slam] runs on TUM long_office; 'st' = SLAM tracker).
+    (r"st_\w*cache|loop|bow|vocab|localiz|relocal|pose_graph|posegraph|"
+     r"graph_optim|map_match|keyframe|covis|essential|sim3|icp", "slam_loop"),
     # front-end
-    (r"cast_image|gaussian_scaling|undistort|rectif",            "preprocess"),
+    (r"cast_image|cast_depth|gaussian_scaling|undistort|rectif", "preprocess"),
     (r"conv_grad|gftt|non_max_suppression|filter_maximums|"
      r"select_features|downsample",                              "feature_detect"),
     (r"cub::DeviceMergeSort|cub::DeviceRadixSort|cub::DeviceScan|"
      r"cub::DeviceSelect|cub::DeviceReduce",                     "keypoint_sort"),
-    (r"lk_track|track_kernel|of_track",                          "tracking"),
+    # matcher:: = RGBD photometric / point-to-point alignment (data association,
+    # observed in odometry-only runs → front-end tracking, not SLAM)
+    (r"lk_track|track_kernel|of_track|matcher::",                "tracking"),
     # back-end
     (r"^sba::|sba_",                                             "bundle_adjust"),
     (r"getrf|trsv|potrf|dtrsv|xxtrf|copy_info|gemm|gemv|syrk",   "ba_solver"),

@@ -113,13 +113,14 @@ def grep1(path, key):
 
 
 def seq_name_from_config(config):
-    root = grep1(config, "root") or ""
+    root = grep1(config, "root") or grep1(config, "path") or ""
     base = os.path.basename(root.rstrip("/")) or "seq"
     # KITTI roots end in .../sequences/06 -> use parentdir+base for clarity
     parent = os.path.basename(os.path.dirname(root.rstrip("/")))
     if parent == "sequences":
         return f"kitti{base}"
-    return re.sub(r"[^A-Za-z0-9]+", "", base) or "seq"
+    base = re.sub(r"^rgbd_dataset_", "", base)          # TUM verbosity
+    return re.sub(r"[^A-Za-z0-9]+", "", base)[:24] or "seq"
 
 
 def apply_frame_override(config_text, start, count):
@@ -210,6 +211,9 @@ def main(argv=None):
                    help="derive --launch-skip/--launch-count for a steady-state ncu "
                         "window from a prior nsys results dir, e.g. "
                         "results/<nsys_run>:200:250 (overrides the two flags above)")
+    p.add_argument("--kernel-filter", default=None, metavar="REGEX",
+                   help="ncu: profile only kernels whose name matches this regex "
+                        "(e.g. 'st_.*cache' for the SLAM keyframe-cache kernels)")
     # nsys knobs
     p.add_argument("--nsys-traces", default="cuda,nvtx,osrt")
     p.add_argument("--nsys-sample", default="cpu")
@@ -299,13 +303,15 @@ def main(argv=None):
         meta["ncu_version"] = tool_version(["ncu", "--version"])
         meta["ncu_config"] = {"metrics": args.metrics, "n_metrics": len(metrics) if metrics else "full",
                               "launch_skip": args.launch_skip, "launch_count": args.launch_count,
-                              "auto_window": args.auto_window}
+                              "auto_window": args.auto_window, "kernel_filter": args.kernel_filter}
         out = os.path.join(raw, "kernels")
         json.dump(meta, open(os.path.join(run_dir, "metadata.json"), "w"), indent=2)
         cmd = ["ncu", "--target-processes", "all",
                "--launch-skip", str(args.launch_skip), "--launch-count", str(args.launch_count),
                "--clock-control", "none",            # don't let ncu fight the (unlockable) laptop clocks
                "-o", out, "--force-overwrite"]
+        if args.kernel_filter:
+            cmd += ["--kernel-name", f"regex:{args.kernel_filter}"]
         if metrics is None:                          # literal "full"
             cmd += ["--set", "full"]
         else:

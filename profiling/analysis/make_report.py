@@ -181,7 +181,7 @@ def main(argv=None):
 
     R.append("## 6. Loop-closure (SLAM layer) delta\n")
     if slam_dag:
-        R.append(f"SLAM capture: {slam_dag['frames'] or '?'} frames, "
+        R.append(f"SLAM capture: {slam_dag['frames'] or 'full-sequence'} frames, "
                  f"{slam_dag['unique_kernels']} unique kernels "
                  f"(baseline had {dag['unique_kernels']}).\n")
         if slam_only:
@@ -191,6 +191,24 @@ def main(argv=None):
                 ["kernel", "stage", "persistence", "GPU time %", "launches"],
                 [[k["kernel"], k["stage"], k["persistence"],
                   round(k["pct_gpu_time"], 2), k["instances"]] for k in slam_only]) + "\n")
+            if slam_scr_rows:
+                slam_by = {r["kernel"]: r for r in slam_scr_rows}
+                bw_slam = bandwidth.aggregate(common.load_ncu_csv(
+                    common.find_derived(args.ncu_slam, "ncu_metrics.csv")))
+                bpl = {r["kernel"]: r["bytes_per_launch"] for r in bw_slam}
+                rows_ = []
+                for k in slam_only:
+                    r = slam_by.get(k["kernel"])
+                    if not r:
+                        continue
+                    rows_.append([r["kernel"], r["verdict"], r["mem_sol"], r["comp_sol"],
+                                  r["l2_hit"], r["occ"], r["sect_ld"],
+                                  f"{bpl.get(r['kernel'], float('nan'))/1e6:.1f}"])
+                if rows_:
+                    R.append("Their per-kernel memory profile (ncu, `characterize` set):\n")
+                    R.append(common.md_table(
+                        ["kernel", "verdict", "MemSoL%", "CompSoL%", "L2 hit%",
+                         "occupancy%", "sectors/req (ld)", "DRAM MB/launch"], rows_) + "\n")
         else:
             R.append("> No SLAM-only kernels appeared in this window — either no "
                      "loop closure fired, or the SLAM layer ran on CPU. Check the "

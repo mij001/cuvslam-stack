@@ -70,7 +70,9 @@ def base_kernel_name(demangled: str) -> str:
             name = name[:i]
             break
     name = re.sub(r"<.*", "", name)          # strip template args
-    name = name.replace("cuvslam::cuda::", "")
+    # nsys demangles as cuvslam::cuda::X, ncu (2026.2) as cuvslam::X — same kernel;
+    # strip both so the two profilers' rows join on one key
+    name = re.sub(r"cuvslam::(cuda::)?", "", name)
     name = re.sub(r"cub::CUB_\w+::(detail::)?(merge_sort::)?", "cub::", name)
     name = name.replace("cub::detail::", "cub::").replace("cub::merge_sort::", "cub::")
     return name.strip()

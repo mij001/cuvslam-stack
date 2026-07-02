@@ -8,6 +8,8 @@ cuvslam-stack/                 (this repo — the main project)
 ├── cuvslam_runner/ run.py configs/ setup_env.sh ...   the TOML runner (at the root)
 ├── cuvslam_src/               git submodule -> nvidia-isaac/cuVSLAM @ efdfbe56 (release 15.0)
 ├── patches/                   our build tooling, applied onto the pristine submodule
+├── profiling/                 memory characterization: nsys/ncu harness + headless analysis
+│                              (see profiling/README.md; one command: profiling/run_characterization.sh)
 └── Makefile                   build the wheel + verify, reproducibly
 ```
 
