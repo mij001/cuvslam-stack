@@ -1,0 +1,59 @@
+# Profiling workload — KITTI seq06 stereo + FULL SLAM layer (loop closure).
+#
+# KITTI 06 is a loop-shaped suburban drive: the car returns along the same road,
+# so with [slam] enabled the loop-closure / keyframe-database path fires. This is
+# the LARGE-MAP cold-persistent workload (outdoor scale), complementing the
+# EuRoC room-scale one. Needs the KITTI odometry grayscale set (manual download,
+# registration required — see env/fetch_datasets.sh).
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 1101       # full sequence: the loop closes near the end
+
+[input]
+type = "image_folder"
+root = "${CUVSLAM_DATASETS}/dataset/sequences/06"
+
+  [[input.cameras]]
+  images = "image_0/*.png"
+
+  [[input.cameras]]
+  images = "image_1/*.png"
+
+  [input.timestamps]
+  mode = "file"
+  path = "times.txt"
+  unit = "s"
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+async_sba = false
+enable_final_landmarks_export = true
+
+[slam]
+enabled = true
+use_gpu = true
+sync_mode = true          # deterministic kernel order for stage attribution
+enable_reading_internals = true
+
+[[rig.cameras]]                       # left (cam0) — rig origin
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+
+[[rig.cameras]]                       # right (cam1)
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+  [rig.cameras.rig_from_camera]
+  translation = [0.537150653, 0.0, 0.0]
+
+[output]
+trajectory = "/tmp/kitti06_slam_profile_traj.txt"
+pose_source = "slam"
+timestamp_unit = "s"
+visualize = false
+print_every = 0

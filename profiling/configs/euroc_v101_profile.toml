@@ -1,0 +1,32 @@
+# Profiling workload — EuRoC V1_01_easy stereo odometry, bounded window.
+#
+# The steady-state characterization workload: track enough frames to warm the
+# local map (the onboarding doc's steady-state window is frames 200-250), then
+# scope ncu with --auto-window. Dataset root is machine-independent: profile.py
+# expands ${CUVSLAM_DATASETS} (default ~/Projects/cuvslam_datasets) at run time,
+# so this config runs unmodified on the laptop, the workstation, or Jetson.
+#
+# Fetch the dataset headlessly with:  profiling/env/fetch_datasets.sh euroc_v101
+# No [eval]: profiling characterizes kernels, not trajectory accuracy.
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 260        # 0-250 warm + the 200-250 steady-state ncu window
+
+[input]
+type = "euroc"
+path = "${CUVSLAM_DATASETS}/euroc/V1_01_easy/mav0"
+use_imu = false          # stereo Multicamera: keeps the GPU pipeline the subject
+
+[odometry]
+odometry_mode = "Multicamera"
+rectified_stereo_camera = false     # EuRoC images are distorted
+async_sba = false                   # deterministic kernel order for the DAG
+enable_final_landmarks_export = true
+
+[output]
+trajectory = "/tmp/euroc_v101_profile_traj.txt"
+timestamp_unit = "ns"
+visualize = false
+print_every = 0

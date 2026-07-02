@@ -70,6 +70,28 @@ METRIC_SETS = {
     ],
 }
 
+# "characterize" = roofline + FLOP counters (arithmetic intensity, Yang20 method)
+#                + L1/L2 byte traffic (hierarchical roofline)
+#                + sectors/request (coalescing fingerprint; 4=coalesced, 32=scattered)
+#                + the fuller warp-stall taxonomy (Cao23 buckets).
+# ~30 metrics, ~12 passes — still targeted; use for the Slice-2 report captures.
+METRIC_SETS["characterize"] = METRIC_SETS["roofline"] + [
+    "smsp__sass_thread_inst_executed_op_fadd_pred_on.sum",
+    "smsp__sass_thread_inst_executed_op_fmul_pred_on.sum",
+    "smsp__sass_thread_inst_executed_op_ffma_pred_on.sum",
+    "l1tex__t_bytes.sum",
+    "lts__t_bytes.sum",
+    "l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_ld.ratio",
+    "l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_st.ratio",
+    "smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio",
+    "smsp__average_warps_issue_stalled_mio_throttle_per_issue_active.ratio",
+    "smsp__average_warps_issue_stalled_tex_throttle_per_issue_active.ratio",
+    "smsp__average_warps_issue_stalled_math_pipe_throttle_per_issue_active.ratio",
+    "smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio",
+    "smsp__average_warps_issue_stalled_wait_per_issue_active.ratio",
+    "smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio",
+]
+
 
 def sh(cmd, **kw):
     """Run, stream output, return CompletedProcess (never raises on nonzero)."""
@@ -113,6 +135,41 @@ def apply_frame_override(config_text, start, count):
     return text
 
 
+DATASETS_VAR = "CUVSLAM_DATASETS"
+DEFAULT_DATASETS = os.path.expanduser("~/Projects/cuvslam_datasets")
+
+
+def expand_dataset_root(config_text):
+    """Expand ${CUVSLAM_DATASETS} in the config copy.
+
+    Configs under profiling/configs/ reference datasets as
+    `root = "${CUVSLAM_DATASETS}/..."` so the same file runs on any host; the
+    per-machine location comes from the environment (default ~/Projects/cuvslam_datasets).
+    """
+    root = os.environ.get(DATASETS_VAR, DEFAULT_DATASETS)
+    return config_text.replace("${" + DATASETS_VAR + "}", root)
+
+
+def derive_launch_window(nsys_run_dir, warm_frames, profile_launches):
+    """Steady-state ncu window from a prior nsys run of the same workload.
+
+    ncu bounds by kernel-launch index, not frame. kernels/frame comes from the
+    nsys kernel summary (total instances ÷ frames of that run); the returned
+    launch_skip lands the ncu window right after `warm_frames` tracked frames.
+    """
+    sys.path.insert(0, os.path.join(REPO_ROOT, "profiling"))
+    from analysis import build_dag  # stdlib-only
+    dag = build_dag.build(nsys_run_dir)
+    kpf = dag["kernels_per_frame"]
+    if not kpf:
+        raise SystemExit(f"--auto-window: cannot derive kernels/frame from {nsys_run_dir} "
+                         "(no frame count in its used_config/metadata)")
+    skip = int(round(kpf * warm_frames))
+    print(f"[auto-window] {nsys_run_dir}: {kpf:.1f} kernels/frame × {warm_frames} warm frames "
+          f"→ --launch-skip {skip}, --launch-count {profile_launches}")
+    return skip, profile_launches
+
+
 def nvidia_smi_gpu():
     try:
         out = subprocess.check_output(
@@ -146,9 +203,13 @@ def main(argv=None):
                    help="override [run].start_index/max_frames for the profiled run")
     # ncu knobs
     p.add_argument("--metrics", default="roofline",
-                   help="named set (roofline|quick) or a literal comma metric list, or 'full'")
+                   help="named set (roofline|characterize|quick), literal comma list, or 'full'")
     p.add_argument("--launch-skip", type=int, default=100)
     p.add_argument("--launch-count", type=int, default=12)
+    p.add_argument("--auto-window", default=None, metavar="NSYS_DIR:WARM_FRAMES:LAUNCHES",
+                   help="derive --launch-skip/--launch-count for a steady-state ncu "
+                        "window from a prior nsys results dir, e.g. "
+                        "results/<nsys_run>:200:250 (overrides the two flags above)")
     # nsys knobs
     p.add_argument("--nsys-traces", default="cuda,nvtx,osrt")
     p.add_argument("--nsys-sample", default="cpu")
@@ -171,15 +232,24 @@ def main(argv=None):
     os.makedirs(raw, exist_ok=True)
     os.makedirs(derived, exist_ok=True)
 
-    # Resolve the workload config (apply --frames override into a recorded copy).
+    # Resolve the workload config (dataset root + --frames override, recorded copy).
     used_config = os.path.join(derived, "used_config.toml")
-    text = open(config).read()
+    text = expand_dataset_root(open(config).read())
     frame_range = None
     if args.frames:
         start, count = (int(x) for x in args.frames.split(":"))
         text = apply_frame_override(text, start, count)
         frame_range = {"start_index": start, "max_frames": count}
     open(used_config, "w").write(text)
+
+    # Steady-state window: derive the ncu launch bounds from a prior nsys run.
+    if args.auto_window:
+        try:
+            nsys_dir, warm, launches = args.auto_window.rsplit(":", 2)
+            args.launch_skip, args.launch_count = derive_launch_window(
+                os.path.abspath(nsys_dir), int(warm), int(launches))
+        except ValueError:
+            p.error("--auto-window expects NSYS_DIR:WARM_FRAMES:LAUNCHES")
 
     # The workload command: run the stack runner from REPO_ROOT (so imports resolve).
     workload = [args.venv_python, os.path.join(REPO_ROOT, "run.py"), used_config]
@@ -228,7 +298,8 @@ def main(argv=None):
         metrics = resolve_metrics(args.metrics)
         meta["ncu_version"] = tool_version(["ncu", "--version"])
         meta["ncu_config"] = {"metrics": args.metrics, "n_metrics": len(metrics) if metrics else "full",
-                              "launch_skip": args.launch_skip, "launch_count": args.launch_count}
+                              "launch_skip": args.launch_skip, "launch_count": args.launch_count,
+                              "auto_window": args.auto_window}
         out = os.path.join(raw, "kernels")
         json.dump(meta, open(os.path.join(run_dir, "metadata.json"), "w"), indent=2)
         cmd = ["ncu", "--target-processes", "all",

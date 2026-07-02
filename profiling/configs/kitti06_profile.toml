@@ -15,7 +15,7 @@ max_frames  = 60        # ~60 stereo frames is plenty of kernel launches for ncu
 
 [input]
 type = "image_folder"
-root = "/home/m_inomal/Projects/cuvslam_datasets/dataset/sequences/06"
+root = "${CUVSLAM_DATASETS}/dataset/sequences/06"   # expanded by profile.py
 
   [[input.cameras]]
   images = "image_0/*.png"

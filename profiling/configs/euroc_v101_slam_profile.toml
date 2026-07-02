@@ -1,0 +1,40 @@
+# Profiling workload — EuRoC V1_01_easy stereo + FULL SLAM layer (loop closure).
+#
+# This is the COLD-PERSISTENT evidence workload: with [slam] enabled the
+# keyframe database / loop-closure / pose-graph path runs, which the plain
+# odometry profile never exercises. V1_01 is a MAV circling a small Vicon room,
+# so revisits (and thus loop-closure events) occur early and often.
+#
+# sync_mode = true runs SLAM on the track() thread: slower, but deterministic
+# kernel ordering — loop-closure kernels appear in-line in the nsys timeline,
+# which is what stage attribution needs. Flip to false to study the async
+# deployment behaviour instead.
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 800        # ~40 s of flight: multiple room revisits
+
+[input]
+type = "euroc"
+path = "${CUVSLAM_DATASETS}/euroc/V1_01_easy/mav0"
+use_imu = false
+
+[odometry]
+odometry_mode = "Multicamera"
+rectified_stereo_camera = false
+async_sba = false
+enable_final_landmarks_export = true
+
+[slam]
+enabled = true
+use_gpu = true
+sync_mode = true          # deterministic: SLAM work inside track() for attribution
+enable_reading_internals = true
+
+[output]
+trajectory = "/tmp/euroc_v101_slam_profile_traj.txt"
+pose_source = "slam"
+timestamp_unit = "ns"
+visualize = false
+print_every = 0
