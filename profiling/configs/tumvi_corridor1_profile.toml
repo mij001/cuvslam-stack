@@ -1,0 +1,32 @@
+# Profiling workload — TUM-VI corridor1 (512x512 stereo fisheye), odometry.
+#
+# The fisheye-stereo leg of the matrix: equidistant distortion exercises the
+# unrectified/undistortion path (rectified_stereo_camera = false), unlike the
+# rectified KITTI pair and the RGBD TUM run. EuRoC mav0 layout; the euroc
+# source builds the rig from sensor.yaml (distortion_model: equidistant →
+# Fisheye spec). 260 frames = 200 warm + steady window.
+#
+# Dataset root: symlink or extract so that
+#   ${CUVSLAM_DATASETS}/tumvi/dataset-corridor1_512_16/mav0  exists.
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 260
+
+[input]
+type = "euroc"
+path = "${CUVSLAM_DATASETS}/tumvi/dataset-corridor1_512_16/mav0"
+use_imu = false
+
+[odometry]
+odometry_mode = "Multicamera"
+rectified_stereo_camera = false
+async_sba = false
+enable_final_landmarks_export = true
+
+[output]
+trajectory = "/tmp/tumvi_corridor1_profile_traj.txt"
+timestamp_unit = "ns"
+visualize = false
+print_every = 0
