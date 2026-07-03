@@ -23,11 +23,16 @@ mkdir -p "$OUT"
 log() { echo "=== [$(date +%F_%H:%M:%S)] $*"; }
 
 # ── 0. free the GPU + lock clocks (idempotent; survives power-cut autologin) ──
-log "freeing GPU (killing KDE) and locking clocks"
-for s in ~/free_gpu.sh ~/freegpu.sh ~/kill_kde.sh ~/killkde.sh ~/stop_kde.sh; do
-    [ -x "$s" ] && { log "running $s"; "$s" || true; break; }
+# KDE doesn't pollute NVBit traces (injection is per-process), but its
+# compositor competes for SMs during the ncu/nsys campaign captures — so free
+# the GPU before both. Prefer a user free-GPU script if present, else stop the
+# display-manager (keeps sshd/network up; reversible with `start`).
+log "freeing GPU and locking clocks"
+FREED=0
+for s in ~/free_gpu.sh ~/freegpu.sh ~/kill_kde.sh ~/killkde.sh ~/stop_kde.sh ~/free-gpu.sh; do
+    [ -x "$s" ] && { log "running $s"; "$s" && FREED=1; break; }
 done
-sudo -n systemctl isolate multi-user.target 2>/dev/null || true   # fallback: drop to TTY
+[ "$FREED" = 0 ] && sudo -n systemctl stop display-manager 2>/dev/null && log "stopped display-manager"
 sudo -n nvidia-smi -pm 1 >/dev/null 2>&1
 sudo -n nvidia-smi -lgc 1620,1620 >/dev/null 2>&1
 sudo -n nvidia-smi -lmc 7001,7001 >/dev/null 2>&1
