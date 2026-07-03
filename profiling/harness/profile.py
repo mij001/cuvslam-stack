@@ -136,19 +136,20 @@ def apply_frame_override(config_text, start, count):
     return text
 
 
-DATASETS_VAR = "CUVSLAM_DATASETS"
-DEFAULT_DATASETS = os.path.expanduser("~/Projects/cuvslam_datasets")
+DATASET_VARS = {
+    # env var -> default location; configs reference ${VAR}/... so the same
+    # file runs on any host — per-machine locations come from the environment.
+    "CUVSLAM_DATASETS": os.path.expanduser("~/Projects/cuvslam_datasets"),
+    "CUVSLAM_DATA2": "/mnt/data",   # the workstation's read-only dataset volume
+}
 
 
 def expand_dataset_root(config_text):
-    """Expand ${CUVSLAM_DATASETS} in the config copy.
-
-    Configs under profiling/configs/ reference datasets as
-    `root = "${CUVSLAM_DATASETS}/..."` so the same file runs on any host; the
-    per-machine location comes from the environment (default ~/Projects/cuvslam_datasets).
-    """
-    root = os.environ.get(DATASETS_VAR, DEFAULT_DATASETS)
-    return config_text.replace("${" + DATASETS_VAR + "}", root)
+    """Expand the ${CUVSLAM_*} dataset-root variables in the config copy."""
+    for var, default in DATASET_VARS.items():
+        config_text = config_text.replace("${" + var + "}",
+                                          os.environ.get(var, default))
+    return config_text
 
 
 def derive_launch_window(nsys_run_dir, warm_frames, profile_launches):
