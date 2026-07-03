@@ -5,8 +5,8 @@ Updated as work lands. Companion docs: `PROFILING_PLAN.md` (strategy),
 `METHODOLOGY.md` (how numbers are made), `PUBLISHABILITY.md` (reviewer-grade
 issue register), `WALKTHROUGH.md` (guided tour), `reports/` (committed results).
 
-- **Last updated:** 2026-07-03 12:18
-- **Head commit:** `5fbe9ff` (characterization-matrix configs)
+- **Last updated:** 2026-07-03 13:00
+- **Head commit:** see changelog
 - **Branch:** `main` (pushed to origin/mij001)
 
 ---
@@ -37,7 +37,7 @@ generalization in progress.**
 | Slice 1 | Working nsys/ncu harness on the TOML runner; ncu "no report" bug fixed | ✅ done |
 | Slice 2 | Headless analysis layer → DAG, screen, roofline, bandwidth, **GPU-DAMOV classification**, report | ✅ done |
 | Rigor | Measured ceilings, ±25% sensitivity, ×5/×3 variance, clock-warmup protocol, cache bracket, transfers | ✅ done |
-| Multi-machine | RTX 2000 Ada workstation production pass | 🟡 running (dataset fetch) |
+| Multi-machine | RTX 2000 Ada workstation production pass — **clocks LOCKED** (1620/7001, root-configured), ceilings measured at lock (205.0 GB/s ±0.1, 5445 GFLOP/s ±3) | 🟡 captures running |
 | Multi-dataset | KITTI color stereo + TUM-VI fisheye matrix | 🟡 configs validated, captures staged |
 | Slice 3 | NVBit → locality → Accel-Sim data-movement track | 🔴 gated (driver > 575 on both hosts) |
 | Source-level | TaggedAllocator + NVTX (data-structure attribution) | ⬜ not started (needs from-source build) |
@@ -180,6 +180,13 @@ data-structure-level motivation. +(6) → MICRO/ASPLOS/ISCA/HPCA. See
 
 ## 8. Changelog
 
+- **2026-07-03 (pm)** — Power cut killed the first workstation chain (lesson:
+  remote chains now run under `setsid nohup`). Root access used to configure
+  passwordless sudo for `ndpvslam`; **GPU clocks locked** (persistence on,
+  1620/7001) — ceilings measured at lock: 205.0 GB/s DRAM (0.05% trial spread
+  vs 25% on the unlocked laptop), 5445 GFLOP/s FP32. Full program relaunched
+  disconnect-safe: TUM characterization (×5 + sync/async SLAM + cold/warm ncu
+  bracket) → SLAM-kernel ncu → KITTI + TUM-VI matrix.
 - **2026-07-03** — Workstation access; datasets located; matrix configs (KITTI
   color, TUM-VI) validated. Rigor pass committed: measured ceilings, ±25%
   sensitivity, variance protocol, cache bracket, transfers. Report regenerated.
