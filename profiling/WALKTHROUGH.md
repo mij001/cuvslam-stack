@@ -21,9 +21,10 @@ strategy see `PROFILING_PLAN.md`; for command reference see `README.md`.
 | GPU-free analysis tests | ✅ done | `tests/test_analysis.py` |
 | First characterization report (TUM long_office, MX450) | ✅ committed | `reports/` |
 | **GPU-DAMOV classification → PiM/ISP candidates** | ✅ done | `analysis/classify.py` (NCU-proxy first cut; report §7); reproducible from committed CSVs — no dataset/GPU needed |
-| **DAMOV / NVBit / Accel-Sim data-movement track** | 🔴 gated | `blocked/` refines the classification (LFMR-vs-#SM, divergence, reuse distance); driver ≤ 575 required |
-| Workstation (RTX 2000 Ada) real-results re-run | ⏳ next | same commands, `--hw hw/rtx2000ada_sm89.toml` |
-| Source-level attribution (TaggedAllocator, NVTX) | ⏳ later | needs the from-source build (onboarding §11.2) |
+| Workstation (RTX 2000 Ada) locked-clock production pass | ✅ done | 3-workload matrix, CoV 0.14%, measured ceilings; `reports/2026-07-03_*` |
+| Multi-dataset generalization (`compare.py` / `cluster.py`) | ✅ done | TUM↔KITTI 97% agreement; k-means prefers k=7; `reports/2026-07-03_matrix_synthesis/` |
+| **DAMOV / NVBit / Accel-Sim data-movement track** | 🟡 unblocking | analyzer done (`analysis/locality.py` + mem_trace launch-window patch); driver-downgrade to 575/CUDA-12 in progress on the workstation |
+| Source-level attribution (TaggedAllocator, NVTX) | ⏳ next | needs the from-source build (onboarding §11.2) |
 | Jetson AGX Orin re-run | ⏳ later | `hw/jetson_orin_sm87.toml` exists |
 
 ---

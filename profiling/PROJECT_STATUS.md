@@ -5,8 +5,8 @@ Updated as work lands. Companion docs: `PROFILING_PLAN.md` (strategy),
 `METHODOLOGY.md` (how numbers are made), `PUBLISHABILITY.md` (reviewer-grade
 issue register), `WALKTHROUGH.md` (guided tour), `reports/` (committed results).
 
-- **Last updated:** 2026-07-03 13:00
-- **Head commit:** see changelog
+- **Last updated:** 2026-07-03 18:00
+- **Head commit:** `40e8a05` (Slice-3 toolkit)
 - **Branch:** `main` (pushed to origin/mij001)
 
 ---
@@ -28,8 +28,8 @@ ISCA/HPCA architecture paper built on it.
 
 ## 2. Current stage
 
-**Slice 2 complete + publishability-hardened; multi-machine + multi-dataset
-generalization in progress.**
+**Slice 2 complete + publishability-hardened + production matrix done (both
+🔴 blockers closed); Slice 3 (data-movement track) unblock in progress.**
 
 | Slice | What | State |
 |---|---|---|
@@ -39,7 +39,7 @@ generalization in progress.**
 | Rigor | Measured ceilings, ±25% sensitivity, ×5/×3 variance, clock-warmup protocol, cache bracket, transfers | ✅ done |
 | Multi-machine | RTX 2000 Ada production pass, **locked clocks** — 5-repeat CoV 0.14% (vs 49.6% unlocked laptop); ceilings 205.0 GB/s ±0.1 / 5445 GF ±3 | ✅ done |
 | Multi-dataset | {TUM, KITTI 06, TUM-VI} × {odometry, SLAM} on Ada; TUM↔KITTI agreement 97% tw; **L2 crossover measured** (`reports/2026-07-03_matrix_synthesis/`) | ✅ done |
-| Slice 3 | NVBit → locality → Accel-Sim data-movement track | 🔴 gated (driver > 575 on both hosts) |
+| Slice 3 | NVBit → locality → Accel-Sim data-movement track | 🟡 **unblocking** — toolkit built & committed (`analysis/locality.py` + mem_trace launch-window patch); workstation driver-downgrade to 575/CUDA-12 in progress (permission granted); NVBit ≤575 confirmed even in v1.8 |
 | Source-level | TaggedAllocator + NVTX (data-structure attribution) | ⬜ not started (needs from-source build) |
 | Phase 4 | PiM/ISP substrate design + simulated eval | ⬜ future |
 
@@ -67,9 +67,12 @@ CSVs with no dataset and no GPU.
 | `screen.py` | DAMOV Step-1 memory-bound screen + 9-bucket stall taxonomy + LFMR/MPKI |
 | `roofline.py` | FLOP-counter arithmetic intensity vs **measured** ceilings |
 | `bandwidth.py` | per-stage DRAM traffic, achieved GB/s vs ceiling |
-| `classify.py` | **GPU-DAMOV G1–G7 classes → per-kernel PiM/ISP affinity** + confidence + stability |
+| `classify.py` | **GPU-DAMOV G1–G7 classes → per-kernel PiM/ISP affinity** + confidence + ±25% stability |
 | `transfers.py` | host↔device data movement (the copies the kernel view misses) |
 | `variance.py` | run-to-run CoV (absolute time + clock-invariant share) |
+| `compare.py` | cross-dataset / cross-GPU class-agreement table |
+| `cluster.py` | stdlib k-means over metric vectors — does the taxonomy fall out of the data (silhouette/ARI/purity vs the tree)? |
+| `locality.py` | **DAMOV Step-2** from NVBit traces: exact footprint, reuse-distance-vs-cache-capacity CDF, intra-warp spatial locality, inter-launch overlap (Slice-3) |
 | `make_report.py` | the committed markdown report + SVG figures + CSVs |
 
 ### Environment (`env/`)
@@ -84,9 +87,13 @@ CSVs with no dataset and no GPU.
 ### Orchestration & tests
 - `run_characterization.sh` — one command: preflight → ×5 nsys → sync+async SLAM
   → cold/warm ncu bracket → report + variance.
-- `tests/test_analysis.py` — 10 GPU-free tests (unit norm, name-join, decision
-  tree, PiM affinity, from-CSV reproduction).
-- `blocked/` — Slice-3 NVBit/Accel-Sim runners gated behind `check_capability.sh`.
+- `env/measure_ceilings.py` — measured DRAM/FP32 ceilings (desktop-safe:
+  queue-depth-1, VRAM-budgeted, display-active refusal). `env/gpu_warmup.py` —
+  clock stabilization for unlocked hosts.
+- `tests/test_analysis.py` — 12 GPU-free tests (unit norm, name-join, decision
+  tree, PiM affinity, from-CSV reproduction, locality pipeline).
+- `blocked/` — Slice-3 NVBit/Accel-Sim runners gated behind `check_capability.sh`;
+  `mem_trace_launch_window.patch` adds LAUNCH_BEGIN/END windowing to NVBit 1.8.
 
 ---
 
@@ -165,21 +172,35 @@ symlinked into `${CUVSLAM_DATASETS}` as `kitti_color`, `tumvi`.
 
 | # | Milestone | Unblocks | Status |
 |---|---|---|---|
-| 1 | Workstation locked-clock pass | publishable absolute numbers | 🟡 running |
-| 2 | 3-dataset matrix + `analysis/compare.py` cross-dataset agreement | generalization claim | 🟡 next |
-| 3 | Slice-3 (NVBit locality + Accel-Sim) | reuse-distance, divergence, sim deltas | 🔴 driver-gated |
-| 4 | TaggedAllocator + NVTX from-source build | **data-structure-level** claims | ⬜ |
-| 5 | k-means over metric vectors | taxonomy *validated* not asserted | ⬜ (needs ≥3 datasets) |
+| 1 | Workstation locked-clock pass | publishable absolute numbers | ✅ done |
+| 2 | 3-dataset matrix + `analysis/compare.py` cross-dataset agreement | generalization claim | ✅ done |
+| 5 | k-means over metric vectors (`analysis/cluster.py`) | taxonomy *validated* not asserted | 🟡 preliminary (k=7 preferred, single-dataset; pooled run pending) |
+| 3 | Slice-3 (NVBit locality + Accel-Sim) | reuse-distance, divergence, sim deltas | 🟡 unblocking — analyzer done, driver downgrade in progress |
+| 4 | TaggedAllocator + NVTX from-source build | **data-structure-level** claims | ⬜ next big scientific upgrade |
 | 6 | PiM/ISP substrate model + AccelWattch energy | the architecture paper | ⬜ |
 
-**Venue framing:** (1)+(2) → ISPASS/IISWC characterization paper. +(3)+(4) →
-data-structure-level motivation. +(6) → MICRO/ASPLOS/ISCA/HPCA. See
-`PUBLISHABILITY.md` for the full reviewer-issue register.
+**Venue framing:** (1)+(2) done → **ISPASS/IISWC characterization paper is
+submittable now**. +(3)+(4) → data-structure-level motivation. +(6) →
+MICRO/ASPLOS/ISCA/HPCA. See `PUBLISHABILITY.md` for the full reviewer-issue
+register.
 
 ---
 
 ## 8. Changelog
 
+- **2026-07-03 (evening)** — **Slice-3 unblock started** (driver-downgrade
+  permission granted on the workstation). Confirmed NVBit caps at driver ≤575
+  even in v1.8 → downgrade is the path. Committed the analysis half (`40e8a05`):
+  `analysis/locality.py` (footprint + reuse-distance-vs-cache-capacity CDF +
+  coalescing + inter-launch overlap from NVBit mem_trace) and the
+  `mem_trace_launch_window.patch` (LAUNCH_BEGIN/END so traces stay bounded, not
+  TB-scale). Full 65+58 GB dataset set found on the workstation's `sda2` (KITTI
+  gray+color, EuRoC MH/VR, TUM). Laptop clock-lock sudo now works too (measured
+  laptop at lock: 40 GB/s / 1145 GF). In progress on the workstation: staging
+  the 575.64.05 + CUDA-12.9 + linux-lts-6.12 packages and a CUDA-12 cuVSLAM
+  wheel (the CUDA-13 wheel won't load on a 575 driver). Rollback staged at
+  `~/driver-rollback/revert.sh`. Also added `cluster.py`, `compare.py` and the
+  measured-ceiling/warm-up tooling to the committed set.
 - **2026-07-03 (late pm)** — **Production matrix landed.** All 22+1 workstation
   captures completed at locked clocks (both power cuts dodged the capture
   windows). Results: locked-clock CoV 0.14% (closes issue 1); loop-closure scan

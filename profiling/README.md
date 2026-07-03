@@ -51,7 +51,7 @@ publishing numbers from that machine.
 | `env/` | `check_env.sh` (preflight) · `fetch_datasets.sh` · `gen_hw_descriptor.py` · `lock_clocks.sh` · `setup_perms.sh` |
 | `configs/` | profiling workloads: `tum_office_profile` + `_slam_` (loop closure), `euroc_v101_*`, `kitti06_*` — all `${CUVSLAM_DATASETS}`-relative |
 | `harness/profile.py` | one entrypoint: wrap a runner config under nsys/ncu into a versioned results dir |
-| `analysis/` | stdlib-only, read-only consumers of `results/`: `build_dag` · `screen` · `roofline` · `bandwidth` · `classify` (GPU-DAMOV classes → PiM/ISP candidates) · `make_report` |
+| `analysis/` | stdlib-only, read-only consumers of `results/`: `build_dag` · `screen` · `roofline` · `bandwidth` · `transfers` · `variance` · `classify` (GPU-DAMOV G1–G7 → PiM/ISP candidates) · `compare` (cross-dataset agreement) · `cluster` (k-means validation) · `locality` (NVBit-trace reuse distance, Slice-3) · `make_report` |
 | `blocked/` | Slice-3 NVBit/locality/Accel-Sim — **driver-gated**, fails fast with the unblock instructions |
 | `results/<date>_<seq>_<profiler>_<hw>/` | `metadata.json` (mandatory) + `raw/` + `derived/`; never overwritten; gitignored |
 | `reports/` | committed characterization reports (markdown + SVG + CSV) |
@@ -86,7 +86,11 @@ Analysis modules also run standalone (each writes CSV + SVG into the run's
 `python3 -m analysis.screen <ncu_run>`,
 `python3 -m analysis.roofline <ncu_run> --hw …`,
 `python3 -m analysis.bandwidth <ncu_run> --hw … [--nsys <nsys_run>]`,
-`python3 -m analysis.classify <ncu_run|report_data_dir>… --hw …`.
+`python3 -m analysis.classify <ncu_run|report_data_dir>… --hw …`,
+`python3 -m analysis.compare LABEL=<classification.csv>…`,
+`python3 -m analysis.cluster <ncu_run|data_dir>… --hw …`,
+`python3 -m analysis.variance <run>…`,
+`python3 -m analysis.locality <memtrace.zst>` (Slice-3, NVBit traces).
 
 **No dataset? No GPU? Still reproducible.** `classify` (and any module reading
 CSVs) accepts a committed report's `data/` dir, so the DAMOV classification and

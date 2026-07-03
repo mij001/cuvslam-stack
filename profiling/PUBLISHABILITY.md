@@ -28,10 +28,10 @@ the paper · ✅ resolved (kept for the record).
 | ✅1 | **Prototype GPU, unlocked clocks** | "All numbers come from a 25 W laptop part that can't lock clocks — nothing here is a stable quantity." | **CLOSED 2026-07-03.** Locked-clock RTX 2000 Ada pass complete (persistence + `-lgc 1620,1620` / `-lmc 7001,7001`): 5-repeat CoV median **0.14%** (was 49.6% unlocked laptop / 9.3% warmed); ceilings measured at lock (205.0 GB/s ±0.1, 5445 GFLOP/s ±3). Reports: `2026-07-03_*_rtx2000ada`. Locks reset on reboot — re-apply after power events. |
 | ✅2 | **One workload mode, one dataset** (TUM RGBD) | "You characterize *a* configuration of cuVSLAM, not cuVSLAM. Stereo — the flagship mode — is never measured in the report." | **Matrix captured 2026-07-03**: {TUM RGBD, KITTI 06 rectified stereo, TUM-VI fisheye} × {odometry, SLAM} on the Ada + TUM on MX450. TUM↔KITTI class agreement **97% time-weighted**; cross-GPU 100% on heavy kernels; TUM-VI flips track the L2 crossover (physics, not noise). See `reports/2026-07-03_matrix_synthesis/`. EuRoC remains optional garnish. |
 | 🔴3 | **Kernel-level claims, data-structure conclusions** | "You claim the *keyframe database* belongs in ISP but you never observed which allocation the kernel reads." | TaggedAllocator + NVBit alloc-hook correlation (onboarding §11.2) — needs the from-source cuVSLAM build. Until then all claims must stay kernel-scoped (reports are already worded this way). |
-| 🟠4 | **No reuse-distance / locality evidence** | "DAMOV's core is locality analysis; your LFMR is a one-point proxy." | Slice-3: NVBit mem_trace → `locality.cpp` (per-warp), gated on driver ≤575 (`blocked/check_capability.sh`); the workstation may unblock it. The cold/warm bracket narrows the gap meanwhile. |
+| 🟠→🟡4 | **No reuse-distance / locality evidence** | "DAMOV's core is locality analysis; your LFMR is a one-point proxy." | **Analyzer built & committed** (`analysis/locality.py`): footprint + reuse-distance-vs-cache-capacity CDF + intra-warp coalescing + inter-launch overlap from NVBit traces; `mem_trace_launch_window.patch` keeps traces bounded. **Unblocking now** — workstation driver-downgrade to 575/CUDA-12 in progress (permission granted). Cold/warm bracket narrows the gap until traces land. |
 | 🟠5 | **No PiM-side model** — candidacy without a substrate evaluation | "G1/G2 kernels *might* benefit — show me a speedup/energy estimate." | Phase-4 scope: Accel-Sim NDP config (reduced L2, bank-level BW) + AccelWattch energy; report **deltas**. The characterization paper (ISPASS/IISWC) can stand without it; the MICRO/ASPLOS paper cannot. |
 | 🟠6 | **No energy numbers** | "PiM's main win is energy; you never measure a joule." | NVML power sampling is feasible today for whole-run energy (add to harness on the workstation); per-kernel needs AccelWattch (Slice 3+). |
-| 🟠7 | **G-taxonomy validated by decision tree, not clustering** | "DAMOV derived classes from clustering; you asserted a tree." | The adaptation doc's step 9 (k-means over the metric vectors) once ≥3 datasets exist — the tree then becomes the *labeling*, clustering the *validation*. |
+| 🟠→🟡7 | **G-taxonomy validated by decision tree, not clustering** | "DAMOV derived classes from clustering; you asserted a tree." | **Clustering built** (`analysis/cluster.py`, stdlib k-means, silhouette/ARI/purity vs the tree). Preliminary: silhouette prefers **k=7** = the taxonomy's class count, purity 0.67 (single-dataset consistency check). Pooled-matrix run over ≥3 datasets is the remaining step for the *validation* claim. |
 | 🟡8 | **Sub-frame stages not attributed** (NVTX absent) | "Which kernels belong to feature-detect vs tracking is regex over names." | Name-based mapping is documented + tested; NVTX ranges come with the from-source build. Risk is low (names are descriptive) but a reviewer can poke it. |
 | 🟡9 | **cuVSLAM is closed-source at this phase** | "Can anyone reproduce your workload?" | The runner pins the public wheel (v15) + configs + datasets are public; the from-source phase upgrades this. Artifact evaluation can run everything headless. |
 | 🟡10 | **No repo LICENSE** | Artifact evaluation requires an explicit license. | **User decision needed** — cannot be chosen unilaterally (cuVSLAM wheel EULA interacts with repo licensing). |
@@ -39,9 +39,10 @@ the paper · ✅ resolved (kept for the record).
 
 ## Venue framing (honest)
 
-- **Now + workstation pass + 3 datasets** → ISPASS/IISWC characterization
-  paper: "GPU-DAMOV applied to a production V-SLAM stack" with the G-taxonomy,
-  the loop-closure/ISP finding, and the emergent G7 class as contributions.
+- **Now (workstation pass + 3-dataset matrix both DONE)** → ISPASS/IISWC
+  characterization paper is **submittable**: "GPU-DAMOV applied to a production
+  V-SLAM stack" with the G-taxonomy, the loop-closure/ISP finding + measured
+  L2 crossover, and the emergent G7 class as contributions.
 - **+ Slice-3 (traces, sim, clustering) + TaggedAllocator** → the data-structure-
   level characterization that motivates a design.
 - **+ PiM/ISP substrate design + delta evaluation + energy** → the
