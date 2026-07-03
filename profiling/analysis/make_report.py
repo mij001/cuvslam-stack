@@ -27,7 +27,7 @@ import sys
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from analysis import bandwidth, build_dag, classify, common, roofline, screen, stages  # noqa: E402
+from analysis import bandwidth, build_dag, classify, common, roofline, screen, stages, transfers  # noqa: E402
 
 PROF_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS_ROOT = os.path.join(PROF_ROOT, "results")
@@ -178,6 +178,19 @@ def main(argv=None):
     R.append(f"![stage bytes](figures/fig_stage_bytes.svg)\n")
     if os.path.isfile(os.path.join(figs, "fig_kernel_gbps.svg")):
         R.append(f"![kernel gbps](figures/fig_kernel_gbps.svg)\n")
+
+    try:
+        xf = transfers.parse(nsys_dir)
+        transfers.emit(xf, data)
+        R.append("### Host↔device transfers (data movement the kernel view misses)\n")
+        R.append(f"Explicit memcpy/memset time is **{xf['transfer_time_ms']:.0f} ms "
+                 f"vs {xf['kernel_time_ms']:.0f} ms of kernel time "
+                 f"({xf['transfer_vs_kernel_pct']:.0f}%)**; Host-to-Device moves "
+                 f"**{xf['h2d_mb_per_frame']:.2f} MB/frame** (the sensor-image "
+                 "upload — traffic a near-sensor substrate eliminates outright). "
+                 "Full table: `data/transfers.csv`.\n")
+    except SystemExit:
+        pass
 
     R.append("## 6. Loop-closure (SLAM layer) delta\n")
     if slam_dag:

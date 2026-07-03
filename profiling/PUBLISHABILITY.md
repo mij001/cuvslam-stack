@@ -35,7 +35,7 @@ the paper · ✅ resolved (kept for the record).
 | 🟡8 | **Sub-frame stages not attributed** (NVTX absent) | "Which kernels belong to feature-detect vs tracking is regex over names." | Name-based mapping is documented + tested; NVTX ranges come with the from-source build. Risk is low (names are descriptive) but a reviewer can poke it. |
 | 🟡9 | **cuVSLAM is closed-source at this phase** | "Can anyone reproduce your workload?" | The runner pins the public wheel (v15) + configs + datasets are public; the from-source phase upgrades this. Artifact evaluation can run everything headless. |
 | 🟡10 | **No repo LICENSE** | Artifact evaluation requires an explicit license. | **User decision needed** — cannot be chosen unilaterally (cuVSLAM wheel EULA interacts with repo licensing). |
-| 🟡11 | **Host↔device + inter-kernel data movement unmeasured** | "GPU-DAMOV §9 says kernel-to-kernel movement matters more on GPUs — you ignore it." | nsys already records H2D/D2H; add a transfer-summary module (cheap, planned); inter-kernel reuse needs Slice-3 traces. |
+| 🟡11 | **Inter-kernel data movement unmeasured** | "GPU-DAMOV §9 says kernel-to-kernel movement matters more on GPUs — you ignore it." | Host↔device side RESOLVED: `analysis/transfers.py` (measured: explicit copies = 41% of kernel time on TUM; H2D 1.68 MB/frame = the sensor upload, i.e. direct near-sensor evidence, in report §5). Inter-kernel reuse still needs Slice-3 traces. |
 
 ## Venue framing (honest)
 
