@@ -74,7 +74,8 @@ class Fenwick:
 
 class KernelStats:
     __slots__ = ("name", "launches", "footprints", "reuse_hist", "spatial",
-                 "n_accesses", "skipped", "last_fp", "overlaps")
+                 "n_accesses", "skipped", "last_fp", "overlaps",
+                 "active_lanes", "sectors_per_active")
 
     def __init__(self, name):
         self.name = name
@@ -86,6 +87,11 @@ class KernelStats:
         self.skipped = 0
         self.last_fp = None           # previous launch's footprint set (overlap)
         self.overlaps = []            # Jaccard vs previous launch
+        # divergence vs coalescing (disambiguates the two): active lanes per
+        # warp memory access (32 = converged) and sectors per active lane
+        # (1 = perfectly coalesced among the active lanes)
+        self.active_lanes = Counter()      # #active lanes (1..32) per access
+        self.sectors_per_active = 0.0      # running sum of sectors/active_lanes
 
 
 class LaunchState:
@@ -164,8 +170,11 @@ def analyze(path, kernel_rx=None, max_launches=None, max_accesses=5_000_000):
         addrs = [int(a, 16) for a in m.group(3).split() if a != "0x0"]
         if not addrs:
             continue
-        sectors = [a // SECTOR for a in addrs]
-        ks.spatial[len(set(sectors))] += 1
+        sectors = set(a // SECTOR for a in addrs)
+        n_active = len(addrs)               # non-null lanes = active (divergence proxy)
+        ks.spatial[len(sectors)] += 1
+        ks.active_lanes[n_active] += 1
+        ks.sectors_per_active += len(sectors) / n_active
         for s in sectors:
             st.access(s, ks)
 
@@ -209,16 +218,21 @@ def emit(kernels, out_dir):
         mean_sect = sum(k * v for k, v in ks.spatial.items()) / spatial_total
         coalesced = sum(v for k, v in ks.spatial.items() if k <= 4) / spatial_total
         overlaps = getattr(ks, "overlaps", [])
+        n_acc_events = sum(ks.active_lanes.values()) or 1
+        mean_active = sum(k * v for k, v in ks.active_lanes.items()) / n_acc_events
+        mean_sec_per_active = ks.sectors_per_active / n_acc_events
         rows.append([ks.name, ks.launches, ks.n_accesses, ks.skipped,
                      f"{fp/1e6:.3f}", round(mean_sect, 2),
                      round(100 * coalesced, 1),
+                     round(mean_active, 1), round(32 * mean_sec_per_active, 2),
                      round(sum(overlaps) / len(overlaps), 3) if overlaps else ""])
         cdf = hit_cdf(ks)
         cdf_rows.append([ks.name] + [round(cdf.get(c, float("nan")), 4) for c in CAPACITIES])
     p1 = os.path.join(out_dir, "locality.csv")
     common.write_csv(p1, ["kernel", "launches", "accesses", "skipped_overflow",
                           "max_footprint_mb", "mean_sectors_per_warp_access",
-                          "pct_warp_accesses_coalesced_le4", "interlaunch_jaccard"],
+                          "pct_warp_accesses_coalesced_le4", "mean_active_lanes",
+                          "sectors_per_32_active_lanes", "interlaunch_jaccard"],
                      rows)
     p2 = os.path.join(out_dir, "reuse_cdf.csv")
     common.write_csv(p2, ["kernel"] + [f"hit_at_{c//1024}KiB" for c in CAPACITIES],
