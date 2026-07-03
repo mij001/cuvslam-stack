@@ -237,5 +237,53 @@ class TestClassify(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+class TestLocality(unittest.TestCase):
+    def _trace(self):
+        # kernel A, two launches over the SAME 8 sectors (64B apart => 2
+        # sectors per 2-address access below), then one scattered access.
+        lines = ["MEMTRACE: CTX 0x1 - LAUNCH - Kernel pc 0x1 - Kernel name kernA "
+                 "- grid launch id 0 - grid size 1,1,1 - block size 32,1,1 "
+                 "- nregs 1 - shmem 0 - cuda stream id 1"]
+        base = 0x10000
+        for rep in range(2):           # touch sectors twice -> reuse
+            for i in range(4):
+                a0, a1 = base + i * 64, base + i * 64 + 32
+                lines.append(f"MEMTRACE: CTX 0x1 - grid_launch_id 0 - CTA 0,0,0 "
+                             f"- warp 0 - LDG.E - {hex(a0)} {hex(a1)} " + "0x0 " * 30)
+        lines.append("MEMTRACE: CTX 0x1 - LAUNCH - Kernel pc 0x1 - Kernel name kernA "
+                     "- grid launch id 1 - grid size 1,1,1 - block size 32,1,1 "
+                     "- nregs 1 - shmem 0 - cuda stream id 1")
+        for i in range(4):
+            a0 = base + i * 64
+            lines.append(f"MEMTRACE: CTX 0x1 - grid_launch_id 1 - CTA 0,0,0 "
+                         f"- warp 0 - LDG.E - {hex(a0)} " + "0x0 " * 31)
+        return "\n".join(lines) + "\n"
+
+    def test_locality_pipeline(self):
+        from analysis import locality
+        tmp = tempfile.mkdtemp()
+        try:
+            p = os.path.join(tmp, "trace.txt")
+            open(p, "w").write(self._trace())
+            kernels = locality.analyze(p)
+            self.assertIn("kernA", kernels)
+            ks = kernels["kernA"]
+            self.assertEqual(ks.launches, 2)
+            # launch 0 footprint: 4 addr-pairs at 64B stride = 8 sectors
+            self.assertEqual(ks.footprints[0], 8)
+            # second pass over same sectors -> reuse distances recorded
+            self.assertGreater(sum(v for k, v in ks.reuse_hist.items()
+                                   if isinstance(k, int) and k >= 0), 0)
+            # launch 1 touches 4 of the 8 sectors -> Jaccard 0.5
+            self.assertAlmostEqual(ks.overlaps[0], 0.5)
+            # every warp access touched 1-2 unique sectors -> coalesced
+            cdf = locality.hit_cdf(ks)
+            self.assertGreater(cdf[64 * 1024], 0.3)   # reuse fits any cache
+            files = locality.emit(kernels, tmp)
+            self.assertTrue(all(os.path.isfile(f) for f in files))
+        finally:
+            shutil.rmtree(tmp)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

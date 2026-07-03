@@ -1,0 +1,68 @@
+Add LAUNCH_BEGIN / LAUNCH_END windowing to NVBit's mem_trace (NVBit 1.8).
+
+Full-run memory traces of cuVSLAM are TB-scale at 100-1000x slowdown; Slice 3
+traces bounded steady-state / loop-closure windows instead. Two env vars gate
+instrumentation by grid launch id (outside the window kernels run
+uninstrumented at near-native speed); LAUNCH lines still print for every
+launch so the launch-id -> kernel-name map stays complete for alignment with
+the nsys/ncu launch indexing.
+
+  LAUNCH_BEGIN=N   first grid launch id to instrument (default 0)
+  LAUNCH_END=M     first grid launch id NOT to instrument (default: no end)
+
+Apply:  (cd external_repos/nvbit_release_x86_64/tools/mem_trace &&
+         patch < profiling/blocked/mem_trace_launch_window.patch)
+
+--- mem_trace.cu.orig	2026-07-03 17:15:59.305054173 +0530
++++ mem_trace.cu	2026-07-03 17:15:59.330060425 +0530
+@@ -119,6 +119,9 @@
+ /* global control variables for this tool */
+ uint32_t instr_begin_interval = 0;
+ uint32_t instr_end_interval = UINT32_MAX;
++/* launch-id window: trace only grid launches in [launch_begin, launch_end) */
++uint64_t launch_begin_interval = 0;
++uint64_t launch_end_interval = UINT64_MAX;
+ int verbose = 0;
+ 
+ /* opcode to id map and reverse map  */
+@@ -138,6 +141,12 @@
+     GET_VAR_INT(
+         instr_end_interval, "INSTR_END", UINT32_MAX,
+         "End of the instruction interval where to apply instrumentation");
++    GET_VAR_LONG(
++        launch_begin_interval, "LAUNCH_BEGIN", 0,
++        "First grid launch id to instrument (default 0)");
++    GET_VAR_LONG(
++        launch_end_interval, "LAUNCH_END", UINT64_MAX,
++        "First grid launch id NOT to instrument (default: no end)");
+     GET_VAR_INT(verbose, "TOOL_VERBOSE", 0, "Enable verbosity inside the tool");
+     std::string pad(100, '-');
+     printf("%s\n", pad.c_str());
+@@ -268,10 +277,16 @@
+     // during stream capture or manual graph build, no kernel is launched, so
+     // do not set launch argument, do not print kernel info, do not increase
+     // grid_launch_id. All these should be done at graph node launch time.
++    bool in_window = true;
+     if (!stream_capture && !build_graph) {
+         /* set grid launch id at launch time */
+         nvbit_set_at_launch(ctx, func, (uint64_t)grid_launch_id);
+ 
++        /* launch-window gating (LAUNCH_BEGIN/LAUNCH_END): outside the window
++           this launch runs uninstrumented at near-native speed */
++        in_window = grid_launch_id >= launch_begin_interval &&
++                    grid_launch_id < launch_end_interval;
++
+         if (cbid == API_CUDA_cuLaunchKernelEx_ptsz ||
+             cbid == API_CUDA_cuLaunchKernelEx) {
+             cuLaunchKernelEx_params* p = (cuLaunchKernelEx_params*)params;
+@@ -305,8 +320,8 @@
+         grid_launch_id++;
+     }
+ 
+-    /* enable instrumented code to run */
+-    nvbit_enable_instrumented(ctx, func, true);
++    /* enable instrumented code to run (only inside the launch window) */
++    nvbit_enable_instrumented(ctx, func, in_window);
+ }
+ 
+ static void leave_kernel_launch(CUcontext ctx, CTXstate* ctx_state) {
