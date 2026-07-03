@@ -1,0 +1,198 @@
+Generating SQLite file /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite from /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.nsys-rep
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/nvtx_sum.py]... 
+
+ ** NVTX Range Summary (nvtx_sum):
+
+ Time (%)  Total Time (ns)  Instances  Avg (ns)  Med (ns)  Min (ns)  Max (ns)  StdDev (ns)   Style             Range          
+ --------  ---------------  ---------  --------  --------  --------  --------  -----------  -------  -------------------------
+    100.0           382411         18   21245.1   18944.0     16085     62917      10621.0  PushPop  CCCL:cub::DeviceMergeSort
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/osrt_sum.py]... 
+
+ ** OS Runtime Summary (osrt_sum):
+
+ Time (%)  Total Time (ns)  Num Calls   Avg (ns)     Med (ns)    Min (ns)   Max (ns)   StdDev (ns)           Name         
+ --------  ---------------  ---------  -----------  -----------  ---------  ---------  -----------  ----------------------
+     75.2       6373459291        247   25803478.9   10065911.0       1673  100121375   34336979.2  poll                  
+     23.6       2000074816          4  500018704.0  500020219.0  500013814  500020564       3266.5  pthread_cond_timedwait
+      1.1         93390267        864     108090.6       9014.0       1001   10506867     452697.9  ioctl                 
+      0.0          2798907       1474       1898.9       1162.0       1001      52300       3291.9  read                  
+      0.0          2316391        858       2699.8       2624.0       1161      12720        991.6  open64                
+      0.0          1552382         38      40852.2       3786.0       1643    1047247     169156.8  mmap64                
+      0.0          1157177         21      55103.7       7942.0       1442     321944      93735.5  mmap                  
+      0.0           989145        702       1409.0       1327.0       1001      14151        703.1  stat64                
+      0.0           809573         10      80957.3      30787.5      22855     300641     111336.9  sem_timedwait         
+      0.0           275112          1     275112.0     275112.0     275112     275112          0.0  pthread_mutex_lock    
+      0.0           244105          4      61026.3      62516.0      43257      75816      13954.4  pthread_create        
+      0.0           190262          5      38052.4      35975.0      35084      46942       5026.8  fgets                 
+      0.0           161175         31       5199.2       4998.0       1072      11157       3547.1  fclose                
+      0.0           147838         44       3360.0       2048.5       1072      17076       3257.1  fopen                 
+      0.0            70618         52       1358.0       1047.0       1001       5449        808.2  close                 
+      0.0            45367         10       4536.7       4817.0       2424       6750       1663.9  pthread_cond_signal   
+      0.0            31338         16       1958.6       1442.0       1242       6530       1328.5  write                 
+      0.0            19599          6       3266.5       3330.0       1302       5348       1499.4  open                  
+      0.0            18719          5       3743.8       3275.0       1383       6540       2224.3  fread                 
+      0.0            14823          4       3705.8       3851.0       2534       4587        975.6  pipe2                 
+      0.0             9985          1       9985.0       9985.0       9985       9985          0.0  connect               
+      0.0             8603          2       4301.5       4301.5       2604       5999       2400.6  socket                
+      0.0             6279          4       1569.8       1492.0       1081       2214        543.2  fopen64               
+      0.0             4357          3       1452.3       1362.0       1322       1673        192.1  lstat64               
+      0.0             3444          3       1148.0       1161.0       1071       1212         71.4  fstat64               
+      0.0             3215          2       1607.5       1607.5       1222       1993        545.2  fwrite                
+      0.0             3195          2       1597.5       1597.5       1432       1763        234.1  sigaction             
+      0.0             1332          1       1332.0       1332.0       1332       1332          0.0  bind                  
+      0.0             1332          1       1332.0       1332.0       1332       1332          0.0  fcntl                 
+      0.0             1111          1       1111.0       1111.0       1111       1111          0.0  fflush                
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/cuda_api_sum.py]... 
+
+ ** CUDA API Summary (cuda_api_sum):
+
+ Time (%)  Total Time (ns)  Num Calls  Avg (ns)   Med (ns)   Min (ns)  Max (ns)  StdDev (ns)                Name              
+ --------  ---------------  ---------  ---------  ---------  --------  --------  -----------  --------------------------------
+     56.1        291259452       4995    58310.2    45690.0      4557    257255      43852.5  cudaStreamSynchronize           
+     17.4         90216020         34  2653412.4     2864.5      1292  86739144   14860537.4  cudaHostAlloc                   
+      8.6         44807572      18543     2416.4     2144.0      1903    639191       6637.8  cudaLaunchKernel                
+      7.8         40270019      15093     2668.1     1893.0      1562    320081       5800.1  cudaMemcpyAsync                 
+      2.7         13944351       9264     1505.2     1422.0      1192     16255        440.5  cudaMemsetAsync                 
+      1.8          9413427        894    10529.6     5148.0      2373     43767      10067.4  cudaMemcpy2DAsync               
+      1.5          7812132          4  1953033.0  1491750.0    228321   4600311    1929043.6  cuLibraryLoadData               
+      1.2          6258556          6  1043092.7     5689.0      3134   6172825    2513172.4  cudaMemcpyToSymbol              
+      0.9          4473177        246    18183.6     1978.0       370    229733      35040.5  cudaFree                        
+      0.5          2793271         34    82155.0     2584.0      1522   1035329     224399.5  cudaFreeHost                    
+      0.4          2187986        198    11050.4     1452.0       882     63778      17600.0  cudaMallocPitch                 
+      0.3          1795386          1  1795386.0  1795386.0   1795386   1795386          0.0  cudaMallocAsync                 
+      0.3          1640130      18543       88.5       80.0        60      4216         58.3  cuKernelGetName                 
+      0.1           655992        396     1656.5     1222.0      1061     12869        927.1  cudaCreateTextureObject         
+      0.1           487749         44    11085.2     1922.5      1052     73463      19823.0  cudaMalloc                      
+      0.1           274437         90     3049.3     2348.5      1912     19330       2753.1  cudaLaunchKernelExC             
+      0.0           230996        396      583.3      581.0       250      3716        253.3  cudaDestroyTextureObject        
+      0.0           203179       1359      149.5      101.0        60      7571        219.3  cuGetProcAddress_v2             
+      0.0           118569         45     2634.9      371.0       140     91781      13611.0  cuLibraryGetKernel              
+      0.0           103990         17     6117.1     5789.0      5097      9004        970.2  cudaMemcpy                      
+      0.0            28154          6     4692.3     2123.5       851     18549       6843.4  cudaStreamCreate                
+      0.0            21929        229       95.8       81.0        60       951         69.6  cuStreamGetGreenCtx             
+      0.0            20772          6     3462.0     2359.0      1582      6480       2287.5  cudaStreamDestroy               
+      0.0            12778         36      354.9      195.5       170      1562        393.4  cudaEventCreateWithFlags        
+      0.0            11277         36      313.3      285.0       150      1352        200.7  cudaEventDestroy                
+      0.0             9706          8     1213.3      731.5       571      4046       1191.7  cudaDeviceSynchronize           
+      0.0             5347          5     1069.4      851.0       771      1792        426.7  cuInit                          
+      0.0             2274          4      568.5      195.0        71      1813        832.2  cuModuleGetLoadingMode          
+      0.0             1041          3      347.0      410.0       211       420        117.9  cudaGetDriverEntryPointByVersion
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/cuda_gpu_kern_sum.py]... 
+
+ ** CUDA GPU Kernel Summary (cuda_gpu_kern_sum):
+
+ Time (%)  Total Time (ns)  Instances  Avg (ns)  Med (ns)  Min (ns)  Max (ns)  StdDev (ns)                                                  Name                                                
+ --------  ---------------  ---------  --------  --------  --------  --------  -----------  ----------------------------------------------------------------------------------------------------
+     31.0         67058985       4273   15693.7   15711.0     15008     16352        217.4  cuvslam::cuda::matcher::photometric_kernel(cuvslam::cuda::ImgTextures, cuvslam::cuda::Inctinsics, c…
+     29.0         62653277       4273   14662.6   14656.0     14464     15072         76.7  cuvslam::cuda::matcher::point_to_point_kernel(cuvslam::cuda::ImgTextures, cuvslam::cuda::Inctinsics…
+      9.1         19729738        260   75883.6   75999.5     73279     79168       1014.3  cuvslam::cuda::cast_depth_kernel(const unsigned short *, unsigned long, float, float *, unsigned lo…
+      8.5         18335515       2600    7052.1    3456.0      3136     18944       5973.1  cuvslam::cuda::gaussian_scaling_kernel(unsigned long long, uint2, float *, unsigned long, uint2)    
+      5.4         11603571        518   22400.7   20688.0     16384     46048       5030.8  cuvslam::cuda::lk_track_kernel(cuvslam::cuda::Pyramid, cuvslam::cuda::Pyramid, cuvslam::cuda::Pyram…
+      4.3          9402273        260   36162.6   36160.0     36032     36607         48.7  cuvslam::cuda::cast_image_kernel_rgb(const unsigned char *, unsigned long, float *, unsigned long, …
+      2.8          5963897       1560    3823.0    2416.0      2271      9728       2638.4  cuvslam::cuda::conv_grad_y_kernel(unsigned long long, uint2, float *, unsigned long)                
+      2.6          5532028       1560    3546.2    2495.5      2144      8160       2113.9  cuvslam::cuda::conv_grad_x_kernel(unsigned long long, uint2, float *, unsigned long)                
+      1.1          2344336         89   26340.9   31039.0      8000     35296       8269.7  cuvslam::cuda::sba::build_full_system_1_kernel(cuvslam::cuda::sba::GPULinearSystemMeta, cuvslam::cu…
+      0.7          1574553        114   13811.9   12687.5     10847     18304       2821.6  cuvslam::cuda::sba::reduced_system_stage_1_kernel(cuvslam::cuda::sba::GPULinearSystemMeta, cuvslam:…
+      0.6          1291289        114   11327.1   14016.0      2656     15168       4514.5  cuvslam::cuda::sba::reduced_system_stage_2_kernel(cuvslam::cuda::sba::GPULinearSystemMeta, cuvslam:…
+      0.4           899930         89   10111.6   10720.0      7808     11488       1036.6  cuvslam::cuda::sba::build_full_system_2_kernel(cuvslam::cuda::sba::GPULinearSystemMeta, cuvslam::cu…
+      0.4           870620        114    7637.0    8064.0      5056      8896       1243.3  void trsv_lt_exec<float, (unsigned int)32, (unsigned int)32, (unsigned int)4, (bool)0, (bool)0>(int…
+      0.4           849050        114    7447.8    7360.0      6688      8032        450.0  void kernel<getrf_wo_pivot_params_<float, (int)0, (int)128, (int)1, (int)32, (int)32, (int)32, (int…
+      0.3           649977        114    5701.6    5888.0      4287      6592        732.1  void trsv_ln_exec<float, (unsigned int)32, (unsigned int)32, (unsigned int)4, (bool)0>(int, const T…
+      0.3           562557        228    2467.4    2432.0      2304      2560         61.8  cuvslam::cuda::sba::point_term_kernel(float3 *, cuvslam::cuda::Mat<float, (int)3, (int)3> *, int, b…
+      0.3           546908        228    2398.7    2080.0      1920      3488        471.9  cuvslam::cuda::sba::reduce_abs_max_kernel(float *, unsigned long, float *)                          
+      0.3           543646        114    4768.8    5280.0      2848      5984        889.5  cuvslam::cuda::sba::v1T_x_M_T_x_v2_kernel(float *, float *, unsigned long, int, int, float *, float…
+      0.2           519260        114    4554.9    4944.0      2656      6048        979.3  cuvslam::cuda::sba::reduced_system_stage_12_kernel(cuvslam::cuda::sba::GPULinearSystemMeta, cuvslam…
+      0.2           504794         89    5671.8    5632.0      5439      6240        177.2  cuvslam::cuda::sba::calc_jacobians_kernel(cuvslam::cuda::sba::GPUModelFunctionMeta, cuvslam::cuda::…
+      0.2           499963        131    3816.5    3776.0      3520      4671        228.7  cuvslam::cuda::sba::evaluate_cost_kernel(float *, int *, cuvslam::cuda::sba::GPUBundleAdjustmentPro…
+      0.2           471422         18   26190.1   26159.5     25952     27008        230.6  cuvslam::cuda::gftt_values_kernel(unsigned long long, unsigned long long, float *, unsigned long, u…
+      0.2           371231         89    4171.1    5472.0      1440      6400       1980.6  cuvslam::cuda::sba::clear_full_system_stage_1_kernel(cuvslam::cuda::sba::GPULinearSystemMeta, int, …
+      0.2           365051        114    3202.2    3360.0      2368      3584        340.8  cuvslam::cuda::sba::reduced_system_stage_3_kernel(cuvslam::cuda::sba::GPULinearSystemMeta, cuvslam:…
+      0.1           278816        114    2445.8    2304.0      1856      3008        386.7  cuvslam::cuda::sba::calc_pose_update_kernel(cuvslam::cuda::Mat<float, (int)4, (int)4> *, cuvslam::c…
+      0.1           278270        114    2441.0    2719.5      1760      3008        424.1  cuvslam::cuda::sba::calc_point_update_kernel_xavier_special(float *, float *, unsigned long, float …
+      0.1           266143        114    2334.6    2336.0      2240      2592         62.9  cuvslam::cuda::sba::v1T_x_M_x_v2_kernel(float *, float *, unsigned long, int, int, float *, float *…
+      0.1           249597        114    2189.4    2176.0      2175      2240         16.4  cuvslam::cuda::sba::pose_scaling_term_kernel(float *, float *, unsigned long, int, float *)         
+      0.1           190108         18   10561.6   10560.0     10431     10720         81.7  void cub::CUB_300001_SM_750_800_860_870_880_890_900_1000_1030_1100_1200_1210::detail::merge_sort::D…
+      0.1           177470        114    1556.8    1536.0      1504      1632         43.8  cuvslam::cuda::sba::make_prediction(float, float, float *, float *, float *, float *, float *)      
+      0.1           149184         18    8288.0    8288.0      8192      8448         67.7  cuvslam::cuda::non_max_suppression_kernel(unsigned long long, uint2, float *, int)                  
+      0.1           143295        114    1257.0    1248.0      1216      1280         18.8  copy_info_kernel(int, int *)                                                                        
+      0.1           143104        114    1255.3    1248.0      1216      1280         14.1  dtrsv_init(int *)                                                                                   
+      0.1           142976        114    1254.2    1248.0      1216      1280         16.4  dtrsv_init_up(int *, int)                                                                           
+      0.1           142848        114    1253.1    1248.0      1216      1280         16.3  xxtrf4_set_info_ker(int, int *)                                                                     
+      0.1           138559         36    3848.9    3840.0      3616      4032         99.9  void cub::CUB_300001_SM_750_800_860_870_880_890_900_1000_1030_1100_1200_1210::detail::merge_sort::D…
+      0.1           132255         72    1836.9    1872.0      1536      1952        104.4  cuvslam::cuda::sba::update_points_kernel(cuvslam::cuda::sba::Point *, float3 *, int)                
+      0.1           130622         36    3628.4    3584.0      3520      3808         81.3  void cub::CUB_300001_SM_750_800_860_870_880_890_900_1000_1030_1100_1200_1210::detail::merge_sort::D…
+      0.1           112096         18    6227.6    6240.0      6176      6304         29.3  cuvslam::cuda::accumulateGFTT_kernel(unsigned long long, uint2, uint2, uint2, float *)              
+      0.1           109984         72    1527.6    1536.0      1472      1568         24.0  cuvslam::cuda::sba::update_poses_kernel(cuvslam::cuda::Mat<float, (int)4, (int)4> *, cuvslam::cuda:…
+      0.1           108992         89    1224.6    1216.0      1184      1248         17.9  cuvslam::cuda::sba::clear_full_system_stage_2_kernel(cuvslam::cuda::sba::GPULinearSystemMeta, int)  
+      0.0           107488         18    5971.6    5968.0      5920      6048         33.2  cuvslam::cuda::downsample_gftt_x8_kernel(const float *, int, float *, uint2, int, uint2 *, int)     
+      0.0            75295         18    4183.1    4160.0      4128      4416         66.6  cuvslam::cuda::matcher::lift_kernel(unsigned long long, cuvslam::cuda::Inctinsics, const cuvslam::c…
+      0.0            55744         18    3096.9    3104.0      3040      3136         28.1  cuvslam::cuda::select_features_kernel(const float *, uint2, unsigned long, const float *, uint2, in…
+      0.0            32608         17    1918.1    1920.0      1728      1984         57.1  cuvslam::cuda::filter_maximums_kernel(float *, uint2, int, const cuvslam::cuda::Keypoint *, int)    
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/cuda_gpu_mem_time_sum.py]... 
+
+ ** CUDA GPU MemOps Summary (by Time) (cuda_gpu_mem_time_sum):
+
+ Time (%)  Total Time (ns)  Count  Avg (ns)  Med (ns)  Min (ns)  Max (ns)  StdDev (ns)            Operation           
+ --------  ---------------  -----  --------  --------  --------  --------  -----------  ------------------------------
+     64.9         40524411   5506    7360.0    1792.0       416     71359      17237.3  [CUDA memcpy Host-to-Device]  
+     16.7         10426167   9528    1094.3     992.0       959      5408        412.0  [CUDA memcpy Device-to-Host]  
+     12.2          7630309   9264     823.7     864.0       415      1056        164.4  [CUDA memset]                 
+      6.3          3907144    976    4003.2    6272.0      1312      6656       2463.0  [CUDA memcpy Device-to-Device]
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/cuda_gpu_mem_size_sum.py]... 
+
+ ** CUDA GPU MemOps Summary (by Size) (cuda_gpu_mem_size_sum):
+
+ Total (MB)  Count  Avg (MB)  Med (MB)  Min (MB)  Max (MB)  StdDev (MB)            Operation           
+ ----------  -----  --------  --------  --------  --------  -----------  ------------------------------
+    639.769    976     0.656     1.229     0.000     1.229        0.613  [CUDA memcpy Device-to-Device]
+    436.719   5506     0.079     0.006     0.000     0.922        0.227  [CUDA memcpy Host-to-Device]  
+     15.572   9528     0.002     0.000     0.000     0.063        0.006  [CUDA memcpy Device-to-Host]  
+      1.508   9264     0.000     0.000     0.000     0.000        0.000  [CUDA memset]                 
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/openmp_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain OpenMP event data.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/opengl_khr_range_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain KHR Extension (KHR_DEBUG) data.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/opengl_khr_gpu_range_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain GPU KHR Extension (KHR_DEBUG) data.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/vulkan_marker_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain Vulkan Debug Extension (Vulkan Debug Util) data.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/vulkan_gpu_marker_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain GPU Vulkan Debug Extension (GPU Vulkan Debug markers) data.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/dx11_pix_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain DX11 CPU debug markers.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/dx12_gpu_marker_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain DX12 GPU debug markers.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/dx12_pix_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain DX12 CPU debug markers.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/wddm_queue_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain WDDM context data.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/um_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain CUDA Unified Memory CPU page faults data.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/um_total_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain CUDA Unified Memory CPU page faults data.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/um_cpu_page_faults_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain CUDA Unified Memory CPU page faults data.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/openacc_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain OpenACC event data.
+
+Processing [/home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite] with [/usr/lib/nsight-systems/target-linux-x64/reports/syscall_sum.py]... 
+SKIPPED: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-03_124806_freiburg3longofficehouse_nsys_dellworkstation_sm89/raw/profile.sqlite does not contain syscall data.
+

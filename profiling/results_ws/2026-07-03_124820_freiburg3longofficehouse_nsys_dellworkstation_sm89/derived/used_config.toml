@@ -1,0 +1,44 @@
+# Profiling workload — TUM RGB-D freiburg3_long_office_household, odometry only.
+#
+# The steady-state RGBD characterization workload: 260 frames = 200 warm-up
+# (map fully populated) + the 200-250 steady-state window that --auto-window
+# scopes ncu onto. Dataset root is machine-independent (/home/ndpvslam/Projects/cuvslam_datasets is
+# expanded by profile.py; fetch with profiling/env/fetch_datasets.sh tum_office).
+#
+# Intrinsics: TUM fr3 factory calibration (535.4/539.2, 320.1/247.6), depth
+# scale 5000 (standard TUM uint16 encoding). No [eval] — kernels, not accuracy.
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 260
+
+[input]
+type = "tum"
+path = "/home/ndpvslam/Projects/cuvslam_datasets/tum/rgbd_dataset_freiburg3_long_office_household"
+max_time_diff = 0.02
+max_gap = 0.5
+
+[odometry]
+odometry_mode = "RGBD"
+async_sba = false                  # deterministic kernel order for the DAG
+enable_final_landmarks_export = true
+
+  [odometry.rgbd]
+  depth_scale_factor = 5000.0
+  depth_camera_id = 0
+
+[[rig.cameras]]
+size = [640, 480]
+focal = [535.4, 539.2]
+principal = [320.1, 247.6]
+border_top = 20
+border_bottom = 20
+border_left = 10
+border_right = 50
+
+[output]
+trajectory = "/tmp/tum_office_profile_traj.txt"
+timestamp_unit = "s"
+visualize = false
+print_every = 0

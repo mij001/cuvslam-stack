@@ -37,8 +37,8 @@ generalization in progress.**
 | Slice 1 | Working nsys/ncu harness on the TOML runner; ncu "no report" bug fixed | ✅ done |
 | Slice 2 | Headless analysis layer → DAG, screen, roofline, bandwidth, **GPU-DAMOV classification**, report | ✅ done |
 | Rigor | Measured ceilings, ±25% sensitivity, ×5/×3 variance, clock-warmup protocol, cache bracket, transfers | ✅ done |
-| Multi-machine | RTX 2000 Ada workstation production pass — **clocks LOCKED** (1620/7001, root-configured), ceilings measured at lock (205.0 GB/s ±0.1, 5445 GFLOP/s ±3) | 🟡 captures running |
-| Multi-dataset | KITTI color stereo + TUM-VI fisheye matrix | 🟡 configs validated, captures staged |
+| Multi-machine | RTX 2000 Ada production pass, **locked clocks** — 5-repeat CoV 0.14% (vs 49.6% unlocked laptop); ceilings 205.0 GB/s ±0.1 / 5445 GF ±3 | ✅ done |
+| Multi-dataset | {TUM, KITTI 06, TUM-VI} × {odometry, SLAM} on Ada; TUM↔KITTI agreement 97% tw; **L2 crossover measured** (`reports/2026-07-03_matrix_synthesis/`) | ✅ done |
 | Slice 3 | NVBit → locality → Accel-Sim data-movement track | 🔴 gated (driver > 575 on both hosts) |
 | Source-level | TaggedAllocator + NVTX (data-structure attribution) | ⬜ not started (needs from-source build) |
 | Phase 4 | PiM/ISP substrate design + simulated eval | ⬜ future |
@@ -180,6 +180,16 @@ data-structure-level motivation. +(6) → MICRO/ASPLOS/ISCA/HPCA. See
 
 ## 8. Changelog
 
+- **2026-07-03 (late pm)** — **Production matrix landed.** All 22+1 workstation
+  captures completed at locked clocks (both power cuts dodged the capture
+  windows). Results: locked-clock CoV 0.14% (closes issue 1); loop-closure scan
+  dominates GPU time on all three workloads (41–63%, closes issue 2);
+  **the working-set/L2 crossover measured** — DB-scan footprint ≈ L2 capacity
+  at room scale, 3.6× more DRAM traffic at street scale with 30/32
+  sectors/request scatter; TUM↔KITTI class agreement 97% time-weighted;
+  clustering prefers k=7 (taxonomy count), purity 0.67. New modules:
+  `cluster.py` (stdlib k-means validation), `compare.py` (cross-dataset
+  agreement). Synthesis: `reports/2026-07-03_matrix_synthesis/SYNTHESIS.md`.
 - **2026-07-03 (pm)** — Power cut killed the first workstation chain (lesson:
   remote chains now run under `setsid nohup`). Root access used to configure
   passwordless sudo for `ndpvslam`; **GPU clocks locked** (persistence on,

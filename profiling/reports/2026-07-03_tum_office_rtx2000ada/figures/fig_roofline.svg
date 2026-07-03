@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 560" width="820" height="560">
+<rect width="820" height="560" fill="white"/>
+<text x="305.0" y="24.0" font-size="15" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-weight="bold">Roofline — NVIDIA RTX 2000 Ada Generation (DRAM 205 GB/s measured, FP32 5.445 TFLOP/s measured; size ∝ GPU-time share)</text>
+<line x1="70.0" y1="56" x2="70.0" y2="504" stroke="#e5e5e5"/>
+<text x="70.0" y="522.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1e-3</text>
+<line x1="160.0" y1="56" x2="160.0" y2="504" stroke="#e5e5e5"/>
+<text x="160.0" y="522.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.01</text>
+<line x1="250.0" y1="56" x2="250.0" y2="504" stroke="#e5e5e5"/>
+<text x="250.0" y="522.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.1</text>
+<line x1="340.0" y1="56" x2="340.0" y2="504" stroke="#e5e5e5"/>
+<text x="340.0" y="522.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1</text>
+<line x1="430.0" y1="56" x2="430.0" y2="504" stroke="#e5e5e5"/>
+<text x="430.0" y="522.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">10</text>
+<line x1="520.0" y1="56" x2="520.0" y2="504" stroke="#e5e5e5"/>
+<text x="520.0" y="522.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">100</text>
+<line x1="610.0" y1="56" x2="610.0" y2="504" stroke="#e5e5e5"/>
+<text x="610.0" y="522.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1e3</text>
+<line x1="70" y1="504.0" x2="610" y2="504.0" stroke="#e5e5e5"/>
+<text x="64.0" y="508.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.001</text>
+<line x1="70" y1="440.0" x2="610" y2="440.0" stroke="#e5e5e5"/>
+<text x="64.0" y="444.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.01</text>
+<line x1="70" y1="376.0" x2="610" y2="376.0" stroke="#e5e5e5"/>
+<text x="64.0" y="380.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.1</text>
+<line x1="70" y1="312.0" x2="610" y2="312.0" stroke="#e5e5e5"/>
+<text x="64.0" y="316.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1</text>
+<line x1="70" y1="248.0" x2="610" y2="248.0" stroke="#e5e5e5"/>
+<text x="64.0" y="252.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">10</text>
+<line x1="70" y1="184.0" x2="610" y2="184.0" stroke="#e5e5e5"/>
+<text x="64.0" y="188.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">100</text>
+<line x1="70" y1="120.0" x2="610" y2="120.0" stroke="#e5e5e5"/>
+<text x="64.0" y="124.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1,000</text>
+<line x1="70" y1="56.0" x2="610" y2="56.0" stroke="#e5e5e5"/>
+<text x="64.0" y="60.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1e4</text>
+<polyline points="70.0,356.0 468.2,72.9" fill="none" stroke="#cc3311" stroke-width="2"/>
+<text x="273.1" y="206.5" font-size="11" fill="#cc3311" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" transform="rotate(-32 273.09098103662177 206.4719441552785)">DRAM 205 GB/s</text>
+<line x1="468.2" y1="72.9" x2="610" y2="72.9" stroke="#0077bb" stroke-width="2"/>
+<text x="606.0" y="64.9" font-size="11" fill="#0077bb" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">FP32 peak 5,445 GFLOP/s</text>
+<circle cx="352.2" cy="278.0" r="8.474205202346347" fill="#ccbb44" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>matcher::photometric_kernel: AI=1.36 FLOP/B, 3.4 GFLOP/s</title></circle>
+<circle cx="626" cy="62" r="5" fill="#ccbb44"/>
+<text x="636.0" y="66.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">matcher::photometric_kernel</text>
+<circle cx="370.5" cy="267.6" r="8.353373092190651" fill="#ccbb44" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>matcher::point_to_point_kernel: AI=2.18 FLOP/B, 4.95 GFLOP/s</title></circle>
+<circle cx="626" cy="79" r="5" fill="#ccbb44"/>
+<text x="636.0" y="83.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">matcher::point_to_point_kernel</text>
+<circle cx="336.9" cy="260.5" r="7.597499985919747" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::build_full_system_1_kernel: AI=0.92 FLOP/B, 6.37 GFLOP/s</title></circle>
+<circle cx="626" cy="96" r="5" fill="#ee6677"/>
+<text x="636.0" y="100.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::build_full_system_1_kerne</text>
+<circle cx="339.6" cy="253.6" r="6.274532196030657" fill="#4477aa" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>cast_depth_kernel: AI=0.99 FLOP/B, 8.18 GFLOP/s</title></circle>
+<circle cx="626" cy="113" r="5" fill="#4477aa"/>
+<text x="636.0" y="117.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">cast_depth_kernel</text>
+<circle cx="424.4" cy="174.8" r="6.10128016764504" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::reduced_system_stage_2_kernel: AI=8.66 FLOP/B, 139 GFLOP/s</title></circle>
+<circle cx="626" cy="130" r="5" fill="#ee6677"/>
+<text x="636.0" y="134.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_2_ke</text>
+<circle cx="383.0" cy="178.8" r="6.093925664495563" fill="#4477aa" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>gaussian_scaling_kernel: AI=3.01 FLOP/B, 121 GFLOP/s</title></circle>
+<circle cx="626" cy="147" r="5" fill="#4477aa"/>
+<text x="636.0" y="151.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">gaussian_scaling_kernel</text>
+<circle cx="468.5" cy="196.4" r="5.933883060715227" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::reduced_system_stage_1_kernel: AI=26.8 FLOP/B, 64 GFLOP/s</title></circle>
+<circle cx="626" cy="164" r="5" fill="#ee6677"/>
+<text x="636.0" y="168.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_1_ke</text>
+<circle cx="389.4" cy="215.5" r="5.9224533916920254" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::build_full_system_2_kernel: AI=3.54 FLOP/B, 32.2 GFLOP/s</title></circle>
+<circle cx="626" cy="181" r="5" fill="#ee6677"/>
+<text x="636.0" y="185.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::build_full_system_2_kerne</text>
+<circle cx="426.3" cy="146.9" r="5.735695531821409" fill="#ccbb44" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>lk_track_kernel: AI=9.1 FLOP/B, 381 GFLOP/s</title></circle>
+<circle cx="626" cy="198" r="5" fill="#ccbb44"/>
+<text x="636.0" y="202.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">lk_track_kernel</text>
+<circle cx="229.3" cy="357.8" r="5.509192119056422" fill="#aa3377" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>trsv_lt_exec: AI=0.059 FLOP/B, 0.19 GFLOP/s</title></circle>
+<circle cx="626" cy="215" r="5" fill="#aa3377"/>
+<text x="636.0" y="219.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">trsv_lt_exec</text>
+<circle cx="349.9" cy="252.9" r="5.35491418291288" fill="#aa3377" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>getrf_wo_pivot_params: AI=1.29 FLOP/B, 8.4 GFLOP/s</title></circle>
+<circle cx="626" cy="232" r="5" fill="#aa3377"/>
+<text x="636.0" y="236.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">getrf_wo_pivot_params</text>
+<circle cx="233.5" cy="361.3" r="5.341017259829018" fill="#aa3377" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>trsv_ln_exec: AI=0.066 FLOP/B, 0.17 GFLOP/s</title></circle>
+<circle cx="626" cy="249" r="5" fill="#aa3377"/>
+<text x="636.0" y="253.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">trsv_ln_exec</text>
+<circle cx="411.7" cy="191.3" r="5.314040614310686" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::calc_jacobians_kernel: AI=6.26 FLOP/B, 76.9 GFLOP/s</title></circle>
+<circle cx="626" cy="266" r="5" fill="#ee6677"/>
+<text x="636.0" y="270.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::calc_jacobians_kernel</text>
+<circle cx="350.3" cy="217.1" r="5.305627975884189" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::reduced_system_stage_12_kernel: AI=1.3 FLOP/B, 30.4 GFLOP/s</title></circle>
+<circle cx="626" cy="283" r="5" fill="#ee6677"/>
+<text x="636.0" y="287.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_12_k</text>
+<circle cx="303.3" cy="246.4" r="5.194102007632704" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::v1T_x_M_T_x_v2_kernel: AI=0.39 FLOP/B, 10.6 GFLOP/s</title></circle>
+<circle cx="626" cy="300" r="5" fill="#ee6677"/>
+<text x="636.0" y="304.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::v1T_x_M_T_x_v2_kernel</text>
+<circle cx="388.1" cy="174.5" r="5.193640518916867" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>conv_grad_y_kernel: AI=3.42 FLOP/B, 141 GFLOP/s</title></circle>
+<circle cx="626" cy="317" r="5" fill="#66ccee"/>
+<text x="636.0" y="321.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">conv_grad_y_kernel</text>
+<circle cx="298.5" cy="282.8" r="5.191330393819652" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::point_term_kernel: AI=0.35 FLOP/B, 2.86 GFLOP/s</title></circle>
+<circle cx="626" cy="334" r="5" fill="#ee6677"/>
+<text x="636.0" y="338.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::point_term_kernel</text>
+<circle cx="369.0" cy="212.6" r="5.160880507260401" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::evaluate_cost_kernel: AI=2.1 FLOP/B, 35.8 GFLOP/s</title></circle>
+<circle cx="626" cy="351" r="5" fill="#ee6677"/>
+<text x="636.0" y="355.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::evaluate_cost_kernel</text>
+<circle cx="325.5" cy="228.4" r="5.124232146169215" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::reduced_system_stage_3_kernel: AI=0.69 FLOP/B, 20.2 GFLOP/s</title></circle>
+<circle cx="626" cy="368" r="5" fill="#ee6677"/>
+<text x="636.0" y="372.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_3_ke</text>
+<circle cx="390.7" cy="169.2" r="5.118335783068887" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>conv_grad_x_kernel: AI=3.66 FLOP/B, 171 GFLOP/s</title></circle>
+<circle cx="626" cy="385" r="5" fill="#66ccee"/>
+<text x="636.0" y="389.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">conv_grad_x_kernel</text>
+<circle cx="448.6" cy="110.9" r="4.991973384455914" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>gftt_values_kernel: AI=16.1 FLOP/B, 1,386 GFLOP/s</title></circle>
+<circle cx="626" cy="402" r="5" fill="#66ccee"/>
+<text x="636.0" y="406.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">gftt_values_kernel</text>
+<circle cx="309.9" cy="234.7" r="4.957493762536817" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::calc_point_update_kernel_xavier_special: AI=0.46 FLOP/B, 16.1 GFLOP/s</title></circle>
+<circle cx="626" cy="419" r="5" fill="#ee6677"/>
+<text x="636.0" y="423.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::calc_point_update_kernel_</text>
+<circle cx="402.8" cy="246.2" r="4.831867413655563" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::v1T_x_M_x_v2_kernel: AI=4.99 FLOP/B, 10.7 GFLOP/s</title></circle>
+<circle cx="626" cy="436" r="5" fill="#ee6677"/>
+<text x="636.0" y="440.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::v1T_x_M_x_v2_kernel</text>
+<circle cx="228.8" cy="360.3" r="4.821872648539344" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::calc_pose_update_kernel: AI=0.058 FLOP/B, 0.18 GFLOP/s</title></circle>
+<circle cx="626" cy="453" r="5" fill="#ee6677"/>
+<text x="636.0" y="457.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::calc_pose_update_kernel</text>
+<circle cx="293.2" cy="333.7" r="4.819859074304902" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::pose_scaling_term_kernel: AI=0.3 FLOP/B, 0.46 GFLOP/s</title></circle>
+<circle cx="626" cy="470" r="5" fill="#ee6677"/>
+<text x="636.0" y="474.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::pose_scaling_term_kernel</text>
+<circle cx="227.0" cy="327.4" r="4.731800033418568" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::update_points_kernel: AI=0.055 FLOP/B, 0.58 GFLOP/s</title></circle>
+<circle cx="626" cy="487" r="5" fill="#ee6677"/>
+<text x="636.0" y="491.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::update_points_kernel</text>
+<circle cx="241.6" cy="362.9" r="4.704174910478645" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::update_poses_kernel: AI=0.081 FLOP/B, 0.16 GFLOP/s</title></circle>
+<circle cx="626" cy="504" r="5" fill="#ee6677"/>
+<text x="636.0" y="508.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::update_poses_kernel</text>
+<circle cx="72.7" cy="452.1" r="4.69233919509348" fill="#ee6677" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::make_prediction: AI=0.0011 FLOP/B, 0.0065 GFLOP/s</title></circle>
+<circle cx="626" cy="521" r="5" fill="#ee6677"/>
+<text x="636.0" y="525.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::make_prediction</text>
+<circle cx="350.5" cy="171.4" r="4.594739531708877" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>accumulateGFTT_kernel: AI=1.31 FLOP/B, 157 GFLOP/s</title></circle>
+<circle cx="626" cy="538" r="5" fill="#66ccee"/>
+<text x="636.0" y="542.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">accumulateGFTT_kernel</text>
+<circle cx="254.9" cy="249.2" r="4.44412048543916" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>select_features_kernel: AI=0.11 FLOP/B, 9.59 GFLOP/s</title></circle>
+<circle cx="626" cy="555" r="5" fill="#66ccee"/>
+<text x="636.0" y="559.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">select_features_kernel</text>
+<circle cx="276.5" cy="279.1" r="4.434082567869399" fill="#ccbb44" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>matcher::lift_kernel: AI=0.2 FLOP/B, 3.26 GFLOP/s</title></circle>
+<circle cx="626" cy="572" r="5" fill="#ccbb44"/>
+<text x="636.0" y="576.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">matcher::lift_kernel</text>
+<rect x="70" y="56" width="540" height="448" fill="none" stroke="#888"/>
+<text x="340.0" y="546.0" font-size="12.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">Arithmetic intensity (FLOP / DRAM byte)</text>
+<text x="18.0" y="280.0" font-size="12.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" transform="rotate(-90 18 280.0)">Performance (GFLOP/s)</text>
+</svg>

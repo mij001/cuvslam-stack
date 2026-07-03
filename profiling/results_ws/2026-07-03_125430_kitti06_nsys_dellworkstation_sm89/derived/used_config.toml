@@ -1,0 +1,58 @@
+# Profiling workload — KITTI seq06 color stereo + FULL SLAM (loop closure).
+#
+# Outdoor large-map cold-persistent workload: seq06 is a loop-shaped drive, the
+# loop closes near the end of the 1101 frames. Complements the room-scale TUM
+# loop-closure run. sync_mode for deterministic attribution; pair with the
+# async TUM run for the deployment-mode share.
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 1101
+
+[input]
+type = "image_folder"
+root = "/home/ndpvslam/Projects/cuvslam_datasets/kitti_color/sequences/06"
+
+  [[input.cameras]]
+  images = "image_2/*.png"
+
+  [[input.cameras]]
+  images = "image_3/*.png"
+
+  [input.timestamps]
+  mode = "file"
+  path = "times.txt"
+  unit = "s"
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+async_sba = false
+enable_final_landmarks_export = true
+
+[slam]
+enabled = true
+use_gpu = true
+sync_mode = true
+enable_reading_internals = true
+
+[[rig.cameras]]
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+
+[[rig.cameras]]
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+  [rig.cameras.rig_from_camera]
+  translation = [0.537903, 0.0, 0.0]
+
+[output]
+trajectory = "/tmp/kitti06_color_slam_profile_traj.txt"
+pose_source = "slam"
+timestamp_unit = "s"
+visualize = false
+print_every = 0

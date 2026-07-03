@@ -1,0 +1,34 @@
+# Profiling workload — TUM-VI corridor1 stereo fisheye + FULL SLAM (loop closure).
+#
+# Building-scale cold-persistent workload: the handheld walk traverses a
+# corridor loop and returns — revisits at building scale, between the TUM
+# office desk-orbit and the KITTI street loop. Full sequence (5991 frames).
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 0
+
+[input]
+type = "euroc"
+path = "/home/ndpvslam/Projects/cuvslam_datasets/tumvi/dataset-corridor1_512_16/mav0"
+use_imu = false
+
+[odometry]
+odometry_mode = "Multicamera"
+rectified_stereo_camera = false
+async_sba = false
+enable_final_landmarks_export = true
+
+[slam]
+enabled = true
+use_gpu = true
+sync_mode = true
+enable_reading_internals = true
+
+[output]
+trajectory = "/tmp/tumvi_corridor1_slam_profile_traj.txt"
+pose_source = "slam"
+timestamp_unit = "ns"
+visualize = false
+print_every = 0

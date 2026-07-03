@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 582" width="760" height="582">
+<rect width="760" height="582" fill="white"/>
+<text x="380.0" y="24.0" font-size="15" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-weight="bold">Achieved DRAM bandwidth per kernel (vs hw ceiling)</text>
+<text x="222.0" y="66.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">gaussian_scaling_kernel</text>
+<rect x="230" y="48" width="121.8" height="26" fill="#4477aa" rx="2"/>
+<text x="357.8" y="66.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">40.1 GB/s = 20% of 205</text>
+<text x="222.0" y="102.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">lk_track_kernel</text>
+<rect x="230" y="84" width="127.1" height="26" fill="#ccbb44" rx="2"/>
+<text x="363.1" y="102.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">41.8 GB/s = 20% of 205</text>
+<text x="222.0" y="138.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::build_full_system_1_kernel</text>
+<rect x="230" y="120" width="21.0" height="26" fill="#ee6677" rx="2"/>
+<text x="257.0" y="138.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">6.9 GB/s = 3% of 205</text>
+<text x="222.0" y="174.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">gftt_values_kernel</text>
+<rect x="230" y="156" width="262.1" height="26" fill="#66ccee" rx="2"/>
+<text x="498.1" y="174.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">86.2 GB/s = 42% of 205</text>
+<text x="222.0" y="210.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_2_kernel</text>
+<rect x="230" y="192" width="48.8" height="26" fill="#ee6677" rx="2"/>
+<text x="284.8" y="210.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">16.1 GB/s = 8% of 205</text>
+<text x="222.0" y="246.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">conv_grad_y_kernel</text>
+<rect x="230" y="228" width="125.0" height="26" fill="#66ccee" rx="2"/>
+<text x="361.0" y="246.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">41.1 GB/s = 20% of 205</text>
+<text x="222.0" y="282.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">conv_grad_x_kernel</text>
+<rect x="230" y="264" width="141.8" height="26" fill="#66ccee" rx="2"/>
+<text x="377.8" y="282.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">46.7 GB/s = 23% of 205</text>
+<text x="222.0" y="318.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">matcher::photometric_kernel</text>
+<rect x="230" y="300" width="7.6" height="26" fill="#ccbb44" rx="2"/>
+<text x="243.6" y="318.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">2.5 GB/s = 1% of 205</text>
+<text x="222.0" y="354.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">matcher::point_to_point_kernel</text>
+<rect x="230" y="336" width="6.9" height="26" fill="#ccbb44" rx="2"/>
+<text x="242.9" y="354.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">2.3 GB/s = 1% of 205</text>
+<text x="222.0" y="390.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">cast_depth_kernel</text>
+<rect x="230" y="372" width="25.1" height="26" fill="#4477aa" rx="2"/>
+<text x="261.1" y="390.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">8.3 GB/s = 4% of 205</text>
+<text x="222.0" y="426.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">accumulateGFTT_kernel</text>
+<rect x="230" y="408" width="365.3" height="26" fill="#66ccee" rx="2"/>
+<text x="601.3" y="426.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">120.2 GB/s = 59% of 205</text>
+<text x="222.0" y="462.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">downsample_gftt_x8_kernel</text>
+<rect x="230" y="444" width="420.0" height="26" fill="#66ccee" rx="2"/>
+<text x="656.0" y="462.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">138.1 GB/s = 67% of 205</text>
+<text x="222.0" y="498.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">non_max_suppression_kernel</text>
+<rect x="230" y="480" width="332.8" height="26" fill="#66ccee" rx="2"/>
+<text x="568.8" y="498.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">109.5 GB/s = 53% of 205</text>
+<text x="222.0" y="534.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_12_kerne</text>
+<rect x="230" y="516" width="71.0" height="26" fill="#ee6677" rx="2"/>
+<text x="307.0" y="534.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">23.3 GB/s = 11% of 205</text>
+</svg>

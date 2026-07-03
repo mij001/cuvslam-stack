@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 294" width="760" height="294">
+<rect width="760" height="294" fill="white"/>
+<text x="380.0" y="24.0" font-size="15" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-weight="bold">DRAM traffic by stage (profiled launch window)</text>
+<text x="222.0" y="66.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">preprocess</text>
+<rect x="230" y="48" width="230.5" height="26" fill="#4477aa" rx="2"/>
+<text x="466.5" y="66.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">16.2 MB (streaming)</text>
+<text x="222.0" y="102.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">feature_detect</text>
+<rect x="230" y="84" width="420.0" height="26" fill="#66ccee" rx="2"/>
+<text x="656.0" y="102.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">29.6 MB (streaming)</text>
+<text x="222.0" y="138.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">keypoint_sort</text>
+<rect x="230" y="120" width="5.3" height="26" fill="#228833" rx="2"/>
+<text x="241.3" y="138.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.4 MB (streaming)</text>
+<text x="222.0" y="174.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">tracking</text>
+<rect x="230" y="156" width="200.2" height="26" fill="#ccbb44" rx="2"/>
+<text x="436.2" y="174.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">14.1 MB (streaming+hot)</text>
+<text x="222.0" y="210.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">bundle_adjust</text>
+<rect x="230" y="192" width="272.5" height="26" fill="#ee6677" rx="2"/>
+<text x="508.5" y="210.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">19.2 MB (hot-persistent)</text>
+<text x="222.0" y="246.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">ba_solver</text>
+<rect x="230" y="228" width="12.6" height="26" fill="#aa3377" rx="2"/>
+<text x="248.6" y="246.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.9 MB (hot-persistent)</text>
+</svg>

@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 558" width="860" height="558">
+<rect width="860" height="558" fill="white"/>
+<text x="430.0" y="22.0" font-size="15" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-weight="bold">Warp-stall breakdown (warps stalled per issue-active cycle)</text>
+<rect x="250" y="34" width="12" height="12" fill="#4477aa" rx="2"/>
+<text x="266.0" y="44.0" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">long_scoreboard</text>
+<rect x="392.0" y="34" width="12" height="12" fill="#66ccee" rx="2"/>
+<text x="408.0" y="44.0" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">short_scoreboard</text>
+<rect x="541.2" y="34" width="12" height="12" fill="#228833" rx="2"/>
+<text x="557.2" y="44.0" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">lg_throttle</text>
+<rect x="654.4000000000001" y="34" width="12" height="12" fill="#ccbb44" rx="2"/>
+<text x="670.4" y="44.0" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">mio_throttle</text>
+<rect x="774.8000000000001" y="34" width="12" height="12" fill="#ee6677" rx="2"/>
+<text x="790.8" y="44.0" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">tex_throttle</text>
+<rect x="895.2" y="34" width="12" height="12" fill="#aa3377" rx="2"/>
+<text x="911.2" y="44.0" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">math_throttle</text>
+<rect x="1022.8000000000001" y="34" width="12" height="12" fill="#bbbbbb" rx="2"/>
+<text x="1038.8" y="44.0" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">barrier</text>
+<rect x="1107.2" y="34" width="12" height="12" fill="#999933" rx="2"/>
+<text x="1123.2" y="44.0" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">wait</text>
+<rect x="1170.0" y="34" width="12" height="12" fill="#882255" rx="2"/>
+<text x="1186.0" y="44.0" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">not_selected</text>
+<text x="242.0" y="86.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">matcher::photometric_kernel</text>
+<rect x="250.0" y="70" width="2.8" height="24" fill="#4477aa"><title>long_scoreboard: 0.83 </title></rect>
+<rect x="252.8" y="70" width="8.4" height="24" fill="#66ccee"><title>short_scoreboard: 2.49 </title></rect>
+<rect x="261.2" y="70" width="0.0" height="24" fill="#228833"><title>lg_throttle: 0.0029 </title></rect>
+<rect x="261.2" y="70" width="0.0" height="24" fill="#ccbb44"><title>mio_throttle: 0.0083 </title></rect>
+<rect x="261.3" y="70" width="1.2" height="24" fill="#ee6677"><title>tex_throttle: 0.36 </title></rect>
+<rect x="262.5" y="70" width="0.1" height="24" fill="#aa3377"><title>math_throttle: 0.036 </title></rect>
+<rect x="262.6" y="70" width="2.8" height="24" fill="#bbbbbb"><title>barrier: 0.82 </title></rect>
+<rect x="265.4" y="70" width="8.7" height="24" fill="#999933"><title>wait: 2.58 </title></rect>
+<rect x="274.1" y="70" width="0.2" height="24" fill="#882255"><title>not_selected: 0.069 </title></rect>
+<text x="279.3" y="86.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">7.2</text>
+<text x="242.0" y="118.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">matcher::point_to_point_kernel</text>
+<rect x="250.0" y="102" width="2.9" height="24" fill="#4477aa"><title>long_scoreboard: 0.87 </title></rect>
+<rect x="252.9" y="102" width="8.2" height="24" fill="#66ccee"><title>short_scoreboard: 2.43 </title></rect>
+<rect x="261.1" y="102" width="0.0" height="24" fill="#228833"><title>lg_throttle: 0.003 </title></rect>
+<rect x="261.2" y="102" width="0.1" height="24" fill="#ccbb44"><title>mio_throttle: 0.042 </title></rect>
+<rect x="261.3" y="102" width="0.1" height="24" fill="#aa3377"><title>math_throttle: 0.025 </title></rect>
+<rect x="261.4" y="102" width="1.9" height="24" fill="#bbbbbb"><title>barrier: 0.56 </title></rect>
+<rect x="263.3" y="102" width="8.6" height="24" fill="#999933"><title>wait: 2.55 </title></rect>
+<rect x="271.9" y="102" width="0.3" height="24" fill="#882255"><title>not_selected: 0.087 </title></rect>
+<text x="277.2" y="118.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">6.57</text>
+<text x="242.0" y="150.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::build_full_system_1_kernel</text>
+<rect x="250.0" y="134" width="93.2" height="24" fill="#4477aa"><title>long_scoreboard: 27.6 </title></rect>
+<rect x="343.2" y="134" width="0.1" height="24" fill="#66ccee"><title>short_scoreboard: 0.017 </title></rect>
+<rect x="343.2" y="134" width="5.2" height="24" fill="#228833"><title>lg_throttle: 1.55 </title></rect>
+<rect x="348.5" y="134" width="0.0" height="24" fill="#aa3377"><title>math_throttle: 0.0053 </title></rect>
+<rect x="348.5" y="134" width="5.7" height="24" fill="#999933"><title>wait: 1.69 </title></rect>
+<rect x="354.2" y="134" width="0.2" height="24" fill="#882255"><title>not_selected: 0.052 </title></rect>
+<text x="359.4" y="150.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">30.9</text>
+<text x="242.0" y="182.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">cast_depth_kernel</text>
+<rect x="250.0" y="166" width="242.7" height="24" fill="#66ccee"><title>short_scoreboard: 71.9 </title></rect>
+<rect x="492.7" y="166" width="0.3" height="24" fill="#ccbb44"><title>mio_throttle: 0.084 </title></rect>
+<rect x="493.0" y="166" width="321.9" height="24" fill="#ee6677"><title>tex_throttle: 95.4 </title></rect>
+<rect x="815.0" y="166" width="0.3" height="24" fill="#aa3377"><title>math_throttle: 0.098 </title></rect>
+<rect x="815.3" y="166" width="10.0" height="24" fill="#999933"><title>wait: 2.96 </title></rect>
+<rect x="825.3" y="166" width="4.7" height="24" fill="#882255"><title>not_selected: 1.4 </title></rect>
+<text x="835.0" y="182.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">172</text>
+<text x="242.0" y="214.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_2_kernel</text>
+<rect x="250.0" y="198" width="46.2" height="24" fill="#4477aa"><title>long_scoreboard: 13.7 </title></rect>
+<rect x="296.2" y="198" width="3.7" height="24" fill="#66ccee"><title>short_scoreboard: 1.1 </title></rect>
+<rect x="299.9" y="198" width="0.0" height="24" fill="#228833"><title>lg_throttle: 3.7e-05 </title></rect>
+<rect x="299.9" y="198" width="0.5" height="24" fill="#ccbb44"><title>mio_throttle: 0.14 </title></rect>
+<rect x="300.4" y="198" width="2.9" height="24" fill="#aa3377"><title>math_throttle: 0.86 </title></rect>
+<rect x="303.3" y="198" width="3.7" height="24" fill="#bbbbbb"><title>barrier: 1.11 </title></rect>
+<rect x="307.0" y="198" width="9.6" height="24" fill="#999933"><title>wait: 2.86 </title></rect>
+<rect x="316.6" y="198" width="4.9" height="24" fill="#882255"><title>not_selected: 1.44 </title></rect>
+<text x="326.5" y="214.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">21.2</text>
+<text x="242.0" y="246.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">gaussian_scaling_kernel</text>
+<rect x="250.0" y="230" width="7.9" height="24" fill="#4477aa"><title>long_scoreboard: 2.36 </title></rect>
+<rect x="257.9" y="230" width="0.1" height="24" fill="#66ccee"><title>short_scoreboard: 0.034 </title></rect>
+<rect x="258.1" y="230" width="0.1" height="24" fill="#ccbb44"><title>mio_throttle: 0.017 </title></rect>
+<rect x="258.1" y="230" width="3.8" height="24" fill="#ee6677"><title>tex_throttle: 1.11 </title></rect>
+<rect x="261.9" y="230" width="7.2" height="24" fill="#aa3377"><title>math_throttle: 2.15 </title></rect>
+<rect x="269.1" y="230" width="2.9" height="24" fill="#999933"><title>wait: 0.85 </title></rect>
+<rect x="272.0" y="230" width="7.8" height="24" fill="#882255"><title>not_selected: 2.33 </title></rect>
+<text x="284.8" y="246.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">8.84</text>
+<text x="242.0" y="278.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_1_kernel</text>
+<rect x="250.0" y="262" width="4.0" height="24" fill="#4477aa"><title>long_scoreboard: 1.18 </title></rect>
+<rect x="254.0" y="262" width="0.2" height="24" fill="#66ccee"><title>short_scoreboard: 0.049 </title></rect>
+<rect x="254.1" y="262" width="0.0" height="24" fill="#228833"><title>lg_throttle: 0.0016 </title></rect>
+<rect x="254.1" y="262" width="0.0" height="24" fill="#aa3377"><title>math_throttle: 0.00052 </title></rect>
+<rect x="254.1" y="262" width="6.4" height="24" fill="#999933"><title>wait: 1.89 </title></rect>
+<text x="265.5" y="278.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">3.11</text>
+<text x="242.0" y="310.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::build_full_system_2_kernel</text>
+<rect x="250.0" y="294" width="17.6" height="24" fill="#4477aa"><title>long_scoreboard: 5.21 </title></rect>
+<rect x="267.6" y="294" width="1.2" height="24" fill="#66ccee"><title>short_scoreboard: 0.34 </title></rect>
+<rect x="268.7" y="294" width="0.1" height="24" fill="#228833"><title>lg_throttle: 0.036 </title></rect>
+<rect x="268.8" y="294" width="4.7" height="24" fill="#ccbb44"><title>mio_throttle: 1.4 </title></rect>
+<rect x="273.6" y="294" width="0.1" height="24" fill="#aa3377"><title>math_throttle: 0.034 </title></rect>
+<rect x="273.7" y="294" width="2.3" height="24" fill="#bbbbbb"><title>barrier: 0.67 </title></rect>
+<rect x="276.0" y="294" width="4.8" height="24" fill="#999933"><title>wait: 1.42 </title></rect>
+<rect x="280.7" y="294" width="0.7" height="24" fill="#882255"><title>not_selected: 0.22 </title></rect>
+<text x="286.5" y="310.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">9.33</text>
+<text x="242.0" y="342.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">lk_track_kernel</text>
+<rect x="250.0" y="326" width="15.1" height="24" fill="#4477aa"><title>long_scoreboard: 4.47 </title></rect>
+<rect x="265.1" y="326" width="7.0" height="24" fill="#66ccee"><title>short_scoreboard: 2.06 </title></rect>
+<rect x="272.0" y="326" width="0.0" height="24" fill="#ccbb44"><title>mio_throttle: 0.013 </title></rect>
+<rect x="272.1" y="326" width="2.0" height="24" fill="#ee6677"><title>tex_throttle: 0.6 </title></rect>
+<rect x="274.1" y="326" width="0.1" height="24" fill="#aa3377"><title>math_throttle: 0.023 </title></rect>
+<rect x="274.2" y="326" width="5.2" height="24" fill="#999933"><title>wait: 1.53 </title></rect>
+<rect x="279.4" y="326" width="0.5" height="24" fill="#882255"><title>not_selected: 0.14 </title></rect>
+<text x="284.8" y="342.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">8.84</text>
+<text x="242.0" y="374.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">trsv_lt_exec</text>
+<rect x="250.0" y="358" width="18.8" height="24" fill="#4477aa"><title>long_scoreboard: 5.57 </title></rect>
+<rect x="268.8" y="358" width="2.4" height="24" fill="#66ccee"><title>short_scoreboard: 0.72 </title></rect>
+<rect x="271.2" y="358" width="0.0" height="24" fill="#aa3377"><title>math_throttle: 0.0057 </title></rect>
+<rect x="271.2" y="358" width="12.8" height="24" fill="#bbbbbb"><title>barrier: 3.79 </title></rect>
+<rect x="284.0" y="358" width="8.8" height="24" fill="#999933"><title>wait: 2.61 </title></rect>
+<text x="297.8" y="374.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">12.7</text>
+<text x="242.0" y="406.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">getrf_wo_pivot_params</text>
+<rect x="250.0" y="390" width="1.1" height="24" fill="#4477aa"><title>long_scoreboard: 0.32 </title></rect>
+<rect x="251.1" y="390" width="5.2" height="24" fill="#66ccee"><title>short_scoreboard: 1.55 </title></rect>
+<rect x="256.3" y="390" width="0.0" height="24" fill="#ccbb44"><title>mio_throttle: 0.012 </title></rect>
+<rect x="256.4" y="390" width="0.0" height="24" fill="#aa3377"><title>math_throttle: 0.0024 </title></rect>
+<rect x="256.4" y="390" width="1.8" height="24" fill="#bbbbbb"><title>barrier: 0.53 </title></rect>
+<rect x="258.1" y="390" width="7.5" height="24" fill="#999933"><title>wait: 2.23 </title></rect>
+<text x="270.7" y="406.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">4.64</text>
+<text x="242.0" y="438.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">trsv_ln_exec</text>
+<rect x="250.0" y="422" width="29.4" height="24" fill="#4477aa"><title>long_scoreboard: 8.73 </title></rect>
+<rect x="279.4" y="422" width="2.6" height="24" fill="#66ccee"><title>short_scoreboard: 0.77 </title></rect>
+<rect x="282.0" y="422" width="9.3" height="24" fill="#bbbbbb"><title>barrier: 2.76 </title></rect>
+<rect x="291.4" y="422" width="10.1" height="24" fill="#999933"><title>wait: 3 </title></rect>
+<text x="306.5" y="438.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">15.3</text>
+<text x="242.0" y="470.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::calc_jacobians_kernel</text>
+<rect x="250.0" y="454" width="23.2" height="24" fill="#4477aa"><title>long_scoreboard: 6.87 </title></rect>
+<rect x="273.2" y="454" width="2.6" height="24" fill="#66ccee"><title>short_scoreboard: 0.77 </title></rect>
+<rect x="275.8" y="454" width="17.4" height="24" fill="#228833"><title>lg_throttle: 5.17 </title></rect>
+<rect x="293.2" y="454" width="0.0" height="24" fill="#ccbb44"><title>mio_throttle: 0.011 </title></rect>
+<rect x="293.3" y="454" width="0.1" height="24" fill="#aa3377"><title>math_throttle: 0.015 </title></rect>
+<rect x="293.3" y="454" width="12.0" height="24" fill="#bbbbbb"><title>barrier: 3.54 </title></rect>
+<rect x="305.3" y="454" width="2.9" height="24" fill="#999933"><title>wait: 0.86 </title></rect>
+<rect x="308.2" y="454" width="1.3" height="24" fill="#882255"><title>not_selected: 0.39 </title></rect>
+<text x="314.5" y="470.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">17.6</text>
+<text x="242.0" y="502.8" font-size="11.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_12_kerne</text>
+<rect x="250.0" y="486" width="28.7" height="24" fill="#4477aa"><title>long_scoreboard: 8.5 </title></rect>
+<rect x="278.7" y="486" width="6.0" height="24" fill="#66ccee"><title>short_scoreboard: 1.79 </title></rect>
+<rect x="284.7" y="486" width="0.1" height="24" fill="#228833"><title>lg_throttle: 0.024 </title></rect>
+<rect x="284.8" y="486" width="1.1" height="24" fill="#ccbb44"><title>mio_throttle: 0.32 </title></rect>
+<rect x="285.9" y="486" width="0.0" height="24" fill="#ee6677"><title>tex_throttle: 0.00028 </title></rect>
+<rect x="285.9" y="486" width="0.5" height="24" fill="#aa3377"><title>math_throttle: 0.14 </title></rect>
+<rect x="286.4" y="486" width="86.1" height="24" fill="#bbbbbb"><title>barrier: 25.5 </title></rect>
+<rect x="372.4" y="486" width="10.8" height="24" fill="#999933"><title>wait: 3.19 </title></rect>
+<rect x="383.2" y="486" width="2.3" height="24" fill="#882255"><title>not_selected: 0.69 </title></rect>
+<text x="390.5" y="502.8" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">40.2</text>
+</svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 582" width="760" height="582">
+<rect width="760" height="582" fill="white"/>
+<text x="380.0" y="24.0" font-size="15" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-weight="bold">DAMOV Step-1 screen — Memory SoL% (label: verdict)</text>
+<text x="222.0" y="66.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::build_full_system_1_kernel</text>
+<rect x="230" y="48" width="6.4" height="26" fill="#ee6677" rx="2"/>
+<text x="242.4" y="66.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1% mem / 0% comp → memory-latency</text>
+<text x="222.0" y="102.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">lk_track_kernel</text>
+<rect x="230" y="84" width="273.7" height="26" fill="#ccbb44" rx="2"/>
+<text x="509.7" y="102.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">26% mem / 26% comp → memory-latency</text>
+<text x="222.0" y="138.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_1_kernel</text>
+<rect x="230" y="120" width="11.7" height="26" fill="#ee6677" rx="2"/>
+<text x="247.7" y="138.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1% mem / 1% comp → underutilized</text>
+<text x="222.0" y="174.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">trsv_lt_exec</text>
+<rect x="230" y="156" width="15.8" height="26" fill="#aa3377" rx="2"/>
+<text x="251.8" y="174.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1% mem / 0% comp → memory-latency</text>
+<text x="222.0" y="210.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_2_kernel</text>
+<rect x="230" y="192" width="271.7" height="26" fill="#ee6677" rx="2"/>
+<text x="507.7" y="210.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">26% mem / 40% comp → compute-leaning</text>
+<text x="222.0" y="246.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">getrf_wo_pivot_params</text>
+<rect x="230" y="228" width="31.6" height="26" fill="#aa3377" rx="2"/>
+<text x="267.6" y="246.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">3% mem / 1% comp → underutilized</text>
+<text x="222.0" y="282.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">trsv_ln_exec</text>
+<rect x="230" y="264" width="12.5" height="26" fill="#aa3377" rx="2"/>
+<text x="248.5" y="282.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1% mem / 0% comp → memory-latency</text>
+<text x="222.0" y="318.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">gaussian_scaling_kernel</text>
+<rect x="230" y="300" width="420.0" height="26" fill="#4477aa" rx="2"/>
+<text x="656.0" y="318.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">40% mem / 44% comp → mixed</text>
+<text x="222.0" y="354.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">conv_grad_x_kernel</text>
+<rect x="230" y="336" width="236.2" height="26" fill="#66ccee" rx="2"/>
+<text x="472.2" y="354.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">22% mem / 20% comp → memory-latency</text>
+<text x="222.0" y="390.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::point_term_kernel</text>
+<rect x="230" y="372" width="7.4" height="26" fill="#ee6677" rx="2"/>
+<text x="243.4" y="390.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1% mem / 0% comp → underutilized</text>
+<text x="222.0" y="426.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::build_full_system_2_kernel</text>
+<rect x="230" y="408" width="76.2" height="26" fill="#ee6677" rx="2"/>
+<text x="312.2" y="426.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">7% mem / 7% comp → memory-latency</text>
+<text x="222.0" y="462.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduce_abs_max_kernel</text>
+<rect x="230" y="444" width="12.9" height="26" fill="#ee6677" rx="2"/>
+<text x="248.9" y="462.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1% mem / 0% comp → underutilized</text>
+<text x="222.0" y="498.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::evaluate_cost_kernel</text>
+<rect x="230" y="480" width="14.8" height="26" fill="#ee6677" rx="2"/>
+<text x="250.8" y="498.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1% mem / 0% comp → underutilized</text>
+<text x="222.0" y="534.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">sba::reduced_system_stage_3_kernel</text>
+<rect x="230" y="516" width="32.4" height="26" fill="#ee6677" rx="2"/>
+<text x="268.4" y="534.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">3% mem / 5% comp → underutilized</text>
+</svg>

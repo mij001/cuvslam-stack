@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 114" width="760" height="114">
+<rect width="760" height="114" fill="white"/>
+<text x="380.0" y="24.0" font-size="15" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-weight="bold">DAMOV Step-1 screen — Memory SoL% (label: verdict)</text>
+<text x="222.0" y="66.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">st_build_cache_kernel</text>
+<rect x="230" y="48" width="420.0" height="26" fill="#bbbbbb" rx="2"/>
+<text x="656.0" y="66.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">33% mem / 3% comp → memory-latency</text>
+</svg>

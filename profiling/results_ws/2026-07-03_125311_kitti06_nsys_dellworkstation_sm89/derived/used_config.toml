@@ -1,0 +1,56 @@
+# Profiling workload — KITTI seq06 STEREO (color cameras image_2/3), odometry.
+#
+# The outdoor-stereo leg of the characterization matrix (vs TUM RGBD indoor and
+# TUM-VI fisheye). Uses the color pair because that is what is on disk on the
+# workstation (grayscale image_0/1 configs exist separately); intrinsics from
+# calib.txt P2/P3: f=707.0912, c=(601.8873, 183.1104), baseline
+# (46.88783+333.4597)/707.0912 = 0.53790 m. 260 frames = 200 warm + steady
+# window for --auto-window.
+#
+# Dataset root: symlink or extract so that
+#   /home/ndpvslam/Projects/cuvslam_datasets/kitti_color/sequences/06/image_2/*.png  exists.
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 260
+
+[input]
+type = "image_folder"
+root = "/home/ndpvslam/Projects/cuvslam_datasets/kitti_color/sequences/06"
+
+  [[input.cameras]]
+  images = "image_2/*.png"
+
+  [[input.cameras]]
+  images = "image_3/*.png"
+
+  [input.timestamps]
+  mode = "file"
+  path = "times.txt"
+  unit = "s"
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+async_sba = false
+enable_final_landmarks_export = true
+
+[[rig.cameras]]                       # left color (cam2) — rig origin
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+
+[[rig.cameras]]                       # right color (cam3)
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+  [rig.cameras.rig_from_camera]
+  translation = [0.537903, 0.0, 0.0]
+
+[output]
+trajectory = "/tmp/kitti06_color_profile_traj.txt"
+timestamp_unit = "s"
+visualize = false
+print_every = 0

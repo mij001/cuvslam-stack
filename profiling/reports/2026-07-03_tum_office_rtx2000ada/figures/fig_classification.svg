@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" width="820" height="520">
+<rect width="820" height="520" fill="white"/>
+<text x="295.0" y="24.0" font-size="15" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-weight="bold">GPU-DAMOV placement (size ∝ GPU-time share)</text>
+<line x1="70.0" y1="56" x2="70.0" y2="464" stroke="#e5e5e5"/>
+<line x1="70" y1="464.0" x2="590" y2="464.0" stroke="#e5e5e5"/>
+<text x="70.0" y="482.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0</text>
+<text x="64.0" y="468.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0</text>
+<line x1="174.0" y1="56" x2="174.0" y2="464" stroke="#e5e5e5"/>
+<line x1="70" y1="382.4" x2="590" y2="382.4" stroke="#e5e5e5"/>
+<text x="174.0" y="482.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.2</text>
+<text x="64.0" y="386.4" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">20</text>
+<line x1="278.0" y1="56" x2="278.0" y2="464" stroke="#e5e5e5"/>
+<line x1="70" y1="300.8" x2="590" y2="300.8" stroke="#e5e5e5"/>
+<text x="278.0" y="482.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.4</text>
+<text x="64.0" y="304.8" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">40</text>
+<line x1="382.0" y1="56" x2="382.0" y2="464" stroke="#e5e5e5"/>
+<line x1="70" y1="219.2" x2="590" y2="219.2" stroke="#e5e5e5"/>
+<text x="382.0" y="482.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.6</text>
+<text x="64.0" y="223.2" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">60</text>
+<line x1="486.0" y1="56" x2="486.0" y2="464" stroke="#e5e5e5"/>
+<line x1="70" y1="137.6" x2="590" y2="137.6" stroke="#e5e5e5"/>
+<text x="486.0" y="482.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">0.8</text>
+<text x="64.0" y="141.6" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">80</text>
+<line x1="590.0" y1="56" x2="590.0" y2="464" stroke="#e5e5e5"/>
+<line x1="70" y1="56.0" x2="590" y2="56.0" stroke="#e5e5e5"/>
+<text x="590.0" y="482.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1</text>
+<text x="64.0" y="60.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">100</text>
+<circle cx="115.4" cy="462.7" r="15.832903169812376" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>st_track_with_cache_kernel [G2-coalescing]: x=0.087, y=0.32</title></circle>
+<circle cx="85.4" cy="454.5" r="5.524531946229249" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>st_build_cache_kernel [G2-coalescing]: x=0.03, y=2.33</title></circle>
+<circle cx="277.0" cy="459.3" r="4.553407224865675" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>matcher::photometric_kernel [G7-dependency]: x=0.4, y=1.15</title></circle>
+<circle cx="281.7" cy="459.7" r="4.538461696055138" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>matcher::point_to_point_kernel [G7-dependency]: x=0.41, y=1.05</title></circle>
+<circle cx="204.7" cy="451.0" r="4.444968970716431" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::build_full_system_1_kernel [G2-coalescing]: x=0.26, y=3.18</title></circle>
+<circle cx="238.4" cy="448.5" r="4.28133321864917" fill="#228833" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>cast_depth_kernel [G5-compute]: x=0.32, y=3.8</title></circle>
+<circle cx="104.5" cy="433.8" r="4.259903954702815" fill="#0077bb" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::reduced_system_stage_2_kernel [G3-l2-reuse]: x=0.066, y=7.41</title></circle>
+<circle cx="333.8" cy="388.4" r="4.258994288070609" fill="#cc3311" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>gaussian_scaling_kernel [G1-bandwidth]: x=0.51, y=18.5</title></circle>
+<circle cx="86.6" cy="459.5" r="4.239198876547707" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::reduced_system_stage_1_kernel [G7-dependency]: x=0.032, y=1.1</title></circle>
+<circle cx="267.0" cy="446.8" r="4.237785159221567" fill="#aa3377" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::build_full_system_2_kernel [G4-latency]: x=0.38, y=4.21</title></circle>
+<circle cx="279.7" cy="385.4" r="4.214685380762893" fill="#aa3377" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>lk_track_kernel [G4-latency]: x=0.4, y=19.3</title></circle>
+<circle cx="256.5" cy="457.8" r="4.186669538973798" fill="#aa3377" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>trsv_lt_exec [G4-latency]: x=0.36, y=1.51</title></circle>
+<circle cx="246.9" cy="451.7" r="4.167587149892844" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>getrf_wo_pivot_params [G7-dependency]: x=0.34, y=3.02</title></circle>
+<circle cx="248.1" cy="459.1" r="4.165868261891467" fill="#0077bb" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>trsv_ln_exec [G3-l2-reuse]: x=0.34, y=1.2</title></circle>
+<circle cx="115.8" cy="440.8" r="4.162531564118943" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::calc_jacobians_kernel [G2-coalescing]: x=0.088, y=5.7</title></circle>
+<circle cx="174.6" cy="419.7" r="4.161491018441028" fill="#bbbbbb" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::reduced_system_stage_12_kernel [G0-nosignal]: x=0.2, y=10.9</title></circle>
+<circle cx="258.5" cy="460.4" r="4.1549380947522865" fill="#aa3377" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::reduce_abs_max_kernel [G4-latency]: x=0.36, y=0.89</title></circle>
+<circle cx="73.0" cy="463.1" r="4.152580859104721" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::clear_full_system_stage_1_kernel [G2-coalescing]: x=0.0058, y=0.21</title></circle>
+<circle cx="438.3" cy="412.7" r="4.147696551312398" fill="#cc3311" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::v1T_x_M_T_x_v2_kernel [G1-bandwidth]: x=0.71, y=12.6</title></circle>
+<circle cx="270.4" cy="386.3" r="4.147639470517489" fill="#cc3311" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>conv_grad_y_kernel [G1-bandwidth]: x=0.39, y=19.1</title></circle>
+<circle cx="406.0" cy="448.2" r="4.147353734870301" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::point_term_kernel [G2-coalescing]: x=0.65, y=3.87</title></circle>
+<circle cx="457.2" cy="431.6" r="4.143587437515546" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::evaluate_cost_kernel [G2-coalescing]: x=0.74, y=7.94</title></circle>
+<circle cx="263.1" cy="416.8" r="4.139175641224718" fill="#228833" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>cast_image_kernel_rgb [G5-compute]: x=0.37, y=11.6</title></circle>
+<circle cx="335.8" cy="408.2" r="4.1390544608436866" fill="#aa3377" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::reduced_system_stage_3_kernel [G4-latency]: x=0.51, y=13.7</title></circle>
+<circle cx="279.6" cy="375.8" r="4.138325149202271" fill="#cc3311" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>conv_grad_x_kernel [G1-bandwidth]: x=0.4, y=21.6</title></circle>
+<circle cx="254.8" cy="301.9" r="4.12269558793246" fill="#cc3311" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>gftt_values_kernel [G1-bandwidth]: x=0.36, y=39.7</title></circle>
+<circle cx="508.3" cy="397.7" r="4.118430859110757" fill="#cc3311" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::calc_point_update_kernel_xavier_special [G1-bandwidth]: x=0.84, y=16.3</title></circle>
+<circle cx="214.5" cy="459.9" r="4.10289233864506" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::v1T_x_M_x_v2_kernel [G7-dependency]: x=0.28, y=1</title></circle>
+<circle cx="234.6" cy="458.2" r="4.101656102268765" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::calc_pose_update_kernel [G7-dependency]: x=0.32, y=1.42</title></circle>
+<circle cx="215.9" cy="461.1" r="4.101407046519476" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::pose_scaling_term_kernel [G7-dependency]: x=0.28, y=0.71</title></circle>
+<circle cx="310.4" cy="444.1" r="4.090515165785959" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::update_points_kernel [G2-coalescing]: x=0.46, y=4.87</title></circle>
+<circle cx="210.1" cy="460.2" r="4.087098258887111" fill="#0077bb" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::update_poses_kernel [G3-l2-reuse]: x=0.27, y=0.93</title></circle>
+<circle cx="254.4" cy="452.4" r="4.085634318341388" fill="#aa3377" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::make_prediction [G4-latency]: x=0.35, y=2.83</title></circle>
+<circle cx="194.1" cy="461.5" r="4.083743263578965" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>xxtrf4_set_info_ker [G7-dependency]: x=0.24, y=0.62</title></circle>
+<circle cx="232.2" cy="453.5" r="4.083642550056562" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>sba::clear_full_system_stage_2_kernel [G7-dependency]: x=0.31, y=2.57</title></circle>
+<circle cx="220.9" cy="461.9" r="4.079084281148274" fill="#0077bb" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>cub::DeviceMergeSortPartitionKernel [G3-l2-reuse]: x=0.29, y=0.51</title></circle>
+<circle cx="269.0" cy="452.9" r="4.078119148681459" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>cub::DeviceMergeSortBlockSortKernel [G7-dependency]: x=0.38, y=2.72</title></circle>
+<circle cx="186.3" cy="461.2" r="4.077251131199382" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>dtrsv_init [G7-dependency]: x=0.22, y=0.68</title></circle>
+<circle cx="272.8" cy="257.2" r="4.077032598565809" fill="#cc3311" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>non_max_suppression_kernel [G1-bandwidth]: x=0.39, y=50.7</title></circle>
+<circle cx="197.3" cy="461.2" r="4.077032598565809" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>dtrsv_init_up [G7-dependency]: x=0.24, y=0.69</title></circle>
+<circle cx="194.5" cy="461.4" r="4.0768134442140065" fill="#66ccee" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>copy_info_kernel [G7-dependency]: x=0.24, y=0.63</title></circle>
+<circle cx="565.7" cy="237.2" r="4.0735623733994855" fill="#cc3311" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>accumulateGFTT_kernel [G1-bandwidth]: x=0.95, y=55.6</title></circle>
+<circle cx="261.7" cy="438.4" r="4.073332849054038" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>cub::DeviceMergeSortMergeKernel [G2-coalescing]: x=0.37, y=6.27</title></circle>
+<circle cx="490.3" cy="202.6" r="4.068581237628983" fill="#cc3311" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>downsample_gftt_x8_kernel [G1-bandwidth]: x=0.81, y=64.1</title></circle>
+<circle cx="509.8" cy="303.0" r="4.054932546505465" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>select_features_kernel [G2-coalescing]: x=0.85, y=39.5</title></circle>
+<circle cx="459.5" cy="432.5" r="4.0536909726717925" fill="#ee7733" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>matcher::lift_kernel [G2-coalescing]: x=0.75, y=7.73</title></circle>
+<circle cx="92.6" cy="460.2" r="4.038516299282905" fill="#0077bb" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>filter_maximums_kernel [G3-l2-reuse]: x=0.043, y=0.94</title></circle>
+<rect x="606" y="53" width="11" height="11" fill="#cc3311" rx="2"/>
+<text x="622.0" y="62.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">G1-bandwidth — DRAM bandwidth-boun</text>
+<rect x="606" y="70" width="11" height="11" fill="#ee7733" rx="2"/>
+<text x="622.0" y="79.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">G2-coalescing — coalescing/scatter</text>
+<rect x="606" y="87" width="11" height="11" fill="#0077bb" rx="2"/>
+<text x="622.0" y="96.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">G3-l2-reuse — L2 capacity/reuse-bo</text>
+<rect x="606" y="104" width="11" height="11" fill="#aa3377" rx="2"/>
+<text x="622.0" y="113.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">G4-latency — latency-bound at low </text>
+<rect x="606" y="121" width="11" height="11" fill="#228833" rx="2"/>
+<text x="622.0" y="130.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">G5-compute — compute-bound</text>
+<rect x="606" y="138" width="11" height="11" fill="#66ccee" rx="2"/>
+<text x="622.0" y="147.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">G7-dependency — dependency/ILP-bou</text>
+<rect x="606" y="155" width="11" height="11" fill="#bbbbbb" rx="2"/>
+<text x="622.0" y="164.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">G0-nosignal — underutilized / no d</text>
+<rect x="70" y="56" width="520" height="408" fill="none" stroke="#888"/>
+<text x="330.0" y="506.0" font-size="12.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">LFMR_gpu = 1 − L2 hit rate  (→1: caches useless)</text>
+<text x="18.0" y="260.0" font-size="12.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" transform="rotate(-90 18 260.0)">DRAM throughput (% of peak)</text>
+</svg>

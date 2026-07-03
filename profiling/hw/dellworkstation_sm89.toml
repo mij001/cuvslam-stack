@@ -1,0 +1,50 @@
+# Hardware descriptor — NVIDIA RTX 2000 Ada Generation  (auto-generated on host `dell-workstation`)
+#
+# Structural values are exact (cudaDeviceGetAttribute). The two CEILINGS
+# (dram_gbps_theoretical, fp32_tflops_theoretical) are derived estimates:
+# VERIFY with the Empirical Roofline Toolkit before publishing numbers.
+# Regenerate any time with: python3 profiling/env/gen_hw_descriptor.py
+
+[device]
+name         = "NVIDIA RTX 2000 Ada Generation"
+arch         = "Ampere/Ada"
+compute_cap  = "8.9"          # sm_89
+sms          = 22
+cuda_cores   = 2816            # 22 SM x 128 FP32 lanes (sm_89)
+role         = "production"
+
+[memory]
+l2_bytes              = 25165824
+l1_shared_per_sm_bytes = 102400
+vram_bytes            = 16743333888
+dram_bus_bits         = 128
+dram_gbps_theoretical = 224.0       # verify: derived from runtime mem clock x2 DDR
+dram_gbps_measured    = 205.0      # measured: D2D memcpy median, sync-per-op (may underread ≤2%); clocks 1620 MHz, 6801 MHz
+ecc                   = false
+
+[compute]
+fp32_tflops_theoretical = 17.49      # verify: 2816 lanes x 2 (FMA) x 3.10 GHz
+fp32_gflops_measured    = 5445      # measured: cublasSgemm median; clocks 1620 MHz, 6801 MHz
+clock_max_graphics_mhz  = 3105
+clock_max_memory_mhz    = 7001
+
+[roofline]
+l1_fits_below_bytes  = 102400
+l2_fits_below_bytes  = 25165824
+dram_above_bytes     = 25165824
+
+[run]
+enforce_clock_locks = true
+graphics_clock_mhz  = 1620          # LOCKED sustained point (sudo nvidia-smi -lgc 1620,1620; re-apply after reboot)
+memory_clock_mhz    = 7001          # LOCKED (sudo nvidia-smi -lmc 7001,7001)
+persistence_mode    = true
+cpu_governor        = "performance"
+
+[accelsim]
+base_config = "SM75_RTX2060  # adapt: no stock Ada cfg"
+
+[notes]
+text = """
+Auto-generated (driver 610.43.02). NVBit requires CUDA driver <= 575.xx —
+check `nvidia-smi` before assuming the Slice-3 data-movement track runs here.
+"""

@@ -78,11 +78,11 @@ NCU_WARM_DIR=$(ls -d profiling/results/*_ncu_* | tail -1)
 echo "steady-state ncu: $NCU_DIR (cold) / $NCU_WARM_DIR (warm-cache bracket)"
 
 echo "### 5/5 report"
-python3 -m analysis.make_report --hw "$HW" --nsys "$NSYS_DIR" --ncu "$NCU_DIR" "${NSYS_SLAM_ARG[@]}"
+PYTHONPATH=profiling python3 -m analysis.make_report --hw "$HW" --nsys "$NSYS_DIR" --ncu "$NCU_DIR" "${NSYS_SLAM_ARG[@]}"
 REPORT_DIR=$(ls -dt profiling/reports/*/ | head -1)
 if [ "${#NSYS_REPEAT_DIRS[@]}" -gt 1 ]; then
     echo "### variance across ${#NSYS_REPEAT_DIRS[@]} nsys repeats"
-    (cd profiling && python3 -m analysis.variance \
+    (cd profiling && PYTHONPATH=. python3 -m analysis.variance \
         $(printf '../%s ' "${NSYS_REPEAT_DIRS[@]}") --out "../$REPORT_DIR/data")
 fi
 echo "### done"

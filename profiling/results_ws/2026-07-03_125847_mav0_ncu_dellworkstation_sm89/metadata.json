@@ -1,0 +1,38 @@
+{
+  "profiler": "nsight_compute",
+  "date": "2026-07-03T12:58:47.089151+05:30",
+  "timestamp": "2026-07-03_125847",
+  "hostname": "dell-workstation",
+  "tag": "tumvi_corridor1-slamkernels",
+  "hw_descriptor": "profiling/hw/dellworkstation_sm89.toml",
+  "hw_name": "dellworkstation_sm89",
+  "gpu": {
+    "name": "NVIDIA RTX 2000 Ada Generation",
+    "driver_version": "610.43.02",
+    "graphics_clock": "1620 MHz",
+    "memory_clock": "7001 MHz"
+  },
+  "cuda_version": "unknown",
+  "python_version": "3.10.19",
+  "cuvslam_version": "15.0.0",
+  "config": "profiling/configs/tumvi_corridor1_slam_profile.toml",
+  "frame_override": null,
+  "workload_cmd": "cuvslam_venv/bin/python run.py profiling/results/2026-07-03_125847_mav0_ncu_dellworkstation_sm89/derived/used_config.toml",
+  "gpu_warmup_s": 8.0,
+  "gpu_clocks_post_warmup": {
+    "name": "NVIDIA RTX 2000 Ada Generation",
+    "driver_version": "610.43.02",
+    "graphics_clock": "1620 MHz",
+    "memory_clock": "7001 MHz"
+  },
+  "ncu_version": "NVIDIA (R) Nsight Compute Command Line Profiler",
+  "ncu_config": {
+    "metrics": "characterize",
+    "n_metrics": 29,
+    "launch_skip": 40,
+    "launch_count": 120,
+    "auto_window": null,
+    "kernel_filter": "st_.*cache",
+    "cache_control": "all"
+  }
+}

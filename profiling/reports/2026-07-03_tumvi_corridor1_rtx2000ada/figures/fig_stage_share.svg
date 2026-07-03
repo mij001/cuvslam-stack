@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 294" width="760" height="294">
+<rect width="760" height="294" fill="white"/>
+<text x="380.0" y="24.0" font-size="15" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-weight="bold">GPU time share by pipeline stage</text>
+<text x="222.0" y="66.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">preprocess</text>
+<rect x="230" y="48" width="71.6" height="26" fill="#4477aa" rx="2"/>
+<text x="307.6" y="66.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">7.8%  (streaming)</text>
+<text x="222.0" y="102.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">feature_detect</text>
+<rect x="230" y="84" width="99.3" height="26" fill="#66ccee" rx="2"/>
+<text x="335.3" y="102.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">10.8%  (streaming)</text>
+<text x="222.0" y="138.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">keypoint_sort</text>
+<rect x="230" y="120" width="23.8" height="26" fill="#228833" rx="2"/>
+<text x="259.8" y="138.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">2.6%  (streaming)</text>
+<text x="222.0" y="174.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">tracking</text>
+<rect x="230" y="156" width="132.9" height="26" fill="#ccbb44" rx="2"/>
+<text x="368.9" y="174.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">14.4%  (streaming+hot)</text>
+<text x="222.0" y="210.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">bundle_adjust</text>
+<rect x="230" y="192" width="420.0" height="26" fill="#ee6677" rx="2"/>
+<text x="656.0" y="210.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">45.5%  (hot-persistent)</text>
+<text x="222.0" y="246.2" font-size="12" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">ba_solver</text>
+<rect x="230" y="228" width="176.1" height="26" fill="#aa3377" rx="2"/>
+<text x="412.1" y="246.2" font-size="11" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">19.1%  (hot-persistent)</text>
+</svg>

@@ -1,0 +1,5 @@
+operation,total_time_ms,count,total_mb,mb_per_frame
+CUDA memcpy Host-to-Device,40.85,1843,503.56,1.9368
+CUDA memcpy Device-to-Device,6.81,2813,638.39,2.4554
+CUDA memcpy Device-to-Host,5.36,2985,33.74,0.1298
+CUDA memset,2.1,3872,0.02,0.0001

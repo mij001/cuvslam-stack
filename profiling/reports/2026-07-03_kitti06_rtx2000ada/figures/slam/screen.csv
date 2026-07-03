@@ -1,0 +1,2 @@
+kernel,stage,verdict,launches,time_ms,mem_sol_pct,comp_sol_pct,dram_sol_pct,l1_hit_pct,l2_hit_pct,occupancy_pct,sectors_per_req_ld,sectors_per_req_st,lfmr_gpu,mpki_gpu,dram_bytes_per_launch,stall_long_scoreboard,stall_short_scoreboard,stall_lg_throttle,stall_mio_throttle,stall_tex_throttle,stall_math_throttle,stall_barrier,stall_wait,stall_not_selected
+st_build_cache_kernel,slam_loop,memory-latency,120,8.6695,33.01,2.67,1.63,94.78,96.36,2.08,27.53,27.29,0.0364,364.393,255949,13.315,0.107,4.131,0.0,1.503,0.002,0.0,0.928,0.0

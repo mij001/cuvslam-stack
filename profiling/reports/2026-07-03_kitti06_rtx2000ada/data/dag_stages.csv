@@ -1,0 +1,7 @@
+stage,persistence,pct_gpu_time,total_ms,instances,kernels
+preprocess,streaming,17.74,33.74,1745,cast_image_kernel_rgb gaussian_scaling_kernel
+feature_detect,streaming,11.15,21.209,3578,accumulateGFTT_kernel conv_grad_x_kernel conv_grad_y_kernel downsample_gftt_x8_kernel filter_maximums_kernel gftt_values_kernel non_max_suppression_kernel select_features_kernel
+keypoint_sort,streaming,1.56,2.972,623,cub::DeviceMergeSortBlockSortKernel cub::DeviceMergeSortMergeKernel cub::DeviceMergeSortPartitionKernel
+tracking,streaming+hot,10.76,20.47,607,lk_track_horizontal_kernel lk_track_kernel
+bundle_adjust,hot-persistent,50.09,95.29,13933,sba::build_full_system_1_kernel sba::build_full_system_2_kernel sba::calc_jacobians_kernel sba::calc_point_update_kernel_xavier_special sba::calc_pose_update_kernel sba::clear_full_system_stage_1_kernel sba::clear_full_system_stage_2_kernel sba::evaluate_cost_kernel sba::make_prediction sba::point_term_kernel sba::pose_scaling_term_kernel sba::reduce_abs_max_kernel sba::reduced_system_stage_12_kernel sba::reduced_system_stage_1_kernel sba::reduced_system_stage_2_kernel sba::reduced_system_stage_3_kernel sba::update_points_kernel sba::update_poses_kernel sba::v1T_x_M_T_x_v2_kernel sba::v1T_x_M_x_v2_kernel
+ba_solver,hot-persistent,8.7,16.545,4312,copy_info_kernel dtrsv_init dtrsv_init_up getrf_wo_pivot_params trsv_ln_exec trsv_lt_exec xxtrf4_set_info_ker

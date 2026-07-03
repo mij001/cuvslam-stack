@@ -1,0 +1,52 @@
+# Profiling workload — TUM fr3 long_office_household + FULL SLAM layer.
+#
+# THE loop-closure workload (the onboarding doc's designated stress sequence):
+# the camera orbits the same office-desk island, revisiting views repeatedly —
+# the most efficient way to force the loop-closure / keyframe-database path in a
+# short trace. This is the COLD-PERSISTENT evidence run; the odometry-only
+# config (tum_office_profile.toml) is its baseline for the kernel-set delta.
+#
+# sync_mode = true keeps SLAM work on the track() thread: deterministic ordering
+# so loop-closure kernels appear in-line in the nsys timeline for attribution.
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 0          # full sequence (~2500 frames): the orbit closes late
+
+[input]
+type = "tum"
+path = "/home/ndpvslam/Projects/cuvslam_datasets/tum/rgbd_dataset_freiburg3_long_office_household"
+max_time_diff = 0.02
+max_gap = 0.5
+
+[odometry]
+odometry_mode = "RGBD"
+async_sba = false
+enable_final_landmarks_export = true
+
+  [odometry.rgbd]
+  depth_scale_factor = 5000.0
+  depth_camera_id = 0
+
+[slam]
+enabled = true
+use_gpu = true
+sync_mode = true         # deterministic: SLAM kernels in-line for attribution
+enable_reading_internals = true
+
+[[rig.cameras]]
+size = [640, 480]
+focal = [535.4, 539.2]
+principal = [320.1, 247.6]
+border_top = 20
+border_bottom = 20
+border_left = 10
+border_right = 50
+
+[output]
+trajectory = "/tmp/tum_office_slam_profile_traj.txt"
+pose_source = "slam"
+timestamp_unit = "s"
+visualize = false
+print_every = 0
