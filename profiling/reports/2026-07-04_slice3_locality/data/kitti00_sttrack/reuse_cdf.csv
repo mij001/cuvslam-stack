@@ -1,0 +1,2 @@
+kernel,hit_at_64KiB,hit_at_128KiB,hit_at_512KiB,hit_at_1024KiB,hit_at_6144KiB,hit_at_12288KiB,hit_at_24576KiB,hit_at_49152KiB
+st_track_with_cache_kernel,0.9955,0.9958,0.996,0.996,0.996,0.996,0.996,0.996

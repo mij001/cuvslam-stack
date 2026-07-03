@@ -1,0 +1,9 @@
+kernel,launches,accesses,skipped_overflow,max_footprint_mb,mean_sectors_per_warp_access,pct_warp_accesses_coalesced_le4,mean_active_lanes,sectors_per_32_active_lanes,interlaunch_jaccard
+cast_image_kernel_rgb,2,307200,0,2.150,4.0,100.0,32.0,4.0,0.0
+cast_depth_kernel,3,172800,0,1.843,3.0,100.0,32.0,3.0,0.0
+conv_grad_x_kernel,18,2026377,0,1.231,5.31,34.6,32.0,5.31,0.075
+conv_grad_y_kernel,18,3987417,0,1.231,15.43,14.9,32.0,15.43,0.075
+gaussian_scaling_kernel,30,76914,0,0.307,3.99,100.0,32.0,3.99,0.001
+lk_track_kernel,6,27342,0,0.019,2.1,100.0,32.0,2.1,0.011
+matcher::photometric_kernel,37,39603,0,0.006,3.52,85.9,32.0,3.52,0.999
+matcher::point_to_point_kernel,36,43997,0,0.006,3.93,83.9,32.0,3.93,0.999

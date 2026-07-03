@@ -1,0 +1,2 @@
+kernel,launches,accesses,skipped_overflow,max_footprint_mb,mean_sectors_per_warp_access,pct_warp_accesses_coalesced_le4,mean_active_lanes,sectors_per_32_active_lanes,interlaunch_jaccard
+st_track_with_cache_kernel,12,48000000,114128387,1.096,2.13,99.5,32.0,2.13,0.899
