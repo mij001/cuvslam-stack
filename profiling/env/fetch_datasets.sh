@@ -18,10 +18,24 @@ fetch() { # url dest
 tum_office() {
     local d="$ROOT/tum" f="rgbd_dataset_freiburg3_long_office_household"
     mkdir -p "$d"
-    if [ -d "$d/$f" ]; then echo "[skip] $d/$f exists"; return; fi
+    if [ -d "$d/$f" ]; then echo "[skip] $d/$f exists"; verify_tum_office "$d/$f"; return; fi
     fetch "https://cvg.cit.tum.de/rgbd/dataset/freiburg3/$f.tgz" "$d/$f.tgz"
     tar xzf "$d/$f.tgz" -C "$d" && rm "$d/$f.tgz"
+    verify_tum_office "$d/$f"
     echo "[done] $d/$f"
+}
+
+# Integrity check (reproducibility): file count, total bytes, and sha256 of the
+# index files, recorded from the 2026-07-02 download used in the committed report.
+verify_tum_office() {
+    local d="$1" ok=1
+    [ "$(find "$d" -type f | wc -l)" = "5098" ] || { echo "[✗] file count mismatch"; ok=0; }
+    [ "$(du -sb "$d" | cut -f1)" = "1574146525" ] || { echo "[✗] total size mismatch"; ok=0; }
+    echo "9bc53b49d65090bf $(sha256sum "$d/rgb.txt" | cut -c1-16)" | awk '{exit $1!=$2}' || { echo "[✗] rgb.txt hash mismatch"; ok=0; }
+    echo "7b45466238e892b8 $(sha256sum "$d/depth.txt" | cut -c1-16)" | awk '{exit $1!=$2}' || { echo "[✗] depth.txt hash mismatch"; ok=0; }
+    echo "e255d5d9c5bab915 $(sha256sum "$d/groundtruth.txt" | cut -c1-16)" | awk '{exit $1!=$2}' || { echo "[✗] groundtruth.txt hash mismatch"; ok=0; }
+    [ $ok -eq 1 ] && echo "[✓] dataset integrity verified (5098 files, sha256 index match)" \
+                  || echo "[!] dataset differs from the version used in committed reports"
 }
 
 euroc_v101() {

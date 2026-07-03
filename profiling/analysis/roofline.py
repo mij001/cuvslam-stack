@@ -88,7 +88,9 @@ def emit(rows, hw, out_dir):
     bw_meas = float(memc.get("dram_gbps_measured") or 0.0)
     bw = bw_meas or float(memc.get("dram_gbps_theoretical") or 0.0)
     bw_kind = "measured" if bw_meas else "theoretical"
-    tflops = float(comp.get("fp32_tflops_theoretical") or 0.0)
+    fp_meas = float(comp.get("fp32_gflops_measured") or 0.0) / 1000.0
+    tflops = fp_meas or float(comp.get("fp32_tflops_theoretical") or 0.0)
+    fp_kind = "measured" if fp_meas else "theoretical"
     l2_gbps = float(memc.get("l2_gbps_estimate") or 0.0) or None
     total_t = sum(r["time_s"] for r in pts) or 1.0
     points = []
@@ -98,8 +100,8 @@ def emit(rows, hw, out_dir):
                        svgfig.stage_color(r["stage"], stages.ORDER), radius))
     p = os.path.join(out_dir, "fig_roofline.svg")
     svgfig.roofline(p, f'Roofline — {dev.get("name", "GPU")} '
-                       f'(DRAM {bw:g} GB/s {bw_kind}, FP32 {tflops:g} TFLOP/s; '
-                       f'size ∝ GPU-time share)',
+                       f'(DRAM {bw:g} GB/s {bw_kind}, FP32 {tflops:g} TFLOP/s '
+                       f'{fp_kind}; size ∝ GPU-time share)',
                     points, dram_gbps=bw, fp32_tflops=tflops, l2_gbps=l2_gbps)
     written.append(p)
     return written, None

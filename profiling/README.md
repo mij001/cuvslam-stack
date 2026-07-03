@@ -2,8 +2,9 @@
 
 Memory-profiling and characterization of cuVSLAM, layered on the Phase-0 TOML
 runner. **Read `PROFILING_PLAN.md` for the strategy and the research/tooling
-reality; `WALKTHROUGH.md` for the guided tour.** This file is the operational
-how-to.
+reality; `WALKTHROUGH.md` for the guided tour; `METHODOLOGY.md` for how every
+number is produced (the paper's methodology source); `PUBLISHABILITY.md` for
+the reviewer-grade open-issues register.** This file is the operational how-to.
 
 The workload-under-test is always launched through the stack's own TOML runner
 (`run.py <config>`), so any dataset the runner supports is profilable with no

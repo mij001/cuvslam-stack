@@ -214,9 +214,17 @@ def main(argv=None):
     p.add_argument("--kernel-filter", default=None, metavar="REGEX",
                    help="ncu: profile only kernels whose name matches this regex "
                         "(e.g. 'st_.*cache' for the SLAM keyframe-cache kernels)")
+    p.add_argument("--cache-control", default="all", choices=["all", "none"],
+                   help="ncu: 'all' flushes caches between replay passes (cold-start "
+                        "hit rates, default); 'none' keeps them warm (upper bound). "
+                        "Capture BOTH to bracket the true steady-state hit rates.")
     # nsys knobs
     p.add_argument("--nsys-traces", default="cuda,nvtx,osrt")
     p.add_argument("--nsys-sample", default="cpu")
+    p.add_argument("--gpu-warmup", type=float, default=0.0, metavar="SECONDS",
+                   help="pre-capture clock warm-up (env/gpu_warmup.py) — use ~8 on "
+                        "hosts that cannot lock clocks so every run starts at the "
+                        "same sustained clock state (see METHODOLOGY.md §4.2)")
     p.add_argument("--timeout", type=int, default=2400, help="seconds before aborting the profiler")
     args = p.parse_args(argv)
 
@@ -277,6 +285,12 @@ def main(argv=None):
         "workload_cmd": " ".join(os.path.relpath(c, REPO_ROOT) if os.path.exists(c) else c for c in workload),
     }
 
+    if args.gpu_warmup > 0:
+        sh([sys.executable, os.path.join(REPO_ROOT, "profiling", "env", "gpu_warmup.py"),
+            "--seconds", str(args.gpu_warmup)])
+        meta["gpu_warmup_s"] = args.gpu_warmup
+        meta["gpu_clocks_post_warmup"] = nvidia_smi_gpu()
+
     rc = 1
     if args.profiler == "nsys":
         meta["nsys_version"] = tool_version(["nsys", "--version"])
@@ -303,12 +317,14 @@ def main(argv=None):
         meta["ncu_version"] = tool_version(["ncu", "--version"])
         meta["ncu_config"] = {"metrics": args.metrics, "n_metrics": len(metrics) if metrics else "full",
                               "launch_skip": args.launch_skip, "launch_count": args.launch_count,
-                              "auto_window": args.auto_window, "kernel_filter": args.kernel_filter}
+                              "auto_window": args.auto_window, "kernel_filter": args.kernel_filter,
+                              "cache_control": args.cache_control}
         out = os.path.join(raw, "kernels")
         json.dump(meta, open(os.path.join(run_dir, "metadata.json"), "w"), indent=2)
         cmd = ["ncu", "--target-processes", "all",
                "--launch-skip", str(args.launch_skip), "--launch-count", str(args.launch_count),
                "--clock-control", "none",            # don't let ncu fight the (unlockable) laptop clocks
+               "--cache-control", args.cache_control,
                "-o", out, "--force-overwrite"]
         if args.kernel_filter:
             cmd += ["--kernel-name", f"regex:{args.kernel_filter}"]

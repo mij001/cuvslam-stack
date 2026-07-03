@@ -238,12 +238,17 @@ def main(argv=None):
     R.append(common.md_table(["stage", "persistence", "dominant class", "share",
                               "PiM affinity", "substrate"],
                              classify.synthesis(cls_rows)) + "\n")
-    top_cls = [[r["kernel"], r["class"], r["confidence"], r["pim"], r["substrate"],
-                r["why"]] for r in cls_rows[:14]]
+    top_cls = [[r["kernel"], r["class"], r["confidence"], r["stability"],
+                r["pim"], r["substrate"], r["why"]] for r in cls_rows[:14]]
     R.append("Per-kernel placement (top by profiled time; full table in "
-             "`data/classification.csv`):\n")
-    R.append(common.md_table(["kernel", "class", "conf", "PiM", "substrate",
-                              "rationale"], top_cls) + "\n")
+             "`data/classification.csv`). *Stability* = the class survives all "
+             "decision thresholds perturbed ±25%:\n")
+    R.append(common.md_table(["kernel", "class", "conf", "stability", "PiM",
+                              "substrate", "rationale"], top_cls) + "\n")
+    n_borderline = sum(1 for r in cls_rows if r["stability"] != "stable")
+    R.append(f"Threshold sensitivity: {len(cls_rows) - n_borderline}/{len(cls_rows)} "
+             f"kernels keep their class under ±25% threshold perturbation; "
+             f"{n_borderline} are borderline (flagged above and in the CSV).\n")
 
     R.append("## 8. Persistence-class evidence so far\n")
     verd = {r["kernel"]: r for r in scr_rows}

@@ -1,0 +1,49 @@
+# Profiling workload — TUM fr3 long_office + SLAM in ASYNC (deployment) mode.
+#
+# The counterpart to tum_office_slam_profile.toml (sync_mode = true). sync mode
+# gives deterministic attribution but inflates the SLAM layer's apparent share
+# of GPU time; deployments run SLAM asynchronously. Capturing BOTH lets the
+# report state the loop-closure share honestly: "X% of the GPU work SLAM adds
+# (sync attribution), Y% of wall-parallel GPU time in deployment mode (async)."
+
+[run]
+verbosity   = 0
+start_index = 0
+max_frames  = 0          # full sequence, same as the sync capture
+
+[input]
+type = "tum"
+path = "${CUVSLAM_DATASETS}/tum/rgbd_dataset_freiburg3_long_office_household"
+max_time_diff = 0.02
+max_gap = 0.5
+
+[odometry]
+odometry_mode = "RGBD"
+async_sba = false
+enable_final_landmarks_export = true
+
+  [odometry.rgbd]
+  depth_scale_factor = 5000.0
+  depth_camera_id = 0
+
+[slam]
+enabled = true
+use_gpu = true
+sync_mode = false        # deployment mode: SLAM on its own thread
+enable_reading_internals = true
+
+[[rig.cameras]]
+size = [640, 480]
+focal = [535.4, 539.2]
+principal = [320.1, 247.6]
+border_top = 20
+border_bottom = 20
+border_left = 10
+border_right = 50
+
+[output]
+trajectory = "/tmp/tum_office_slam_async_profile_traj.txt"
+pose_source = "slam"
+timestamp_unit = "s"
+visualize = false
+print_every = 0

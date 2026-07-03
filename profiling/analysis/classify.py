@@ -76,7 +76,24 @@ def _dominant_stall(r):
     return max(items, key=lambda x: x[1])
 
 
-def classify_kernel(r: dict, hw: dict) -> dict:
+# Decision-tree thresholds. DAMOV calibrated its single 30% cutoff empirically;
+# ours are stated here once and STRESS-TESTED: classify_kernel is re-run at
+# ×0.75 and ×1.25 of every threshold, and kernels whose class flips are flagged
+# 'borderline' in the output (see sensitivity()).
+THRESHOLDS = {
+    "sol_hi": 40.0,        # SoL% considered 'high' (bound-ness)
+    "sol_ratio": 1.5,      # dominance ratio between Mem/Comp SoL
+    "dram_sat": 50.0,      # DRAM-SoL% (of ncu's theoretical peak) = saturated
+    "lfmr_hi": 0.4,        # LFMR_gpu above which the L2 is 'not helping'
+    "lfmr_lo": 0.35,       # LFMR_gpu below which the L2 'earns its keep'
+    "sect_scatter": 8.0,   # sectors/request marking scattered access (4 = ideal)
+    "occ_low": 25.0,       # occupancy% below which latency can't be hidden
+    "occ_low_dep": 30.0,   # occupancy% bound for the dependency class
+    "stall_dom": 1.0,      # warps/issue-active for a stall to count as dominant
+}
+
+
+def classify_kernel(r: dict, hw: dict, th: dict = THRESHOLDS) -> dict:
     """r: merged feature row (screen ∪ roofline fields). Returns class row."""
     l2_bytes = float(hw.get("memory", {}).get("l2_bytes") or 0)
     mem, comp = r.get("mem_sol", float("nan")), r.get("comp_sol", float("nan"))
@@ -89,39 +106,44 @@ def classify_kernel(r: dict, hw: dict) -> dict:
     dom, dom_v = _dominant_stall(r)
 
     cls, conf, why = "G0-nosignal", "low", []
-    mem_limited = (mem == mem and mem >= 40) or (dom in MEMORY_STALLS and dom_v == dom_v and dom_v >= 1.0)
+    sol_hi, ratio = th["sol_hi"], th["sol_ratio"]
+    mem_limited = (mem == mem and mem >= sol_hi) or \
+        (dom in MEMORY_STALLS and dom_v == dom_v and dom_v >= th["stall_dom"])
 
-    if comp == comp and comp >= 40 and (mem != mem or comp >= 1.5 * mem):
+    if comp == comp and comp >= sol_hi and (mem != mem or comp >= ratio * mem):
         cls, conf = "G5-compute", "high"
         why.append(f"CompSoL {comp:.0f}% dominant" + (f", AI {ai:.1f} FLOP/B" if ai == ai else ""))
-    elif dom in ("mio_throttle", "short_scoreboard") and dom_v >= 1.0 and not (dram_sol == dram_sol and dram_sol >= 40):
+    elif dom in ("mio_throttle", "short_scoreboard") and dom_v >= th["stall_dom"] \
+            and not (dram_sol == dram_sol and dram_sol >= sol_hi):
         cls, conf = "G6-onchip", "medium"
         why.append(f"dominant stall {dom} ({dom_v:.1f} warps) with DRAM unsaturated")
-    elif dram_sol == dram_sol and dram_sol >= 50:
+    elif dram_sol == dram_sol and dram_sol >= th["dram_sat"]:
         cls = "G1-bandwidth"
-        conf = "high" if lfmr == lfmr and lfmr >= 0.4 else "medium"
+        conf = "high" if lfmr == lfmr and lfmr >= th["lfmr_hi"] else "medium"
         why.append(f"DRAM-SoL {dram_sol:.0f}%")
         if lfmr == lfmr:
-            why.append(f"LFMR {lfmr:.2f}" + (" (L2 not helping)" if lfmr >= 0.4 else " (L2 absorbing reuse)"))
-    elif mem_limited and sect == sect and sect >= 8:
-        cls, conf = "G2-coalescing", "high" if sect >= 16 else "medium"
+            why.append(f"LFMR {lfmr:.2f}" + (" (L2 not helping)" if lfmr >= th["lfmr_hi"]
+                                             else " (L2 absorbing reuse)"))
+    elif mem_limited and sect == sect and sect >= th["sect_scatter"]:
+        cls, conf = "G2-coalescing", "high" if sect >= 2 * th["sect_scatter"] else "medium"
         why.append(f"{sect:.0f} sectors/request (4 = coalesced)")
-    elif mem_limited and lfmr == lfmr and lfmr < 0.35:
+    elif mem_limited and lfmr == lfmr and lfmr < th["lfmr_lo"]:
         cls, conf = "G3-l2-reuse", "medium"
         why.append(f"memory-limited but LFMR {lfmr:.2f} — the L2 is earning its keep")
-    elif dom == "long_scoreboard" and occ == occ and occ < 25 and not (dram_sol == dram_sol and dram_sol >= 40):
+    elif dom == "long_scoreboard" and occ == occ and occ < th["occ_low"] \
+            and not (dram_sol == dram_sol and dram_sol >= sol_hi):
         cls = "G4-latency"
         conf = "high" if (wset == wset and l2_bytes and wset > l2_bytes) else "medium"
         why.append(f"long-scoreboard dominant at {occ:.0f}% occupancy, DRAM-SoL {dram_sol:.0f}%")
         if wset == wset and l2_bytes and wset > l2_bytes:
             why.append(f"working set {wset/1e6:.1f} MB/launch ≫ L2 {l2_bytes/1e6:.1f} MB")
     elif (dom in ("wait", "short_scoreboard", "barrier", "not_selected")
-          and occ == occ and occ < 30
-          and not (mem == mem and mem >= 40) and not (comp == comp and comp >= 40)):
+          and occ == occ and occ < th["occ_low_dep"]
+          and not (mem == mem and mem >= sol_hi) and not (comp == comp and comp >= sol_hi)):
         cls, conf = "G7-dependency", "medium"
         why.append(f"'{dom}' stall dominant at {occ:.0f}% occupancy; memory is not the wall "
                    f"(MemSoL {mem:.0f}%, DRAM-SoL {dram_sol:.0f}%)")
-        if sect == sect and sect >= 8:
+        if sect == sect and sect >= th["sect_scatter"]:
             why.append(f"note: scattered access ({sect:.0f} sect/req) — re-screen for PiM once occupancy is fixed")
     elif mem_limited:
         cls, conf = "G1-bandwidth", "low"
@@ -132,6 +154,18 @@ def classify_kernel(r: dict, hw: dict) -> dict:
     return {"class": cls, "confidence": conf, "why": "; ".join(why),
             "dom_stall": dom or "", "sect": sect, "lfmr": lfmr,
             "dram_sol": dram_sol, "wset": wset}
+
+
+def sensitivity(r: dict, hw: dict) -> str:
+    """Stress the thresholds ±25%: 'stable' if the class survives, else the
+    set of classes it flips among. DAMOV's analog: calibrating the 30% cutoff."""
+    seen = set()
+    for scale in (0.75, 1.0, 1.25):
+        th = {k: v * scale for k, v in THRESHOLDS.items()}
+        seen.add(classify_kernel(r, hw, th)["class"])
+    if len(seen) == 1:
+        return "stable"
+    return "borderline:" + "↔".join(sorted(seen))
 
 
 def pim_affinity(cls: str, persistence: str, r: dict) -> tuple[str, str]:
@@ -223,6 +257,15 @@ def run(paths: list[str], hw: dict) -> list[dict]:
     out = []
     for r in merged.values():
         c = classify_kernel(r, hw)
+        # small-sample guard: DAMOV-style claims need more than a couple of
+        # launches; cap the confidence and say so
+        n = r.get("launches") or 0
+        if 0 < n < 5 and c["confidence"] != "low":
+            c["confidence"] = "low"
+            c["why"] += f"; only n={n} profiled launches — small sample"
+        c["stability"] = sensitivity(r, hw)
+        if c["stability"] != "stable" and c["confidence"] == "high":
+            c["confidence"] = "medium"
         pers = stages.persistence_of(r["stage"])
         aff, substrate = pim_affinity(c["class"], pers, c)
         out.append({**r, **c, "persistence": pers, "pim": aff, "substrate": substrate})
@@ -235,12 +278,12 @@ def emit(rows: list[dict], hw: dict, out_dir: str) -> list[str]:
     written = []
     p = os.path.join(out_dir, "classification.csv")
     common.write_csv(p, ["kernel", "stage", "persistence", "class", "confidence",
-                         "pim_affinity", "substrate", "time_ms", "lfmr_gpu",
+                         "stability", "pim_affinity", "substrate", "time_ms", "lfmr_gpu",
                          "mpki_gpu", "dram_sol_pct", "sectors_per_req", "occupancy_pct",
                          "ai_flop_per_byte", "dram_bytes_per_launch", "dominant_stall",
                          "rationale", "source"],
                      [[r["kernel"], r["stage"], r["persistence"], r["class"],
-                       r["confidence"], r["pim"], r["substrate"],
+                       r["confidence"], r["stability"], r["pim"], r["substrate"],
                        round(r["time_s"] * 1e3, 3) if r["time_s"] == r["time_s"] else "",
                        round(r["lfmr"], 3) if r["lfmr"] == r["lfmr"] else "",
                        round(r.get("mpki", float("nan")), 2) if r.get("mpki", float("nan")) == r.get("mpki", float("nan")) else "",

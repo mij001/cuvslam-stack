@@ -22,11 +22,12 @@ l1_shared_per_sm_bytes = 65536     # 64 KiB unified L1/shared per SM (measured)
 vram_bytes            = 2147483648 # 2 GiB nominal (runtime reports ~1691 MiB usable)
 dram_bus_bits         = 64         # measured
 dram_gbps_theoretical = 80.0       # verify: 64-bit GDDR6; nvidia-smi max mem clock 3501 MHz implies up to ~112 GB/s
-dram_gbps_measured    = 0.0        # TODO: fill from ERT
+dram_gbps_measured    = 45.7      # measured: D2D memcpy median, sync-per-op (may underread ≤2%); clocks 1830 MHz, 3500 MHz
 ecc                   = false      # measured (MX450 has no ECC)
 
 [compute]
 fp32_tflops_theoretical = 3.8      # verify: 896 lanes x 2 (FMA) x ~2.1 GHz boost
+fp32_gflops_measured    = 1228      # measured: cublasSgemm median; clocks 1830 MHz, 3500 MHz
 clock_max_graphics_mhz  = 2100     # nvidia-smi clocks.max.graphics
 clock_max_memory_mhz    = 3501     # nvidia-smi clocks.max.memory
 
