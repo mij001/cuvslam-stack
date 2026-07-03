@@ -1,0 +1,89 @@
+NVBit 1.8 mem_trace: launch-window (LAUNCH_BEGIN/END) + kernel-name filter
+(KERNEL_FILTER) for bounded cuVSLAM traces.
+
+Full-run traces are TB-scale at 100-1000x slowdown, so Slice 3 traces only the
+kernels/window of interest. Two independent gates, ANDed:
+
+  LAUNCH_BEGIN=N / LAUNCH_END=M   instrument grid launch ids in [N, M)
+  KERNEL_FILTER=substr            instrument only kernels whose demangled name
+                                  contains substr (default: all)
+
+The name filter is the important one for the SLAM layer: st_track_with_cache
+fires once per keyframe amid thousands of other launches, so a contiguous
+launch-id window would instrument ~6000 unwanted kernels to catch a dozen
+st_track launches (measured: window [108231,114597) for 12 launches). With
+KERNEL_FILTER=st_track_with_cache only those launches are instrumented,
+wherever they land, and the trace stays small. LAUNCH lines still print for
+every launch (uninstrumented ones too) so the launch-id <-> kernel-name map
+stays complete.
+
+Apply (build inside the cu12 podman image — host gcc16 breaks nvcc 12.9):
+  (cd external_repos/nvbit_release_x86_64/tools/mem_trace &&
+   patch < profiling/blocked/mem_trace_windowing.patch)
+  podman run --rm -v "$PWD/external_repos/nvbit_release_x86_64:/nvbit:Z" \
+     -w /nvbit/tools/mem_trace cuvslam-wheel-builder make -j8
+
+--- mem_trace.cu.orig	2026-07-03 22:56:39.037922333 +0530
++++ mem_trace.cu	2026-07-03 22:56:38.843264929 +0530
+@@ -119,6 +119,14 @@
+ /* global control variables for this tool */
+ uint32_t instr_begin_interval = 0;
+ uint32_t instr_end_interval = UINT32_MAX;
++/* launch-id window: trace only grid launches in [launch_begin, launch_end) */
++uint64_t launch_begin_interval = 0;
++uint64_t launch_end_interval = UINT64_MAX;
++/* kernel-name substring filter: instrument only kernels whose demangled name
++   contains this substring (default empty = all). Sparse kernels like
++   st_track_with_cache fire once per keyframe amid thousands of other launches;
++   a launch-id window would instrument all of them, so filter by name instead. */
++std::string kernel_filter;
+ int verbose = 0;
+ 
+ /* opcode to id map and reverse map  */
+@@ -138,6 +146,14 @@
+     GET_VAR_INT(
+         instr_end_interval, "INSTR_END", UINT32_MAX,
+         "End of the instruction interval where to apply instrumentation");
++    GET_VAR_LONG(
++        launch_begin_interval, "LAUNCH_BEGIN", 0,
++        "First grid launch id to instrument (default 0)");
++    GET_VAR_LONG(
++        launch_end_interval, "LAUNCH_END", UINT64_MAX,
++        "First grid launch id NOT to instrument (default: no end)");
++    GET_VAR_STR(kernel_filter, "KERNEL_FILTER",
++        "Instrument only kernels whose demangled name contains this substring");
+     GET_VAR_INT(verbose, "TOOL_VERBOSE", 0, "Enable verbosity inside the tool");
+     std::string pad(100, '-');
+     printf("%s\n", pad.c_str());
+@@ -268,10 +284,20 @@
+     // during stream capture or manual graph build, no kernel is launched, so
+     // do not set launch argument, do not print kernel info, do not increase
+     // grid_launch_id. All these should be done at graph node launch time.
++    bool in_window = true;
+     if (!stream_capture && !build_graph) {
+         /* set grid launch id at launch time */
+         nvbit_set_at_launch(ctx, func, (uint64_t)grid_launch_id);
+ 
++        /* launch-window gating (LAUNCH_BEGIN/LAUNCH_END): outside the window
++           this launch runs uninstrumented at near-native speed */
++        in_window = grid_launch_id >= launch_begin_interval &&
++                    grid_launch_id < launch_end_interval;
++        if (in_window && !kernel_filter.empty() &&
++            std::string(func_name).find(kernel_filter) == std::string::npos) {
++            in_window = false;   /* name doesn't match the filter */
++        }
++
+         if (cbid == API_CUDA_cuLaunchKernelEx_ptsz ||
+             cbid == API_CUDA_cuLaunchKernelEx) {
+             cuLaunchKernelEx_params* p = (cuLaunchKernelEx_params*)params;
+@@ -305,8 +331,8 @@
+         grid_launch_id++;
+     }
+ 
+-    /* enable instrumented code to run */
+-    nvbit_enable_instrumented(ctx, func, true);
++    /* enable instrumented code to run (only inside the launch window) */
++    nvbit_enable_instrumented(ctx, func, in_window);
+ }
+ 
+ static void leave_kernel_launch(CUcontext ctx, CTXstate* ctx_state) {

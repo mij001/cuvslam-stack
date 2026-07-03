@@ -32,10 +32,14 @@ configs=$(ls "$REPO_ROOT"/profiling/configs/campaign/*_odom.toml 2>/dev/null | g
 n=$(echo "$configs" | grep -c . || true)
 step "campaign start: $n sequences, hw=$HW"
 i=0
+done_tag() { ls -d profiling/results/*"$1"* >/dev/null 2>&1; }
 for odom in $configs; do
     i=$((i+1))
     name=$(basename "$odom" _odom.toml)
     slam="${odom%_odom.toml}_slam.toml"
+    if done_tag "camp-$name-steady" && { [ ! -f "$slam" ] || done_tag "camp-$name-slamncu"; }; then
+        step "[$i/$n] $name — already captured, skipping"; continue
+    fi
     step "[$i/$n] $name — odometry (3x nsys + ncu characterize)"
     for r in 1 2 3; do
         run $P profiling/harness/profile.py --config "$odom" --profiler nsys \
