@@ -36,6 +36,9 @@ M = {
     "occ": "sm__warps_active.avg.pct_of_peak_sustained_active",
     "sect_ld": "l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_ld.ratio",
     "sect_st": "l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_st.ratio",
+    "inst": "smsp__inst_executed.sum",
+    "dram_rd": "dram__bytes_read.sum",
+    "dram_wr": "dram__bytes_write.sum",
 }
 
 # stall metrics (warps stalled per issue-active cycle); ordered for the chart
@@ -79,6 +82,14 @@ def aggregate(launches):
         mems = [l.m(M["mem_sol"]) for l in lks if l.m(M["mem_sol"]) == l.m(M["mem_sol"])]
         row["mem_sol_min"] = min(mems) if mems else float("nan")
         row["mem_sol_max"] = max(mems) if mems else float("nan")
+        # GPU-DAMOV metrics (Adapting_DAMOV_to_GPU §5.2-5.3):
+        # LFMR_gpu = L2misses/L1misses ≈ 1 - L2 hit rate (L2 accesses ≈ L1 misses);
+        # MPKI_gpu = DRAM sectors (32B) per kilo warp-instruction.
+        row["lfmr"] = (1.0 - row["l2_hit"] / 100.0) if row["l2_hit"] == row["l2_hit"] else float("nan")
+        inst = sum(l.m(M["inst"], 0.0) for l in lks)
+        dram = sum(l.m(M["dram_rd"], 0.0) + l.m(M["dram_wr"], 0.0) for l in lks)
+        row["mpki"] = (dram / 32.0) / (inst / 1e3) if inst else float("nan")
+        row["dram_bytes_per_launch"] = dram / len(lks) if lks else float("nan")
         for name, metric, _ in STALLS:
             row[f"stall_{name}"] = _tw([(l.m(metric), l.m(M["time"], 0.0)) for l in lks])
         rows.append(row)
@@ -108,7 +119,8 @@ def emit(rows, out_dir, hw=None):
     written = []
     headers = ["kernel", "stage", "verdict", "launches", "time_ms", "mem_sol_pct",
                "comp_sol_pct", "dram_sol_pct", "l1_hit_pct", "l2_hit_pct",
-               "occupancy_pct", "sectors_per_req_ld", "sectors_per_req_st"] + \
+               "occupancy_pct", "sectors_per_req_ld", "sectors_per_req_st",
+               "lfmr_gpu", "mpki_gpu", "dram_bytes_per_launch"] + \
               [f"stall_{n}" for n, _, _ in STALLS]
     table = []
     for r in rows:
@@ -118,6 +130,9 @@ def emit(rows, out_dir, hw=None):
                      [round(r[k], 2) if r[k] == r[k] else "" for k in
                       ("mem_sol", "comp_sol", "dram_sol", "l1_hit", "l2_hit",
                        "occ", "sect_ld", "sect_st")] +
+                     [round(r["lfmr"], 4) if r["lfmr"] == r["lfmr"] else "",
+                      round(r["mpki"], 3) if r["mpki"] == r["mpki"] else "",
+                      f"{r['dram_bytes_per_launch']:.6g}" if r["dram_bytes_per_launch"] == r["dram_bytes_per_launch"] else ""] +
                      [round(r[f"stall_{n}"], 3) if r[f"stall_{n}"] == r[f"stall_{n}"] else ""
                       for n, _, _ in STALLS])
     p = os.path.join(out_dir, "screen.csv")

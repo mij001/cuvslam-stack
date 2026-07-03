@@ -20,7 +20,8 @@ strategy see `PROFILING_PLAN.md`; for command reference see `README.md`.
 | **Run-anywhere portability** (dataset var, preflight, fetcher, one-command pipeline) | ✅ done | `env/`, `run_characterization.sh` |
 | GPU-free analysis tests | ✅ done | `tests/test_analysis.py` |
 | First characterization report (TUM long_office, MX450) | ✅ committed | `reports/` |
-| **DAMOV / NVBit / Accel-Sim data-movement track** | 🔴 gated | `blocked/` (driver ≤ 575 required; fails fast with reason) |
+| **GPU-DAMOV classification → PiM/ISP candidates** | ✅ done | `analysis/classify.py` (NCU-proxy first cut; report §7); reproducible from committed CSVs — no dataset/GPU needed |
+| **DAMOV / NVBit / Accel-Sim data-movement track** | 🔴 gated | `blocked/` refines the classification (LFMR-vs-#SM, divergence, reuse distance); driver ≤ 575 required |
 | Workstation (RTX 2000 Ada) real-results re-run | ⏳ next | same commands, `--hw hw/rtx2000ada_sm89.toml` |
 | Source-level attribution (TaggedAllocator, NVTX) | ⏳ later | needs the from-source build (onboarding §11.2) |
 | Jetson AGX Orin re-run | ⏳ later | `hw/jetson_orin_sm87.toml` exists |
@@ -134,8 +135,15 @@ that dies on 2 GB GPUs).
     AI vs ceilings from the hw descriptor.
   - `bandwidth.py` — per-stage DRAM bytes, achieved GB/s vs ceiling, per-frame
     extrapolation (bytes/launch × launches/frame).
+  - `classify.py` — the GPU-adapted DAMOV taxonomy (G1 bandwidth / G2
+    coalescing / G3 L2-reuse / G4 latency / G5 compute / G6 on-chip / G7
+    dependency — G7 emerged from the data, as the adaptation doc prescribed)
+    with LFMR_gpu = 1 − L2-hit and MPKI from NCU counters; outputs per-kernel
+    class + PiM/ISP affinity + confidence + rationale, and the stage→class→
+    substrate synthesis. Accepts results dirs *or* committed report CSVs.
   - `make_report.py` — the committed report: provenance, DAG, screen, roofline,
-    bandwidth, loop-closure delta, persistence-class evidence table.
+    bandwidth, loop-closure delta, GPU-DAMOV classification, persistence-class
+    evidence table.
 - **Harness upgrades:** `characterize` metric set (29 counters: + FLOPs,
   L1/L2 bytes, sectors/request coalescing proxy, full stall set);
   `${CUVSLAM_DATASETS}` expansion; `--auto-window NSYS_DIR:WARM:N` for

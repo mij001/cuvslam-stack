@@ -185,6 +185,48 @@ def roofline(path, title, points, dram_gbps, fp32_tflops, l2_gbps=None,
     open(path, "w").write(s)
 
 
+def scatter(path, title, points, x_label, y_label, x_max=None, y_max=None,
+            legend=None, width=820, height=520):
+    """Linear scatter. points: (label, x, y, color, radius). legend: [(label,color)]."""
+    left, right, top, bottom = 70, 230, 56, 56
+    px_w, px_h = width - left - right, height - top - bottom
+    xs = [p[1] for p in points if p[1] == p[1]] or [1.0]
+    ys = [p[2] for p in points if p[2] == p[2]] or [1.0]
+    x_max = x_max or max(xs) * 1.15
+    y_max = y_max or max(ys) * 1.15
+
+    def X(v):
+        return left + px_w * min(v, x_max) / x_max
+
+    def Y(v):
+        return top + px_h * (1 - min(v, y_max) / y_max)
+
+    s = _header(width, height)
+    s += _txt(width / 2 - right / 2, 24, title, 15, "middle", bold=True)
+    for i in range(6):
+        xv, yv = x_max * i / 5, y_max * i / 5
+        s += f'<line x1="{X(xv):.1f}" y1="{top}" x2="{X(xv):.1f}" y2="{top+px_h}" stroke="#e5e5e5"/>\n'
+        s += f'<line x1="{left}" y1="{Y(yv):.1f}" x2="{left+px_w}" y2="{Y(yv):.1f}" stroke="#e5e5e5"/>\n'
+        s += _txt(X(xv), top + px_h + 18, _fmt(xv), 10.5, "middle")
+        s += _txt(left - 6, Y(yv) + 4, _fmt(yv), 10.5, "end")
+    for label, x, y, color, r in points:
+        if x != x or y != y:
+            continue
+        s += (f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="{r}" fill="{color}" '
+              f'fill-opacity="0.85" stroke="#333" stroke-width="0.6">'
+              f'<title>{escape(label)}: x={_fmt(x)}, y={_fmt(y)}</title></circle>\n')
+    ly = top + 6
+    for lab, color in (legend or []):
+        s += f'<rect x="{left+px_w+16}" y="{ly-9}" width="11" height="11" fill="{color}" rx="2"/>\n'
+        s += _txt(left + px_w + 32, ly, lab[:34], 10.5)
+        ly += 17
+    s += f'<rect x="{left}" y="{top}" width="{px_w}" height="{px_h}" fill="none" stroke="#888"/>\n'
+    s += _txt(left + px_w / 2, height - 14, x_label, 12.5, "middle")
+    s += _txt(18, top + px_h / 2, y_label, 12.5, "middle", rotate=-90)
+    s += "</svg>\n"
+    open(path, "w").write(s)
+
+
 def stage_color(stage: str, order: list[str]) -> str:
     try:
         return PALETTE[order.index(stage) % len(PALETTE)]

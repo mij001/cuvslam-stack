@@ -1,6 +1,6 @@
 # cuVSLAM memory characterization — TUM fr3 long_office, MX450 (prototype pass)
 
-*Generated 2026-07-02 16:29 by `analysis/make_report.py` — headless, stdlib-only.*
+*Generated 2026-07-03 07:01 by `analysis/make_report.py` — headless, stdlib-only.*
 
 ## 1. Provenance
 
@@ -119,7 +119,44 @@ Their per-kernel memory profile (ncu, `characterize` set):
 | st_track_with_cache_kernel | memory-latency | 9.14 | 1.26 | 85.86 | 3.12 | 18.05 | 23.5 |
 | st_build_cache_kernel | memory-bound | 73.68 | 3.89 | 96.99 | 3.13 | 24.91 | 0.8 |
 
-## 7. Persistence-class evidence so far
+## 7. GPU-DAMOV classification — PiM/ISP candidates
+
+Bottleneck classes per the GPU-adapted DAMOV taxonomy (`suggestions_and_summuries/Adapting_DAMOV_to_GPU.md` §6; [Oliveira21] for the CPU original). This is the NCU-counter **first-cut** classification — single-point LFMR_gpu (= 1 − L2 hit), MPKI, DRAM-SoL, coalescing, occupancy, stall taxonomy. The gated Slice-3 trace/simulation track refines it (LFMR-vs-#SM trend, divergence, true reuse distance) but is not required to produce it.
+
+![classification](figures/fig_classification.svg)
+
+**Synthesis — stage → dominant class → PiM/ISP affinity** (time-weighted within stage):
+
+| stage | persistence | dominant class | share | PiM affinity | substrate |
+|---|---|---|---|---|---|
+| preprocess | streaming | G1-bandwidth | 57% of stage time | strong | near-sensor SRAM (consume before DRAM) |
+| feature_detect | streaming | G1-bandwidth | 99% of stage time | strong | near-sensor SRAM (consume before DRAM) |
+| keypoint_sort | streaming | G4-latency | 34% of stage time | strong | near-memory compute (latency, uncacheable set) |
+| tracking | streaming+hot | G7-dependency | 88% of stage time | none | host GPU — raise occupancy/ILP first, then re-screen |
+| bundle_adjust | hot-persistent | G2-coalescing | 58% of stage time | conditional | scatter-capable PiM — or a data-layout fix first |
+| ba_solver | hot-persistent | G7-dependency | 52% of stage time | none | host GPU — raise occupancy/ILP first, then re-screen |
+| slam_loop | cold-persistent | G2-coalescing | 100% of stage time | strong | ISP / near-storage scan engine |
+
+Per-kernel placement (top by profiled time; full table in `data/classification.csv`):
+
+| kernel | class | conf | PiM | substrate | rationale |
+|---|---|---|---|---|---|
+| st_track_with_cache_kernel | G2-coalescing | high | strong | ISP / near-storage scan engine | 18 sectors/request (4 = coalesced) |
+| st_build_cache_kernel | G2-coalescing | high | conditional | scatter-capable PiM — or a data-layout fix first | 25 sectors/request (4 = coalesced) |
+| matcher::photometric_kernel | G7-dependency | medium | none | host GPU — raise occupancy/ILP first, then re-screen | 'wait' stall dominant at 16% occupancy; memory is not the wall (MemSoL 5%, DRAM-SoL 5%); note: scattered access (22 sect/req) — re-screen for PiM once occupancy is fixed |
+| matcher::point_to_point_kernel | G7-dependency | medium | none | host GPU — raise occupancy/ILP first, then re-screen | 'wait' stall dominant at 15% occupancy; memory is not the wall (MemSoL 4%, DRAM-SoL 4%); note: scattered access (22 sect/req) — re-screen for PiM once occupancy is fixed |
+| sba::build_full_system_1_kernel | G2-coalescing | medium | conditional | scatter-capable PiM — or a data-layout fix first | 15 sectors/request (4 = coalesced) |
+| sba::reduced_system_stage_2_kernel | G3-l2-reuse | medium | weak | bigger/persisted L2 wins; PiM would forfeit the reuse | memory-limited but LFMR 0.05 — the L2 is earning its keep |
+| gaussian_scaling_kernel | G1-bandwidth | high | strong | near-sensor SRAM (consume before DRAM) | DRAM-SoL 59%; LFMR 0.55 (L2 not helping) |
+| lk_track_kernel | G1-bandwidth | low | strong | near-sensor SRAM (consume before DRAM) | memory-limited (MemSoL 45%) without a sharper signature |
+| cast_depth_kernel | G5-compute | high | none | host GPU | CompSoL 85% dominant, AI 0.3 FLOP/B |
+| sba::build_full_system_2_kernel | G4-latency | medium | conditional | raise occupancy first; PiM if the set defeats caches | long-scoreboard dominant at 23% occupancy, DRAM-SoL 21% |
+| conv_grad_y_kernel | G1-bandwidth | high | strong | near-sensor SRAM (consume before DRAM) | DRAM-SoL 66%; LFMR 0.43 (L2 not helping) |
+| sba::reduced_system_stage_12_kernel | G2-coalescing | medium | conditional | scatter-capable PiM — or a data-layout fix first | 10 sectors/request (4 = coalesced) |
+| sba::reduced_system_stage_1_kernel | G2-coalescing | high | conditional | scatter-capable PiM — or a data-layout fix first | 26 sectors/request (4 = coalesced) |
+| gftt_values_kernel | G1-bandwidth | medium | strong | near-sensor SRAM (consume before DRAM) | DRAM-SoL 84%; LFMR 0.36 (L2 absorbing reuse) |
+
+## 8. Persistence-class evidence so far
 
 | stage | hypothesis | evidence in this capture |
 |---|---|---|

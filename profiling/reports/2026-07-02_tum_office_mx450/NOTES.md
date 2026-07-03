@@ -38,6 +38,40 @@ about the goal.md thesis, and what they don't.
    dominate the tracking stage (65% of odometry GPU time). Irregular gather in
    the *hot* path — a second PiM-flavored target beyond the back-end.
 
+## GPU-DAMOV classification (added 2026-07-03)
+
+Report §7 now places every profiled kernel in a GPU-adapted DAMOV bottleneck
+class (`analysis/classify.py`, taxonomy per `Adapting_DAMOV_to_GPU.md` §6) and
+derives the PiM/ISP candidate list. The stage-level verdicts:
+
+| Verdict | Stages | Reading |
+|---|---|---|
+| **PiM strong — near-sensor SRAM** | preprocess, feature_detect (G1-bandwidth) | image pipeline saturates DRAM with LFMR ≥ 0.4 (L2 not helping): consume frames before they ever reach DRAM |
+| **PiM strong — ISP / near-storage scan** | slam_loop (G2 at 100% of stage time) | the keyframe-cache kernels scan 23.5 MB/launch scattered (18–25 sect/req) at 3% occupancy — a scan engine next to the store beats a cache hierarchy |
+| **PiM conditional — scatter-capable PiM** | bundle_adjust (G2-coalescing) | Jacobian/system-build kernels gather at 10–26 sect/req; a data-layout fix may recover coalescing first — the honest alternative hypothesis |
+| **Host GPU (not PiM)** | tracking matchers, ba_solver (G7-dependency) | dependency-stalled at ≤16% occupancy; memory is NOT their wall — fixing parallelism comes first, then re-screen |
+
+Two findings sharpen the thesis rather than just confirming it:
+
+1. **The `sba::reduced_system_*` kernels split**: `stage_2` is G3-l2-reuse
+   (LFMR 0.05 — the L2 absorbs its reuse; PiM would *forfeit* that) while
+   `stage_1/12` are G2-coalescing. "BA is memory-bound" is too coarse; the
+   PiM boundary runs *through* the BA stage. This is exactly the data-structure-
+   level distinction the TaggedAllocator milestone will resolve.
+2. **A class emerged that the taxonomy hypothesis missed (G7-dependency)**:
+   the RGBD matchers stall on `wait` (fixed-latency dependencies), not memory.
+   The adaptation doc predicted classes "should fall out of the data" — they did.
+
+Classification is reproducible **from the committed repo alone** (no GPU, no
+dataset):
+
+```bash
+cd profiling && python3 -m analysis.classify \
+    reports/2026-07-02_tum_office_mx450/data \
+    reports/2026-07-02_tum_office_mx450/figures/slam \
+    --hw hw/mx450_sm75.toml --out /tmp/cls
+```
+
 ## What this does NOT yet show
 
 - **No absolute numbers are publication-grade**: prototype laptop GPU, unlocked

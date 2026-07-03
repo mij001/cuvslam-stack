@@ -15,7 +15,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from analysis import bandwidth, build_dag, common, roofline, screen, stages  # noqa: E402
+from analysis import bandwidth, build_dag, classify, common, roofline, screen, stages  # noqa: E402
 
 
 def make_ncu_csv(path):
@@ -162,6 +162,79 @@ class TestPipeline(unittest.TestCase):
         files = bandwidth.emit(rows, self.hw, os.path.join(self.tmp, "out4"),
                                nsys_dir=self.run_nsys)
         self.assertTrue(os.path.isfile(os.path.join(self.tmp, "out4", "bandwidth.csv")))
+
+
+class TestClassify(unittest.TestCase):
+    HW = {"memory": {"l2_bytes": 524288}}
+
+    def _row(self, **kw):
+        base = {"kernel": "k", "stage": "other", "time_s": 1e-3, "launches": 1,
+                "mem_sol": float("nan"), "comp_sol": float("nan"),
+                "dram_sol": float("nan"), "l1_hit": float("nan"),
+                "l2_hit": float("nan"), "occ": float("nan"),
+                "sect_ld": float("nan"), "sect_st": float("nan"),
+                "lfmr": float("nan"), "mpki": float("nan"),
+                "dram_bytes_per_launch": float("nan"), "ai_dram": float("nan")}
+        for n, _, _ in screen.STALLS:
+            base[f"stall_{n}"] = float("nan")
+        base.update(kw)
+        return base
+
+    def test_decision_tree(self):
+        cases = [
+            # compute-bound: high comp SoL
+            (dict(comp_sol=80.0, mem_sol=20.0), "G5-compute"),
+            # bandwidth-bound: DRAM saturated, caches useless
+            (dict(mem_sol=85.0, comp_sol=10.0, dram_sol=75.0, lfmr=0.6), "G1-bandwidth"),
+            # coalescing: memory-limited + scattered
+            (dict(mem_sol=50.0, comp_sol=5.0, dram_sol=20.0, sect_ld=20.0, lfmr=0.5),
+             "G2-coalescing"),
+            # L2-reuse: memory-limited but L2 absorbs (low LFMR)
+            (dict(mem_sol=55.0, comp_sol=10.0, dram_sol=15.0, lfmr=0.05, sect_ld=4.0),
+             "G3-l2-reuse"),
+            # latency at low occupancy, long-scoreboard dominant
+            (dict(mem_sol=10.0, comp_sol=2.0, dram_sol=8.0, occ=5.0, sect_ld=4.0,
+                  lfmr=0.5, stall_long_scoreboard=8.0, stall_wait=0.5,
+                  dram_bytes_per_launch=2e7), "G4-latency"),
+            # dependency-bound: 'wait' dominant, low occupancy, memory NOT the wall
+            (dict(mem_sol=5.0, comp_sol=1.0, dram_sol=4.0, occ=16.0,
+                  stall_wait=2.4, stall_short_scoreboard=1.3,
+                  stall_long_scoreboard=0.6), "G7-dependency"),
+            # on-chip: MIO dominant, DRAM unsaturated
+            (dict(mem_sol=30.0, comp_sol=20.0, dram_sol=10.0,
+                  stall_mio_throttle=5.0, stall_long_scoreboard=1.0), "G6-onchip"),
+            # nothing dominant
+            (dict(mem_sol=5.0, comp_sol=3.0, dram_sol=2.0, occ=60.0), "G0-nosignal"),
+        ]
+        for kw, want in cases:
+            got = classify.classify_kernel(self._row(**kw), self.HW)["class"]
+            self.assertEqual(got, want, f"{kw} -> {got}, want {want}")
+
+    def test_pim_affinity_cold_scan(self):
+        r = self._row(stage="slam_loop", sect_ld=18.0, lfmr=0.14, occ=3.0,
+                      mem_sol=9.0, dram_sol=7.0, stall_long_scoreboard=6.0,
+                      dram_bytes_per_launch=2.35e7)
+        c = classify.classify_kernel(r, self.HW)
+        aff, sub = classify.pim_affinity(c["class"], "cold-persistent", c)
+        self.assertEqual(aff, "strong")
+        self.assertIn("ISP", sub)
+
+    def test_load_features_from_data_dir(self):
+        tmp = tempfile.mkdtemp()
+        try:
+            with open(os.path.join(tmp, "screen.csv"), "w") as fh:
+                fh.write("kernel,stage,verdict,launches,time_ms,mem_sol_pct,comp_sol_pct,"
+                         "dram_sol_pct,l1_hit_pct,l2_hit_pct,occupancy_pct,"
+                         "sectors_per_req_ld,sectors_per_req_st,lfmr_gpu,mpki_gpu,"
+                         "dram_bytes_per_launch,stall_long_scoreboard\n")
+                fh.write("k1,preprocess,memory-bound,4,1.5,85,10,75,50,40,80,4,4,0.6,12,2e6,20\n")
+            rows = classify.load_features(tmp)
+            self.assertEqual(rows[0]["kernel"], "k1")
+            self.assertAlmostEqual(rows[0]["lfmr"], 0.6)
+            got = classify.classify_kernel(rows[0], self.HW)["class"]
+            self.assertEqual(got, "G1-bandwidth")
+        finally:
+            shutil.rmtree(tmp)
 
 
 if __name__ == "__main__":

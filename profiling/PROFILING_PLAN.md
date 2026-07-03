@@ -192,7 +192,8 @@ the persistence taxonomy, the DAMOV classification goal) is retained.
 | M3 | DAG + roofline | kernel→stage DAG, roofline w/ FLOP counters, bottleneck screen (`analysis/`) | ✅ |
 | M4 | Bandwidth + first report | per-stage DRAM bandwidth; committed report under `reports/` incl. the loop-closure (cold-persistent) delta | ✅ |
 | M4.5 | Run-anywhere headless | `${CUVSLAM_DATASETS}` configs, `env/gen_hw_descriptor.py`, `check_env.sh`, `fetch_datasets.sh`, `run_characterization.sh`, GPU-free tests | ✅ |
-| M5 | Data-movement track | NVBit/locality/Accel-Sim unblocked on a ≤575-driver host (Slice 3; gated in `blocked/`) | 🔴 gated |
+| M4.75 | **GPU-DAMOV classification** | `analysis/classify.py`: NCU-proxy bottleneck classes (Adapting_DAMOV_to_GPU §6, + emergent G7) → per-kernel PiM/ISP affinity + stage synthesis; reproducible from committed CSVs with no dataset/GPU | ✅ |
+| M5 | Data-movement track | NVBit/locality/Accel-Sim on a ≤575-driver host (Slice 3; gated in `blocked/`) — refines M4.75 with LFMR-vs-#SM trends, divergence, reuse distance | 🔴 gated |
 | M6 | Workstation re-run | the whole pipeline on RTX 2000 Ada via `--hw rtx2000ada_sm89` (+ locked clocks, ≥5 repeats, ERT ceilings) | ⏳ next |
 | M7 | Source-level attribution | TaggedAllocator + NVTX from-source build → data-structure-level claims (onboarding §11.2) | ⏳ |
 

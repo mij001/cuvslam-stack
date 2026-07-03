@@ -50,7 +50,7 @@ publishing numbers from that machine.
 | `env/` | `check_env.sh` (preflight) · `fetch_datasets.sh` · `gen_hw_descriptor.py` · `lock_clocks.sh` · `setup_perms.sh` |
 | `configs/` | profiling workloads: `tum_office_profile` + `_slam_` (loop closure), `euroc_v101_*`, `kitti06_*` — all `${CUVSLAM_DATASETS}`-relative |
 | `harness/profile.py` | one entrypoint: wrap a runner config under nsys/ncu into a versioned results dir |
-| `analysis/` | stdlib-only, read-only consumers of `results/`: `build_dag` · `screen` · `roofline` · `bandwidth` · `make_report` |
+| `analysis/` | stdlib-only, read-only consumers of `results/`: `build_dag` · `screen` · `roofline` · `bandwidth` · `classify` (GPU-DAMOV classes → PiM/ISP candidates) · `make_report` |
 | `blocked/` | Slice-3 NVBit/locality/Accel-Sim — **driver-gated**, fails fast with the unblock instructions |
 | `results/<date>_<seq>_<profiler>_<hw>/` | `metadata.json` (mandatory) + `raw/` + `derived/`; never overwritten; gitignored |
 | `reports/` | committed characterization reports (markdown + SVG + CSV) |
@@ -84,7 +84,19 @@ Analysis modules also run standalone (each writes CSV + SVG into the run's
 `derived/`): `python3 -m analysis.build_dag <nsys_run>`,
 `python3 -m analysis.screen <ncu_run>`,
 `python3 -m analysis.roofline <ncu_run> --hw …`,
-`python3 -m analysis.bandwidth <ncu_run> --hw … [--nsys <nsys_run>]`.
+`python3 -m analysis.bandwidth <ncu_run> --hw … [--nsys <nsys_run>]`,
+`python3 -m analysis.classify <ncu_run|report_data_dir>… --hw …`.
+
+**No dataset? No GPU? Still reproducible.** `classify` (and any module reading
+CSVs) accepts a committed report's `data/` dir, so the DAMOV classification and
+PiM/ISP candidate tables regenerate from the repo alone:
+
+```bash
+cd profiling && python3 -m analysis.classify \
+    reports/2026-07-02_tum_office_mx450/data \
+    reports/2026-07-02_tum_office_mx450/figures/slam \
+    --hw hw/mx450_sm75.toml --out /tmp/cls
+```
 
 ---
 

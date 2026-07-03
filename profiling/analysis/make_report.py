@@ -27,7 +27,7 @@ import sys
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from analysis import bandwidth, build_dag, common, roofline, screen, stages  # noqa: E402
+from analysis import bandwidth, build_dag, classify, common, roofline, screen, stages  # noqa: E402
 
 PROF_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS_ROOT = os.path.join(PROF_ROOT, "results")
@@ -219,7 +219,33 @@ def main(argv=None):
                  "(e.g. configs/euroc_v101_slam_profile.toml) under nsys and pass "
                  "--nsys-slam.\n")
 
-    R.append("## 7. Persistence-class evidence so far\n")
+    R.append("## 7. GPU-DAMOV classification — PiM/ISP candidates\n")
+    R.append("Bottleneck classes per the GPU-adapted DAMOV taxonomy "
+             "(`suggestions_and_summuries/Adapting_DAMOV_to_GPU.md` §6; "
+             "[Oliveira21] for the CPU original). This is the NCU-counter "
+             "**first-cut** classification — single-point LFMR_gpu (= 1 − L2 hit), "
+             "MPKI, DRAM-SoL, coalescing, occupancy, stall taxonomy. The gated "
+             "Slice-3 trace/simulation track refines it (LFMR-vs-#SM trend, "
+             "divergence, true reuse distance) but is not required to produce it.\n")
+    cls_paths = [d for d in [ncu_dir, args.ncu_slam] if d]
+    cls_rows = classify.run(cls_paths, hw)
+    for f in classify.emit(cls_rows, hw, figs):
+        if f.endswith(".csv"):
+            shutil.move(f, os.path.join(data, os.path.basename(f)))
+    R.append("![classification](figures/fig_classification.svg)\n")
+    R.append("**Synthesis — stage → dominant class → PiM/ISP affinity** "
+             "(time-weighted within stage):\n")
+    R.append(common.md_table(["stage", "persistence", "dominant class", "share",
+                              "PiM affinity", "substrate"],
+                             classify.synthesis(cls_rows)) + "\n")
+    top_cls = [[r["kernel"], r["class"], r["confidence"], r["pim"], r["substrate"],
+                r["why"]] for r in cls_rows[:14]]
+    R.append("Per-kernel placement (top by profiled time; full table in "
+             "`data/classification.csv`):\n")
+    R.append(common.md_table(["kernel", "class", "conf", "PiM", "substrate",
+                              "rationale"], top_cls) + "\n")
+
+    R.append("## 8. Persistence-class evidence so far\n")
     verd = {r["kernel"]: r for r in scr_rows}
     ev_rows = []
     for s in stages.ORDER:
