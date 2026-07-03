@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 560" width="820" height="560">
 <rect width="820" height="560" fill="white"/>
-<text x="305.0" y="24.0" font-size="15" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-weight="bold">Roofline — NVIDIA GeForce MX450 (DRAM 80 GB/s theoretical, FP32 3.8 TFLOP/s; size ∝ GPU-time share)</text>
+<text x="305.0" y="24.0" font-size="15" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-weight="bold">Roofline — NVIDIA GeForce MX450 (DRAM 45.7 GB/s measured, FP32 1.228 TFLOP/s measured; size ∝ GPU-time share)</text>
 <line x1="70.0" y1="56" x2="70.0" y2="504" stroke="#e5e5e5"/>
 <text x="70.0" y="522.0" font-size="10.5" fill="#222" text-anchor="middle" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1e-3</text>
 <line x1="160.0" y1="56" x2="160.0" y2="504" stroke="#e5e5e5"/>
@@ -31,10 +31,10 @@
 <text x="64.0" y="124.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1,000</text>
 <line x1="70" y1="56.0" x2="610" y2="56.0" stroke="#e5e5e5"/>
 <text x="64.0" y="60.0" font-size="10.5" fill="#222" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">1e4</text>
-<polyline points="70.0,382.2 490.9,82.9" fill="none" stroke="#cc3311" stroke-width="2"/>
-<text x="284.5" y="224.5" font-size="11" fill="#cc3311" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" transform="rotate(-32 284.45121243311894 224.54804532451988)">DRAM 80 GB/s</text>
-<line x1="490.9" y1="82.9" x2="610" y2="82.9" stroke="#0077bb" stroke-width="2"/>
-<text x="606.0" y="74.9" font-size="11" fill="#0077bb" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">FP32 peak 3,800 GFLOP/s</text>
+<polyline points="70.0,397.8 468.6,114.3" fill="none" stroke="#cc3311" stroke-width="2"/>
+<text x="273.3" y="248.0" font-size="11" fill="#cc3311" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" transform="rotate(-32 273.3176975030884 248.0283338600001)">DRAM 45.7 GB/s</text>
+<line x1="468.6" y1="114.3" x2="610" y2="114.3" stroke="#0077bb" stroke-width="2"/>
+<text x="606.0" y="106.3" font-size="11" fill="#0077bb" text-anchor="end" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">FP32 peak 1,228 GFLOP/s</text>
 <circle cx="344.3" cy="287.2" r="8.449698387873005" fill="#ccbb44" fill-opacity="0.85" stroke="#333" stroke-width="0.6"><title>matcher::photometric_kernel: AI=1.12 FLOP/B, 2.44 GFLOP/s</title></circle>
 <circle cx="626" cy="62" r="5" fill="#ccbb44"/>
 <text x="636.0" y="66.0" font-size="10.5" fill="#222" text-anchor="start" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">matcher::photometric_kernel</text>

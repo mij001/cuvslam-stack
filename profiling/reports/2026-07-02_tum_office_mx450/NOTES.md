@@ -72,6 +72,42 @@ cd profiling && python3 -m analysis.classify \
     --hw hw/mx450_sm75.toml --out /tmp/cls
 ```
 
+## Rigor pass (added 2026-07-03): brackets, variance, transfers
+
+The publishability hardening (`PUBLISHABILITY.md`) re-measured this report's
+load-bearing numbers. All headline claims survived; the brackets and CoVs below
+are the evidence (CSV: `data/variance_*.csv`, `data/transfers.csv`).
+
+**LFMR cold/warm bracket** (ncu cache flushed vs preserved — the truth lies
+between): `gaussian_scaling` 0.55→0.46 (stays G1, L2 genuinely not helping);
+`reduced_system_stage_2` 0.05→0.03 (its L2 reuse is real, not a replay
+artifact — the "PiM boundary through the BA stage" finding stands);
+`conv_grad_y` 0.43→0.36 (brackets the 0.4 threshold — borderline, as flagged);
+`build_full_system_2` 0.38→0.00 (wide bracket: reuse appears once caches stay
+warm — classification correctly marked borderline).
+
+**Variance** (per `METHODOLOGY.md` §4): workload is deterministic — kernel
+instance counts vary ≤ 0.13% across 5 full runs (only adaptive matcher
+iterations jitter). Raw GPU time swings up to 3.4× on this unlocked-clock
+laptop (a repeat started at 300/405 MHz deep idle); the fixed 8 s
+`--gpu-warmup` collapses run-to-run CoV from 49.6%→9.3% median (absolute
+time) and 16.3%→5.8% (time share, max 10%). NCU counter *ratios* are stable
+across repeats regardless: Mem-SoL CoV 1–5% for the headline kernels, 9.7%
+median over all 45. Statistic hierarchy on unlocked clocks: counter ratios >
+time shares (warmed) > absolute times (unusable).
+
+**sync vs async SLAM**: the keyframe-cache kernels take 69.4% of GPU time in
+sync mode and **50.6% in async (deployment) mode** — the ISP-target claim does
+not depend on the sync-mode inflation.
+
+**Host↔device transfers** (report §5): explicit copies are 41% of kernel GPU
+time; H2D is 1.68 MB/frame = exactly the 640×480 RGB+depth sensor upload —
+first-order data movement that a near-sensor substrate eliminates outright.
+
+**Measured ceilings**: the roofline now uses measured 45.7 GB/s DRAM /
+1228 GFLOP/s FP32 (`env/measure_ceilings.py`, median-of-7, clock-sampled)
+instead of the 80 GB/s / 3.76 TF marketing numbers.
+
 ## What this does NOT yet show
 
 - **No absolute numbers are publication-grade**: prototype laptop GPU, unlocked

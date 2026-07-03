@@ -14,10 +14,10 @@ the paper · ✅ resolved (kept for the record).
 |---|---|---|
 | ✅1 | **Rooflines drawn against marketing ceilings** (80 GB/s spec vs reality) | `env/measure_ceilings.py`: measured 45.7 GB/s DRAM / 1228 GFLOP/s FP32 on the MX450 (median-of-7, clock-sampled, sync-per-op); descriptors carry `*_measured` fields; figures label ceiling provenance. Desktop-safe by design (queue depth 1, VRAM-budgeted, time-boxed). |
 | ✅2 | **Classification thresholds asserted, not stress-tested** | ±25% threshold perturbation on every kernel; `stability` column; borderline kernels can't carry `high` confidence. Result on the TUM pass: 36/47 stable, and **all headline kernels are stable**. |
-| ✅3 | **Cold-start hit rates bias LFMR** (ncu flushes caches between replay passes) | `--cache-control {all,none}` bracket capture: cold (LFMR high) + warm (LFMR low) bound the steady-state truth. Bracket runs are part of the standard chain. |
-| ✅4 | **Single-run numbers, no variance** | ×5 nsys / ×3 ncu repeats + `analysis/variance.py` (per-kernel CoV, instance-count determinism check); CoV>10% kernels excluded from headline claims. |
+| ✅3 | **Cold-start hit rates bias LFMR** (ncu flushes caches between replay passes) | `--cache-control {all,none}` bracket capture, MEASURED on TUM: headline kernels' brackets are tight (`gaussian_scaling` 0.55→0.46, `reduced_system_stage_2` 0.05→0.03 — classes survive); wide-bracket kernels (`build_full_system_2` 0.38→0.00) were already flagged borderline. |
+| ✅4 | **Single-run numbers, no variance** | ×5 nsys / ×3 ncu repeats + `analysis/variance.py`, MEASURED: instance counts deterministic to 0.13%; ncu Mem-SoL CoV 1–5% (headline kernels), 9.7% median; raw time swings 3.4× from DVFS → `--gpu-warmup 8` protocol collapses CoV 49.6→9.3% (time) / 16.3→5.8% (share). Statistic hierarchy documented in METHODOLOGY §4.2. |
 | ✅5 | **Small-sample kernels classified confidently** | n<5 launches → confidence capped `low`, rationale says so. |
-| ✅6 | **sync-mode SLAM share (69%) is inflated vs deployment** | paired async capture (`tum_office_slam_async_profile.toml`); report states both numbers with their meanings. |
+| ✅6 | **sync-mode SLAM share (69%) is inflated vs deployment** | paired async capture, MEASURED: st_* kernels = 69.4% sync / **50.6% async** of GPU time — the ISP claim survives deployment mode. |
 | ✅7 | **Dataset integrity unverified on new machines** | `fetch_datasets.sh` verifies file count, total bytes, and index-file sha256 against the values used in committed reports. |
 | ✅8 | **Analysis not reproducible without dataset/GPU** | all analysis (incl. classification) reruns from committed report CSVs alone. |
 

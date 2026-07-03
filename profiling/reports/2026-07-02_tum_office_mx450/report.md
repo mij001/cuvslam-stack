@@ -1,6 +1,6 @@
 # cuVSLAM memory characterization — TUM fr3 long_office, MX450 (prototype pass)
 
-*Generated 2026-07-03 07:01 by `analysis/make_report.py` — headless, stdlib-only.*
+*Generated 2026-07-03 12:03 by `analysis/make_report.py` — headless, stdlib-only.*
 
 ## 1. Provenance
 
@@ -101,6 +101,10 @@ Rule (GPU adaptation): *memory-bound* if Memory-SoL ≥ 40% and ≥ 1.5× Comput
 
 ![kernel gbps](figures/fig_kernel_gbps.svg)
 
+### Host↔device transfers (data movement the kernel view misses)
+
+Explicit memcpy/memset time is **134 ms vs 574 ms of kernel time (23%)**; Host-to-Device moves **1.68 MB/frame** (the sensor-image upload — traffic a near-sensor substrate eliminates outright). Full table: `data/transfers.csv`.
+
 ## 6. Loop-closure (SLAM layer) delta
 
 SLAM capture: full-sequence frames, 47 unique kernels (baseline had 45).
@@ -137,24 +141,26 @@ Bottleneck classes per the GPU-adapted DAMOV taxonomy (`suggestions_and_summurie
 | ba_solver | hot-persistent | G7-dependency | 52% of stage time | none | host GPU — raise occupancy/ILP first, then re-screen |
 | slam_loop | cold-persistent | G2-coalescing | 100% of stage time | strong | ISP / near-storage scan engine |
 
-Per-kernel placement (top by profiled time; full table in `data/classification.csv`):
+Per-kernel placement (top by profiled time; full table in `data/classification.csv`). *Stability* = the class survives all decision thresholds perturbed ±25%:
 
-| kernel | class | conf | PiM | substrate | rationale |
-|---|---|---|---|---|---|
-| st_track_with_cache_kernel | G2-coalescing | high | strong | ISP / near-storage scan engine | 18 sectors/request (4 = coalesced) |
-| st_build_cache_kernel | G2-coalescing | high | conditional | scatter-capable PiM — or a data-layout fix first | 25 sectors/request (4 = coalesced) |
-| matcher::photometric_kernel | G7-dependency | medium | none | host GPU — raise occupancy/ILP first, then re-screen | 'wait' stall dominant at 16% occupancy; memory is not the wall (MemSoL 5%, DRAM-SoL 5%); note: scattered access (22 sect/req) — re-screen for PiM once occupancy is fixed |
-| matcher::point_to_point_kernel | G7-dependency | medium | none | host GPU — raise occupancy/ILP first, then re-screen | 'wait' stall dominant at 15% occupancy; memory is not the wall (MemSoL 4%, DRAM-SoL 4%); note: scattered access (22 sect/req) — re-screen for PiM once occupancy is fixed |
-| sba::build_full_system_1_kernel | G2-coalescing | medium | conditional | scatter-capable PiM — or a data-layout fix first | 15 sectors/request (4 = coalesced) |
-| sba::reduced_system_stage_2_kernel | G3-l2-reuse | medium | weak | bigger/persisted L2 wins; PiM would forfeit the reuse | memory-limited but LFMR 0.05 — the L2 is earning its keep |
-| gaussian_scaling_kernel | G1-bandwidth | high | strong | near-sensor SRAM (consume before DRAM) | DRAM-SoL 59%; LFMR 0.55 (L2 not helping) |
-| lk_track_kernel | G1-bandwidth | low | strong | near-sensor SRAM (consume before DRAM) | memory-limited (MemSoL 45%) without a sharper signature |
-| cast_depth_kernel | G5-compute | high | none | host GPU | CompSoL 85% dominant, AI 0.3 FLOP/B |
-| sba::build_full_system_2_kernel | G4-latency | medium | conditional | raise occupancy first; PiM if the set defeats caches | long-scoreboard dominant at 23% occupancy, DRAM-SoL 21% |
-| conv_grad_y_kernel | G1-bandwidth | high | strong | near-sensor SRAM (consume before DRAM) | DRAM-SoL 66%; LFMR 0.43 (L2 not helping) |
-| sba::reduced_system_stage_12_kernel | G2-coalescing | medium | conditional | scatter-capable PiM — or a data-layout fix first | 10 sectors/request (4 = coalesced) |
-| sba::reduced_system_stage_1_kernel | G2-coalescing | high | conditional | scatter-capable PiM — or a data-layout fix first | 26 sectors/request (4 = coalesced) |
-| gftt_values_kernel | G1-bandwidth | medium | strong | near-sensor SRAM (consume before DRAM) | DRAM-SoL 84%; LFMR 0.36 (L2 absorbing reuse) |
+| kernel | class | conf | stability | PiM | substrate | rationale |
+|---|---|---|---|---|---|---|
+| st_track_with_cache_kernel | G2-coalescing | high | stable | strong | ISP / near-storage scan engine | 18 sectors/request (4 = coalesced) |
+| st_build_cache_kernel | G2-coalescing | high | stable | conditional | scatter-capable PiM — or a data-layout fix first | 25 sectors/request (4 = coalesced) |
+| matcher::photometric_kernel | G7-dependency | medium | stable | none | host GPU — raise occupancy/ILP first, then re-screen | 'wait' stall dominant at 16% occupancy; memory is not the wall (MemSoL 5%, DRAM-SoL 5%); note: scattered access (22 sect/req) — re-screen for PiM once occupancy is fixed |
+| matcher::point_to_point_kernel | G7-dependency | medium | stable | none | host GPU — raise occupancy/ILP first, then re-screen | 'wait' stall dominant at 15% occupancy; memory is not the wall (MemSoL 4%, DRAM-SoL 4%); note: scattered access (22 sect/req) — re-screen for PiM once occupancy is fixed |
+| sba::build_full_system_1_kernel | G2-coalescing | medium | stable | conditional | scatter-capable PiM — or a data-layout fix first | 15 sectors/request (4 = coalesced) |
+| sba::reduced_system_stage_2_kernel | G3-l2-reuse | medium | stable | weak | bigger/persisted L2 wins; PiM would forfeit the reuse | memory-limited but LFMR 0.05 — the L2 is earning its keep |
+| gaussian_scaling_kernel | G1-bandwidth | high | stable | strong | near-sensor SRAM (consume before DRAM) | DRAM-SoL 59%; LFMR 0.55 (L2 not helping) |
+| lk_track_kernel | G1-bandwidth | low | stable | strong | near-sensor SRAM (consume before DRAM) | memory-limited (MemSoL 45%) without a sharper signature |
+| cast_depth_kernel | G5-compute | low | stable | none | host GPU | CompSoL 85% dominant, AI 0.3 FLOP/B; only n=2 profiled launches — small sample |
+| sba::build_full_system_2_kernel | G4-latency | medium | borderline:G2-coalescing↔G3-l2-reuse↔G4-latency | conditional | raise occupancy first; PiM if the set defeats caches | long-scoreboard dominant at 23% occupancy, DRAM-SoL 21% |
+| conv_grad_y_kernel | G1-bandwidth | high | stable | strong | near-sensor SRAM (consume before DRAM) | DRAM-SoL 66%; LFMR 0.43 (L2 not helping) |
+| sba::reduced_system_stage_12_kernel | G2-coalescing | medium | borderline:G0-nosignal↔G2-coalescing | conditional | scatter-capable PiM — or a data-layout fix first | 10 sectors/request (4 = coalesced) |
+| sba::reduced_system_stage_1_kernel | G2-coalescing | high | stable | conditional | scatter-capable PiM — or a data-layout fix first | 26 sectors/request (4 = coalesced) |
+| gftt_values_kernel | G1-bandwidth | low | stable | strong | near-sensor SRAM (consume before DRAM) | DRAM-SoL 84%; LFMR 0.36 (L2 absorbing reuse); only n=1 profiled launches — small sample |
+
+Threshold sensitivity: 36/47 kernels keep their class under ±25% threshold perturbation; 11 are borderline (flagged above and in the CSV).
 
 ## 8. Persistence-class evidence so far
 
