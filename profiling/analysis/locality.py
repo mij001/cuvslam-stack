@@ -48,7 +48,7 @@ SECTOR = 32                     # bytes; GPU cache sector granularity
 CAPACITIES = [64 * 1024, 128 * 1024, 512 * 1024, 1 << 20, 6 << 20, 12 << 20,
               24 << 20, 48 << 20]
 
-_LAUNCH = re.compile(r"MEMTRACE: .* - LAUNCH - .*Kernel name (\S+) - grid launch id (\d+)")
+_LAUNCH = re.compile(r"MEMTRACE: .* - LAUNCH - .*Kernel name (.+?) - grid launch id (\d+)")
 _ACCESS = re.compile(r"MEMTRACE: CTX \S+ - grid_launch_id (\d+) - CTA \S+ - warp \d+ - (\S+) - (.*)")
 
 

@@ -25,6 +25,9 @@ NVBIT_DIR="${NVBIT_DIR:-$REPO_ROOT/external_repos/nvbit_release_x86_64}"
 VENV_PY="${CUVSLAM_PYTHON:-$REPO_ROOT/cuvslam_venv/bin/python}"
 TOOL="$NVBIT_DIR/tools/mem_trace/mem_trace.so"
 
+# CUDA binutils (nvdisasm/cuobjdump) must be on PATH for NVBit at runtime
+export PATH=/opt/cuda/bin:/usr/local/cuda/bin:$PATH
+
 # ensure the launch-window patch is applied (idempotent), then build
 if ! grep -q LAUNCH_BEGIN "$NVBIT_DIR/tools/mem_trace/mem_trace.cu"; then
     echo "[patch] launch-window support"
@@ -32,7 +35,15 @@ if ! grep -q LAUNCH_BEGIN "$NVBIT_DIR/tools/mem_trace/mem_trace.cu"; then
 fi
 if [ ! -f "$TOOL" ] || [ "$NVBIT_DIR/tools/mem_trace/mem_trace.cu" -nt "$TOOL" ]; then
     echo "[build] mem_trace tool"
-    make -C "$NVBIT_DIR/tools/mem_trace"
+    # host toolchains newer than the CUDA toolkit break nvcc (gcc-16 headers vs
+    # nvcc 12.9, measured); the reliable recipe is the repo's own cu12 builder
+    # container, falling back to a host build for matched toolchains:
+    if podman image exists cuvslam-wheel-builder 2>/dev/null; then
+        (cd "$NVBIT_DIR" && podman run --rm -v "$PWD:/nvbit:Z" \
+            -w /nvbit/tools/mem_trace cuvslam-wheel-builder make -j8)
+    else
+        make -C "$NVBIT_DIR/tools/mem_trace"
+    fi
 fi
 
 command -v zstd >/dev/null || { echo "zstd required (pacman/apt install zstd)"; exit 1; }

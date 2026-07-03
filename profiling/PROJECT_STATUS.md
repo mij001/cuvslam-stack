@@ -39,7 +39,7 @@ ISCA/HPCA architecture paper built on it.
 | Rigor | Measured ceilings, ±25% sensitivity, ×5/×3 variance, clock-warmup protocol, cache bracket, transfers | ✅ done |
 | Multi-machine | RTX 2000 Ada production pass, **locked clocks** — 5-repeat CoV 0.14% (vs 49.6% unlocked laptop); ceilings 205.0 GB/s ±0.1 / 5445 GF ±3 | ✅ done |
 | Multi-dataset | {TUM, KITTI 06, TUM-VI} × {odometry, SLAM} on Ada; TUM↔KITTI agreement 97% tw; **L2 crossover measured** (`reports/2026-07-03_matrix_synthesis/`) | ✅ done |
-| Slice 3 | NVBit → locality → Accel-Sim data-movement track | 🟡 **unblocking** — toolkit built & committed (`analysis/locality.py` + mem_trace launch-window patch); workstation driver-downgrade to 575/CUDA-12 in progress (permission granted); NVBit ≤575 confirmed even in v1.8 |
+| Slice 3 | NVBit → locality → Accel-Sim data-movement track | 🟢 **UNBLOCKED** (2026-07-03 night): workstation on 575.64.05 / CUDA 12.9 / linux-lts 6.12.39; cu12 wheel rebuilt from source; mem_trace built (container recipe); capability gate PASSES; first traces validated (489k records, footprints match first principles); overnight trace+locality program running |
 | Source-level | TaggedAllocator + NVTX (data-structure attribution) | ⬜ not started (needs from-source build) |
 | Phase 4 | PiM/ISP substrate design + simulated eval | ⬜ future |
 
@@ -188,6 +188,20 @@ register.
 
 ## 8. Changelog
 
+- **2026-07-03 (night)** — **SLICE 3 UNBLOCKED.** Driver downgraded on the
+  workstation: 575.64.05 + CUDA 12.9.1 + linux-lts 6.12.39 (dkms module built;
+  GRUB default set; the CachyOS prebuilt nvidia-open module packages were the
+  conflict — removed). cu12 cuVSLAM wheel rebuilt from the sda2 source release
+  in the repo's podman builder (CUDA 12.6 base after 12.9 CCCL header clash;
+  imports + GPU warm-up verified on 575). NVBit mem_trace built via the
+  container recipe (host gcc-16 breaks nvcc 12.9 — measured), launch-window
+  patch live, **capability gate passes for the first time**; smoke trace:
+  489k warp-access records, footprints match first principles. Overnight
+  program running: aim-pass-targeted traces (TUM steady, TUM+KITTI st_track
+  windows) → locality analysis → the 29-sequence full-scale campaign.
+  aria2c replaced curl for the package downloads (minutes vs hours). sda2 in
+  fstab (ro,nofail). Full datasets found: KITTI 00-21 color, EuRoC ×11,
+  TUM fr3 ×4, TUM-VI tars ×15+.
 - **2026-07-03 (evening)** — **Slice-3 unblock started** (driver-downgrade
   permission granted on the workstation). Confirmed NVBit caps at driver ≤575
   even in v1.8 → downgrade is the path. Committed the analysis half (`40e8a05`):

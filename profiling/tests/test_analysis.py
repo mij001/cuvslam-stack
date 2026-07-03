@@ -241,7 +241,10 @@ class TestLocality(unittest.TestCase):
     def _trace(self):
         # kernel A, two launches over the SAME 8 sectors (64B apart => 2
         # sectors per 2-address access below), then one scattered access.
-        lines = ["MEMTRACE: CTX 0x1 - LAUNCH - Kernel pc 0x1 - Kernel name kernA "
+        # kernel name includes a full demangled signature WITH SPACES (as the
+        # real tool prints) — the LAUNCH regex must span it
+        lines = ["MEMTRACE: CTX 0x1 - LAUNCH - Kernel pc 0x1 - Kernel name "
+                 "cuvslam::cuda::kernA(unsigned char const*, unsigned long) "
                  "- grid launch id 0 - grid size 1,1,1 - block size 32,1,1 "
                  "- nregs 1 - shmem 0 - cuda stream id 1"]
         base = 0x10000
@@ -250,7 +253,8 @@ class TestLocality(unittest.TestCase):
                 a0, a1 = base + i * 64, base + i * 64 + 32
                 lines.append(f"MEMTRACE: CTX 0x1 - grid_launch_id 0 - CTA 0,0,0 "
                              f"- warp 0 - LDG.E - {hex(a0)} {hex(a1)} " + "0x0 " * 30)
-        lines.append("MEMTRACE: CTX 0x1 - LAUNCH - Kernel pc 0x1 - Kernel name kernA "
+        lines.append("MEMTRACE: CTX 0x1 - LAUNCH - Kernel pc 0x1 - Kernel name "
+                     "cuvslam::cuda::kernA(unsigned char const*, unsigned long) "
                      "- grid launch id 1 - grid size 1,1,1 - block size 32,1,1 "
                      "- nregs 1 - shmem 0 - cuda stream id 1")
         for i in range(4):
