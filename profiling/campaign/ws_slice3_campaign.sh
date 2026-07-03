@@ -28,16 +28,30 @@ log() { echo "=== [$(date +%F_%H:%M:%S)] $*"; }
 # the GPU before both. Prefer a user free-GPU script if present, else stop the
 # display-manager (keeps sshd/network up; reversible with `start`).
 log "freeing GPU and locking clocks"
-FREED=0
-for s in ~/free_gpu.sh ~/freegpu.sh ~/kill_kde.sh ~/killkde.sh ~/stop_kde.sh ~/free-gpu.sh; do
-    [ -x "$s" ] && { log "running $s"; "$s" && FREED=1; break; }
+if [ -f ~/free_gpu.zsh ]; then
+    log "running ~/free_gpu.zsh"; zsh ~/free_gpu.zsh || true
+else
+    for s in ~/free_gpu.sh ~/kill_kde.sh ~/stop_kde.sh; do
+        [ -x "$s" ] && { log "running $s"; "$s" || true; break; }
+    done
+    sudo -n systemctl stop display-manager 2>/dev/null && log "stopped display-manager" || true
+fi
+# free_gpu.zsh resets the GPU (nukes /dev/nvidia0), which can drop the clock
+# lock — retry until graphics actually pins to 1620.
+for attempt in 1 2 3 4 5; do
+    sudo -n nvidia-smi -pm 1 >/dev/null 2>&1
+    sudo -n nvidia-smi -lgc 1620,1620 >/dev/null 2>&1
+    sudo -n nvidia-smi -lmc 7001,7001 >/dev/null 2>&1
+    sleep 2
+    g=$(nvidia-smi --query-gpu=clocks.applications.graphics --format=csv,noheader,nounits)
+    [ "${g:-0}" -ge 1600 ] 2>/dev/null && break
+    log "clock-lock attempt $attempt: applications.graphics=$g, retrying"
 done
-[ "$FREED" = 0 ] && sudo -n systemctl stop display-manager 2>/dev/null && log "stopped display-manager"
-sudo -n nvidia-smi -pm 1 >/dev/null 2>&1
-sudo -n nvidia-smi -lgc 1620,1620 >/dev/null 2>&1
-sudo -n nvidia-smi -lmc 7001,7001 >/dev/null 2>&1
-log "clocks: $(nvidia-smi --query-gpu=clocks.current.graphics,clocks.current.memory --format=csv,noheader)"
+log "clocks: $(nvidia-smi --query-gpu=clocks.applications.graphics,clocks.current.memory --format=csv,noheader) (target 1620/7001)"
 log "GPU procs now: $(nvidia-smi --query-compute-apps=pid --format=csv,noheader | wc -l) compute, display=$(nvidia-smi --query-gpu=display_active --format=csv,noheader)"
+
+log "generating campaign configs (the trace section references them too)"
+python3 profiling/campaign/gen_configs.py --root /mnt/data --tumvi-extracted ~/tumvi_extracted || true
 
 expand() { sed "s|\${CUVSLAM_DATASETS}|$HOME/Projects/cuvslam_datasets|g; s|\${CUVSLAM_DATA2}|/mnt/data|g" "$1"; }
 
@@ -93,8 +107,7 @@ locality tum_ba --kernel build_full_system_1
 log "Slice-3 traces complete: $(ls "$OUT"/*.zst 2>/dev/null | wc -l) traces"
 
 # ── 4. the 29-sequence campaign (its own resumability via result-dir names) ──
-log "regenerating campaign configs"
-python3 profiling/campaign/gen_configs.py --root /mnt/data --tumvi-extracted ~/tumvi_extracted || true
 log "campaign start"
 profiling/campaign/run_campaign.sh --hw "$HW"
-log "ALL DONE"
+log "ALL DONE — restoring GUI"
+[ -f ~/restore_gui.zsh ] && zsh ~/restore_gui.zsh || sudo -n systemctl start display-manager 2>/dev/null || true

@@ -267,10 +267,15 @@ def main():
     if os.path.isdir(args.tumvi_extracted):
         for d in sorted(os.listdir(args.tumvi_extracted)):
             mav0 = os.path.join(args.tumvi_extracted, d, "mav0")
-            if os.path.isdir(mav0):
+            # the euroc source needs EuRoC-style cam0/sensor.yaml; raw TUM-VI
+            # tars ship a different calib layout, so skip those (corridor1 was
+            # pre-converted). TODO: TUM-VI->EuRoC calib conversion.
+            if os.path.isdir(mav0) and os.path.isfile(os.path.join(mav0, "cam0", "sensor.yaml")):
                 name = d.replace("dataset-", "").replace("_512_16", "")
                 odom, slam = tumvi_bodies(name, mav0)
                 written += list(emit(args.out, f"tumvi_{name}", odom, slam))
+            elif os.path.isdir(mav0):
+                print(f"[skip] TUM-VI {d}: no cam0/sensor.yaml (needs calib conversion)")
 
     print(f"[✓] {len(written)} configs in {os.path.relpath(args.out)}")
 
