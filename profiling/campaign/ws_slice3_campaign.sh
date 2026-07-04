@@ -65,7 +65,7 @@ trace_kernel() {
     [ -n "$frames" ] && sed -i "s/^max_frames.*/max_frames = $frames/" "$tmp"
     log "trace $name (KERNEL_FILTER=$filt)"
     KERNEL_FILTER="$filt" CUDA_INJECTION64_PATH=$TOOL \
-        timeout 7200 $PY run.py "$tmp" 2>/dev/null | zstd -3 -T0 -f -o "$zst" \
+        timeout 1800 $PY run.py "$tmp" 2>/dev/null | zstd -3 -T0 -f -o "$zst" \
         || { log "trace $name FAILED/timeout"; return 1; }
     log "trace $name done: $(du -h "$zst" | cut -f1)"
 }
@@ -93,9 +93,9 @@ fi
 locality tum_frontend
 
 # ── 2. loop-closure scan: st_track_with_cache across three map scales ────────
-trace_kernel tum_sttrack   profiling/configs/tum_office_slam_profile.toml       st_track_with_cache
-trace_kernel kitti00_sttrack profiling/configs/campaign/kitti00_slam.toml       st_track_with_cache
-trace_kernel kitti06_sttrack profiling/configs/campaign/kitti06_slam.toml       st_track_with_cache
+trace_kernel tum_sttrack   profiling/configs/tum_office_slam_profile.toml       st_track_with_cache 400
+trace_kernel kitti00_sttrack profiling/configs/campaign/kitti00_slam.toml       st_track_with_cache 1200
+trace_kernel kitti06_sttrack profiling/configs/campaign/kitti06_slam.toml       st_track_with_cache 1200
 locality tum_sttrack     --kernel st_track_with_cache
 locality kitti00_sttrack --kernel st_track_with_cache
 locality kitti06_sttrack --kernel st_track_with_cache
