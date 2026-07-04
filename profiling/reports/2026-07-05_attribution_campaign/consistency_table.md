@@ -1,0 +1,53 @@
+# Cross-sequence attribution synthesis — 27 sequences
+
+| kernel | seqs | modal top global tag | agree | shared | spill | global |
+|---|---|---|---|---|---|---|
+| accumulateGFTT_kernel | 27 | feature_selection_scratch | 100% | 89% | 0% | 11% |
+| cast_depth_kernel | 4 | images_raw | 100% | 0% | 0% | 100% |
+| cast_image_kernel | 12 | images_raw | 100% | 0% | 0% | 100% |
+| cast_image_kernel_rgb | 15 | pyramid_levels | 100% | 0% | 0% | 100% |
+| conv_grad_x_kernel | 27 | pyramid_levels | 100% | 92% | 0% | 8% |
+| conv_grad_y_kernel | 27 | pyramid_levels | 100% | 96% | 0% | 4% |
+| copy_info_kernel | 27 | ba_linear_system | 100% | 0% | 0% | 100% |
+| cub::DeviceMergeSortBlockSortKernel | 26 | feature_tracks | 100% | 97% | 0% | 3% |
+| cub::DeviceMergeSortMergeKernel | 26 | feature_tracks | 100% | 83% | 0% | 17% |
+| cub::DeviceMergeSortPartitionKernel | 26 | unmapped | 100% | 0% | 0% | 100% |
+| downsample_gftt_x8_kernel | 27 | feature_tracks | 100% | 0% | 0% | 100% |
+| dtrsv_init | 27 | untagged_driver | 100% | 0% | 0% | 100% |
+| dtrsv_init_up | 27 | untagged_driver | 100% | 0% | 0% | 100% |
+| filter_maximums_kernel | 27 | feature_tracks | 100% | 0% | 0% | 100% |
+| gaussian_scaling_kernel | 27 | images_raw | 100% | 0% | 0% | 100% |
+| getrf_wo_pivot_params | 27 | unmapped | 100% | 80% | 0% | 20% |
+| gftt_values_kernel | 27 | feature_tracks | 100% | 98% | 0% | 2% |
+| lk_track_horizontal_kernel | 11 | unmapped | 100% | 0% | 0% | 100% |
+| lk_track_kernel | 27 | unmapped | 100% | 0% | 0% | 100% |
+| matcher::lift_kernel | 4 | icp_state | 100% | 0% | 0% | 100% |
+| matcher::photometric_kernel | 4 | icp_state | 100% | 72% | 0% | 28% |
+| matcher::point_to_point_kernel | 4 | icp_state | 100% | 65% | 0% | 35% |
+| non_max_suppression_kernel | 27 | feature_tracks | 100% | 90% | 0% | 10% |
+| sba::build_full_system_1_kernel | 27 | ba_linear_system | 100% | 0% | 0% | 100% |
+| sba::calc_jacobians_kernel | 27 | ba_linear_system | 100% | 4% | 0% | 96% |
+| sba::calc_point_update_kernel_xavier_special | 27 | ba_linear_system | 100% | 88% | 0% | 12% |
+| sba::calc_pose_update_kernel | 27 | ba_linear_system | 100% | 0% | 0% | 100% |
+| sba::clear_full_system_stage_1_kernel | 27 | ba_linear_system | 100% | 0% | 0% | 100% |
+| sba::clear_full_system_stage_2_kernel | 27 | ba_linear_system | 100% | 0% | 0% | 100% |
+| sba::evaluate_cost_kernel | 27 | ba_linear_system | 100% | 4% | 0% | 96% |
+| sba::make_prediction | 27 | ba_linear_system | 100% | 0% | 0% | 100% |
+| sba::point_term_kernel | 27 | ba_linear_system | 100% | 1% | 0% | 99% |
+| sba::pose_scaling_term_kernel | 27 | ba_linear_system | 100% | 34% | 0% | 66% |
+| sba::reduce_abs_max_kernel | 27 | ba_linear_system | 100% | 15% | 0% | 85% |
+| sba::reduced_system_stage_12_kernel | 27 | ba_linear_system | 100% | 44% | 0% | 56% |
+| sba::reduced_system_stage_1_kernel | 27 | ba_linear_system | 100% | 0% | 72% | 28% |
+| sba::reduced_system_stage_2_kernel | 27 | ba_linear_system | 100% | 4% | 0% | 96% |
+| sba::reduced_system_stage_3_kernel | 27 | ba_linear_system | 100% | 4% | 0% | 96% |
+| sba::update_points_kernel | 27 | ba_linear_system | 100% | 0% | 0% | 100% |
+| sba::update_poses_kernel | 27 | ba_linear_system | 100% | 0% | 0% | 100% |
+| sba::v1T_x_M_T_x_v2_kernel | 27 | ba_linear_system | 100% | 88% | 0% | 12% |
+| sba::v1T_x_M_x_v2_kernel | 27 | ba_linear_system | 100% | 57% | 0% | 43% |
+| select_features_kernel | 27 | feature_tracks | 100% | 0% | 0% | 100% |
+| st_build_cache_kernel | 27 | keyframe_descriptors | 100% | 0% | 0% | 100% |
+| st_track_with_cache_kernel | 25 | keyframe_descriptors | 100% | 0% | 93% | 7% |
+| trsv_ln_exec | 27 | unmapped | 100% | 77% | 0% | 23% |
+| trsv_lt_exec | 27 | unmapped | 100% | 93% | 0% | 7% |
+| xxtrf4_set_info_ker | 27 | ba_linear_system | 100% | 0% | 0% | 100% |
+| sba::build_full_system_2_kernel | 27 | unmapped | 67% | 26% | 0% | 74% |

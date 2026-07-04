@@ -46,6 +46,7 @@ the PiM/ISP substrate design for the architecture paper.**
 | Slice 3 locality | NVBit mem_trace → `analysis/locality.py`: measured reuse distance + divergence; 2026-07-05 space-filtered re-derivation (FINDINGS §5) — st_track's global accesses are a scattered gather (counters confirmed), front-end streaming claim strengthened | ✅ done |
 | Taxonomy validation | pooled k-means over 27 sequences prefers k=7–8 = the G-classes (purity 0.68) | ✅ done |
 | Source-level | **TaggedAllocator + NVTX attribution** (`reports/2026-07-04_attribution/`): instrumented wheel (RelWithDebInfo, `patches/0002`), NVBit alloc sidecar, `analysis/attribution.py` join — 240/240 allocations tagged; GPU memory budget static (108.65 MB, keyframe state fixed 6.7 MB → DB growth is host-side); measured NVTX kernel→stage map (st_track_with_cache = loop closure) | ✅ done |
+| Attribution at scale | **Full-matrix attribution campaign** (`reports/2026-07-05_attribution_campaign/`): 27 SLAM sequences on sda (`/mnt/data/attribution_out/`), coverage audited + gap-filled to **0 missing kernels**; **48/49 kernels have a unanimous top data-structure tag across all sequences** — composition is a kernel property, not a workload property | ✅ done |
 | Slice 3 sim | Accel-Sim NDP config + AccelWattch energy (report deltas) | ⬜ |
 | Phase 4 | PiM/ISP substrate design + simulated eval | ⬜ future |
 

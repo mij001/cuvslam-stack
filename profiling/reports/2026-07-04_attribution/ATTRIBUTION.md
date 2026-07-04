@@ -124,9 +124,10 @@ Three data-structure-level readings:
    pyramid/track structures the streaming (near-sensor) taxonomy class
    predicts.
 
-Whole-sequence st_ scan joins (`join_st_scans/`) and all 26 other sequences:
-produced by `campaign/ws_attribution_all.sh` into `/mnt/data/attribution_out/`
-(campaign running as of this report; per-sequence CSVs land there).
+The full 27-sequence generalization of this table — coverage-audited,
+gap-filled to 0 missing kernels, 48/49 kernels unanimous — is
+`reports/2026-07-05_attribution_campaign/`; raw traces and per-sequence joins
+live on the workstation sda at `/mnt/data/attribution_out/`.
 
 ## Limitations (stated for the paper)
 

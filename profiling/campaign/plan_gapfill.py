@@ -66,17 +66,24 @@ def plan(seq_dir, max_windows=4, margin=30, span=3000):
     if not missing:
         return []
     # greedy: repeatedly place the window [id-margin, id+span) that covers the
-    # most still-missing kernels, seeded at each missing kernel's launch ids
+    # most still-missing kernels; ties break on the number of missing-kernel
+    # LAUNCHES inside the window — sparse kernels drift between runs, so an
+    # isolated occurrence is a bad anchor while a dense cluster is robust
     windows = []
     while missing and len(windows) < max_windows:
-        best, best_cover = None, set()
+        best, best_cover, best_hits = None, set(), 0
         for k, v in missing.items():
             for seed in v[:: max(1, len(v) // 8)]:      # subsample seeds
                 b, e = max(0, seed - margin), seed + span
-                cover = {k2 for k2, v2 in missing.items()
-                         if any(b <= i < e for i in v2)}
-                if len(cover) > len(best_cover):
-                    best, best_cover = (b, e), cover
+                cover = set()
+                hits = 0
+                for k2, v2 in missing.items():
+                    n = sum(1 for i in v2 if b <= i < e)
+                    if n:
+                        cover.add(k2)
+                        hits += n
+                if (len(cover), hits) > (len(best_cover), best_hits):
+                    best, best_cover, best_hits = (b, e), cover, hits
         if not best:
             break
         windows.append((best[0], best[1], len(best_cover)))
