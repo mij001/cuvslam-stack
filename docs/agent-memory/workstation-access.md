@@ -1,0 +1,18 @@
+---
+name: workstation-access
+description: "dell-workstation (RTX 2000 Ada) — ssh ndpvslam@dell-workstation, passwordless sudo, clocks locked, datasets located"
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: 52cae146-fe3b-4783-b499-665300f192c9
+---
+
+The production-results workstation is reachable as `ssh ndpvslam@dell-workstation` (key auth works from the laptop). Passwordless sudo for ndpvslam was configured 2026-07-03 via /etc/sudoers.d/ndpvslam. GPU: RTX 2000 Ada (sm_89, 16 GB). **As of 2026-07-03 night: DOWNGRADED to driver 575.64.05 + CUDA 12.9.1, booting linux-lts 6.12.39 by GRUB default (grub-set-default 'Advanced options for CachyOS Linux>CachyOS Linux, with Linux linux-lts') — NVBit/Slice-3 UNBLOCKED there.** The venv at ~/Projects/cuvslam-stack/cuvslam_venv holds a cu12 wheel rebuilt from source (cu13 original moved to cuvslam_venv_cu13; rebuild recipe: podman image cuvslam-wheel-builder, CUDA 12.6 base). Revert: ~/driver-rollback/revert.sh (610 pkgs in pacman cache). mem_trace builds must use the podman image (host gcc16 breaks nvcc 12.9); NVBit needs PATH=/opt/cuda/bin for nvdisasm. Clocks locked: persistence on, `-lgc 1620,1620`, `-lmc 7001,7001`; measured ceilings at lock: 205.0 GB/s DRAM, 5445 GFLOP/s FP32. Datasets: sda2 mounted ro at /mnt/data via fstab (KITTI color 00-21, EuRoC ×11, TUM fr3 ×4, TUM-VI tars); more extracted at ~/tumvi_extracted.
+
+**Why:** locked clocks are what make workstation numbers publishable (laptop CoV was 25% trial spread; locked spread 0.05%). Clock locks reset on reboot — re-apply after power cuts.
+
+**Nsight/driver compatibility (critical, learned 2026-07-04):** driver 575.64.05 provides CUDA 12.9, so the Nsight tools must be the CUDA-12.9 builds. ncu 2026.2 AND 2025.3 are CUDA-13 (reject 575: "Cuda driver is not compatible with Nsight Compute"); the working ncu is **2025.2.1.3** from NVIDIA's public CUDA redist (developer.download.nvidia.com/compute/cuda/redist/nsight_compute/linux-x86_64/), extracted to ~/ncu2025/. nsys 2025.3.2 (Arch pkg) works for 575. profile.py honors NCU_BIN/NSYS_BIN env overrides; run_campaign.sh exports NCU_BIN to the ~/ncu2025 ncu. So NVBit + ncu 2025.2 + nsys 2025.3.2 all coexist on driver 575 = one unified stack (no need to flip drivers between tracing and profiling). If the box is ever reverted to 610, restore ncu 2026.2 (in pacman cache).
+
+**Operational facts (2026-07-04):** SSH is Tailscale SSH and periodically demands re-auth (prints "Tailscale SSH requires an additional check, visit https://login.tailscale.com/..."), on EVERY connection until the user re-authorizes — a hard blocker for me, needs the user to visit the URL or relax the check-mode rule in Tailscale ACLs. BIOS boots on AC restore + KDE autologin, so after a power cut the box is reachable by Tailscale SSH BUT the KDE compositor is live on the GPU — it must be killed before any NVBit trace or clock-sensitive capture (it pollutes address traces and competes for SMs). The user keeps a "free gpu" / kill-KDE script in ~ (exact name TBD — `ls ~/*.sh`; ws_slice3_campaign.sh probes free_gpu.sh/kill_kde.sh/etc. and falls back to `sudo systemctl isolate multi-user.target`, which keeps sshd up). Long jobs MUST be `setsid nohup` (power cuts killed two already).
+
+**How to apply:** repo lives at ~/Projects/cuvslam-stack on the workstation (rsync-deployed, venv built, wheel installed). Datasets: ~/Projects/cuvslam_datasets/{tum, kitti_color→kitti_dataset_for_checking/Dataset, tumvi→av_dataset}. Long remote jobs MUST run under `setsid nohup ... &` or they die with the ssh client (power-cut lesson). Related: [[cuvslam-stack-profiling-state]].
