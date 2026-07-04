@@ -50,12 +50,16 @@ rather than inferred from an SoL/LFMR proxy.
 
 Two clean sub-findings: (a) every front-end kernel is **fully converged (32.0
 active lanes)** — so their low sectors/access is *true coalescing*, not
-divergence; (b) `conv_grad_y` is the one scattered kernel (15.4 sectors per 32
+divergence; (b) **[superseded — see §5]** `conv_grad_y` is the one scattered
+kernel (15.4 sectors per 32
 lanes — the vertical-gradient stride crosses rows), a concrete, localized
 data-layout target that the counter view (kernel-level "feature detect is
 memory-bound") could not isolate.
 
 ## 3. Loop-closure scan (st_track_with_cache) — the trace overturns the proxy
+**[superseded — the tables below blend memory spaces; §5 re-derives them
+space-filtered and REVERSES the coalescing verdict. Footprint and migration
+rows stand.]**
 
 | metric | TUM (room) | KITTI 00 (street) |
 |---|---|---|
@@ -108,3 +112,51 @@ capacity-unbounded, slowly-migrating database."
   memory cost is coalesced streaming + capacity, not divergence.
 - Localizes a real data-layout target the kernel view missed: `conv_grad_y`
   (15.4 sectors/32 lanes, vertical-gradient stride).
+
+## 5. 2026-07-05 CORRECTION — space-filtered re-derivation (data_v2/)
+
+The TaggedAllocator attribution join (reports/2026-07-04_attribution/) exposed
+that mem_trace records **every memory space**, and this report's tables blended
+them: shared-memory tiles (LDS/STS, on-chip) and the per-thread register-spill
+window (LDL/STL, DRAM-backed compiler scratch) were counted as if they were
+data accesses. `analysis/locality.py --spaces` now filters; the same traces
+re-derived global-only (`data_v2/*_global/`) and, for the spill stream,
+local-only (`data_v2/*_local/`).
+
+**§3 reverses.** st_track_with_cache's *global* (data) accesses are a
+**scattered gather**, exactly as the ncu counters said all along:
+
+| metric (global-only) | TUM (room) | KITTI 00 (street) | old §3 (mixed) |
+|---|---|---|---|
+| sectors / warp access | **23.4** | **30.0** | 2.1 |
+| % accesses ≤4 sectors | **6.0 %** | **2.3 %** | 99.4 % |
+| per-scan footprint | 0.464 MB | 1.093 MB | ≈unchanged |
+| inter-launch Jaccard | 0.669 | 0.899 | unchanged |
+
+The 99%-coalesced signal was the **spill stream** (local-only: 2.0
+sectors/warp, 100 % ≤4, Jaccard 1.0 — per-thread interleaving is coalesced by
+construction), which carries ~94 % of the kernel's accesses (attribution join)
+and drowned the data accesses in the blended table. **The counter proxy was
+never wrong** — ncu's `sectors/request` (18–30) matches the corrected
+global-only measurement (23–30). Two independent methods now agree; the
+2026-07-04 "proxy overturned" claim is withdrawn and the classifier's original
+**G2-scatter label on st_track stands**.
+
+The corrected picture of the loop-closure scan: **a scattered gather over the
+keyframe-descriptor buffer, superimposed on a coalesced spill stream that
+dominates its DRAM volume.** The ISP case keeps both legs — session-scale
+database growth/migration (footprint and Jaccard rows unchanged) *plus* genuine
+within-scan scatter — and gains a third: most of the kernel's DRAM bandwidth is
+compiler spill, i.e. a larger register file / spill-local SRAM attacks the
+volume while a near-memory gather engine attacks the latency.
+
+**§2 sharpens.** Front-end cast/gaussian/lk rows are identical (they had no
+on-chip traffic) — the flat-CDF streaming→SRAM case stands. `conv_grad_x/y`'s
+apparent scatter (5.3/15.4 sectors) and conv_grad_x's 92 % "reuse" were
+**shared-memory tiles**: global-only both are 4.0 sectors/warp, 100 % ≤4,
+reuse CDF flat at ~0 — *pure* coalesced streaming. The "conv_grad_y
+data-layout target" sub-finding is withdrawn; the front-end is uniformly
+stream-clean and the correct optimization target is on-chip, not layout.
+
+Provenance: same traces (`~/slice3/*.zst`), `locality.py --spaces global`
+(and `--spaces local` for the spill view), 2026-07-05.

@@ -17,11 +17,14 @@ allocation every traced access falls into. Closes PUBLISHABILITY issues **3**
 | NVTX | `profiler_enable.h` typedefs flipped to `Enable` under `-DUSE_NVTX=ON` — cuVSLAM's own profiler domains emit ranges; nsys `nvtx_kern_sum` gives the measured kernel→stage table | `nvtx_kern_sum.csv` |
 
 Captures (`campaign/ws_attribution_capture.sh`; the full-matrix version is
-`campaign/ws_attribution_all.sh`): pass 1 = full sequence, NVBit injected,
-empty window (launch map + journals, near-native); pass 2a = all-kernel
-steady-state window (~3 frames mid-orbit, 28.1 GiB of addresses); pass 2b =
-`KERNEL_FILTER=st_` (every keyframe-database scan in the sequence); 600-frame
-nsys NVTX capture. Layer-1 sanity: **274/274 allocations resolved and tagged,
+`campaign/ws_attribution_all.sh` + `ws_attribution_gapfill.sh`): pass 1 = full
+sequence, NVBit injected, empty window (launch map + journals, near-native);
+pass 2a = all-kernel steady-state window (~3 frames mid-orbit, 28.1 GiB of
+addresses); pass 2b = `KERNEL_FILTER=st_` in a late loop-closure-likely window
+(a whole-sequence st_ trace is TB-scale — the scan re-reads the keyframe DB
+every keyframe); pass 2c = planned gap-fill windows covering any kernel the
+sliced windows missed (`plan_gapfill.py` diffs the pass1 launch map against
+the joins); 600-frame nsys NVTX capture. Layer-1 sanity: **274/274 allocations resolved and tagged,
 0 unknown** (240 device + 34 pinned-host) — identical structure across all
 runs (deterministic). Join sanity: driver sidecar 274/290 matched to the
 journal; the 16 leftovers are CUB/cuSOLVER internals (`untagged_driver`).
@@ -101,15 +104,17 @@ mid-orbit, 28.1 GiB of trace addresses). Selected rows:
 Three data-structure-level readings:
 
 1. **The loop-closure scan's DRAM traffic is register spill, not database
-   gather.** st_track_with_cache touches the keyframe descriptor buffer for
-   only ~5% of its accesses; 94% is the compiler's local-memory window (the
-   9-dim patch working set exceeds the register budget). The Slice-3
-   "coalesced converged streaming" reading is consistent (spill traffic is
-   perfectly interleaved by design) — but the *data-structure* conclusion
-   sharpens: the scan is bounded by spill bandwidth, and the database it
-   reads is a fixed 6.7 MB device buffer. The ISP target is the host-side
-   LMDB store; the device-side scan would benefit most from *larger register
-   files / spill-local SRAM*, not near-data placement.
+   gather — and the database gather it does perform is scattered.**
+   st_track_with_cache touches the keyframe descriptor buffer for only ~5% of
+   its accesses; 94% is the compiler's local-memory window (the 9-dim patch
+   working set exceeds the register budget). This finding triggered the
+   Slice-3 space-filtered re-derivation (FINDINGS §5): the *global* accesses
+   are a scattered gather (23–30 sectors/warp), confirming the original ncu
+   counter reading, while the spill stream is coalesced by construction and
+   had masked it. The scan is bounded by spill bandwidth; its data side is a
+   scattered gather over a fixed 6.7 MB device buffer. The ISP target is the
+   host-side LMDB store; the device-side asks are a *larger register file /
+   spill-local SRAM* (volume) and near-memory gather (latency).
 2. **BA is the clean PiM candidate at the data-structure level.** The
    full-system SBA kernels stream `ba_linear_system` (24.3 MB device +
    15.4 MB pinned-host mirror) at 97% of their global traffic — one named,
