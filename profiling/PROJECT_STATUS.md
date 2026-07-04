@@ -188,6 +188,16 @@ register.
 
 ## 8. Changelog
 
+- **2026-07-04** — **FULL-SCALE CAMPAIGN DONE** (`reports/2026-07-04_campaign/`).
+  27 sequences × 4 datasets (KITTI 00-10, EuRoC MH/V1/V2, TUM fr3 ×4, TUM-VI),
+  odometry + SLAM each, locked-clock Ada, **0 failures**, survived a dev-box
+  poweroff (setsid). Cross-sequence modal consistency **91%**; pooled k-means
+  prefers **k=7–8** (validates the taxonomy at scale); **61% of GPU time carries
+  PiM affinity** (21% strong + 40% conditional). New `analysis/campaign.py`.
+  Solved a stack-breaking blocker on the way: the 575 downgrade broke system
+  Nsight (ncu 2026.2/2025.3 are CUDA-13, reject 575) — fixed with CUDA-12.9
+  ncu 2025.2 (NVIDIA public redist) + NCU_BIN override, so NVBit + ncu + nsys
+  now share one driver. PUBLISHABILITY issues 2 and 7 closed.
 - **2026-07-03 (night)** — **SLICE 3 UNBLOCKED.** Driver downgraded on the
   workstation: 575.64.05 + CUDA 12.9.1 + linux-lts 6.12.39 (dkms module built;
   GRUB default set; the CachyOS prebuilt nvidia-open module packages were the
