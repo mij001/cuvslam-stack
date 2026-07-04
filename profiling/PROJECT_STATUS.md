@@ -28,10 +28,12 @@ ISCA/HPCA architecture paper built on it.
 
 ## 2. Current stage
 
-**ISPASS/IISWC-grade characterization essentially complete**: full-scale
-27-sequence campaign done, Slice-3 locality measured, taxonomy clustering-
-validated, all original blockers closed. Next: data-structure attribution
-(TaggedAllocator) → then the PiM/ISP substrate design for the architecture paper.**
+**ISPASS/IISWC-grade characterization complete, now data-structure-scoped**:
+full-scale 27-sequence campaign done, Slice-3 locality measured, taxonomy
+clustering-validated, and the TaggedAllocator+NVTX attribution pass
+(`reports/2026-07-04_attribution/`) turns kernel-level claims into
+data-structure-level ones. Next: Accel-Sim NDP config + AccelWattch energy →
+the PiM/ISP substrate design for the architecture paper.**
 
 | Slice | What | State |
 |---|---|---|
@@ -43,7 +45,7 @@ validated, all original blockers closed. Next: data-structure attribution
 | Multi-dataset | **27-sequence campaign** (KITTI 00-10, EuRoC ×11, TUM fr3 ×4, TUM-VI), odom+SLAM, 0 failures; modal consistency 91% (`reports/2026-07-04_campaign/`) | ✅ done |
 | Slice 3 locality | NVBit mem_trace → `analysis/locality.py`: measured reuse distance overturned the counter proxy on st_track (`reports/2026-07-04_slice3_locality/`) | ✅ done |
 | Taxonomy validation | pooled k-means over 27 sequences prefers k=7–8 = the G-classes (purity 0.68) | ✅ done |
-| Source-level | TaggedAllocator + NVTX (data-structure attribution) — cu12 source tree in hand on the workstation | ⬜ **next big upgrade** |
+| Source-level | **TaggedAllocator + NVTX attribution** (`reports/2026-07-04_attribution/`): instrumented wheel (RelWithDebInfo, `patches/0002`), NVBit alloc sidecar, `analysis/attribution.py` join — 240/240 allocations tagged; GPU memory budget static (108.65 MB, keyframe state fixed 6.7 MB → DB growth is host-side); measured NVTX kernel→stage map (st_track_with_cache = loop closure) | ✅ done |
 | Slice 3 sim | Accel-Sim NDP config + AccelWattch energy (report deltas) | ⬜ |
 | Phase 4 | PiM/ISP substrate design + simulated eval | ⬜ future |
 
@@ -180,7 +182,7 @@ symlinked into `${CUVSLAM_DATASETS}` as `kitti_color`, `tumvi`.
 | 2 | Multi-dataset matrix + agreement (`compare.py`/`campaign.py`) | generalization claim | ✅ done (27 seq) |
 | 5 | k-means over metric vectors (`cluster.py`/`campaign.py`) | taxonomy *validated* not asserted | ✅ done (pooled, k=7–8) |
 | 3a | Slice-3 NVBit locality (`analysis/locality.py`) | reuse-distance, divergence, proxy correction | ✅ done |
-| 4 | TaggedAllocator + NVTX from-source build | **data-structure-level** claims | ⬜ next big scientific upgrade (cu12 source in hand) |
+| 4 | TaggedAllocator + NVTX from-source build | **data-structure-level** claims | ✅ done (`reports/2026-07-04_attribution/`) |
 | 3b | Accel-Sim NDP config + AccelWattch energy | sim deltas, joules | ⬜ |
 | 6 | PiM/ISP substrate design + delta eval | the architecture paper | ⬜ |
 

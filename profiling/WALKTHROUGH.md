@@ -24,7 +24,7 @@ strategy see `PROFILING_PLAN.md`; for command reference see `README.md`.
 | Workstation (RTX 2000 Ada) locked-clock production pass | ✅ done | 3-workload matrix, CoV 0.14%, measured ceilings; `reports/2026-07-03_*` |
 | Multi-dataset generalization (`compare.py` / `cluster.py`) | ✅ done | TUM↔KITTI 97% agreement; k-means prefers k=7; `reports/2026-07-03_matrix_synthesis/` |
 | **DAMOV / NVBit / Accel-Sim data-movement track** | 🟡 unblocking | analyzer done (`analysis/locality.py` + mem_trace launch-window patch); driver-downgrade to 575/CUDA-12 in progress on the workstation |
-| Source-level attribution (TaggedAllocator, NVTX) | ⏳ next | needs the from-source build (onboarding §11.2) |
+| Source-level attribution (TaggedAllocator, NVTX) | ✅ done | `patches/0002` instrumented wheel + `analysis/attribution.py`; `reports/2026-07-04_attribution/` |
 | Jetson AGX Orin re-run | ⏳ later | `hw/jetson_orin_sm87.toml` exists |
 
 ---
@@ -194,12 +194,15 @@ Accel-Sim steady-state hit-rate **deltas**, the stage → DAMOV-class → PiM/IS
 synthesis table. Unblocks via `blocked/check_capability.sh` on a ≤575-driver
 host or a newer NVBit.
 
-### Source-level attribution (the gating milestone for the thesis)
-The address→data-structure mapping (onboarding §11.2): `TaggedAllocator` in a
-from-source cuVSLAM build + NVBit `cuMemAlloc` interception + kernel-arg
-correlation. Without it, claims stay kernel-level ("BA is memory-bound");
-with it they become data-level ("the covisibility graph is the PiM target").
-Also NVTX range annotations for exact stage attribution in nsys.
+### Source-level attribution — DONE 2026-07-04
+The address→data-structure mapping (onboarding §11.2) is implemented and run:
+`TaggedAllocator` journal in the from-source RelWithDebInfo wheel
+(`patches/0002-tagged-allocator-nvtx.patch`), NVBit `cuMemAlloc`/`cuMemHostAlloc`
+sidecar (`blocked/mem_trace_alloc_events.patch`), and the
+`analysis/attribution.py` resolve+join. NVTX stage ranges enabled via the
+same rebuild (`-DUSE_NVTX=ON`). Results: `reports/2026-07-04_attribution/`.
+Kernel-arg correlation (Layer 3) remains optional — call-site backtraces
+already disambiguate every observed allocation.
 
 ### Rigor items for the paper
 Multi-dataset generalization (EuRoC + KITTI + TUM VI), the six §12.2 sweeps
@@ -233,7 +236,7 @@ profiling/
 
 1. **Hardware:** hardware-parameterized; prototype on MX450, real runs on RTX 2000 Ada.
 2. **Scope:** NCU-first, NVBit-gated (evidence-based deviation from the onboarding order).
-3. **Instrumentation:** still no source edits; NVTX/TaggedAllocator deferred to the from-source phase.
+3. **Instrumentation:** wheel-only until 2026-07-04; the from-source phase added `patches/0002-tagged-allocator-nvtx.patch` (allocation journal + NVTX), env-gated so the default build is bit-identical in behavior.
 4. **Slice-2 capture fidelity:** proper steady-state (warm 200 frames, then profile).
 5. **Figures:** dependency-free SVG instead of matplotlib — the repo must run headless anywhere with zero pip installs.
 6. **ncu metric curation:** inline `METRIC_SETS` in `profile.py` (kept from Cao23's taxonomy) instead of vendoring `counter_config.py` — one file, one source of truth; cite [Cao23].

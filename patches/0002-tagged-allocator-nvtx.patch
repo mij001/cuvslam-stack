@@ -1,0 +1,390 @@
+diff --color -ruN a/libs/cuda_modules/alloc_log.cpp b/libs/cuda_modules/alloc_log.cpp
+--- a/libs/cuda_modules/alloc_log.cpp	1970-01-01 05:30:00.000000000 +0530
++++ b/libs/cuda_modules/alloc_log.cpp	2026-07-04 13:50:53.703326777 +0530
+@@ -0,0 +1,122 @@
++
++/*
++ * Instrumentation-only allocation journal (profiling; not part of upstream cuVSLAM).
++ * See alloc_log.h. Log format (CSV, one record per line):
++ *   #cuvslam-alloc-log,v1                     header
++ *   M,<start>-<end> r-xp ... <path>           /proc/self/maps executable rows
++ *                                             (at first use and again at exit;
++ *                                             consumers dedup) - undoes ASLR
++ *   A,<t_us>,<ptr>,<bytes>,<kind>,<pc>,...    allocation + host backtrace PCs
++ *   F,<t_us>,<ptr>                            free
++ * Timestamps are CLOCK_MONOTONIC microseconds.
++ */
++
++#include "cuda_modules/alloc_log.h"
++
++#include <cstdio>
++#include <cstdlib>
++#include <cstring>
++#include <ctime>
++#include <mutex>
++
++#include <execinfo.h>
++
++namespace cuvslam::cuda {
++namespace {
++
++constexpr int kMaxFrames = 12;
++
++// Intentionally leaked: LogFree runs from destructors of static-lifetime
++// objects, which may outlive any namespace-scope static here.
++struct State {
++  std::mutex mu;
++  FILE* file = nullptr;
++  bool initialized = false;
++};
++
++State& state() {
++  static State* s = new State;
++  return *s;
++}
++
++int64_t now_us() {
++  timespec ts;
++  clock_gettime(CLOCK_MONOTONIC, &ts);
++  return static_cast<int64_t>(ts.tv_sec) * 1000000 + ts.tv_nsec / 1000;
++}
++
++// Executable mappings let offline tooling turn absolute PCs into
++// <module, file-offset> pairs for addr2line.
++void dump_maps_locked() {
++  State& s = state();
++  if (!s.file) {
++    return;
++  }
++  if (FILE* maps = fopen("/proc/self/maps", "r")) {
++    char line[512];
++    while (fgets(line, sizeof(line), maps)) {
++      if (strstr(line, " r-xp ")) {
++        fprintf(s.file, "M,%s", line);
++      }
++    }
++    fclose(maps);
++  }
++  fflush(s.file);
++}
++
++void close_log() {
++  State& s = state();
++  std::lock_guard<std::mutex> lock(s.mu);
++  if (s.file) {
++    dump_maps_locked();
++    fclose(s.file);
++    s.file = nullptr;
++  }
++}
++
++FILE* file_locked() {
++  State& s = state();
++  if (!s.initialized) {
++    s.initialized = true;
++    if (const char* path = getenv("CUVSLAM_ALLOC_LOG")) {
++      s.file = fopen(path, "w");
++      if (s.file) {
++        fprintf(s.file, "#cuvslam-alloc-log,v1\n");
++        dump_maps_locked();
++        atexit(close_log);
++      }
++    }
++  }
++  return s.file;
++}
++
++}  // namespace
++
++void LogAlloc(const void* ptr, size_t bytes, const char* kind) {
++  State& s = state();
++  std::lock_guard<std::mutex> lock(s.mu);
++  FILE* f = file_locked();
++  if (!f || !ptr) {
++    return;
++  }
++  void* frames[kMaxFrames];
++  const int n = backtrace(frames, kMaxFrames);
++  fprintf(f, "A,%lld,%p,%zu,%s", static_cast<long long>(now_us()), ptr, bytes, kind);
++  for (int i = 1; i < n; ++i) {  // frame 0 is LogAlloc itself
++    fprintf(f, ",%p", frames[i]);
++  }
++  fputc('\n', f);
++  fflush(f);  // allocation-rate writes only; keeps the journal crash-consistent
++}
++
++void LogFree(const void* ptr) {
++  State& s = state();
++  std::lock_guard<std::mutex> lock(s.mu);
++  FILE* f = file_locked();
++  if (!f || !ptr) {
++    return;
++  }
++  fprintf(f, "F,%lld,%p\n", static_cast<long long>(now_us()), ptr);
++}
++
++}  // namespace cuvslam::cuda
+diff --color -ruN a/libs/cuda_modules/alloc_log.h b/libs/cuda_modules/alloc_log.h
+--- a/libs/cuda_modules/alloc_log.h	1970-01-01 05:30:00.000000000 +0530
++++ b/libs/cuda_modules/alloc_log.h	2026-07-04 13:50:40.086026977 +0530
+@@ -0,0 +1,22 @@
++
++/*
++ * Instrumentation-only allocation journal (profiling; not part of upstream cuVSLAM).
++ *
++ * Records every device allocation/free made by the cuda_modules wrappers, with
++ * a host backtrace per allocation, so post-processing can attribute device
++ * addresses in NVBit traces to the owning data structure (addr2line against a
++ * -g build). Enabled only when CUVSLAM_ALLOC_LOG=<path> is set in the
++ * environment; otherwise each call is a mutex lock + one branch on a cached
++ * flag, on allocation paths only (never per-access, never per-frame-pixel).
++ */
++
++#pragma once
++
++#include <cstddef>
++
++namespace cuvslam::cuda {
++
++void LogAlloc(const void* ptr, size_t bytes, const char* kind);
++void LogFree(const void* ptr);
++
++}  // namespace cuvslam::cuda
+diff --color -ruN a/libs/cuda_modules/CMakeLists.txt b/libs/cuda_modules/CMakeLists.txt
+--- a/libs/cuda_modules/CMakeLists.txt	2026-07-04 13:50:25.758855617 +0530
++++ b/libs/cuda_modules/CMakeLists.txt	2026-07-04 13:52:53.146700638 +0530
+@@ -15,6 +15,7 @@
+ set(MODULE_NAME "cuda_modules")
+ 
+ set(HEADERS
++    alloc_log.h
+     box_prefilter.h
+     cuda_convolutor.h
+     cuda_helper.h
+@@ -31,6 +32,7 @@
+     )
+ 
+ set(SOURCES
++    alloc_log.cpp
+     box_prefilter.cpp
+     cuda_convolutor.cpp
+     cuda_helper.cpp
+diff --color -ruN a/libs/cuda_modules/cuda_helper.h b/libs/cuda_modules/cuda_helper.h
+--- a/libs/cuda_modules/cuda_helper.h	2026-07-04 13:50:25.758139426 +0530
++++ b/libs/cuda_modules/cuda_helper.h	2026-07-04 14:19:27.083996775 +0530
+@@ -24,6 +24,7 @@
+ 
+ #include "common/image_matrix.h"
+ #include "common/log.h"
++#include "cuda_modules/alloc_log.h"
+ #include "cuvslam/cuvslam_gpu.h"
+ 
+ #if !defined(NDEBUG)
+@@ -59,6 +60,7 @@
+     cpu_elements.resize(size);
+     const size_t array_size = size_ * sizeof(T);
+     CUDA_CHECK(cudaMalloc((void**)&data_, array_size));
++    LogAlloc(data_, array_size, "GPUArray");
+   }
+ 
+   T& operator[](size_t i) {
+@@ -92,7 +94,10 @@
+     }
+   }
+ 
+-  ~GPUArray() { CUDA_CHECK_NOTHROW(cudaFree(data_)); }
++  ~GPUArray() {
++    LogFree(data_);
++    CUDA_CHECK_NOTHROW(cudaFree(data_));
++  }
+ 
+   T* ptr() const { return data_; }
+ 
+@@ -164,6 +169,8 @@
+ private:
+   void free() {
+     assert(data_ && host_data_);
++    LogFree(data_);
++    LogFree(host_data_);
+     CUDA_CHECK(cudaFree(data_));
+     CUDA_CHECK(cudaFreeHost(host_data_));
+     data_ = host_data_ = nullptr;
+@@ -175,6 +182,8 @@
+     const size_t array_size = size * sizeof(T);
+     CUDA_CHECK(cudaHostAlloc((void**)&host_data_, array_size, cudaHostAllocDefault));
+     CUDA_CHECK(cudaMalloc((void**)&data_, array_size));
++    LogAlloc(data_, array_size, "GPUArrayPinned");
++    LogAlloc(host_data_, array_size, "GPUArrayPinnedHost");
+     size_ = size;
+   }
+ 
+@@ -191,12 +200,14 @@
+   explicit GPUOnlyArray(size_t size) : size_(size) {
+     const size_t array_size = size_ * sizeof(T);
+     CUDA_CHECK(cudaMalloc((void**)&data_, array_size));
++    LogAlloc(data_, array_size, "GPUOnlyArray");
+   }
+ 
+   GPUOnlyArray(const GPUOnlyArray&) = delete;
+ 
+   GPUOnlyArray(GPUOnlyArray&& other) noexcept {
+     if (data_) {
++      LogFree(data_);
+       CUDA_CHECK_NOTHROW(cudaFree(data_));
+     }
+     data_ = other.data_;
+@@ -207,6 +218,7 @@
+ 
+   ~GPUOnlyArray() {
+     if (data_) {
++      LogFree(data_);
+       CUDA_CHECK_NOTHROW(cudaFree(data_));
+     }
+   }
+@@ -241,6 +253,7 @@
+     cols_ = image.cols();
+ 
+     CUDA_CHECK(cudaMallocPitch((void**)&data_, &pitch_, cols_ * sizeof(T), rows_));
++    LogAlloc(data_, pitch_ * rows_, "GPUImage");
+     CUDA_CHECK(cudaMemcpy2D((void*)data_, pitch_, (void*)image.data(), cols_ * sizeof(T), cols_ * sizeof(T), rows_,
+                             cudaMemcpyHostToDevice));
+     prepare_texture();
+@@ -252,6 +265,7 @@
+     pitch_ = image.pitch();
+ 
+     CUDA_CHECK(cudaMallocPitch(&data_, &pitch_, cols_ * sizeof(T), rows_));
++    LogAlloc(data_, pitch_ * rows_, "GPUImage");
+     CUDA_CHECK(cudaMemcpy2D((void*)data_, pitch_, (void*)image.data_, pitch_, cols_ * sizeof(T), rows_,
+                             cudaMemcpyDeviceToDevice));
+     prepare_texture();
+@@ -259,6 +273,7 @@
+ 
+   GPUImage(size_t cols, size_t rows) : rows_(rows), cols_(cols) {
+     CUDA_CHECK(cudaMallocPitch((void**)&data_, &pitch_, cols_ * sizeof(T), rows_));
++    LogAlloc(data_, pitch_ * rows_, "GPUImage");
+     prepare_texture();
+   }
+ 
+@@ -267,6 +282,7 @@
+       rows_ = rows;
+       cols_ = cols;
+       CUDA_CHECK(cudaMallocPitch((void**)&data_, &pitch_, cols_ * sizeof(T), rows_));
++      LogAlloc(data_, pitch_ * rows_, "GPUImage");
+       prepare_texture();
+     }
+   }
+@@ -319,6 +335,7 @@
+       CUDA_CHECK_NOTHROW(cudaDestroyTextureObject(texture_filter_linear));
+     }
+     if (data_ != nullptr) {
++      LogFree(data_);
+       CUDA_CHECK_NOTHROW(cudaFree(data_));
+     }
+   }
+@@ -410,6 +427,7 @@
+ 
+     void* p;
+     if (cudaSuccess == cudaHostAlloc(&p, n * sizeof(T), cudaHostAllocDefault)) {
++      LogAlloc(p, n * sizeof(T), "HostAllocator");
+       return static_cast<T*>(p);
+     }
+ 
+@@ -417,6 +435,7 @@
+   }
+ 
+   void deallocate(T* p, [[maybe_unused]] std::size_t n) noexcept {
++    LogFree(p);
+     TraceErrorIf(cudaSuccess != cudaFreeHost(p), "cudaFreeHost failed");
+   }
+ };
+diff --color -ruN a/libs/cuda_modules/sba.cpp b/libs/cuda_modules/sba.cpp
+--- a/libs/cuda_modules/sba.cpp	2026-07-04 13:50:25.759683133 +0530
++++ b/libs/cuda_modules/sba.cpp	2026-07-04 13:52:53.145941289 +0530
+@@ -415,6 +415,7 @@
+     : points_(max_points), observations_(max_observations), poses_(max_poses) {
+   prepare_meta();
+   CUDA_CHECK(cudaMalloc((void**)&rig_, sizeof(Rig)));
++  LogAlloc(rig_, sizeof(Rig), "SBARig");
+   meta_.rig = rig_;
+ }
+ 
+@@ -444,6 +445,7 @@
+ 
+ GPUBundleAdjustmentProblem::~GPUBundleAdjustmentProblem() {
+   if (rig_) {
++    LogFree(rig_);
+     CUDA_CHECK_NOTHROW(cudaFree(rig_));
+   }
+ }
+diff --color -ruN a/libs/cuda_modules/selection_v2.cpp b/libs/cuda_modules/selection_v2.cpp
+--- a/libs/cuda_modules/selection_v2.cpp	2026-07-04 13:50:25.759075458 +0530
++++ b/libs/cuda_modules/selection_v2.cpp	2026-07-04 13:52:53.144973451 +0530
+@@ -21,7 +21,10 @@
+ 
+ namespace cuvslam::cuda {
+ 
+-GPUSelection::~GPUSelection() { cudaFree(sort_temp_buffer_); }
++GPUSelection::~GPUSelection() {
++  LogFree(sort_temp_buffer_);
++  cudaFree(sort_temp_buffer_);
++}
+ 
+ void GPUSelection::computeGFTTAndSelectFeatures(const GPUGradientPyramid &gradientPyramid, int border_top,
+                                                 int border_bottom, int border_left, int border_right,
+@@ -58,6 +61,7 @@
+ 
+     sort_temp_buffer_size_ = sort_keypoints_get_temp_buffer_size(max_tracks_);
+     CUDA_CHECK(cudaMallocAsync(&sort_temp_buffer_, sort_temp_buffer_size_, stream));
++    LogAlloc(sort_temp_buffer_, sort_temp_buffer_size_, "SelectionSortTemp");
+   }
+ 
+   size_t num_old_keypoints = std::min(max_tracks_, AliveFeatures.size());
+diff --color -ruN a/libs/cuda_modules/st_tracker.h b/libs/cuda_modules/st_tracker.h
+--- a/libs/cuda_modules/st_tracker.h	2026-07-04 13:50:25.758737291 +0530
++++ b/libs/cuda_modules/st_tracker.h	2026-07-04 13:52:53.144209454 +0530
+@@ -27,8 +27,14 @@
+ template <typename T, int Dim, int MaxPoints>
+ class GPUPatchData {
+ public:
+-  GPUPatchData() { CUDA_CHECK(cudaMalloc((void**)&data_, MaxPoints * sizeof(PointCacheData<T, Dim>))); }
+-  ~GPUPatchData() { CUDA_CHECK(cudaFree(data_)); }
++  GPUPatchData() {
++    CUDA_CHECK(cudaMalloc((void**)&data_, MaxPoints * sizeof(PointCacheData<T, Dim>)));
++    LogAlloc(data_, MaxPoints * sizeof(PointCacheData<T, Dim>), "GPUPatchData");
++  }
++  ~GPUPatchData() {
++    LogFree(data_);
++    CUDA_CHECK(cudaFree(data_));
++  }
+ 
+   PointCacheData<T, Dim>* ptr() const { return data_; }
+ 
+diff --color -ruN a/libs/profiler/profiler_enable.h b/libs/profiler/profiler_enable.h
+--- a/libs/profiler/profiler_enable.h	2026-07-04 13:50:25.760161108 +0530
++++ b/libs/profiler/profiler_enable.h	2026-07-04 13:53:11.622728407 +0530
+@@ -21,6 +21,18 @@
+ 
+ namespace cuvslam::profiler {
+ 
++// With USE_NVTX the per-module profilers emit NVTX ranges (visible in nsys);
++// without it they compile to no-ops exactly as upstream ships them.
++#ifdef USE_NVTX
++using DefaultProfiler = Enable;
++using VioProfiler = Enable;
++using SBAProfiler = Enable;
++using SLAMProfiler = Enable;
++using PnPProfiler = Enable;
++using MapperProfiler = Enable;
++using GravityProfiler = Enable;
++using MapProfiler = Enable;
++#else
+ using DefaultProfiler = Disable;
+ using VioProfiler = Disable;
+ using SBAProfiler = Disable;
+@@ -29,5 +41,6 @@
+ using MapperProfiler = Disable;
+ using GravityProfiler = Disable;
+ using MapProfiler = Disable;
++#endif
+ 
+ }  // namespace cuvslam::profiler

@@ -1,0 +1,119 @@
+--- nvbit/mem_trace.cu.orig	2026-07-04 13:55:51.745949336 +0530
++++ nvbit/mem_trace.cu	2026-07-04 14:19:27.084566241 +0530
+@@ -136,6 +136,12 @@
+ /* grid launch id, incremented at every launch */
+ uint64_t global_grid_launch_id = 0;
+ 
++/* allocation-event sidecar (MEM_TRACE_ALLOC_LOG=<path>): logs every
++   driver-level allocation and free with the launch id it precedes, so
++   post-processing can attribute trace addresses to live allocations without
++   wall-clock timestamps. Empty/unset disables it (no behavior change). */
++FILE* alloc_log_file = nullptr;
++
+ void* recv_thread_fun(void* args);
+ 
+ void nvbit_at_init() {
+@@ -155,6 +161,12 @@
+     GET_VAR_STR(kernel_filter, "KERNEL_FILTER",
+         "Instrument only kernels whose demangled name contains this substring");
+     GET_VAR_INT(verbose, "TOOL_VERBOSE", 0, "Enable verbosity inside the tool");
++    if (const char* alloc_log_path = getenv("MEM_TRACE_ALLOC_LOG")) {
++        alloc_log_file = fopen(alloc_log_path, "w");
++        if (alloc_log_file) {
++            fprintf(alloc_log_file, "#mem-trace-alloc-events,v1\n");
++        }
++    }
+     std::string pad(100, '-');
+     printf("%s\n", pad.c_str());
+ 
+@@ -488,6 +500,90 @@
+                                     (void*)p->nodeParams, false, true);
+             }
+         } break;
++        case API_CUDA_cuMemAlloc_v2:
++        case API_CUDA_cuMemAllocPitch_v2:
++        case API_CUDA_cuMemAllocManaged:
++        case API_CUDA_cuMemAllocAsync:
++        case API_CUDA_cuMemAllocAsync_ptsz:
++        case API_CUDA_cuMemAllocFromPoolAsync:
++        case API_CUDA_cuMemAllocFromPoolAsync_ptsz: {
++            if (alloc_log_file && is_exit && *pStatus == CUDA_SUCCESS) {
++                CUdeviceptr ptr = 0;
++                size_t bytes = 0;
++                if (cbid == API_CUDA_cuMemAlloc_v2) {
++                    cuMemAlloc_v2_params* p = (cuMemAlloc_v2_params*)params;
++                    ptr = *p->dptr;
++                    bytes = p->bytesize;
++                } else if (cbid == API_CUDA_cuMemAllocPitch_v2) {
++                    cuMemAllocPitch_v2_params* p =
++                        (cuMemAllocPitch_v2_params*)params;
++                    ptr = *p->dptr;
++                    bytes = *p->pPitch * p->Height;
++                } else if (cbid == API_CUDA_cuMemAllocManaged) {
++                    cuMemAllocManaged_params* p =
++                        (cuMemAllocManaged_params*)params;
++                    ptr = *p->dptr;
++                    bytes = p->bytesize;
++                } else if (cbid == API_CUDA_cuMemAllocFromPoolAsync ||
++                           cbid == API_CUDA_cuMemAllocFromPoolAsync_ptsz) {
++                    cuMemAllocFromPoolAsync_params* p =
++                        (cuMemAllocFromPoolAsync_params*)params;
++                    ptr = *p->dptr;
++                    bytes = p->bytesize;
++                } else {
++                    cuMemAllocAsync_params* p = (cuMemAllocAsync_params*)params;
++                    ptr = *p->dptr;
++                    bytes = p->bytesize;
++                }
++                fprintf(alloc_log_file, "ALLOC,%lu,0x%llx,%zu\n",
++                        global_grid_launch_id, (unsigned long long)ptr, bytes);
++                fflush(alloc_log_file);
++            }
++        } break;
++        case API_CUDA_cuMemHostAlloc:
++        case API_CUDA_cuMemAllocHost_v2: {
++            /* pinned host memory is device-visible under UVA (zero-copy
++               kernel reads) - track it like device allocations */
++            if (alloc_log_file && is_exit && *pStatus == CUDA_SUCCESS) {
++                void* ptr;
++                size_t bytes;
++                if (cbid == API_CUDA_cuMemHostAlloc) {
++                    cuMemHostAlloc_params* p = (cuMemHostAlloc_params*)params;
++                    ptr = *p->pp;
++                    bytes = p->bytesize;
++                } else {
++                    cuMemAllocHost_v2_params* p =
++                        (cuMemAllocHost_v2_params*)params;
++                    ptr = *p->pp;
++                    bytes = p->bytesize;
++                }
++                fprintf(alloc_log_file, "ALLOC,%lu,0x%llx,%zu\n",
++                        global_grid_launch_id, (unsigned long long)(uintptr_t)ptr,
++                        bytes);
++                fflush(alloc_log_file);
++            }
++        } break;
++        case API_CUDA_cuMemFreeHost: {
++            if (alloc_log_file && is_exit && *pStatus == CUDA_SUCCESS) {
++                cuMemFreeHost_params* p = (cuMemFreeHost_params*)params;
++                fprintf(alloc_log_file, "FREE,%lu,0x%llx\n",
++                        global_grid_launch_id,
++                        (unsigned long long)(uintptr_t)p->p);
++                fflush(alloc_log_file);
++            }
++        } break;
++        case API_CUDA_cuMemFree_v2:
++        case API_CUDA_cuMemFreeAsync:
++        case API_CUDA_cuMemFreeAsync_ptsz: {
++            if (alloc_log_file && is_exit && *pStatus == CUDA_SUCCESS) {
++                CUdeviceptr ptr = (cbid == API_CUDA_cuMemFree_v2)
++                                      ? ((cuMemFree_v2_params*)params)->dptr
++                                      : ((cuMemFreeAsync_params*)params)->dptr;
++                fprintf(alloc_log_file, "FREE,%lu,0x%llx\n",
++                        global_grid_launch_id, (unsigned long long)ptr);
++                fflush(alloc_log_file);
++            }
++        } break;
+         default:
+             break;
+     };

@@ -1,0 +1,549 @@
+t_us,ptr,bytes,kind,tag,owner_func,owner_site
+11630821827,0x796f21600000,176,GPUArrayPinned,icp_state,cuvslam::cuda::GPUICPTools::GPUICPTools,/cuvslam/libs/cuda_modules/icp_tools.cpp:23
+11630821832,0x796f1de00000,176,GPUArrayPinnedHost,icp_state:host,cuvslam::cuda::GPUICPTools::GPUICPTools,/cuvslam/libs/cuda_modules/icp_tools.cpp:23
+11630821846,0x796f21600200,176,GPUArrayPinned,icp_state,cuvslam::cuda::GPUICPTools::GPUICPTools,/cuvslam/libs/cuda_modules/icp_tools.cpp:23 (discriminator 2)
+11630821849,0x796f1de00200,176,GPUArrayPinnedHost,icp_state:host,cuvslam::cuda::GPUICPTools::GPUICPTools,/cuvslam/libs/cuda_modules/icp_tools.cpp:23 (discriminator 2)
+11630821858,0x796f21600400,48000,GPUArrayPinned,icp_state,cuvslam::cuda::GPUICPTools::GPUICPTools,/cuvslam/libs/cuda_modules/icp_tools.cpp:23 (discriminator 4)
+11630821861,0x796f1de00400,48000,GPUArrayPinnedHost,icp_state:host,cuvslam::cuda::GPUICPTools::GPUICPTools,/cuvslam/libs/cuda_modules/icp_tools.cpp:23 (discriminator 4)
+11630821872,0x796f2160c000,24000,GPUArrayPinned,icp_state,cuvslam::cuda::GPUICPTools::GPUICPTools,/cuvslam/libs/cuda_modules/icp_tools.cpp:23 (discriminator 6)
+11630821875,0x796f1de0c000,24000,GPUArrayPinnedHost,icp_state:host,cuvslam::cuda::GPUICPTools::GPUICPTools,/cuvslam/libs/cuda_modules/icp_tools.cpp:23 (discriminator 6)
+11630821916,0x796f21611e00,4,GPUArrayPinned,ba_linear_system,cuvslam::sba::SchurComplementBundlerGpu::Impl::Impl,/cuvslam/libs/sba/schur_complement_bundler_gpu.cpp:59
+11630821919,0x796f1de11e00,4,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::sba::SchurComplementBundlerGpu::Impl::Impl,/cuvslam/libs/sba/schur_complement_bundler_gpu.cpp:59
+11630821927,0x796f21612000,4,GPUArrayPinned,ba_linear_system,cuvslam::sba::SchurComplementBundlerGpu::Impl::Impl,/cuvslam/libs/sba/schur_complement_bundler_gpu.cpp:59 (discriminator 2)
+11630821930,0x796f1de12000,4,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::sba::SchurComplementBundlerGpu::Impl::Impl,/cuvslam/libs/sba/schur_complement_bundler_gpu.cpp:59 (discriminator 2)
+11630821940,0x796f21612200,4,GPUArrayPinned,ba_linear_system,cuvslam::sba::SchurComplementBundlerGpu::Impl::Impl,/cuvslam/libs/sba/schur_complement_bundler_gpu.cpp:59 (discriminator 4)
+11630821943,0x796f1de12200,4,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::sba::SchurComplementBundlerGpu::Impl::Impl,/cuvslam/libs/sba/schur_complement_bundler_gpu.cpp:59 (discriminator 4)
+11630821952,0x796f21612400,8,GPUArrayPinned,ba_linear_system,cuvslam::sba::SchurComplementBundlerGpu::Impl::Impl,/cuvslam/libs/sba/schur_complement_bundler_gpu.cpp:59 (discriminator 6)
+11630821954,0x796f1de12400,8,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::sba::SchurComplementBundlerGpu::Impl::Impl,/cuvslam/libs/sba/schur_complement_bundler_gpu.cpp:59 (discriminator 6)
+11630821976,0x796f21612600,108000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUBundleAdjustmentProblem::GPUBundleAdjustmentProblem,/cuvslam/libs/cuda_modules/sba.cpp:415
+11630821979,0x796f1de12600,108000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUBundleAdjustmentProblem::GPUBundleAdjustmentProblem,/cuvslam/libs/cuda_modules/sba.cpp:415
+11630825188,0x796f1e000000,4800000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUBundleAdjustmentProblem::GPUBundleAdjustmentProblem,/cuvslam/libs/cuda_modules/sba.cpp:415 (discriminator 1)
+11630825196,0x796f21800000,4800000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUBundleAdjustmentProblem::GPUBundleAdjustmentProblem,/cuvslam/libs/cuda_modules/sba.cpp:415 (discriminator 1)
+11630825208,0x796f2162cc00,1280,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUBundleAdjustmentProblem::GPUBundleAdjustmentProblem,/cuvslam/libs/cuda_modules/sba.cpp:415 (discriminator 2)
+11630825211,0x796f1de2cc00,1280,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUBundleAdjustmentProblem::GPUBundleAdjustmentProblem,/cuvslam/libs/cuda_modules/sba.cpp:415 (discriminator 2)
+11630825358,0x796f2162d200,2052,SBARig,ba_linear_system,cuvslam::cuda::sba::GPUBundleAdjustmentProblem::GPUBundleAdjustmentProblem,/cuvslam/libs/cuda_modules/sba.cpp:419
+11630827574,0x796f1ea00000,2880000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUModelFunction::GPUModelFunction,/cuvslam/libs/cuda_modules/sba.cpp:28
+11630827579,0x796f1e600000,2880000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUModelFunction::GPUModelFunction,/cuvslam/libs/cuda_modules/sba.cpp:28
+11630831005,0x796f1f400000,5760000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUModelFunction::GPUModelFunction,/cuvslam/libs/cuda_modules/sba.cpp:29
+11630831009,0x796f1ee00000,5760000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUModelFunction::GPUModelFunction,/cuvslam/libs/cuda_modules/sba.cpp:29
+11630831022,0x796f2162dc00,960000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUModelFunction::GPUModelFunction,/cuvslam/libs/cuda_modules/sba.cpp:30
+11630831025,0x796f1de2d200,960000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUModelFunction::GPUModelFunction,/cuvslam/libs/cuda_modules/sba.cpp:30
+11630831034,0x796f21718200,480000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUModelFunction::GPUModelFunction,/cuvslam/libs/cuda_modules/sba.cpp:31
+11630831037,0x796f1df17800,480000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUModelFunction::GPUModelFunction,/cuvslam/libs/cuda_modules/sba.cpp:31
+11630831048,0x796f2178d600,1280,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUParameterUpdate::GPUParameterUpdate,/cuvslam/libs/cuda_modules/sba.cpp:301
+11630831051,0x796f1df8cc00,1280,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUParameterUpdate::GPUParameterUpdate,/cuvslam/libs/cuda_modules/sba.cpp:301
+11630831060,0x796f2178dc00,36000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUParameterUpdate::GPUParameterUpdate,/cuvslam/libs/cuda_modules/sba.cpp:302
+11630831063,0x796f1df8d200,36000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUParameterUpdate::GPUParameterUpdate,/cuvslam/libs/cuda_modules/sba.cpp:302
+11630831074,0x796f21796a00,480,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUParameterUpdate::GPUParameterUpdate,/cuvslam/libs/cuda_modules/sba.cpp:303
+11630831077,0x796f1df96000,480,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUParameterUpdate::GPUParameterUpdate,/cuvslam/libs/cuda_modules/sba.cpp:303
+11630831087,0x796f21796c00,36000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUParameterUpdate::GPUParameterUpdate,/cuvslam/libs/cuda_modules/sba.cpp:304
+11630831092,0x796f1df96200,36000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUParameterUpdate::GPUParameterUpdate,/cuvslam/libs/cuda_modules/sba.cpp:304
+11630831102,0x796f2179fa00,108000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:82
+11630831104,0x796f1df9f000,108000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:82
+11630831114,0x796f217ba000,36000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:83
+11630831117,0x796f1dfb9600,36000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:83
+11630831447,0x796f1fa00000,4362240,GPUImage,ba_linear_system,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:84
+11630831465,0x796f217c2e00,61440,GPUImage,ba_linear_system,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:85
+11630831479,0x796f217d1e00,480,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:86
+11630831482,0x796f1dfc2400,480,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:86
+11630831493,0x796f217d2000,108000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:82
+11630831496,0x796f1dfc2600,108000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:82
+11630831505,0x796f217ec600,36000,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:83
+11630831508,0x796f1dfdcc00,36000,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:83
+11630831594,0x796f20000000,4362240,GPUImage,ba_linear_system,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:84
+11630831642,0x796f21e00000,61440,GPUImage,ba_linear_system,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:85
+11630831658,0x796f217f5400,480,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:86
+11630831661,0x796f1dfe5a00,480,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPULinearSystem::GPULinearSystem,/cuvslam/libs/cuda_modules/sba.cpp:86
+11630831671,0x796f217f5600,4,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUSolver::GPUSolver,/cuvslam/libs/cuda_modules/sba.cpp:591
+11630831674,0x796f1dfe5c00,4,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUSolver::GPUSolver,/cuvslam/libs/cuda_modules/sba.cpp:591
+11630831687,0x796f217f5800,400,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUSolver::GPUSolver,/cuvslam/libs/cuda_modules/sba.cpp:591 (discriminator 1)
+11630831690,0x796f1dfe5e00,400,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUSolver::GPUSolver,/cuvslam/libs/cuda_modules/sba.cpp:591 (discriminator 1)
+11630831700,0x796f21e0f000,57600,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUSolver::GPUSolver,/cuvslam/libs/cuda_modules/sba.cpp:592
+11630831703,0x796f1dfe6000,57600,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUSolver::GPUSolver,/cuvslam/libs/cuda_modules/sba.cpp:592
+11630882077,0x796f217f6e00,4,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUParameterUpdater::GPUParameterUpdater,/cuvslam/libs/cuda_modules/sba.cpp:637 (discriminator 2)
+11630882084,0x796f1dff4200,4,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUParameterUpdater::GPUParameterUpdater,/cuvslam/libs/cuda_modules/sba.cpp:637 (discriminator 2)
+11630882094,0x796f217f7000,12,GPUArrayPinned,ba_linear_system,cuvslam::cuda::sba::GPUParameterUpdater::GPUParameterUpdater,/cuvslam/libs/cuda_modules/sba.cpp:637
+11630882097,0x796f1dff4400,12,GPUArrayPinnedHost,ba_linear_system:host,cuvslam::cuda::sba::GPUParameterUpdater::GPUParameterUpdater,/cuvslam/libs/cuda_modules/sba.cpp:637
+11630882132,0x796f217f7200,264,GPUArrayPinned,feature_selection_scratch,cuvslam::cuda::GPUSelection::GPUSelection,/cuvslam/libs/cuda_modules/selection_v2.h:29
+11630882135,0x796f1dff4600,264,GPUArrayPinnedHost,feature_selection_scratch:host,cuvslam::cuda::GPUSelection::GPUSelection,/cuvslam/libs/cuda_modules/selection_v2.h:29
+11630898326,0x796f21ebd200,800000,GPUArrayPinned,feature_tracks,cuvslam::sof::MonoSOFGPU::MonoSOFGPU,/cuvslam/libs/sof/sof_mono_gpu.cpp:34 (discriminator 12)
+11630898332,0x796f19400000,800000,GPUArrayPinnedHost,feature_tracks:host,cuvslam::sof::MonoSOFGPU::MonoSOFGPU,/cuvslam/libs/sof/sof_mono_gpu.cpp:34 (discriminator 12)
+11630898631,0x796f19600000,800000,GPUArrayPinned,feature_tracks,cuvslam::sof::MonoSOFGPU::MonoSOFGPU,/cuvslam/libs/sof/sof_mono_gpu.cpp:34 (discriminator 14)
+11630898634,0x796f194c3600,800000,GPUArrayPinnedHost,feature_tracks:host,cuvslam::sof::MonoSOFGPU::MonoSOFGPU,/cuvslam/libs/sof/sof_mono_gpu.cpp:34 (discriminator 14)
+11630898667,0x796f196c3600,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630898990,0x796f19800000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630899005,0x796f21f80800,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630899015,0x796f21fda800,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630899023,0x796f21ff8800,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630899038,0x796f217f7400,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630899046,0x796f217fb000,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630899304,0x796f19a00000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630899316,0x796f1992c000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630899326,0x796f19986000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630899334,0x796f197ef600,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630899344,0x796f197f6e00,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630899354,0x796f217fce00,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630899525,0x796f19c00000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630899536,0x796f199a4000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630899546,0x796f19b2c000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630899556,0x796f19b4a000,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630899564,0x796f197faa00,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630899574,0x796f199fe000,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630899584,0x796f19b51800,491520,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:35
+11630899977,0x796f19e00000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630900286,0x796f20e00000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630900297,0x796f19d2c000,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630900307,0x796f19bc9800,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630900315,0x796f19be7800,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630900327,0x796f19bef000,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630900336,0x796f19bf2c00,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630900694,0x796f21000000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630900707,0x796f19d86000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630900716,0x796f19de0000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630900726,0x796f19bf4a00,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630900736,0x796f19bfc200,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630900745,0x796f19dfe000,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630901123,0x796f21200000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630901134,0x796f19f2c000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630901142,0x796f19f86000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630901151,0x796f19fa4000,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630901160,0x796f19fab800,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630901170,0x796f19faf400,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630901180,0x796f20f2c000,491520,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:35
+11630901497,0x796f23c00000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630901549,0x796f23e00000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630901557,0x796f20fa4000,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630901567,0x796f19fb1200,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630901579,0x796f19fcf200,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630901588,0x796f19fd6a00,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630901597,0x796f20ffe000,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630901654,0x796f25c00000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630901664,0x796f2112c000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630901674,0x796f19fda600,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630901686,0x796f19ff8600,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630901697,0x796f21186000,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630901707,0x796f21189c00,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630902017,0x796f25e00000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630902025,0x796f2118ba00,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630902035,0x796f2132c000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630902045,0x796f211e5a00,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630902054,0x796f211ed200,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630902064,0x796f211f0e00,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630902074,0x796f2134a000,491520,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:35
+11630902416,0x796f12000000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630902711,0x796f12200000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630902725,0x796f23d2c000,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630902735,0x796f213c2000,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630902747,0x796f211f2c00,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630902754,0x796f211fa400,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630902764,0x796f211fe000,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630903073,0x796f12400000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630903083,0x796f23d86000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630903091,0x796f213e0000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630903101,0x796f23de0000,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630903110,0x796f23de7800,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630903120,0x796f213fe000,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630903438,0x796f12600000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630903448,0x796f23f2c000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630903458,0x796f23f86000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630903467,0x796f23deb400,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630903477,0x796f23df2c00,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630903486,0x796f23df6800,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630903496,0x796f25d2c000,491520,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:35
+11630903817,0x796f12800000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630903868,0x796f12a00000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630903878,0x796f23fa4000,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630903888,0x796f25da4000,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630903898,0x796f23df8600,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630903907,0x796f25dc2000,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630903917,0x796f23ffe000,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630903972,0x796f12c00000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630903980,0x796f25f2c000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630903992,0x796f25dc5c00,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630904001,0x796f25de3c00,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630904010,0x796f25deb400,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630904019,0x796f25def000,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630904396,0x796f12e00000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630904407,0x796f25f86000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630904416,0x796f25fe0000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630904427,0x796f25df0e00,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630904437,0x796f25df8600,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630904446,0x796f25ffe000,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630904740,0x796f13000000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630905040,0x796f13200000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630905050,0x796f1212c000,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630905060,0x796f12186000,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630905072,0x796f121a4000,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630905081,0x796f25dfc200,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630905091,0x796f121ab800,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630905099,0x796f1232c000,491520,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:35
+11630905413,0x796f13400000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630905743,0x796f13600000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630905755,0x796f123a4000,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630905765,0x796f121ad600,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630905773,0x796f121cb600,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630905783,0x796f121d2e00,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630905793,0x796f123fe000,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630906106,0x796f13800000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630906115,0x796f1252c000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630906125,0x796f121d6a00,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630906134,0x796f121f4a00,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630906144,0x796f121fc200,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630906156,0x796f12586000,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630906208,0x796f13a00000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630906218,0x796f12587e00,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630906228,0x796f125e1e00,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630906239,0x796f1272c000,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630906249,0x796f12733800,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630906257,0x796f12737400,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630906307,0x796f13c00000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630906356,0x796f13e00000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630906367,0x796f12739200,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630906378,0x796f12793200,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630906387,0x796f127b1200,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630906397,0x796f127b8a00,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630906406,0x796f127bc600,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630906414,0x796f1292c000,491520,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:35
+11630906724,0x796f10000000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630907016,0x796f10200000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630907027,0x796f129a4000,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630907036,0x796f127be400,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630907044,0x796f127dc400,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630907054,0x796f127e3c00,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630907063,0x796f129fe000,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630907407,0x796f10400000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630907419,0x796f12b2c000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630907428,0x796f12b86000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630907437,0x796f127e7800,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630907447,0x796f127ef000,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630907456,0x796f127f2c00,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630907756,0x796f10600000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630907766,0x796f12ba4000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630907778,0x796f12d2c000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630907787,0x796f127f4a00,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630907797,0x796f127fc200,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630907806,0x796f12bfe000,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630908127,0x796f10800000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630908424,0x796f10a00000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630908433,0x796f12d4a000,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630908443,0x796f12da4000,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630908452,0x796f12dc2000,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630908461,0x796f12dc9800,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630908471,0x796f12dcd400,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630908480,0x796f12f2c000,491520,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:35
+11630908552,0x796f10c00000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630908608,0x796f10e00000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630908619,0x796f12fa4000,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630908628,0x796f12dcf200,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630908638,0x796f12ded200,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630908645,0x796f12df4a00,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630908655,0x796f12ffe000,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:26
+11630908708,0x796f11000000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630908718,0x796f1312c000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630908726,0x796f13186000,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630908736,0x796f12df8600,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630908745,0x796f131a4000,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630908755,0x796f131a7c00,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:31 (discriminator 2)
+11630909066,0x796f11200000,1228800,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630909078,0x796f1332c000,368640,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630909087,0x796f131a9a00,122880,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630909097,0x796f131c7a00,30720,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630909107,0x796f131cf200,15360,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630909116,0x796f131d2e00,7680,GPUImage,pyramid_levels,cuvslam::cuda::GPUGradientPyramid::prepare_levels,/cuvslam/libs/cuda_modules/gradient_pyramid.cpp:32
+11630909415,0x796f11400000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630909761,0x796f11600000,1228800,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630909770,0x796f13386000,368640,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630909780,0x796f133e0000,122880,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630909789,0x796f131d4c00,30720,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630909799,0x796f131dc400,15360,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630909808,0x796f133fe000,7680,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:32
+11630909818,0x796f1352c000,491520,GPUImage,images_raw,cuvslam::sof::ImageContext::ImageContext,/cuvslam/libs/sof/image_context.cpp:35
+11630909918,0x796f135a4000,160000,GPUArray,keyframe_descriptors,cuvslam::slam::STDescriptorGpuOps::STDescriptorGpuOps,/cuvslam/libs/slam/map/descriptor/st_descriptor_gpu_ops.cpp:31 (discriminator 1)
+11630910927,0x796f11800000,6568000,GPUArray,keyframe_descriptors,cuvslam::slam::STDescriptorGpuOps::STDescriptorGpuOps,/cuvslam/libs/slam/map/descriptor/st_descriptor_gpu_ops.cpp:31 (discriminator 2)
+11630933848,0x796f0e200000,921600,GPUOnlyArray,pyramid_levels,cuvslam::sof::ImageContext::build_gpu_image_pyramid,/cuvslam/libs/sof/image_context.cpp:210
+11631518226,0x796f03400000,1228800,GPUImage,feature_tracks,cuvslam::sof::MonoSOFGPU::finish,/cuvslam/libs/sof/sof_mono_gpu.cpp:180
+11631518519,0x796f03600000,1228800,GPUImage,feature_tracks,cuvslam::sof::MonoSOFGPU::finish,/cuvslam/libs/sof/sof_mono_gpu.cpp:180
+11631518544,0x796f131e0000,57600,GPUArrayPinned,feature_tracks,cuvslam::sof::MonoSOFGPU::finish,/cuvslam/libs/sof/sof_mono_gpu.cpp:180
+11631518547,0x796f19586c00,57600,GPUArrayPinnedHost,feature_tracks:host,cuvslam::sof::MonoSOFGPU::finish,/cuvslam/libs/sof/sof_mono_gpu.cpp:180
+11631518555,0x796f131ee200,30720,GPUImage,feature_tracks,cuvslam::sof::MonoSOFGPU::finish,/cuvslam/libs/sof/sof_mono_gpu.cpp:180
+11631518566,0x796f135cb200,61440,GPUImage,feature_tracks,cuvslam::sof::MonoSOFGPU::finish,/cuvslam/libs/sof/sof_mono_gpu.cpp:180
+11631522334,0x302000000,58111,SelectionSortTemp,feature_tracks,cuvslam::sof::MonoSOFGPU::finish,/cuvslam/libs/sof/sof_mono_gpu.cpp:180
+11633724921,0x796f1372c000,737280,GPUImage,depth_pyramid,cuvslam::sof::ImageContext::build_gpu_depth_pyramid,/cuvslam/libs/sof/image_context.cpp:281
+11635222890,0x796f0e2e1000,921600,GPUOnlyArray,pyramid_levels,cuvslam::sof::ImageContext::build_gpu_image_pyramid,/cuvslam/libs/sof/image_context.cpp:210
+11635364806,0x796f1392c000,737280,GPUImage,depth_pyramid,cuvslam::sof::ImageContext::build_gpu_depth_pyramid,/cuvslam/libs/sof/image_context.cpp:281
+11635723879,0x796f03a00000,921600,GPUOnlyArray,pyramid_levels,cuvslam::sof::ImageContext::build_gpu_image_pyramid,/cuvslam/libs/sof/image_context.cpp:210
+11635726733,0x796f13b2c000,737280,GPUImage,depth_pyramid,cuvslam::sof::ImageContext::build_gpu_depth_pyramid,/cuvslam/libs/sof/image_context.cpp:281
+12279426225,0x796f19600000,,FREE,,,
+12279426226,0x796f194c3600,,FREE,,,
+12279426269,0x796f21ebd200,,FREE,,,
+12279426269,0x796f19400000,,FREE,,,
+12279426288,0x302000000,,FREE,,,
+12279427205,0x796f131e0000,,FREE,,,
+12279427205,0x796f19586c00,,FREE,,,
+12279430410,0x796f135cb200,,FREE,,,
+12279430420,0x796f131ee200,,FREE,,,
+12279430427,0x796f03600000,,FREE,,,
+12279431480,0x796f03400000,,FREE,,,
+12279432844,0x796f217f7200,,FREE,,,
+12279432844,0x796f1dff4600,,FREE,,,
+12279432889,0x796f2160c000,,FREE,,,
+12279432889,0x796f1de0c000,,FREE,,,
+12279432903,0x796f21600400,,FREE,,,
+12279432903,0x796f1de00400,,FREE,,,
+12279432914,0x796f21600200,,FREE,,,
+12279432914,0x796f1de00200,,FREE,,,
+12279432924,0x796f21600000,,FREE,,,
+12279432924,0x796f1de00000,,FREE,,,
+12279432963,0x796f217f7000,,FREE,,,
+12279432963,0x796f1dff4400,,FREE,,,
+12279432975,0x796f217f6e00,,FREE,,,
+12279432975,0x796f1dff4200,,FREE,,,
+12279441044,0x796f21e0f000,,FREE,,,
+12279441045,0x796f1dfe6000,,FREE,,,
+12279441054,0x796f217f5800,,FREE,,,
+12279441054,0x796f1dfe5e00,,FREE,,,
+12279441064,0x796f217f5600,,FREE,,,
+12279441064,0x796f1dfe5c00,,FREE,,,
+12279441073,0x796f217f5400,,FREE,,,
+12279441073,0x796f1dfe5a00,,FREE,,,
+12279441083,0x796f21e00000,,FREE,,,
+12279441088,0x796f20000000,,FREE,,,
+12279442377,0x796f217ec600,,FREE,,,
+12279442377,0x796f1dfdcc00,,FREE,,,
+12279442386,0x796f217d2000,,FREE,,,
+12279442387,0x796f1dfc2600,,FREE,,,
+12279442395,0x796f217d1e00,,FREE,,,
+12279442395,0x796f1dfc2400,,FREE,,,
+12279442405,0x796f217c2e00,,FREE,,,
+12279442410,0x796f1fa00000,,FREE,,,
+12279443692,0x796f217ba000,,FREE,,,
+12279443692,0x796f1dfb9600,,FREE,,,
+12279443701,0x796f2179fa00,,FREE,,,
+12279443701,0x796f1df9f000,,FREE,,,
+12279443710,0x796f21796c00,,FREE,,,
+12279443710,0x796f1df96200,,FREE,,,
+12279443719,0x796f21796a00,,FREE,,,
+12279443719,0x796f1df96000,,FREE,,,
+12279443727,0x796f2178dc00,,FREE,,,
+12279443727,0x796f1df8d200,,FREE,,,
+12279443735,0x796f2178d600,,FREE,,,
+12279443735,0x796f1df8cc00,,FREE,,,
+12279443744,0x796f21718200,,FREE,,,
+12279443744,0x796f1df17800,,FREE,,,
+12279443752,0x796f2162dc00,,FREE,,,
+12279443752,0x796f1de2d200,,FREE,,,
+12279443761,0x796f1f400000,,FREE,,,
+12279443761,0x796f1ee00000,,FREE,,,
+12279449240,0x796f1ea00000,,FREE,,,
+12279449240,0x796f1e600000,,FREE,,,
+12279453357,0x796f2162d200,,FREE,,,
+12279453364,0x796f2162cc00,,FREE,,,
+12279453364,0x796f1de2cc00,,FREE,,,
+12279453374,0x796f1e000000,,FREE,,,
+12279453374,0x796f21800000,,FREE,,,
+12279458337,0x796f21612600,,FREE,,,
+12279458337,0x796f1de12600,,FREE,,,
+12279458352,0x796f21612400,,FREE,,,
+12279458352,0x796f1de12400,,FREE,,,
+12279458360,0x796f21612200,,FREE,,,
+12279458360,0x796f1de12200,,FREE,,,
+12279458368,0x796f21612000,,FREE,,,
+12279458368,0x796f1de12000,,FREE,,,
+12279458376,0x796f21611e00,,FREE,,,
+12279458376,0x796f1de11e00,,FREE,,,
+12279459859,0x796f1232c000,,FREE,,,
+12279459869,0x796f121ab800,,FREE,,,
+12279459874,0x796f25dfc200,,FREE,,,
+12279459882,0x796f121a4000,,FREE,,,
+12279459888,0x796f12186000,,FREE,,,
+12279459894,0x796f1212c000,,FREE,,,
+12279459900,0x796f13200000,,FREE,,,
+12279459907,0x796f13000000,,FREE,,,
+12279459914,0x796f25ffe000,,FREE,,,
+12279459920,0x796f25df8600,,FREE,,,
+12279459926,0x796f25df0e00,,FREE,,,
+12279459930,0x796f25fe0000,,FREE,,,
+12279459936,0x796f25f86000,,FREE,,,
+12279459942,0x796f12e00000,,FREE,,,
+12279459948,0x796f25def000,,FREE,,,
+12279459953,0x796f25deb400,,FREE,,,
+12279459958,0x796f25de3c00,,FREE,,,
+12279459964,0x796f25dc5c00,,FREE,,,
+12279459969,0x796f25f2c000,,FREE,,,
+12279459975,0x796f12c00000,,FREE,,,
+12279459982,0x796f23ffe000,,FREE,,,
+12279459988,0x796f25dc2000,,FREE,,,
+12279459993,0x796f23df8600,,FREE,,,
+12279459999,0x796f25da4000,,FREE,,,
+12279460004,0x796f23fa4000,,FREE,,,
+12279460009,0x796f12a00000,,FREE,,,
+12279460014,0x796f0e200000,,FREE,,,
+12279460020,0x796f1372c000,,FREE,,,
+12279460027,0x796f12800000,,FREE,,,
+12279460034,0x796f12f2c000,,FREE,,,
+12279460040,0x796f12dcd400,,FREE,,,
+12279460045,0x796f12dc9800,,FREE,,,
+12279460050,0x796f12dc2000,,FREE,,,
+12279460055,0x796f12da4000,,FREE,,,
+12279460061,0x796f12d4a000,,FREE,,,
+12279460066,0x796f10a00000,,FREE,,,
+12279461227,0x796f10800000,,FREE,,,
+12279462550,0x796f12bfe000,,FREE,,,
+12279462556,0x796f127fc200,,FREE,,,
+12279462562,0x796f127f4a00,,FREE,,,
+12279462567,0x796f12d2c000,,FREE,,,
+12279462572,0x796f12ba4000,,FREE,,,
+12279462577,0x796f10600000,,FREE,,,
+12279463900,0x796f127f2c00,,FREE,,,
+12279463905,0x796f127ef000,,FREE,,,
+12279463909,0x796f127e7800,,FREE,,,
+12279463912,0x796f12b86000,,FREE,,,
+12279463916,0x796f12b2c000,,FREE,,,
+12279464925,0x796f10400000,,FREE,,,
+12279466021,0x796f129fe000,,FREE,,,
+12279466026,0x796f127e3c00,,FREE,,,
+12279466030,0x796f127dc400,,FREE,,,
+12279466034,0x796f127be400,,FREE,,,
+12279466039,0x796f129a4000,,FREE,,,
+12279466044,0x796f10200000,,FREE,,,
+12279467024,0x796f03a00000,,FREE,,,
+12279468036,0x796f13b2c000,,FREE,,,
+12279468042,0x796f10000000,,FREE,,,
+12279469060,0x796f1352c000,,FREE,,,
+12279469065,0x796f133fe000,,FREE,,,
+12279469069,0x796f131dc400,,FREE,,,
+12279469074,0x796f131d4c00,,FREE,,,
+12279469078,0x796f133e0000,,FREE,,,
+12279469083,0x796f13386000,,FREE,,,
+12279469096,0x796f11600000,,FREE,,,
+12279470121,0x796f11400000,,FREE,,,
+12279471210,0x796f131d2e00,,FREE,,,
+12279471215,0x796f131cf200,,FREE,,,
+12279471219,0x796f131c7a00,,FREE,,,
+12279471222,0x796f131a9a00,,FREE,,,
+12279471227,0x796f1332c000,,FREE,,,
+12279472058,0x796f11200000,,FREE,,,
+12279472748,0x796f131a7c00,,FREE,,,
+12279472752,0x796f131a4000,,FREE,,,
+12279472757,0x796f12df8600,,FREE,,,
+12279472761,0x796f13186000,,FREE,,,
+12279472764,0x796f1312c000,,FREE,,,
+12279473788,0x796f11000000,,FREE,,,
+12279474861,0x796f12ffe000,,FREE,,,
+12279474865,0x796f12df4a00,,FREE,,,
+12279474869,0x796f12ded200,,FREE,,,
+12279474873,0x796f12dcf200,,FREE,,,
+12279475835,0x796f12fa4000,,FREE,,,
+12279476855,0x796f10e00000,,FREE,,,
+12279477856,0x796f10c00000,,FREE,,,
+12279478862,0x796f19b51800,,FREE,,,
+12279478868,0x796f199fe000,,FREE,,,
+12279478874,0x796f197faa00,,FREE,,,
+12279478879,0x796f19b4a000,,FREE,,,
+12279478884,0x796f19b2c000,,FREE,,,
+12279478889,0x796f199a4000,,FREE,,,
+12279478894,0x796f19c00000,,FREE,,,
+12279478899,0x796f217fce00,,FREE,,,
+12279478905,0x796f197f6e00,,FREE,,,
+12279478910,0x796f197ef600,,FREE,,,
+12279478915,0x796f19986000,,FREE,,,
+12279478919,0x796f1992c000,,FREE,,,
+12279478924,0x796f19a00000,,FREE,,,
+12279478929,0x796f217fb000,,FREE,,,
+12279478934,0x796f217f7400,,FREE,,,
+12279479952,0x796f21ff8800,,FREE,,,
+12279479956,0x796f21fda800,,FREE,,,
+12279479961,0x796f21f80800,,FREE,,,
+12279480995,0x796f19800000,,FREE,,,
+12279482008,0x796f196c3600,,FREE,,,
+12279483017,0x796f20f2c000,,FREE,,,
+12279483022,0x796f19faf400,,FREE,,,
+12279483027,0x796f19fab800,,FREE,,,
+12279483031,0x796f19fa4000,,FREE,,,
+12279483036,0x796f19f86000,,FREE,,,
+12279483039,0x796f19f2c000,,FREE,,,
+12279483044,0x796f21200000,,FREE,,,
+12279483049,0x796f19dfe000,,FREE,,,
+12279483053,0x796f19bfc200,,FREE,,,
+12279483058,0x796f19bf4a00,,FREE,,,
+12279483062,0x796f19de0000,,FREE,,,
+12279483066,0x796f19d86000,,FREE,,,
+12279483070,0x796f21000000,,FREE,,,
+12279483075,0x796f19bf2c00,,FREE,,,
+12279483079,0x796f19bef000,,FREE,,,
+12279483083,0x796f19be7800,,FREE,,,
+12279483087,0x796f19bc9800,,FREE,,,
+12279483999,0x796f19d2c000,,FREE,,,
+12279485055,0x796f20e00000,,FREE,,,
+12279485060,0x796f19e00000,,FREE,,,
+12279485065,0x796f2134a000,,FREE,,,
+12279485069,0x796f211f0e00,,FREE,,,
+12279485073,0x796f211ed200,,FREE,,,
+12279485077,0x796f211e5a00,,FREE,,,
+12279485082,0x796f2132c000,,FREE,,,
+12279485086,0x796f2118ba00,,FREE,,,
+12279485091,0x796f25e00000,,FREE,,,
+12279486270,0x796f21189c00,,FREE,,,
+12279486275,0x796f21186000,,FREE,,,
+12279486279,0x796f19ff8600,,FREE,,,
+12279486283,0x796f19fda600,,FREE,,,
+12279486287,0x796f2112c000,,FREE,,,
+12279486291,0x796f25c00000,,FREE,,,
+12279486295,0x796f20ffe000,,FREE,,,
+12279486299,0x796f19fd6a00,,FREE,,,
+12279486302,0x796f19fcf200,,FREE,,,
+12279486306,0x796f19fb1200,,FREE,,,
+12279487322,0x796f20fa4000,,FREE,,,
+12279488289,0x796f23e00000,,FREE,,,
+12279488293,0x796f23c00000,,FREE,,,
+12279488298,0x796f25d2c000,,FREE,,,
+12279488690,0x796f23df6800,,FREE,,,
+12279488694,0x796f23df2c00,,FREE,,,
+12279488698,0x796f23deb400,,FREE,,,
+12279488702,0x796f23f86000,,FREE,,,
+12279488706,0x796f23f2c000,,FREE,,,
+12279489323,0x796f12600000,,FREE,,,
+12279489328,0x796f213fe000,,FREE,,,
+12279489332,0x796f23de7800,,FREE,,,
+12279489336,0x796f23de0000,,FREE,,,
+12279489339,0x796f213e0000,,FREE,,,
+12279489343,0x796f23d86000,,FREE,,,
+12279489347,0x796f12400000,,FREE,,,
+12279489352,0x796f211fe000,,FREE,,,
+12279489356,0x796f211fa400,,FREE,,,
+12279489359,0x796f211f2c00,,FREE,,,
+12279490344,0x796f213c2000,,FREE,,,
+12279491381,0x796f23d2c000,,FREE,,,
+12279492315,0x796f12200000,,FREE,,,
+12279492320,0x796f12000000,,FREE,,,
+12279492334,0x796f1292c000,,FREE,,,
+12279493331,0x796f127bc600,,FREE,,,
+12279493336,0x796f127b8a00,,FREE,,,
+12279493340,0x796f127b1200,,FREE,,,
+12279493344,0x796f12793200,,FREE,,,
+12279493348,0x796f12739200,,FREE,,,
+12279493351,0x796f13e00000,,FREE,,,
+12279494385,0x796f13c00000,,FREE,,,
+12279495474,0x796f12737400,,FREE,,,
+12279495478,0x796f12733800,,FREE,,,
+12279495482,0x796f1272c000,,FREE,,,
+12279496471,0x796f125e1e00,,FREE,,,
+12279496476,0x796f12587e00,,FREE,,,
+12279496479,0x796f13a00000,,FREE,,,
+12279497479,0x796f12586000,,FREE,,,
+12279497483,0x796f121fc200,,FREE,,,
+12279497487,0x796f121f4a00,,FREE,,,
+12279497491,0x796f121d6a00,,FREE,,,
+12279497495,0x796f1252c000,,FREE,,,
+12279498446,0x796f13800000,,FREE,,,
+12279498450,0x796f123fe000,,FREE,,,
+12279498454,0x796f121d2e00,,FREE,,,
+12279498458,0x796f121cb600,,FREE,,,
+12279498461,0x796f121ad600,,FREE,,,
+12279499389,0x796f123a4000,,FREE,,,
+12279500378,0x796f13600000,,FREE,,,
+12279501342,0x796f0e2e1000,,FREE,,,
+12279502359,0x796f1392c000,,FREE,,,
+12279503356,0x796f13400000,,FREE,,,
+12279503856,0x796f11800000,,FREE,,,
+12279504564,0x796f135a4000,,FREE,,,

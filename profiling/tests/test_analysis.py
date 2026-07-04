@@ -289,5 +289,121 @@ class TestLocality(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+class TestAttribution(unittest.TestCase):
+    def test_journal_parse_and_tagging(self):
+        from analysis import attribution
+        tmp = tempfile.mkdtemp()
+        try:
+            j = os.path.join(tmp, "journal.csv")
+            with open(j, "w") as fh:
+                fh.write("#cuvslam-alloc-log,v1\n"
+                         "M,7f0000000000-7f0000100000 r-xp 00020000 08:01 1 /lib/libcuvslam.so\n"
+                         "A,100,0x10000,4096,GPUOnlyArray,0x7f0000030000\n"
+                         "F,200,0x10000\n")
+            maps, allocs, frees = attribution.parse_journal(j)
+            self.assertEqual(len(maps), 1)
+            self.assertEqual(allocs[0]["bytes"], 4096)
+            self.assertEqual(frees[0]["ptr"], 0x10000)
+            mod, off = attribution._rebase(0x7f0000030000, maps)
+            self.assertEqual((mod, off), ("/lib/libcuvslam.so", 0x50000))
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_owner_skips_plumbing(self):
+        from analysis import attribution
+        resolved = {
+            0x1: [("cuvslam::cuda::GPUOnlyArray<float>::GPUOnlyArray(unsigned long)",
+                   "/cuvslam/libs/cuda_modules/cuda_helper.h:196")],
+            0x2: [("std::make_unique<Foo>()", "/usr/include/c++/11/memory:1")],
+            0x3: [("cuvslam::sba::SchurComplementBundlerGpu::Impl::Impl()",
+                   "/cuvslam/libs/sba/schur_complement_bundler_gpu.cpp:59")],
+        }
+        func, site = attribution.owner_of([0x1, 0x2, 0x3], resolved)
+        self.assertIn("SchurComplement", func)
+        self.assertEqual(attribution.tag_of(func, site), "ba_linear_system")
+
+    def test_join_lifetime_and_unmapped(self):
+        from analysis import attribution
+        tmp = tempfile.mkdtemp()
+        try:
+            # buffer at 0x10000 is keyframe_descriptors during launch 0,
+            # freed and re-allocated as ba_linear_system before launch 1;
+            # 0x90000 is never allocated -> unmapped
+            table = os.path.join(tmp, "alloc_table.csv")
+            with open(table, "w") as fh:
+                fh.write("t_us,ptr,bytes,kind,tag,owner_func,owner_site\n"
+                         "1,0x10000,4096,GPUArray,keyframe_descriptors,f,s\n"
+                         "2,0x10000,,FREE,,,\n"
+                         "3,0x10000,4096,GPUImage,ba_linear_system,f,s\n")
+            sidecar = os.path.join(tmp, "sidecar.csv")
+            with open(sidecar, "w") as fh:
+                fh.write("#mem-trace-alloc-events,v1\n"
+                         "ALLOC,0,0x10000,4096\n"
+                         "FREE,1,0x10000\n"
+                         "ALLOC,1,0x10000,4096\n")
+            trace = os.path.join(tmp, "trace.txt")
+            launch = ("MEMTRACE: CTX 0x1 - LAUNCH - Kernel pc 0x1 - Kernel name "
+                      "cuvslam::cuda::kern{n}(float*) - grid launch id {g} - grid size "
+                      "1,1,1 - block size 32,1,1 - nregs 1 - shmem 0 - cuda stream id 1")
+            acc = ("MEMTRACE: CTX 0x1 - grid_launch_id {g} - CTA 0,0,0 - warp 0 "
+                   "- LDG.E - {a} " + "0x0 " * 31)
+            with open(trace, "w") as fh:
+                fh.write("\n".join([
+                    launch.format(n="A", g=0), acc.format(g=0, a=hex(0x10040)),
+                    acc.format(g=0, a=hex(0x90000)),
+                    launch.format(n="B", g=1), acc.format(g=1, a=hex(0x10040)),
+                ]) + "\n")
+            out = os.path.join(tmp, "out")
+            attribution.main(["join", trace, table, sidecar, "--out", out])
+            rows = {}
+            with open(os.path.join(out, "attribution.csv")) as fh:
+                next(fh)
+                for line in fh:
+                    k, tag, *_rest = line.strip().split(",")
+                    rows[(k, tag)] = _rest
+            self.assertIn(("kernA", "keyframe_descriptors"), rows)
+            self.assertIn(("kernA", "unmapped"), rows)
+            self.assertIn(("kernB", "ba_linear_system"), rows)
+            self.assertNotIn(("kernB", "keyframe_descriptors"), rows)
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_join_memory_space_buckets(self):
+        # LDS/STS -> shared_onchip, LDL/STL -> local_spill, never the live set
+        from analysis import attribution
+        tmp = tempfile.mkdtemp()
+        try:
+            table = os.path.join(tmp, "alloc_table.csv")
+            with open(table, "w") as fh:
+                fh.write("t_us,ptr,bytes,kind,tag,owner_func,owner_site\n"
+                         "1,0x0,4096,GPUArray,icp_state,f,s\n")
+            sidecar = os.path.join(tmp, "sidecar.csv")
+            with open(sidecar, "w") as fh:
+                fh.write("ALLOC,0,0x0,4096\n")
+            trace = os.path.join(tmp, "trace.txt")
+            launch = ("MEMTRACE: CTX 0x1 - LAUNCH - Kernel pc 0x1 - Kernel name "
+                      "cuvslam::cuda::kernS(float*) - grid launch id 0 - grid size "
+                      "1,1,1 - block size 32,1,1 - nregs 1 - shmem 0 - cuda stream id 1")
+            acc = ("MEMTRACE: CTX 0x1 - grid_launch_id 0 - CTA 0,0,0 - warp 0 "
+                   "- {op} - {a} " + "0x0 " * 31)
+            with open(trace, "w") as fh:
+                fh.write("\n".join([
+                    launch,
+                    acc.format(op="LDS", a="0x100"),      # in-range of the alloc,
+                    acc.format(op="STL.128", a="0x200"),  # but space wins
+                    acc.format(op="LDG.E", a="0x300"),
+                ]) + "\n")
+            out = os.path.join(tmp, "out")
+            attribution.main(["join", trace, table, sidecar, "--out", out])
+            tags = set()
+            with open(os.path.join(out, "attribution.csv")) as fh:
+                next(fh)
+                for line in fh:
+                    tags.add(line.split(",")[1])
+            self.assertEqual(tags, {"shared_onchip", "local_spill", "icp_state"})
+        finally:
+            shutil.rmtree(tmp)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

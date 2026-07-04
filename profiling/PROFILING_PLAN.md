@@ -195,7 +195,7 @@ the persistence taxonomy, the DAMOV classification goal) is retained.
 | M4.75 | **GPU-DAMOV classification** | `analysis/classify.py`: NCU-proxy bottleneck classes (Adapting_DAMOV_to_GPU §6, + emergent G7) → per-kernel PiM/ISP affinity + stage synthesis; reproducible from committed CSVs with no dataset/GPU | ✅ |
 | M6 | Workstation re-run | RTX 2000 Ada, **locked clocks**, ×5 repeats (CoV 0.14%), measured ceilings; 3-workload matrix + `compare.py`/`cluster.py` generalization | ✅ |
 | M5 | Data-movement track | NVBit/locality/Accel-Sim on a ≤575-driver host — refines M4.75 with reuse distance, divergence, sim deltas | 🟡 unblocking — `analysis/locality.py` + mem_trace launch-window patch committed; workstation downgrade to 575/CUDA-12 in progress |
-| M7 | Source-level attribution | TaggedAllocator + NVTX from-source build → data-structure-level claims (onboarding §11.2) | ⏳ next |
+| M7 | Source-level attribution | TaggedAllocator + NVTX from-source build → data-structure-level claims (onboarding §11.2) | ✅ done (`reports/2026-07-04_attribution/`) |
 
 ---
 
