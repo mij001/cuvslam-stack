@@ -28,8 +28,10 @@ ISCA/HPCA architecture paper built on it.
 
 ## 2. Current stage
 
-**Slice 2 complete + publishability-hardened + production matrix done (both
-🔴 blockers closed); Slice 3 (data-movement track) unblock in progress.**
+**ISPASS/IISWC-grade characterization essentially complete**: full-scale
+27-sequence campaign done, Slice-3 locality measured, taxonomy clustering-
+validated, all original blockers closed. Next: data-structure attribution
+(TaggedAllocator) → then the PiM/ISP substrate design for the architecture paper.**
 
 | Slice | What | State |
 |---|---|---|
@@ -38,9 +40,11 @@ ISCA/HPCA architecture paper built on it.
 | Slice 2 | Headless analysis layer → DAG, screen, roofline, bandwidth, **GPU-DAMOV classification**, report | ✅ done |
 | Rigor | Measured ceilings, ±25% sensitivity, ×5/×3 variance, clock-warmup protocol, cache bracket, transfers | ✅ done |
 | Multi-machine | RTX 2000 Ada production pass, **locked clocks** — 5-repeat CoV 0.14% (vs 49.6% unlocked laptop); ceilings 205.0 GB/s ±0.1 / 5445 GF ±3 | ✅ done |
-| Multi-dataset | {TUM, KITTI 06, TUM-VI} × {odometry, SLAM} on Ada; TUM↔KITTI agreement 97% tw; **L2 crossover measured** (`reports/2026-07-03_matrix_synthesis/`) | ✅ done |
-| Slice 3 | NVBit → locality → Accel-Sim data-movement track | 🟢 **UNBLOCKED** (2026-07-03 night): workstation on 575.64.05 / CUDA 12.9 / linux-lts 6.12.39; cu12 wheel rebuilt from source; mem_trace built (container recipe); capability gate PASSES; first traces validated (489k records, footprints match first principles); overnight trace+locality program running |
-| Source-level | TaggedAllocator + NVTX (data-structure attribution) | ⬜ not started (needs from-source build) |
+| Multi-dataset | **27-sequence campaign** (KITTI 00-10, EuRoC ×11, TUM fr3 ×4, TUM-VI), odom+SLAM, 0 failures; modal consistency 91% (`reports/2026-07-04_campaign/`) | ✅ done |
+| Slice 3 locality | NVBit mem_trace → `analysis/locality.py`: measured reuse distance overturned the counter proxy on st_track (`reports/2026-07-04_slice3_locality/`) | ✅ done |
+| Taxonomy validation | pooled k-means over 27 sequences prefers k=7–8 = the G-classes (purity 0.68) | ✅ done |
+| Source-level | TaggedAllocator + NVTX (data-structure attribution) — cu12 source tree in hand on the workstation | ⬜ **next big upgrade** |
+| Slice 3 sim | Accel-Sim NDP config + AccelWattch energy (report deltas) | ⬜ |
 | Phase 4 | PiM/ISP substrate design + simulated eval | ⬜ future |
 
 ---
@@ -173,16 +177,18 @@ symlinked into `${CUVSLAM_DATASETS}` as `kitti_color`, `tumvi`.
 | # | Milestone | Unblocks | Status |
 |---|---|---|---|
 | 1 | Workstation locked-clock pass | publishable absolute numbers | ✅ done |
-| 2 | 3-dataset matrix + `analysis/compare.py` cross-dataset agreement | generalization claim | ✅ done |
-| 5 | k-means over metric vectors (`analysis/cluster.py`) | taxonomy *validated* not asserted | 🟡 preliminary (k=7 preferred, single-dataset; pooled run pending) |
-| 3 | Slice-3 (NVBit locality + Accel-Sim) | reuse-distance, divergence, sim deltas | 🟡 unblocking — analyzer done, driver downgrade in progress |
-| 4 | TaggedAllocator + NVTX from-source build | **data-structure-level** claims | ⬜ next big scientific upgrade |
-| 6 | PiM/ISP substrate model + AccelWattch energy | the architecture paper | ⬜ |
+| 2 | Multi-dataset matrix + agreement (`compare.py`/`campaign.py`) | generalization claim | ✅ done (27 seq) |
+| 5 | k-means over metric vectors (`cluster.py`/`campaign.py`) | taxonomy *validated* not asserted | ✅ done (pooled, k=7–8) |
+| 3a | Slice-3 NVBit locality (`analysis/locality.py`) | reuse-distance, divergence, proxy correction | ✅ done |
+| 4 | TaggedAllocator + NVTX from-source build | **data-structure-level** claims | ⬜ next big scientific upgrade (cu12 source in hand) |
+| 3b | Accel-Sim NDP config + AccelWattch energy | sim deltas, joules | ⬜ |
+| 6 | PiM/ISP substrate design + delta eval | the architecture paper | ⬜ |
 
-**Venue framing:** (1)+(2) done → **ISPASS/IISWC characterization paper is
-submittable now**. +(3)+(4) → data-structure-level motivation. +(6) →
-MICRO/ASPLOS/ISCA/HPCA. See `PUBLISHABILITY.md` for the full reviewer-issue
-register.
+**Venue framing:** (1)+(2)+(3a)+(5) all done → **the ISPASS/IISWC
+characterization paper is written-from-data now** (full-scale matrix, measured
+reuse distance that corrected a proxy, clustering-validated taxonomy). +(4) →
+data-structure-level motivation. +(3b)+(6) → MICRO/ASPLOS/ISCA/HPCA. See
+`PUBLISHABILITY.md` for the full reviewer-issue register.
 
 ---
 
