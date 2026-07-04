@@ -21,10 +21,15 @@ produces, per kernel:
     or hop randomly?
 
 Granularity follows the GPU adaptation study §4: per-warp issue order within a
-launch, 32 B sectors, global memory only (mem_trace already excludes shared/
-local). Reuse distance uses the classic last-access + Fenwick-tree algorithm
-(O(log n)/access); accesses beyond --max-accesses per launch are skipped with
-a note (bounded memory/time on TB-scale traces).
+launch, 32 B sectors. mem_trace records EVERY memory space; locality claims are
+about DRAM-visible data, so --spaces global (the default) keeps only global-
+space ops (LDG/STG/atomics/generic) and drops shared (LDS/STS, on-chip) and
+local (LDL/STL, the per-thread spill window whose interleaved VAs would pollute
+footprints and reuse CDFs). --spaces all reproduces the pre-correction
+behaviour of the 2026-07-04 Slice-3 report. Reuse distance uses the classic
+last-access + Fenwick-tree algorithm (O(log n)/access); accesses beyond
+--max-accesses per launch are skipped with a note (bounded memory/time on
+TB-scale traces).
 
 Stdlib only. zstd files are read via the system `zstdcat`.
 
@@ -130,7 +135,8 @@ def open_trace(path):
     return open(path, errors="replace")
 
 
-def analyze(path, kernel_rx=None, max_launches=None, max_accesses=5_000_000):
+def analyze(path, kernel_rx=None, max_launches=None, max_accesses=5_000_000,
+            spaces="global"):
     launch_names: dict[int, str] = {}
     kernels: dict[str, KernelStats] = {}
     state: dict[int, LaunchState] = {}
@@ -146,6 +152,16 @@ def analyze(path, kernel_rx=None, max_launches=None, max_accesses=5_000_000):
         m = _ACCESS.search(line)
         if not m:
             continue
+        if spaces != "all":
+            op = m.group(2)
+            if op.startswith(("LDS", "STS", "ATOMS")):
+                space = "shared"
+            elif op.startswith(("LDL", "STL")):
+                space = "local"
+            else:
+                space = "global"
+            if space != spaces:
+                continue
         gid = int(m.group(1))
         if gid in skipped_gids:
             continue
@@ -249,10 +265,15 @@ def main(argv=None):
                     help="analyze at most N launches per kernel")
     ap.add_argument("--max-accesses", type=int, default=5_000_000,
                     help="reuse-distance cap per launch (footprint stays exact)")
+    ap.add_argument("--spaces", default="global",
+                    choices=["global", "shared", "local", "all"],
+                    help="memory space to analyze (default global; 'all' "
+                         "reproduces the pre-correction 2026-07-04 behaviour)")
     ap.add_argument("--out", default=".")
     args = ap.parse_args(argv)
     rx = re.compile(args.kernel) if args.kernel else None
-    kernels = analyze(args.trace, rx, args.max_launches, args.max_accesses)
+    kernels = analyze(args.trace, rx, args.max_launches, args.max_accesses,
+                      args.spaces)
     for p in emit(kernels, args.out):
         print(f"[✓] {p}")
     for ks in kernels.values():

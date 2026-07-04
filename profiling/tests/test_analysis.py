@@ -289,6 +289,30 @@ class TestLocality(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+class TestLocalitySpaces(unittest.TestCase):
+    def test_space_filter(self):
+        # default (global) must drop LDS/LDL records; --spaces all keeps them
+        from analysis import locality
+        launch = ("MEMTRACE: CTX 0x1 - LAUNCH - Kernel pc 0x1 - Kernel name "
+                  "cuvslam::cuda::kernA(float*) - grid launch id 0 - grid size "
+                  "1,1,1 - block size 32,1,1 - nregs 1 - shmem 0 - cuda stream id 1\n")
+        acc = ("MEMTRACE: CTX 0x1 - grid_launch_id 0 - CTA 0,0,0 - warp 0 "
+               "- {op} - {a} " + "0x0 " * 31 + "\n")
+        txt = launch + acc.format(op="LDG.E", a="0x10000") \
+                     + acc.format(op="LDS", a="0x100") \
+                     + acc.format(op="STL", a="0x200")
+        tmp = tempfile.mkdtemp()
+        try:
+            p = os.path.join(tmp, "t.txt")
+            open(p, "w").write(txt)
+            g = locality.analyze(p)["kernA"]
+            self.assertEqual(g.n_accesses, 1)          # LDG only
+            a = locality.analyze(p, spaces="all")["kernA"]
+            self.assertEqual(a.n_accesses, 3)
+        finally:
+            shutil.rmtree(tmp)
+
+
 class TestAttribution(unittest.TestCase):
     def test_journal_parse_and_tagging(self):
         from analysis import attribution
@@ -401,6 +425,39 @@ class TestAttribution(unittest.TestCase):
             self.assertEqual(row[0], "st_kernel")
             self.assertEqual(row[1], "keyframe_descriptors")
             self.assertEqual(int(row[2]), 1000)
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_attribution_campaign_synthesis(self):
+        # two sequences; kernA's biggest-coverage join must win the merge and
+        # the modal top-global-tag must aggregate across sequences
+        from analysis import attribution_campaign
+        tmp = tempfile.mkdtemp()
+        try:
+            def put(seq, join, rows):
+                d = os.path.join(tmp, seq, join)
+                os.makedirs(d, exist_ok=True)
+                with open(os.path.join(d, "attribution.csv"), "w") as fh:
+                    fh.write("kernel,tag,warp_accesses,sectors,bytes,pct_kernel_traffic\n")
+                    for r in rows:
+                        fh.write(",".join(map(str, r)) + "\n")
+            put("seqX", "join_steady_state",
+                [["kernA", "ba_linear_system", 100, 400, 12800, 80.0],
+                 ["kernA", "shared_onchip", 25, 100, 3200, 20.0]])
+            put("seqX", "join_gapfill_1",     # more accesses -> wins the merge
+                [["kernA", "keyframe_descriptors", 900, 3600, 115200, 90.0],
+                 ["kernA", "shared_onchip", 100, 400, 12800, 10.0]])
+            put("seqY", "join_steady_state",
+                [["kernA", "keyframe_descriptors", 50, 200, 6400, 100.0]])
+            out = os.path.join(tmp, "out")
+            attribution_campaign.main([tmp, "--out", out])
+            with open(os.path.join(out, "attribution_consistency.csv")) as fh:
+                rows = {r["kernel"]: r for r in
+                        __import__("csv").DictReader(fh)}
+            r = rows["kernA"]
+            self.assertEqual(r["modal_top_global_tag"], "keyframe_descriptors")
+            self.assertEqual(float(r["agreement_pct"]), 100.0)
+            self.assertEqual(int(r["n_sequences"]), 2)
         finally:
             shutil.rmtree(tmp)
 
