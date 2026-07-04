@@ -42,30 +42,32 @@ for D in "$OUT"/*/; do
         log "[$NAME] no gaps"
         continue
     fi
-    i=0
     while read -r B E COVER; do
-        i=$((i+1))
-        TRACE="$D/pass2c_${i}_trace.txt.zst"
+        # outputs keyed by the window itself: a rerun that plans DIFFERENT
+        # windows (launch-id drift between runs moves sparse kernels) captures
+        # them instead of matching a stale pass2c_<n> filename and skipping
+        W="w${B}_${E}"
+        TRACE="$D/pass2c_${W}_trace.txt.zst"
         if [ ! -s "$TRACE" ]; then
-            log "[$NAME] gapfill window $i [$B,$E) covers $COVER kernel(s)"
-            progress "$NAME gapfill $i [$B,$E)"
+            log "[$NAME] gapfill window [$B,$E) covers $COVER kernel(s)"
+            progress "$NAME gapfill [$B,$E)"
             timeout "$STEP_TIMEOUT" env \
                 LAUNCH_BEGIN=$B LAUNCH_END=$E \
                 CUDA_INJECTION64_PATH=$TOOL \
-                MEM_TRACE_ALLOC_LOG="$D/pass2c_${i}_nvbit_allocs.csv" \
-                CUVSLAM_ALLOC_LOG="$D/pass2c_${i}_cuvslam_allocs.csv" \
-                $PY run.py "$D/config.toml" 2>"$D/pass2c_${i}_stderr.txt" \
+                MEM_TRACE_ALLOC_LOG="$D/pass2c_${W}_nvbit_allocs.csv" \
+                CUVSLAM_ALLOC_LOG="$D/pass2c_${W}_cuvslam_allocs.csv" \
+                $PY run.py "$D/config.toml" 2>"$D/pass2c_${W}_stderr.txt" \
                 | zstd -3 -T0 -f -o "$TRACE"
-            log "[$NAME] gapfill $i done ($(du -h "$TRACE" | cut -f1))"
+            log "[$NAME] gapfill [$B,$E) done ($(du -h "$TRACE" | cut -f1))"
         fi
-        if [ ! -s "$D/join_gapfill_${i}/attribution.csv" ]; then
+        if [ ! -s "$D/join_gapfill_${W}/attribution.csv" ]; then
             (cd profiling
-             python3 -m analysis.attribution resolve "$D/pass2c_${i}_cuvslam_allocs.csv" \
-                 --out "$D/pass2c_${i}_alloc_table.csv" >> "$LOG" 2>&1
+             python3 -m analysis.attribution resolve "$D/pass2c_${W}_cuvslam_allocs.csv" \
+                 --out "$D/pass2c_${W}_alloc_table.csv" >> "$LOG" 2>&1
              python3 -m analysis.attribution join "$TRACE" \
-                 "$D/pass2c_${i}_alloc_table.csv" "$D/pass2c_${i}_nvbit_allocs.csv" \
+                 "$D/pass2c_${W}_alloc_table.csv" "$D/pass2c_${W}_nvbit_allocs.csv" \
                  --max-accesses-per-kernel 5000000 \
-                 --out "$D/join_gapfill_${i}" >> "$LOG" 2>&1)
+                 --out "$D/join_gapfill_${W}" >> "$LOG" 2>&1)
         fi
     done <<< "$PLAN"
     log "[$NAME] gapfill complete"

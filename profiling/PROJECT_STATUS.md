@@ -43,7 +43,7 @@ the PiM/ISP substrate design for the architecture paper.**
 | Rigor | Measured ceilings, ±25% sensitivity, ×5/×3 variance, clock-warmup protocol, cache bracket, transfers | ✅ done |
 | Multi-machine | RTX 2000 Ada production pass, **locked clocks** — 5-repeat CoV 0.14% (vs 49.6% unlocked laptop); ceilings 205.0 GB/s ±0.1 / 5445 GF ±3 | ✅ done |
 | Multi-dataset | **27-sequence campaign** (KITTI 00-10, EuRoC ×11, TUM fr3 ×4, TUM-VI), odom+SLAM, 0 failures; modal consistency 91% (`reports/2026-07-04_campaign/`) | ✅ done |
-| Slice 3 locality | NVBit mem_trace → `analysis/locality.py`: measured reuse distance overturned the counter proxy on st_track (`reports/2026-07-04_slice3_locality/`) | ✅ done |
+| Slice 3 locality | NVBit mem_trace → `analysis/locality.py`: measured reuse distance + divergence; 2026-07-05 space-filtered re-derivation (FINDINGS §5) — st_track's global accesses are a scattered gather (counters confirmed), front-end streaming claim strengthened | ✅ done |
 | Taxonomy validation | pooled k-means over 27 sequences prefers k=7–8 = the G-classes (purity 0.68) | ✅ done |
 | Source-level | **TaggedAllocator + NVTX attribution** (`reports/2026-07-04_attribution/`): instrumented wheel (RelWithDebInfo, `patches/0002`), NVBit alloc sidecar, `analysis/attribution.py` join — 240/240 allocations tagged; GPU memory budget static (108.65 MB, keyframe state fixed 6.7 MB → DB growth is host-side); measured NVTX kernel→stage map (st_track_with_cache = loop closure) | ✅ done |
 | Slice 3 sim | Accel-Sim NDP config + AccelWattch energy (report deltas) | ⬜ |
@@ -188,7 +188,8 @@ symlinked into `${CUVSLAM_DATASETS}` as `kitti_color`, `tumvi`.
 
 **Venue framing:** (1)+(2)+(3a)+(5) all done → **the ISPASS/IISWC
 characterization paper is written-from-data now** (full-scale matrix, measured
-reuse distance that corrected a proxy, clustering-validated taxonomy). +(4) →
+reuse distance with a documented two-step self-correction arc,
+clustering-validated taxonomy). +(4) →
 data-structure-level motivation. +(3b)+(6) → MICRO/ASPLOS/ISCA/HPCA. See
 `PUBLISHABILITY.md` for the full reviewer-issue register.
 
