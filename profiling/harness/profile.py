@@ -39,6 +39,11 @@ REPO_ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 DEFAULT_VENV_PY = os.path.join(REPO_ROOT, "cuvslam_venv", "bin", "python")
 RESULTS_ROOT = os.path.join(REPO_ROOT, "profiling", "results")
 
+# Profiler binaries — overridable so a driver-matched Nsight (e.g. the CUDA-12.9
+# ncu 2025.2 needed on a downgraded 575 driver) can be used without touching PATH.
+NCU = os.environ.get("NCU_BIN", "ncu")
+NSYS = os.environ.get("NSYS_BIN", "nsys")
+
 # ── Targeted Nsight Compute metric sets ──────────────────────────────────────
 # Curated from the Cao23 "gpudb" taxonomy: just the counters that drive the
 # roofline / Speed-of-Light / stall / memory numbers. Validated against ncu 2026.2.
@@ -294,11 +299,11 @@ def main(argv=None):
 
     rc = 1
     if args.profiler == "nsys":
-        meta["nsys_version"] = tool_version(["nsys", "--version"])
+        meta["nsys_version"] = tool_version([NSYS, "--version"])
         meta["nsys_config"] = {"traces": args.nsys_traces, "sample": args.nsys_sample}
         out = os.path.join(raw, "profile")
         json.dump(meta, open(os.path.join(run_dir, "metadata.json"), "w"), indent=2)
-        cmd = ["nsys", "profile", f"--trace={args.nsys_traces}", f"--sample={args.nsys_sample}",
+        cmd = [NSYS, "profile", f"--trace={args.nsys_traces}", f"--sample={args.nsys_sample}",
                "--output", out, "--force-overwrite=true", *workload]
         rc = run_profiler(cmd, args.timeout, cwd=REPO_ROOT).returncode
         rep = out + ".nsys-rep"
@@ -307,22 +312,22 @@ def main(argv=None):
             # textual + CSV kernel summary for the DAG (--force-export refreshes the
             # SQLite sidecar so a re-run never trips the "export older than input" error)
             with open(os.path.join(derived, "nsys_stats.txt"), "w") as fh:
-                sh(["nsys", "stats", "--force-export=true", rep], stdout=fh, stderr=subprocess.STDOUT)
-            sh(["nsys", "stats", "--report", "cuda_gpu_kern_sum", "--format", "csv",
+                sh([NSYS, "stats", "--force-export=true", rep], stdout=fh, stderr=subprocess.STDOUT)
+            sh([NSYS, "stats", "--report", "cuda_gpu_kern_sum", "--format", "csv",
                 "--force-export=true", "--output", os.path.join(derived, "kern_sum"), rep])
         else:
             print("[✗] no .nsys-rep produced", file=sys.stderr)
 
     else:  # ncu
         metrics = resolve_metrics(args.metrics)
-        meta["ncu_version"] = tool_version(["ncu", "--version"])
+        meta["ncu_version"] = tool_version([NCU, "--version"])
         meta["ncu_config"] = {"metrics": args.metrics, "n_metrics": len(metrics) if metrics else "full",
                               "launch_skip": args.launch_skip, "launch_count": args.launch_count,
                               "auto_window": args.auto_window, "kernel_filter": args.kernel_filter,
                               "cache_control": args.cache_control}
         out = os.path.join(raw, "kernels")
         json.dump(meta, open(os.path.join(run_dir, "metadata.json"), "w"), indent=2)
-        cmd = ["ncu", "--target-processes", "all",
+        cmd = [NCU, "--target-processes", "all",
                "--launch-skip", str(args.launch_skip), "--launch-count", str(args.launch_count),
                "--clock-control", "none",            # don't let ncu fight the (unlockable) laptop clocks
                "--cache-control", args.cache_control,
@@ -340,7 +345,7 @@ def main(argv=None):
             print(f"[✓] {rep} ({human(os.path.getsize(rep))})")
             # Export a parseable per-kernel CSV for analysis/.
             with open(os.path.join(derived, "ncu_metrics.csv"), "w") as fh:
-                sh(["ncu", "--import", rep, "--csv", "--page", "raw"], stdout=fh, stderr=subprocess.DEVNULL)
+                sh([NCU, "--import", rep, "--csv", "--page", "raw"], stdout=fh, stderr=subprocess.DEVNULL)
         else:
             print("[✗] no .ncu-rep produced — see console above", file=sys.stderr)
 

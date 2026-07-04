@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # run_campaign.sh — the full-scale characterization campaign, headless.
 #
+# NOTE: on the downgraded driver-575 workstation, set NCU_BIN to the CUDA-12.9
+# ncu 2025.2 (the system ncu 2026.2 / 2025.3 are CUDA-13, driver-incompatible):
+export NCU_BIN="${NCU_BIN:-$HOME/ncu2025/nsight_compute-linux-x86_64-2025.2.1.3-archive/ncu}"
+#
 # For every profiling/configs/campaign/<name>_odom.toml (+ matching _slam.toml):
 #   odom:  3x warmed nsys repeats + 1 ncu characterize (steady window 200:300)
 #   slam:  1 warmed nsys (full sequence) + 1 ncu on the st_* SLAM kernels
