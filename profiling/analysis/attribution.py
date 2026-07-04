@@ -287,6 +287,11 @@ def cmd_join(args):
     launch_names = {}
     per_kt = defaultdict(Counter)        # kernel -> tag -> warp accesses
     sectors_kt = defaultdict(Counter)    # kernel -> tag -> sectors
+    kernel_acc = Counter()               # kernel -> warp accesses (for the cap)
+    capped = set()                       # kernels that reached --max-accesses-per-kernel
+    cap = args.max_accesses_per_kernel   # tag fractions converge fast; a cap keeps
+                                         # the join bounded on TB-scale st_ scans and
+                                         # lets it early-stop once all kernels saturate
     cur_gid = -1
     for line in open_trace(args.trace):
         # hot path: fixed " - "-separated access records (billions of lines);
@@ -311,6 +316,12 @@ def cmd_join(args):
             cur_gid = gid
             apply_events(gid)
         kernel = launch_names.get(gid, f"launch{gid}")
+        if cap is not None and kernel in capped:
+            # this kernel is saturated; once every kernel we've seen is capped,
+            # the remaining trace can only repeat known kernels — stop reading.
+            if len(capped) == len(kernel_acc):
+                break
+            continue
         addrs = [int(a, 16) for a in addr_field.split() if a != "0x0"]
         if not addrs:
             continue
@@ -325,6 +336,12 @@ def cmd_join(args):
             tag = live.find(addrs[0]) or "unmapped"
         per_kt[kernel][tag] += 1
         sectors_kt[kernel][tag] += len(set(a // SECTOR for a in addrs))
+        if cap is not None:
+            kernel_acc[kernel] += 1
+            if kernel_acc[kernel] >= cap:
+                capped.add(kernel)
+                if len(capped) == len(kernel_acc):
+                    break
 
     os.makedirs(args.out, exist_ok=True)
     rows = []
@@ -337,6 +354,9 @@ def cmd_join(args):
     common.write_csv(path, ["kernel", "tag", "warp_accesses", "sectors",
                             "bytes", "pct_kernel_traffic"], rows)
     print(f"[✓] {path}")
+    if capped:
+        print(f"    (early-stop: {len(capped)} kernel(s) hit the "
+              f"{cap:,}-access cap — fractions are from the capped prefix)")
     print(f"    sidecar allocs tagged {n_matched}/{n_matched + sum(1 for e in tagged if e[0] == 'A' and e[4] == 'untagged_driver')}"
           f" (journal leftovers: {unmatched})")
     for kernel in list(sorted(sectors_kt, key=lambda k: -sum(sectors_kt[k].values())))[:12]:
@@ -360,6 +380,10 @@ def main(argv=None):
     j.add_argument("alloc_table")
     j.add_argument("sidecar")
     j.add_argument("--out", default=".")
+    j.add_argument("--max-accesses-per-kernel", type=int, default=None,
+                   help="stop accumulating a kernel past N warp accesses and "
+                        "early-stop the read once all kernels are capped "
+                        "(bounds the join on TB-scale traces; fractions converge)")
     j.set_defaults(fn=cmd_join)
     args = ap.parse_args(argv)
     args.fn(args)

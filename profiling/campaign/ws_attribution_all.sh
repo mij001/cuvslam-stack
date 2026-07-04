@@ -82,8 +82,12 @@ for CFG in $SEQS; do
                 "$D/pass1_nvbit_allocs.csv" "$D/config.toml" LAUNCH_BEGIN=0 LAUNCH_END=0
     fi
 
-    # 2. window: ~3 frames of launches centred mid-sequence
-    read -r W_BEGIN W_END <<< "$(zstdcat "$D/pass1_launchmap.txt.zst" 2>/dev/null | awk '
+    # 2. windows: pass2a = ~3 frames mid-sequence (all kernels); pass2b = a
+    #    LATE window (~100 frames at 55%, loop-closure-likely) for st_ scans.
+    #    A whole-sequence st_ trace is TB-scale (the loop-closure scan reads the
+    #    growing keyframe DB every keyframe) — 40 GB for one EuRoC sequence —
+    #    so pass2b is windowed here and the join is access-capped as a backstop.
+    read -r W_BEGIN W_END WB_BEGIN WB_END <<< "$(zstdcat "$D/pass1_launchmap.txt.zst" 2>/dev/null | awk '
         match($0, /grid launch id [0-9]+/) {
             id = substr($0, RSTART+15, RLENGTH-15) + 0
             if (id > L) L = id
@@ -91,18 +95,19 @@ for CFG in $SEQS; do
         /frames_tracked/ { if (match($0, /frames_tracked.: [0-9]+/))
             F = substr($0, RSTART+17, RLENGTH-17) + 0 }
         END {
-            if (L == 0) { print 0, 0; exit }
+            if (L == 0) { print 0, 0, 0, 0; exit }
             if (F == 0) F = 1000
-            lpf = L / F; mid = int(L / 2); w = int(3 * lpf)
-            if (w < 200) w = 200
-            print mid, mid + w
+            lpf = L / F
+            mid = int(L / 2); w = int(3 * lpf); if (w < 200) w = 200
+            lb = int(0.55 * L); lw = int(100 * lpf); if (lw < 2000) lw = 2000
+            print mid, mid + w, lb, lb + lw
         }')"
     if [ "${W_END:-0}" -eq 0 ]; then
         log "  ERROR: pass1 empty for $NAME — skipping sequence"
         progress "[$N/$TOTAL] $NAME FAILED (empty pass1)"
         continue
     fi
-    log "  window [$W_BEGIN,$W_END)"
+    log "  pass2a window [$W_BEGIN,$W_END)  pass2b st_ window [$WB_BEGIN,$WB_END)"
 
     # 3. nsys NVTX → kernel→stage table
     if [ ! -s "$D/nvtx_stage_map.nsys-rep" ]; then
@@ -126,12 +131,13 @@ for CFG in $SEQS; do
         log "  pass2a done ($(du -h "$D/pass2a_trace.txt.zst" | cut -f1))"
     fi
 
-    # 5. pass 2b — st_ keyframe-database scans, whole sequence
+    # 5. pass 2b — st_ keyframe-database scans in the late window
     if [ ! -s "$D/pass2b_trace.txt.zst" ]; then
-        log "  pass2b: st_ scans"
+        log "  pass2b: st_ scans (late window)"
         progress "[$N/$TOTAL] $NAME pass2b (st_ scans)"
         capture "$D/pass2b_trace.txt.zst" "$D/pass2b_cuvslam_allocs.csv" \
-                "$D/pass2b_nvbit_allocs.csv" "$D/config.toml" KERNEL_FILTER=st_
+                "$D/pass2b_nvbit_allocs.csv" "$D/config.toml" \
+                LAUNCH_BEGIN=$WB_BEGIN LAUNCH_END=$WB_END KERNEL_FILTER=st_
         log "  pass2b done ($(du -h "$D/pass2b_trace.txt.zst" | cut -f1))"
     fi
 
@@ -147,9 +153,11 @@ for CFG in $SEQS; do
          done
          python3 -m analysis.attribution join "$D/pass2a_trace.txt.zst" \
              "$D/pass2a_alloc_table.csv" "$D/pass2a_nvbit_allocs.csv" \
+             --max-accesses-per-kernel 5000000 \
              --out "$D/join_steady_state" >> "$LOG" 2>&1
          python3 -m analysis.attribution join "$D/pass2b_trace.txt.zst" \
              "$D/pass2b_alloc_table.csv" "$D/pass2b_nvbit_allocs.csv" \
+             --max-accesses-per-kernel 5000000 \
              --out "$D/join_st_scans" >> "$LOG" 2>&1)
     fi
     log "[$N/$TOTAL] $NAME COMPLETE"

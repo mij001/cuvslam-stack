@@ -368,6 +368,42 @@ class TestAttribution(unittest.TestCase):
         finally:
             shutil.rmtree(tmp)
 
+    def test_join_access_cap_early_stop(self):
+        # a huge single-kernel trace must be bounded by the per-kernel cap and
+        # early-stop long before EOF; trailing records go uncounted
+        from analysis import attribution
+        tmp = tempfile.mkdtemp()
+        try:
+            table = os.path.join(tmp, "alloc_table.csv")
+            with open(table, "w") as fh:
+                fh.write("t_us,ptr,bytes,kind,tag,owner_func,owner_site\n"
+                         "1,0x10000,65536,GPUArray,keyframe_descriptors,f,s\n")
+            sidecar = os.path.join(tmp, "sidecar.csv")
+            with open(sidecar, "w") as fh:
+                fh.write("ALLOC,0,0x10000,65536\n")
+            trace = os.path.join(tmp, "trace.txt")
+            with open(trace, "w") as fh:
+                fh.write("MEMTRACE: CTX 0x1 - LAUNCH - Kernel pc 0x1 - Kernel name "
+                         "cuvslam::cuda::st_kernel(float*) - grid launch id 0 - grid "
+                         "size 1,1,1 - block size 32,1,1 - nregs 1 - shmem 0 - cuda "
+                         "stream id 1\n")
+                acc = ("MEMTRACE: CTX 0x1 - grid_launch_id 0 - CTA 0,0,0 - warp 0 "
+                       "- LDG.E - {a} " + "0x0 " * 31 + "\n")
+                for i in range(100000):
+                    fh.write(acc.format(a=hex(0x10000 + (i % 512) * 32)))
+            out = os.path.join(tmp, "out")
+            attribution.main(["join", trace, table, sidecar, "--out", out,
+                              "--max-accesses-per-kernel", "1000"])
+            with open(os.path.join(out, "attribution.csv")) as fh:
+                next(fh)
+                row = next(fh).strip().split(",")
+            # kernel, tag, warp_accesses, ... — capped at 1000, not 100000
+            self.assertEqual(row[0], "st_kernel")
+            self.assertEqual(row[1], "keyframe_descriptors")
+            self.assertEqual(int(row[2]), 1000)
+        finally:
+            shutil.rmtree(tmp)
+
     def test_join_memory_space_buckets(self):
         # LDS/STS -> shared_onchip, LDL/STL -> local_spill, never the live set
         from analysis import attribution
