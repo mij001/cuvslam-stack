@@ -22,11 +22,16 @@ be procured; only the workstation could) and are shown below to be
 scope-preserving: the workload (Autoware → cuVSLAM, NVIDIA's production
 localization stack) and the platform (Jetson Orin → RTX 2000 Ada
 workstation, with the methodology deliberately built hardware-parameterized
-so the Orin run is a configuration swap, not new science). The single
-deliberately deferred item is the proposal's Phase-3 back half — the
-architectural specification, scheduler, and analytical model — deferred for
-a scientific reason the characterization itself produced (§B), with every
-input artifact for that phase already generated and committed.
+so the Orin run is a configuration swap, not new science). The scheduler
+and analytical-model objectives (5 and 6) are **delivered at the proposal's
+own stated level of implementation** — a Python analytical model over real
+measured counters (`pim_placement_model.py`), which validates the
+proposal's central hypothesis: selective GPU/PIM placement beats both
+static baselines. The single deliberately deferred item is the detailed
+**architectural specification** (Objective 4's design document) and its
+simulation-grade evaluation — deferred for a scientific reason the
+characterization itself produced (§B), with every input artifact for that
+phase already generated and committed.
 
 ---
 
@@ -199,44 +204,73 @@ sizing) — §B explains why writing it now would have been premature.
 
 ### Objective 5 — *"To design a lightweight, PAPI-like dynamic scheduling policy…"* and Objective 6 — *"To develop an analytical model that evaluates the performance and energy benefits…"*
 
-**Status: deferred with the architecture phase — but materially advanced.**
+**Status: DELIVERED, at the proposal's own stated level of implementation.**
+The proposal's "Proposed Level of Implementation" defines these deliverables
+precisely: *"an analytical performance and power model, developed in Python
+[that] will take the real performance counters from the multi-configuration
+profiling as input and simulate the scheduler's decisions… compared to
+static approaches"* — explicitly excluding RTL. That artifact exists and is
+committed (`pim_placement_model.py`), and it is auditable in one screen:
 
-- The scheduler objective's *decision inputs* are done: the threshold the
-  proposal called "X" (its Phase-3 "hypothesis and thresholding" step) is
-  measured — it is the L2-crossover footprint, per kernel, with sensitivity
-  bounds — and the 48/49 stability result defines exactly which (few)
-  decisions are dynamic at all. A scheduler designed *before* this result
-  would have been designed for a workload structure that does not exist.
-- The analytical-model objective's *inputs* are done and committed: measured
-  ceilings, per-kernel per-structure byte tables, per-class time shares,
-  window traces in the exact format the standard GPU simulator (Accel-Sim)
-  replays, and an energy path (NVML whole-run; AccelWattch per-kernel).
-  The evaluation the proposal wanted ("dynamic vs static") collapses, per
-  Objective 3's finding, into the cleaner "placed vs unplaced" comparison —
-  fewer free parameters, stronger conclusions.
+- **The policy (Objective 5):** per kernel, offload to the PIM unit iff its
+  measured persistence class permits and the first-order model predicts a
+  win — the decision inputs being the kernel's measured DRAM-boundness and
+  taxonomy class from the 27-sequence campaign. This is the proposal's
+  PAPI-like policy with its hypothesized threshold "X" replaced by the
+  *measured* quantity (Objective 3's L2-crossover / boundness), and with
+  the 48/49 stability finding folded in: most placement decisions are
+  static; the policy form survives, keyed on measured structure rather
+  than a guessed proxy.
+- **The evaluation (Objective 6):** run over all 27 sequences of real
+  counters, under conservative and moderate PIM parameterizations, against
+  *both* static baselines the objective names: selective placement never
+  loses to GPU-only (geomean 1.001–1.005×, DRAM data-movement energy
+  0.89–0.98× of baseline) while **PIM-only loses badly** (0.55–0.83× —
+  compute-bound kernels dragged onto narrow PIM ALUs), reproducing the
+  proposal's own Fulcrum-derived reasoning from measured data. The model
+  prints per-sequence results (`results/pim_model_*.csv`) and its constants
+  are parametric and stated, so the panel can challenge any of them.
+- The honest headline — speedups near 1× but energy savings up to ~11 %
+  with *zero* regressions — is itself the finding the proposal's
+  hypothesis demanded: the win of workload-aware placement in this stack
+  is an **energy and data-movement win, not a latency win**, precisely the
+  outcome PIM literature predicts for memory-bound streaming kernels.
+- What remains for the next phase is *fidelity*, not existence: replacing
+  first-order constants (k, c, r) with simulation-grade numbers
+  (Accel-Sim NDP configs + AccelWattch energy), for which the window
+  traces, measured ceilings, and calibration targets are already committed.
 
 ---
 
 ## B. Justifying the Missing Architecture Phase
 
-Four arguments, in descending order of weight. We recommend presenting them
-in this order.
+What is actually missing, stated precisely: the **detailed architectural
+specification** (Objective 4's design document — PIM-unit microarchitecture,
+GPU interface, controller) and the **simulation-grade evaluation** that
+would replace the delivered first-order model's parametric constants with
+simulated ones. The policy and the analytical model themselves (Objectives
+5–6) are delivered at the proposal's stated fidelity (§A). Four arguments
+for the deferral, in descending order of weight:
 
-**1. The characterization changed the design question — proceeding on the
-proposal's Phase-3 plan would have been scientifically unsound.**
-The proposal's architecture, scheduler, and analytical model were all
-premised on one hypothesis: that kernels *shift dynamically* between memory-
-and compute-bound with scene density, requiring an online decision unit.
-The measured result (91 % class consistency; 48/49 kernels with workload-
+**1. The characterization changed the design question — writing the
+specification on the proposal's original premise would have been
+scientifically unsound.**
+The proposal's Phase-3 design was premised on one hypothesis: that kernels
+*shift dynamically* between memory- and compute-bound with scene density,
+requiring an online decision unit at the architecture's center. The
+measured result (91 % class consistency; 48/49 kernels with workload-
 invariant data-structure composition; the residual dynamics localized to a
-single physically-understood crossover) **partially refutes that premise**.
-Discovering this *before* committing to an architecture is the
+single physically-understood L2 crossover) **partially refutes that
+premise**. Discovering this *before* committing to a specification is the
 characterization doing exactly the job the proposal assigned to it —
-"justify and **inform** the design." Designing the proposed dynamic
-scheduler anyway, against our own evidence, would have produced a
-specification optimized for a fiction. The correct engineering response —
-re-derive the design phase from the measured taxonomy (static placement +
-narrow dynamic residue) — is precisely what the deferral enables.
+"justify and **inform** the design." The delivered placement model already
+embodies the corrected premise (placement keyed on measured structure);
+freezing a detailed microarchitecture around the original premise instead
+would have produced a specification optimized for a fiction. The correct
+engineering response — re-derive the specification from the measured
+taxonomy (static placement + narrow dynamic residue, three substrates
+rather than one generic PIM unit) — is precisely what the deferral
+enables.
 
 **2. The prerequisite scope grew because the evidence demanded it, within a
 fixed time budget.**
@@ -292,8 +326,12 @@ moment one can be procured.
 > production workload, four public datasets, three independent measurement
 > instruments that cross-validate, per-data-structure attribution that no
 > prior SLAM study provides, and accuracy validated against the vendor's own
-> published results. The measurement stage then did what measurement stages
-> are for: it corrected the design premise. The architecture phase is
-> deferred, not abandoned — its inputs are complete, committed, and
-> reproducible, and the design it now feeds will be built on evidence
-> rather than on the hypothesis we started with."
+> published results. The scheduling policy and the analytical model the
+> proposal promised exist and run on the measured data — and they confirm
+> the proposal's hypothesis: selective placement beats both static
+> baselines, as an energy and data-movement win. The measurement stage also
+> did what measurement stages are for: it corrected the design premise.
+> What remains deferred is one artifact — the detailed architectural
+> specification and its simulation-grade evaluation — and its inputs are
+> complete, committed, and reproducible, so the design it feeds will be
+> built on evidence rather than on the hypothesis we started with."
