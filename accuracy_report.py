@@ -145,6 +145,18 @@ def exclusion_reason(name, ds, seq, var, kind, m):
     if var == "mono":
         return ("scale-ambiguous: monocular needs Sim3 (scale) alignment; "
                 "SE3-based avgRTE/APE are not meaningful for mono")
+    if ds == "icl":
+        # ICL-NUIM paths are ~2 m synthetic with frame-index timestamps, so
+        # segment-relative avgRTE (1/2/4 m windows) is degenerate. The paper's
+        # Mono-Depth primary metric is APE, so gate on tracking coverage +
+        # APE instead (matches the paper's own caveat that translation-relative
+        # error is not meaningful for some datasets).
+        matched, ape = m.get("matched"), m.get("ape_m")
+        if not matched or matched < 200:
+            return f"tracking lost (only {int(matched or 0)} poses matched)"
+        if ape is None or ape > 0.5:
+            return f"DIVERGED (APE {fmt(ape)} m > 0.5 m)"
+        return ""
     if rte is None:
         return "no relative-error metric parsed"
     if rte >= CONVERGE_RTE_PCT:
