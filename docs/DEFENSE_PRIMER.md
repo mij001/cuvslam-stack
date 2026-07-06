@@ -541,6 +541,27 @@ framed as hypotheses, and the pipeline structure we exploit (streaming
 front-end / iterative solver / growing database) is shared by most SLAM
 designs.
 
+**Q2b. "You substituted cuVSLAM for Autoware. Is that just 'a similar-ish
+workload,' or can you actually show it fits where Autoware needed a
+localization module?"**
+A: It's shown, not asserted, at the interface level. Autoware's own
+architecture documentation specifies a pose estimator as a swappable
+component that must output "ROS primitives for reusability" — a
+pose-with-covariance message, a twist-with-covariance message, and a
+map→base_link transform — precisely so alternative localization sources
+can be plugged in behind one interface; Autoware Universe ships a
+dedicated arbitration node (`autoware_pose_estimator_arbiter`) built to
+manage several such sources at once. cuVSLAM's own shipped ROS 2 package
+(`isaac_ros_visual_slam`) publishes exactly those message types —
+`geometry_msgs/msg/PoseWithCovarianceStamped` and `nav_msgs/msg/Odometry`
+— with no adapter needed. That is a genuine, citable interface match, and
+I'll state its limit precisely so you don't have to find it: the
+arbiter's currently-documented sources are NDT, YabLoc, Eagleye, and
+landmark localizers — no camera-based VSLAM is listed as already wired in.
+So the claim is "cuVSLAM satisfies Autoware's plug-in contract for this
+role, verifiably," not "cuVSLAM has been deployed inside Autoware" — and
+I'm not going to overstate it to the second claim.
+
 **Q3. "Everything is on one desktop GPU. Robots use edge devices."**
 A: Correct, and this deserves a precise answer, not a blanket
 "architecture-independent" claim — two different things are true here and

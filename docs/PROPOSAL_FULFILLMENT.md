@@ -121,7 +121,40 @@ environment is the foundation of this research"*).
   JetPack's fixed driver.
 - *Workload.* Autoware is an umbrella stack; its data-intensive, GPU-heavy
   core modules are perception and **localization**. cuVSLAM is a production
-  localization module — with the decisive advantages that it is GPU-native
+  localization module, and this is not merely an analogy — **it satisfies
+  Autoware's own documented plug-in contract for a pose estimator,
+  interface-for-interface**:
+  - Autoware's Required Localization Architecture specifies that a pose
+    estimator is a swappable component whose output must be expressed in
+    "ROS primitives for reusability" — a `PoseWithCovarianceStamped`-class
+    message plus a `TwistWithCovarianceStamped`-class message plus a
+    `map → base_link` transform — precisely so that alternative
+    localization sources can be substituted behind one interface (Autoware
+    Documentation, *Localization* architecture design page). This is a
+    working mechanism today, not an aspiration: Autoware already runs
+    interchangeable pose sources (NDT scan matching, GNSS) through the same
+    `/localization/pose_estimator/pose_with_covariance` topic, and Autoware
+    Universe ships a dedicated arbitration node,
+    `autoware_pose_estimator_arbiter`, whose job is to manage multiple
+    simultaneous pose-estimator sources and switch between them.
+  - cuVSLAM's shipped ROS 2 interface (NVIDIA's `isaac_ros_visual_slam`
+    package) publishes **exactly those message types**: a
+    `geometry_msgs/msg/PoseWithCovarianceStamped` on
+    `visual_slam/tracking/vo_pose_covariance`, and a
+    `nav_msgs/msg/Odometry` (which itself bundles pose-with-covariance and
+    twist-with-covariance in one message) on `visual_slam/tracking/odometry`
+    — the identical message-type contract Autoware's architecture calls
+    for, produced natively by the module we profiled, with no adapter
+    required.
+  - **Stated at the strength the evidence supports, and no further:** this
+    is a verified **interface-compatibility** claim — cuVSLAM's output
+    contract matches Autoware's documented input contract for a pose
+    estimator, type-for-type. It is *not* a verified deployment claim: the
+    pose-estimator arbiter's currently documented supported sources are NDT,
+    YabLoc, Eagleye, and landmark/AR-tag localizers; no camera-based VSLAM
+    source is listed there today. We disclose this distinction explicitly
+    rather than imply an existing integration we cannot cite.
+  cuVSLAM also carries the decisive advantages that it is GPU-native
   end-to-end, production-deployed (a stronger instance of the proposal's
   "real-world application needs" than a research assembly), and
   source-obtainable, which enabled the from-source instrumentation that
@@ -129,7 +162,8 @@ environment is the foundation of this research"*).
   gap statement — *"a detailed analysis that connects [PIM] architectural
   concepts to the specific, fine-grained bottlenecks of a full,
   state-of-the-art [autonomous] stack is still missing"* — is answered
-  exactly, for the localization stack.
+  exactly, for the localization stack, on a module that is not merely
+  Autoware-*like* but Autoware-*pluggable* by its own published interface.
 
 ### Objective 2 — *"Perform a comprehensive profiling of data-intensive modules under varying workload conditions (e.g., different sensor data densities) to understand how bottlenecks change dynamically."*
 
@@ -434,3 +468,4 @@ the moment one can be procured.
 | 18 | Reproducibility | analyses re-derive from committed CSVs; 18 GPU-free tests | `profiling/tests/test_analysis.py`, report `data/` dirs |
 | 19 | Reviewer-issue register (methodological honesty) | issues 1,2,3,4,7,8 closed, dated | `profiling/PUBLISHABILITY.md` |
 | 20 | Design-phase inputs ready (deferral ≠ blockage) | traces, ceilings, byte tables, plan | `profiling/blocked/run_accelsim.sh`, `docs/THESIS_FINDINGS.md` Path B |
+| 21 | cuVSLAM's output interface matches Autoware's pluggable pose-estimator contract, type-for-type | `PoseWithCovarianceStamped` + `Odometry` on both sides | Autoware: [Localization architecture](https://tier4.github.io/autoware-documentation/latest/design/autoware-architecture/localization/), [pose_estimator_arbiter](https://autowarefoundation.github.io/autoware_universe/main/localization/autoware_pose_estimator_arbiter/); cuVSLAM: [isaac_ros_visual_slam topics](https://nvidia-isaac-ros.github.io/repositories_and_packages/isaac_ros_visual_slam/isaac_ros_visual_slam/index.html) — external, independently verifiable sources; no existing wired-up deployment is claimed |
