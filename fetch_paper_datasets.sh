@@ -56,7 +56,21 @@ icl() {
         DL "$d/$seq" "$host/VaFRIC/${GT[$seq]}"
         [ -f "$d/$seq/${GT[$seq]}" ] && cp "$d/$seq/${GT[$seq]}" "$d/$seq/groundtruth.txt"
     done
-    echo "[note] verify ICL-NUIM associations: the tum source needs rgb.txt+depth.txt+groundtruth.txt in $d/<seq>/ (the _frei_png release ships rgb/ depth/ and .txt indexes; adjust layout if the tar nests a subdir)."
+    # The _frei_png release ships associations.txt (ts_d depth/N.png ts_rgb
+    # rgb/N.png) + groundtruth.txt, but not the rgb.txt/depth.txt the tum source
+    # needs. Generate them from associations.txt for every ICL sequence.
+    icl_index
+}
+
+icl_index() {
+    local d="$ROOT/ICL-NUIM"
+    for a in "$d"/*/associations.txt; do
+        [ -f "$a" ] || continue
+        local sd; sd="$(dirname "$a")"
+        awk '{print $3, $4}' "$a" > "$sd/rgb.txt"
+        awk '{print $1, $2}' "$a" > "$sd/depth.txt"
+        echo "[✓] ICL index: $(basename "$sd") ($(wc -l < "$sd/rgb.txt") frames)"
+    done
 }
 
 case "${1:-all}" in

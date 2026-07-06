@@ -265,8 +265,8 @@ max_frames = 0
 [input]
 type = "tum"
 path = "{path}"
-max_time_diff = 0.02
-max_gap = 0.5
+max_time_diff = 0.5
+max_gap = 2.0                        # ICL timestamps are frame indices (dt=1.0)
 
 [odometry]
 odometry_mode = "RGBD"
