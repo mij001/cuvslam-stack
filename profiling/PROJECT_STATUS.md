@@ -198,6 +198,18 @@ data-structure-level motivation. +(3b)+(6) → MICRO/ASPLOS/ISCA/HPCA. See
 
 ## 8. Changelog
 
+- **2026-07-07** — Accuracy matrix expanded to the full paper set (141 runs,
+  `reports/2026-07-07_accuracy_full/`): added all 8 ICL-NUIM Mono-Depth
+  trajectories + the 10 TUM fr3 sequences. Reproduces the paper on profiled
+  modes (EuRoC stereo mm-match, TUM beats it, ICL same-order). Every config
+  validated under BOTH the runner and the profiling harness
+  (`validate_accuracy_configs.sh`, 141/141). QoR outlier (kitti00 odom) proven
+  to be run-to-run nondeterminism, not instrumentation — F13 holds. Corrected
+  a wrong turn: the paper's TartanAir is **V2 multi-stereo** (Table 3), not V1
+  single-stereo — stopped/removed that download. **MIT LICENSE added** (gap G7
+  closed). Remaining paper rows (bigger, unstarted): AR-table, TartanAir V2 +
+  TartanGround (multi-camera), R2B (proprietary).
+
 - **2026-07-04** — **FULL-SCALE CAMPAIGN DONE** (`reports/2026-07-04_campaign/`).
   27 sequences × 4 datasets (KITTI 00-10, EuRoC MH/V1/V2, TUM fr3 ×4, TUM-VI),
   odometry + SLAM each, locked-clock Ada, **0 failures**, survived a dev-box
