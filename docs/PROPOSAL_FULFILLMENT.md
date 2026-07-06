@@ -91,17 +91,33 @@ environment is the foundation of this research"*).
   descriptor is already written (*proof:*
   `profiling/hw/jetson_orin_sm87.toml`, alongside `mx450_sm75.toml` and
   `rtx2000ada_sm89.toml`, demonstrating the harness genuinely runs across
-  device classes) — and the headline analyses are architecture-independent
-  by construction: reuse-distance CDFs and address-to-structure attribution
-  are properties of the workload's address stream, not of the GPU measured
-  on (*proof:* methodology notes in
-  `profiling/reports/2026-07-04_slice3_locality/FINDINGS.md` §1). Orin
-  (SM 8.7) and the RTX 2000 Ada (SM 8.9) are adjacent members of the same
-  architecture family. The workstation moreover *enabled* rigor a Jetson
-  cannot: NVBit binary instrumentation required a controlled driver
-  downgrade to 575.64.05 coexisting with CUDA-12.9 Nsight tools (*proof:*
-  the unified-stack notes in `profiling/PROJECT_STATUS.md` and the gating
-  script `profiling/blocked/check_capability.sh`), which is impossible on
+  device classes). This claim must be stated precisely rather than broadly,
+  because two distinct things are involved and only one of them is
+  architecture-independent: (1) the **reuse-distance-CDF technique** — given
+  one fixed address trace, predicting the hit rate at *any* hypothetical
+  cache capacity without needing a real cache of that size — is a property
+  of the algorithm operating on a trace, and needs no re-derivation per GPU
+  (*proof:* `profiling/reports/2026-07-04_slice3_locality/FINDINGS.md` §1);
+  and (2) the **data-structure taxonomy** — which buffers exist, their sizes,
+  their persistence class — is expected to be architecture-stable *because
+  it is set by cuVSLAM's own source-level allocation calls*, not by
+  target-architecture codegen. What is **not** architecture-independent, and
+  is disclosed as such rather than assumed: the specific *split* of a
+  kernel's DRAM traffic between register spill (local memory) and true data
+  movement (global memory) is produced by the compiler's register allocation
+  for a *specific target compute capability* — a different SM version (Orin
+  is SM 8.7 vs the Ada SM 8.9 tested here) can allocate registers
+  differently and spill a different amount, or none at all. The 94 %
+  register-spill finding on the loop-closure kernel (Objective 4) is
+  therefore a measured property of the **Ada-compiled binary**, flagged for
+  re-validation — not re-assertion — the moment an Orin is available; the
+  harness and taxonomy transfer immediately, that one codegen-dependent
+  number does not transfer without re-measurement. The workstation
+  moreover *enabled* rigor a Jetson cannot in the meantime: NVBit binary
+  instrumentation required a controlled driver downgrade to 575.64.05
+  coexisting with CUDA-12.9 Nsight tools (*proof:* the unified-stack notes
+  in `profiling/PROJECT_STATUS.md` and the gating script
+  `profiling/blocked/check_capability.sh`), which is impossible on
   JetPack's fixed driver.
 - *Workload.* Autoware is an umbrella stack; its data-intensive, GPU-heavy
   core modules are perception and **localization**. cuVSLAM is a production

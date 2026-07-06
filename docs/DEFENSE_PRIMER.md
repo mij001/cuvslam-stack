@@ -542,20 +542,37 @@ front-end / iterative solver / growing database) is shared by most SLAM
 designs.
 
 **Q3. "Everything is on one desktop GPU. Robots use edge devices."**
-A: Correct, and disclosed. The characterization is architecture-*aware* but
-the core claims are architecture-*independent* by construction: reuse-
-distance CDFs and address-stream attribution don't depend on cache sizes of
-the machine measured on. The hardware-parameterized harness has a Jetson
-Orin descriptor ready; that re-run is scheduled work, and unified memory on
-Orin will make the transfer findings more interesting, not less.
+A: Correct, and this deserves a precise answer, not a blanket
+"architecture-independent" claim — two different things are true here and
+must not be conflated. First, the reuse-distance-CDF *technique* is
+architecture-independent: given one fixed address trace it predicts the hit
+rate at any hypothetical cache capacity without needing a real cache of
+that size, so the analysis method needs no re-derivation per GPU. Second,
+the *taxonomy* — which data structures exist, their sizes, their
+persistence class — is expected to transfer because it comes from
+cuVSLAM's own source-level allocation calls, not from codegen. What does
+**not** transfer without re-measurement: the specific split of a kernel's
+traffic between register spill and true data movement (see Q4) is produced
+by the compiler's register allocation for the *specific* target compute
+capability we compiled for (Ada, SM 8.9); a different SM version (Orin is
+SM 8.7) can spill a different amount. So the 94 % spill finding is a
+measured property of the Ada binary, disclosed as requiring re-validation
+on Orin, not assumed to hold there. The hardware-parameterized harness
+(Jetson Orin descriptor already committed) makes that re-run a
+configuration swap, not new science — and it is exactly the right next
+experiment to test this distinction empirically.
 
 **Q4. "Isn't the spill dominance just a compiler artifact? Recompile with
 more registers per thread and your headline disappears."**
 A: The spill *is* a compiler decision — that's the point of reporting it: it
 is invisible to counter-level studies and it dominates the DRAM traffic of a
-key kernel in a shipped binary. Raising the register budget trades occupancy
-(parallelism) for spill; whether that trade wins is a scheduling question we
-can now pose precisely because we quantified the spill stream separately
+key kernel in a shipped binary. (This is also why, per Q3, we don't claim
+the 94 % figure itself is architecture-independent — only the analysis
+technique and the source-level taxonomy are; the spill number is specific
+to this compiled binary and is disclosed as such.) Raising the register
+budget trades occupancy (parallelism) for spill; whether that trade wins is
+a scheduling question we can now pose precisely because we quantified the
+spill stream separately
 from the data stream. Either way the *data-side* result — a scattered gather
 over the descriptor buffer — is unaffected.
 

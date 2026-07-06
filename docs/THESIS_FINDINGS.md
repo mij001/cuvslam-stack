@@ -65,7 +65,10 @@ size helps; the misses are compulsory. After the memory-space correction the
 claim got *cleaner*: conv_grad's apparent scatter (15.4 sectors/warp) and
 92 % "reuse" were **shared-memory tiles**; global-only, every front-end kernel
 streams at ~4 sectors/warp, 100 % coalesced, ~zero DRAM reuse. A cache cannot
-fix this; near-sensor consumption eliminates it.
+fix this; near-sensor consumption eliminates it. (The shared/global split
+that this correction rests on is compiler codegen, same caveat as F11 —
+the *reuse-CDF technique* is architecture-independent, the specific split
+measured here is a property of the Ada-compiled binary.)
 → `reports/2026-07-04_slice3_locality/` §2 + §5, `data_v2/tum_odom_global/`.
 
 ### F6 — The loop-closure scan is a scattered gather (two methods agree)
@@ -141,6 +144,18 @@ methodological warning we document: unfiltered GPU address traces are
 dominated by spill/tile accesses (88–98 % of raw records), which silently
 poison locality *and* attribution analyses.
 
+**Scope of this claim, stated precisely (do not overclaim it):** register
+allocation and spill decisions are made by the compiler for a *specific
+target compute capability* (register file size, occupancy heuristics) —
+they are not a property of the algorithm alone. The 94 % figure is measured
+on the Ada (SM 8.9) compiled binary; a different target (e.g. Orin, SM 8.7)
+could compile the same source with a different spill volume, possibly
+zero. What we do expect to transfer across targets is the *taxonomy*
+(which buffers exist, their sizes, their persistence class — set by
+cuVSLAM's own source-level allocation, not by codegen) and the *technique*
+(space-filtered reuse-distance analysis, applicable to any trace). The
+spill *quantity* itself is flagged for re-validation on Orin, not assumed.
+
 ### F12 — Bounded residuals (honesty inventory)
 `sba::build_full_system_2` carries ~40 % unmapped global traffic *identically
 in all 27 sequences*; lk_track / cub-partition / getrf have systematically
@@ -197,7 +212,7 @@ optional Layer-3 refinement (§4, path C3).
 | G1 | **No substrate-side evaluation** — "G-classes *might* benefit; show a delta." | blocks the architecture paper only | Path B (Accel-Sim NDP + AccelWattch) |
 | G2 | **No energy numbers** — PiM's headline win is joules | medium (both papers) | NVML whole-run now; AccelWattch per-kernel in Path B |
 | G3 | **Host-side ISP leg is under-measured**: we prove the DB grows host-side (F8) but haven't characterized the LMDB/storage traffic itself | medium — it is *the* cold-persistent claim | Path C1 (cheap, high value) |
-| G4 | **Single GPU (Ada desktop)** — Physical AI deploys on edge parts | medium | Path C2 (Jetson Orin, descriptor exists) |
+| G4 | **Single GPU (Ada desktop); codegen-dependent findings unvalidated elsewhere** — Physical AI deploys on edge parts, and register-spill/shared-memory splits (F11) are compiler codegen artifacts of the sm_89 target specifically, not guaranteed to hold for sm_87 (Orin) or any other compute capability — the taxonomy (which structures exist, their sizes/classes) is expected to transfer since it is source-level, not codegen-level, but this is untested | medium | Path C2 (Jetson Orin, descriptor exists) — re-derive the spill/shared/global split specifically, not just re-run for edge numbers |
 | G5 | Static-memory residuals unnamed (F12) | low — bounded + explained | Path C3 (Layer-3 kernel args / module-global map) |
 | G6 | TEX-path invisibility → image traffic lower bound | low — disclosed | note in limitations; ncu texture counters corroborate |
 | G7 | Repo LICENSE absent (artifact evaluation requires one) | administrative | **user decision** |
