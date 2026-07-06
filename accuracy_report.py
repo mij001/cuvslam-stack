@@ -102,6 +102,38 @@ def mean(vals):
     return sum(vals) / len(vals) if vals else None
 
 
+# Convergence gate: avgRTE (segment-relative translational drift) is
+# scale-independent — it works for KITTI's kilometre trajectories and EuRoC's
+# metre ones alike — so it is the right "did tracking hold?" criterion. A run
+# above this diverged; a diverged run must not enter a mode average.
+CONVERGE_RTE_PCT = 5.0
+
+
+def exclusion_reason(name, ds, seq, var, kind, m):
+    """Why a run is excluded from paper comparison, or '' if it converged."""
+    rte = m.get("rte_pct")
+    if ds == "tumvi":
+        return ("INVALID: TUM-VI ~195° fisheye not undistorted to pinhole "
+                "(<180° cuVSLAM support) — data-prep gap, not a tracking result")
+    if var == "mono":
+        return ("scale-ambiguous: monocular needs Sim3 (scale) alignment; "
+                "SE3-based avgRTE/APE are not meaningful for mono")
+    if rte is None:
+        return "no relative-error metric parsed"
+    if rte >= CONVERGE_RTE_PCT:
+        if "V2_03" in seq:
+            return (f"DIVERGED (avgRTE {rte:.1f}%): V2_03_difficult is the "
+                    "hardest EuRoC sequence — aggressive motion + blur; the "
+                    "paper reports it only in stereo-inertial and excludes it "
+                    "from stereo averages")
+        return f"DIVERGED (avgRTE {rte:.1f}% ≥ {CONVERGE_RTE_PCT}%)"
+    return ""
+
+
+def converged(name, ds, seq, var, kind, m):
+    return exclusion_reason(name, ds, seq, var, kind, m) == ""
+
+
 def fmt(v, nd=3):
     return f"{v:.{nd}f}" if v is not None else "—"
 
@@ -125,25 +157,29 @@ def main():
         for name, ds, seq, var, kind, m in rows:
             w.writerow([name, ds, seq, var, kind] + [m.get(k, "") for k in keys])
 
+    conv = [r for r in rows if converged(*r)]
     lines = ["# Accuracy matrix vs the cuVSLAM paper (arXiv:2506.04359)", ""]
     lines.append(f"{len(rows)} runs evaluated against ground truth "
-                 f"(full sequences, baseline wheel, RTX 2000 Ada).")
+                 f"(full sequences, baseline wheel, RTX 2000 Ada); "
+                 f"{len(conv)} converged (avgRTE < {CONVERGE_RTE_PCT}% "
+                 f"segment-relative), {len(rows) - len(conv)} excluded with "
+                 f"stated reasons (see 'Convergence & exclusions').")
     lines.append("")
 
-    # mode averages vs Table 2
-    lines.append("## Mode averages vs paper Table 2")
+    # mode averages vs Table 2 — over CONVERGED runs only
+    lines.append("## Mode averages vs paper Table 2 (converged runs only)")
     lines.append("")
     lines.append("APE is the definition-stable comparison; avgRTE/avgRE use "
                  "our segment definitions (KITTI 100–800 m; EuRoC 8/16/32 m; "
-                 "TUM 1/2/4 m) vs the paper's unsegmented Table-2 values — "
-                 "directional only.")
+                 "TUM 1/2/4 m) vs the paper's Table-2 values — directional "
+                 "only. Averages exclude diverged/invalid runs; `n` is the "
+                 "converged count and the excluded ones are itemized below.")
     lines.append("")
     lines.append("| dataset/variant/mode | n | APE m (ours) | APE m (paper) | Δ | avgRTE % (ours/paper) | avgRE ° (ours/paper) |")
     lines.append("|---|---|---|---|---|---|---|")
     for (ds, var, kind), paper in PAPER_T2.items():
-        sel = [m for (_n, d, s, v, k, m) in rows
-               if d == ds and v == var and k == kind
-               and not (ds == "euroc" and var == "stereo" and "V2_03" in s)]
+        sel = [m for (_n, d, s, v, k, m) in conv
+               if d == ds and v == var and k == kind]
         if not sel:
             continue
         ape = mean([m.get("ape_m") for m in sel])
@@ -153,6 +189,20 @@ def main():
         d_ape = f"{ape - p_ape:+.3f}" if ape is not None else "—"
         lines.append(f"| {ds} {var} {kind} | {len(sel)} | {fmt(ape)} | {p_ape} "
                      f"| {d_ape} | {fmt(rte)} / {p_rte} | {fmt(re_, 2)} / {p_re} |")
+    lines.append("")
+
+    # convergence & exclusions — the honesty section
+    lines.append("## Convergence & exclusions")
+    lines.append("")
+    excluded = [r for r in rows if not converged(*r)]
+    lines.append(f"{len(excluded)} of {len(rows)} runs excluded from the "
+                 "paper comparison:")
+    lines.append("")
+    lines.append("| run | avgRTE % | APE m | reason |")
+    lines.append("|---|---|---|---|")
+    for name, ds, seq, var, kind, m in excluded:
+        lines.append(f"| {name} | {fmt(m.get('rte_pct'), 1)} | "
+                     f"{fmt(m.get('ape_m'), 1)} | {exclusion_reason(name, ds, seq, var, kind, m)} |")
     lines.append("")
 
     # TUM per-sequence vs Table 6
@@ -170,11 +220,18 @@ def main():
                      f"| {fmt(m.get('rte_pct'))} / {p_rte} | {fmt(m.get('re_deg'), 2)} / {p_re} |")
     lines.append("")
 
-    # feature-toggle deltas within our own runs (definition-consistent)
-    lines.append("## Feature-toggle deltas (ours vs ours — definition-consistent)")
+    # feature-toggle deltas within our own runs (definition-consistent).
+    # Only pairs where BOTH runs converged — a diverged twin makes the delta
+    # meaningless (that's what turned "SLAM vs odom" into a −1762 m artifact).
+    lines.append("## Feature-toggle deltas (converged pairs only, ours vs ours)")
+    lines.append("")
+    lines.append("Same sequence, one feature toggled; negative ΔAPE = the "
+                 "toggle improved accuracy. Pairs with a diverged member are "
+                 "dropped (count shown).")
     lines.append("")
     lines.append("| toggle | pairs | mean ΔAPE m (toggle − base) |")
     lines.append("|---|---|---|")
+    conv_names = {r[0] for r in conv}
     by_run = {n: (d, s, v, k, m) for (n, d, s, v, k, m) in rows}
 
     def pair_delta(kind_a, kind_b, var=None, ds=None):
@@ -183,7 +240,7 @@ def main():
             if k != kind_a or (var and v != var) or (ds and d != ds):
                 continue
             twin = n.replace(f"_{kind_a}", f"_{kind_b}")
-            if twin in by_run:
+            if twin in by_run and n in conv_names and twin in conv_names:
                 mb = by_run[twin][4]
                 if m.get("ape_m") is not None and mb.get("ape_m") is not None:
                     deltas.append(mb["ape_m"] - m["ape_m"])
@@ -197,13 +254,13 @@ def main():
         d = pair_delta(a, b, var, ds)
         lines.append(f"| {label} | {len(d)} | {fmt(mean(d), 4)} |")
 
-    # IMU delta: euroc inertial vs stereo, same kind
+    # IMU delta: euroc inertial vs stereo, same kind (converged pairs only)
     for kind in ("odom", "slam"):
         deltas = []
         for n, (d, s, v, k, m) in by_run.items():
-            if d == "euroc" and v == "stereo" and k == kind:
+            if d == "euroc" and v == "stereo" and k == kind and n in conv_names:
                 twin = n.replace("_stereo_", "_inertial_")
-                if twin in by_run:
+                if twin in by_run and twin in conv_names:
                     mb = by_run[twin][4]
                     if m.get("ape_m") is not None and mb.get("ape_m") is not None:
                         deltas.append(mb["ape_m"] - m["ape_m"])
