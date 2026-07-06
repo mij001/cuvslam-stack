@@ -36,6 +36,10 @@ PAPER_T2 = {
     ("euroc", "inertial", "slam"): (0.29, 2.27, 0.13),
     ("tum", "rgbd", "odom"): (1.35, 5.52, 0.11),
     ("tum", "rgbd", "slam"): (0.99, 4.13, 0.065),
+    # TODO paper baselines (Table 2 rows) — fill from arXiv:2506.04359 when
+    # reachable; runs are still scored vs ground truth without them.
+    # ("icl", "rgbd", "odom"): (?, ?, ?),      # Mono-Depth / ICL-NUIM
+    # ("tartan", "stereo", "odom"): (?, ?, ?), # Stereo / TartanAir (120 Hard)
 }
 # Table 6 per-sequence rows we have on disk (avgRTE, avgRE, RMSE APE m)
 PAPER_T6 = {
@@ -59,6 +63,8 @@ _NAME = re.compile(
     r"^(kitti(?P<kseq>\d\d)_(?P<kvar>stereo)_(?P<kkind>odom|slam|slam_async)"
     r"|euroc_(?P<eseq>[A-Z0-9_a-z]+?)_(?P<evar>stereo|inertial|mono)_(?P<ekind>odom|slam)"
     r"|tum_(?P<tseq>fr3_\w+?)_(?P<tvar>rgbd)_(?P<tkind>odom|slam|slam_cpu)"
+    r"|icl_(?P<iseq>[a-z0-9_]+?)_(?P<ivar>rgbd)_(?P<ikind>odom|slam)"
+    r"|tartan_(?P<aseq>[a-z0-9_]+?_Hard_P\d+)_(?P<avar>stereo)_(?P<akind>odom|slam)"
     r"|tumvi_(?P<vseq>\w+?)_(?P<vvar>inertial)_(?P<vkind>odom|slam))$")
 
 
@@ -83,6 +89,10 @@ def parse_name(name):
         return "euroc", g["eseq"], g["evar"], g["ekind"]
     if g["tseq"]:
         return "tum", g["tseq"], g["tvar"], g["tkind"]
+    if g["iseq"]:
+        return "icl", g["iseq"], g["ivar"], g["ikind"]
+    if g["aseq"]:
+        return "tartan", g["aseq"], g["avar"], g["akind"]
     return "tumvi", g["vseq"], g["vvar"], g["vkind"]
 
 
