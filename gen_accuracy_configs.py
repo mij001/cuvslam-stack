@@ -32,11 +32,43 @@ EUROC = [("MH/machine_hall", s) for s in
          ["MH_01_easy", "MH_02_easy", "MH_03_medium", "MH_04_difficult", "MH_05_difficult"]] + \
         [("VR1/vicon_room1", s) for s in ["V1_01_easy", "V1_02_medium", "V1_03_difficult"]] + \
         [("VR2/vicon_room2", s) for s in ["V2_01_easy", "V2_02_medium", "V2_03_difficult"]]
-TUM_RGBD = ["rgbd_dataset_freiburg3_long_office_household",
-            "rgbd_dataset_freiburg3_nostructure_notexture_far",
-            "rgbd_dataset_freiburg3_nostructure_notexture_near_withloop",
-            "rgbd_dataset_freiburg3_nostructure_texture_far"]
+# TUM fr3 — the paper's Table-4 set (10 sequences) UNION our earlier extras
+# (the two nostructure_notexture seqs we already characterized). Data-driven:
+# any absent sequence is skipped, so downloading the missing ones just activates
+# more configs on the next run.
+TUM_RGBD_PAPER = [
+    "rgbd_dataset_freiburg3_cabinet",                       # "large cabinet" (val variant below)
+    "rgbd_dataset_freiburg3_long_office_household",
+    "rgbd_dataset_freiburg3_nostructure_texture_far",
+    "rgbd_dataset_freiburg3_nostructure_texture_near_withloop",
+    "rgbd_dataset_freiburg3_sitting_halfsphere",
+    "rgbd_dataset_freiburg3_sitting_xyz",
+    "rgbd_dataset_freiburg3_structure_texture_far",
+    "rgbd_dataset_freiburg3_structure_texture_near",
+    "rgbd_dataset_freiburg3_teddy",
+]
+TUM_RGBD_EXTRA = [
+    "rgbd_dataset_freiburg3_nostructure_notexture_far",
+    "rgbd_dataset_freiburg3_nostructure_notexture_near_withloop",
+]
+TUM_RGBD = TUM_RGBD_PAPER + TUM_RGBD_EXTRA
 FR3 = dict(focal=[535.4, 539.2], principal=[320.1, 247.6])
+
+# ICL-NUIM (Handa et al.) — synthetic RGB-D, the paper's "Mono-Depth" benchmark.
+# The TUM-format ("_frei_png") release drops straight into the tum source +
+# tum gt_format. Camera: 640x480, fx=481.20 fy=480.00 cx=319.50 cy=239.50,
+# depth scale 5000 (TUM convention). 8 trajectories.
+ICL_NUIM = [f"living_room_traj{i}_frei_png" for i in range(4)] + \
+           [f"traj{i}_frei_png" for i in range(4)]     # office room "traj0..3"
+ICL = dict(focal=[481.20, 480.00], principal=[319.50, 239.50])
+
+# TartanAir — synthetic stereo, the paper's Table-2/Table-3 "Stereo" benchmark
+# (120 Hard sequences, 18 environments). Pinhole 640x480, fx=fy=320.0,
+# cx=320.0 cy=240.0, stereo baseline 0.25 m, poses in NED. Discovered by
+# scanning the download tree (env/Hard/P0xx) — not hardcoded, so a partial
+# download just yields fewer configs.
+TARTANAIR = dict(focal=[320.0, 320.0], principal=[320.0, 240.0], baseline=0.25)
+
 OUT_ROOT = "/mnt/data/accuracy_out"
 
 
@@ -219,6 +251,101 @@ timestamp_unit = "s"
 """
 
 
+def icl_cfg(root, seq, kind):
+    """ICL-NUIM (Mono-Depth). TUM-format release → tum source + tum gt_format."""
+    name = f"icl_{seq.replace('_frei_png','')}_rgbd_{kind}"
+    path = f"{root}/ICL-NUIM/{seq}"
+    slam, async_sba = slam_block(kind)
+    out, d = out_paths(name)
+    return name, f"""# accuracy matrix: ICL-NUIM {seq} RGBD {kind}  (paper Mono-Depth)
+[run]
+verbosity = 0
+max_frames = 0
+
+[input]
+type = "tum"
+path = "{path}"
+max_time_diff = 0.02
+max_gap = 0.5
+
+[odometry]
+odometry_mode = "RGBD"
+async_sba = {async_sba or 'false'}
+
+  [odometry.rgbd]
+  depth_scale_factor = 5000.0
+  depth_camera_id = 0
+{slam}
+[[rig.cameras]]
+size = [640, 480]
+focal = {ICL['focal']}
+principal = {ICL['principal']}
+
+{out}
+timestamp_unit = "s"
+
+{eval_block(f"{path}/groundtruth.txt", "tum", f"{d}/eval.txt",
+            extra='gt_time_unit = "s"\nrpe_distances = [1, 2, 4]\nrpe_delta = 1\nrpe_delta_unit = "s"')}
+"""
+
+
+def tartanair_cfg(root, env, diff, pxx, kind):
+    """TartanAir stereo. image_folder source; GT pre-converted to TUM format
+    (groundtruth_tum.txt) and a synthetic times.txt written by the prep script,
+    so no runner change is needed. Pinhole 640x480, baseline 0.25 m."""
+    name = f"tartan_{env}_{diff}_{pxx}_stereo_{kind}"
+    sdir = f"{root}/tartanair/{env}/{diff}/{pxx}"
+    f = TARTANAIR["focal"][0]
+    cx, cy = TARTANAIR["principal"]
+    base = TARTANAIR["baseline"]
+    slam, async_sba = slam_block(kind)
+    out, d = out_paths(name)
+    return name, f"""# accuracy matrix: TartanAir {env}/{diff}/{pxx} stereo {kind}
+[run]
+verbosity = 0
+max_frames = 0
+
+[input]
+type = "image_folder"
+root = "{sdir}"
+
+  [[input.cameras]]
+  images = "image_left/*.png"
+
+  [[input.cameras]]
+  images = "image_right/*.png"
+
+  [input.timestamps]
+  mode = "file"
+  path = "times.txt"
+  unit = "s"
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+async_sba = {async_sba or 'false'}
+{slam}
+[[rig.cameras]]
+size = [640, 480]
+focal = [{f}, {f}]
+principal = [{cx}, {cy}]
+
+[[rig.cameras]]
+size = [640, 480]
+focal = [{f}, {f}]
+principal = [{cx}, {cy}]
+  [rig.cameras.rig_from_camera]
+  translation = [{base:.6f}, 0.0, 0.0]
+
+{out}
+timestamp_unit = "s"
+
+{eval_block(f"{sdir}/groundtruth_tum.txt", "tum", f"{d}/eval.txt",
+            align="se3", extra='gt_time_unit = "s"\nrpe_distances = [8, 16, 32]\nrpe_delta = 1\nrpe_delta_unit = "s"')}
+"""
+
+
 def tumvi_cfg(mav0, name_stub, kind):
     name = f"tumvi_{name_stub}_inertial_{kind}"
     slam, async_sba = slam_block(kind)
@@ -284,6 +411,28 @@ def main():
             continue
         for kind in ("odom", "slam", "slam_cpu"):
             emit(*tum_cfg(args.root, seq, kind))
+
+    # ICL-NUIM (paper Mono-Depth) — TUM-format RGB-D
+    for seq in ICL_NUIM:
+        if not os.path.isdir(f"{args.root}/ICL-NUIM/{seq}"):
+            print(f"[skip] ICL-NUIM {seq}")
+            continue
+        for kind in ("odom", "slam"):
+            emit(*icl_cfg(args.root, seq, kind))
+
+    # TartanAir (paper Stereo) — scan env/Hard/P0xx; needs the prep script to
+    # have written times.txt + groundtruth_tum.txt per sequence.
+    for pxx_dir in sorted(glob.glob(f"{args.root}/tartanair/*/Hard/P0*") +
+                          glob.glob(f"{args.root}/tartanair/*/Easy/P0*")):
+        if not os.path.isdir(os.path.join(pxx_dir, "image_left")):
+            continue
+        if not os.path.isfile(os.path.join(pxx_dir, "groundtruth_tum.txt")):
+            print(f"[skip] TartanAir {pxx_dir} (run prep_tartanair first)")
+            continue
+        parts = pxx_dir.split("/")
+        env, diff, pxx = parts[-3], parts[-2], parts[-1]
+        for kind in ("odom", "slam"):
+            emit(*tartanair_cfg(args.root, env, diff, pxx, kind))
 
     for d in sorted(glob.glob(os.path.join(args.tumvi_extracted, "dataset-*_512_16"))):
         mav0 = os.path.join(d, "mav0")
