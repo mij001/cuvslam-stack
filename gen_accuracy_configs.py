@@ -377,6 +377,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--root", default="/mnt/data")
     ap.add_argument("--tumvi-extracted", default=os.path.expanduser("~/tumvi_extracted"))
+    ap.add_argument("--tartanair-v1-extra", action="store_true",
+                    help="also emit TartanAir V1 single-stereo configs (NOT a "
+                         "paper benchmark; the paper uses V2 multi-stereo)")
     ap.add_argument("--out", default="configs/accuracy_matrix")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
@@ -420,19 +423,24 @@ def main():
         for kind in ("odom", "slam"):
             emit(*icl_cfg(args.root, seq, kind))
 
-    # TartanAir (paper Stereo) — scan env/Hard/P0xx; needs the prep script to
-    # have written times.txt + groundtruth_tum.txt per sequence.
-    for pxx_dir in sorted(glob.glob(f"{args.root}/tartanair/*/Hard/P0*") +
-                          glob.glob(f"{args.root}/tartanair/*/Easy/P0*")):
-        if not os.path.isdir(os.path.join(pxx_dir, "image_left")):
-            continue
-        if not os.path.isfile(os.path.join(pxx_dir, "groundtruth_tum.txt")):
-            print(f"[skip] TartanAir {pxx_dir} (run prep_tartanair first)")
-            continue
-        parts = pxx_dir.split("/")
-        env, diff, pxx = parts[-3], parts[-2], parts[-1]
-        for kind in ("odom", "slam"):
-            emit(*tartanair_cfg(args.root, env, diff, pxx, kind))
+    # TartanAir — NOTE: the paper (2506.04359v3 Table 3) evaluates TartanAir
+    # **V2, Hard, in MULTI-STEREO (multi-camera) mode**, NOT V1 single-stereo.
+    # The V1 single-stereo configs below are a valid extra cuVSLAM workload but
+    # are NOT the paper's benchmark, so they are OFF by default. The paper's
+    # TartanAir (V2 multi-cam) + TartanGround need multi-camera rig configs — a
+    # separate builder (tartanair_v2_cfg) once that dataset is on disk.
+    if args.tartanair_v1_extra:
+        for pxx_dir in sorted(glob.glob(f"{args.root}/tartanair/*/Hard/P0*") +
+                              glob.glob(f"{args.root}/tartanair/*/Easy/P0*")):
+            if not os.path.isdir(os.path.join(pxx_dir, "image_left")):
+                continue
+            if not os.path.isfile(os.path.join(pxx_dir, "groundtruth_tum.txt")):
+                print(f"[skip] TartanAir {pxx_dir} (run prep_tartanair first)")
+                continue
+            parts = pxx_dir.split("/")
+            env, diff, pxx = parts[-3], parts[-2], parts[-1]
+            for kind in ("odom", "slam"):
+                emit(*tartanair_cfg(args.root, env, diff, pxx, kind))
 
     for d in sorted(glob.glob(os.path.join(args.tumvi_extracted, "dataset-*_512_16"))):
         mav0 = os.path.join(d, "mav0")

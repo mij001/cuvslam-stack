@@ -36,10 +36,27 @@ PAPER_T2 = {
     ("euroc", "inertial", "slam"): (0.29, 2.27, 0.13),
     ("tum", "rgbd", "odom"): (1.35, 5.52, 0.11),
     ("tum", "rgbd", "slam"): (0.99, 4.13, 0.065),
-    # TODO paper baselines (Table 2 rows) — fill from arXiv:2506.04359 when
-    # reachable; runs are still scored vs ground truth without them.
-    # ("icl", "rgbd", "odom"): (?, ?, ?),      # Mono-Depth / ICL-NUIM
-    # ("tartan", "stereo", "odom"): (?, ?, ?), # Stereo / TartanAir (120 Hard)
+    # Mono-Depth — ICL-NUIM (2506.04359v3 Table 2, exact)
+    ("icl", "rgbd", "odom"): (0.41, 0.99, 0.026),
+    ("icl", "rgbd", "slam"): (0.44, 0.97, 0.026),
+    # Stereo-Inertial — TUM-VI Room (Table 2)
+    ("tumvi", "inertial", "odom"): (0.20, 3.85, 0.18),
+    ("tumvi", "inertial", "slam"): (0.12, 3.00, 0.12),
+    # Mono-Depth — AR-table (Chen 2023; dataset not yet on disk, baseline kept
+    # for when it is): odom 0.34/3.59/0.09, slam 0.19/1.68/0.025.
+    # ("artable", "rgbd", "odom"): (0.34, 3.59, 0.09),
+}
+
+# Table 3 — Multi-Stereo (multi-camera) mode. TartanAir here is **V2, Hard,
+# Multi-Stereo** (not the V1 single-stereo); TartanGround is also multi-camera;
+# R2B is proprietary. These need multi-camera rig configs (separate effort).
+PAPER_T3_MULTISTEREO = {
+    ("tartanair_v2", "hard", "odom"): (2.44, 13.98, 5.24),
+    ("tartanair_v2", "hard", "slam"): (2.26, 12.76, 4.99),
+    ("tartanground", "-", "odom"): (0.21, 0.48, 0.09),
+    ("tartanground", "-", "slam"): (0.17, 0.37, 0.07),
+    ("r2b", "-", "odom"): (0.18, 1.15, 0.28),      # proprietary
+    ("r2b", "-", "slam"): (0.11, 0.70, 0.18),
 }
 # Table 6 per-sequence rows we have on disk (avgRTE, avgRE, RMSE APE m)
 PAPER_T6 = {
