@@ -165,6 +165,33 @@ unmapped or driver-internal globals. Consistent with **static module memory**
 traffic is a lower bound). Stable, bounded, explained — and namable via the
 optional Layer-3 refinement (§4, path C3).
 
+### F13 — Accuracy validation: we profiled a correctly-functioning system
+The characterization is only meaningful if the cuVSLAM runs it measured were
+producing *correct* trajectories. Full config matrix — **104 runs** across all
+on-disk datasets × camera variants (stereo / stereo-inertial / mono / RGB-D) ×
+pipeline modes (odometry / SLAM / sync / async / GPU / CPU) — scored against
+ground truth and compared to the paper (arXiv:2506.04359, Tables 2 & 6).
+Results (`reports/2026-07-06_accuracy/`):
+- **The profiled modes reproduce the paper.** EuRoC stereo APE
+  **0.114 / 0.051 m** (odom/slam) vs paper 0.13 / 0.054 (millimetre match);
+  TUM fr3 long_office **0.109 / 0.018 m** beats the paper's 0.20 / 0.06; KITTI
+  500 m-segment drift **0.82 %** matches the leaderboard 0.85 %. Stereo and
+  RGB-D SLAM are exactly the modes the memory characterization used.
+- **Instrumentation is accuracy-neutral (QoR).** The TaggedAllocator
+  instrumented wheel's trajectories equal the baseline wheel's (EuRoC
+  bit-identical; KITTI/TUM within run-to-run nondeterminism ≤0.24 m over
+  km-scale paths). The build we profiled behaves as the shipping binary — the
+  linchpin closing the characterization's validity threat.
+- **Feature toggles behave as designed:** SLAM −0.32 m vs odometry (loop
+  closure reduces drift); async +0.14 m vs sync (latency trade); CPU ≈ GPU
+  SLAM. Independent evidence the pipeline is wired correctly.
+- **One isolated defect, explained:** inertial (IMU) mode is under-tuned
+  (generic config, not the paper's per-dataset IMU calibration) — only 3/11
+  EuRoC inertial sequences converge; it does **not** touch the stereo/RGB-D
+  characterization and has a scoped config-only fix. TUM-VI (fisheye not
+  undistorted) and mono (needs Sim3 alignment) exclusions are data-prep /
+  metric-definition issues, not cuVSLAM failures. → `reports/2026-07-06_accuracy/`.
+
 ---
 
 ## 2. Tooling contributions (defensible as artifacts)
@@ -202,6 +229,11 @@ optional Layer-3 refinement (§4, path C3).
    the pipeline catches its own errors.
 5. **"Spill is a hidden memory citizen"** (F11) — a genuinely new observation
    for SLAM workloads with its own hardware implication.
+6. **"The measurements are of a *correct* system"** (F13): the profiled
+   stereo/RGB-D SLAM modes reproduce NVIDIA's published accuracy, and the
+   instrumented build is trajectory-identical to the baseline. This is the
+   claim that makes all the others admissible — you profiled cuVSLAM, not a
+   broken configuration of it.
 
 ---
 
@@ -217,6 +249,12 @@ optional Layer-3 refinement (§4, path C3).
 | G6 | TEX-path invisibility → image traffic lower bound | low — disclosed | note in limitations; ncu texture counters corroborate |
 | G7 | Repo LICENSE absent (artifact evaluation requires one) | administrative | **user decision** |
 | G8 | One workload family (cuVSLAM) — "is it representative?" | low-medium | argue production-grade + Isaac deployment; optionally sketch ORB-SLAM3 contrast in related work (do NOT expand scope) |
+| G9 | **Inertial (IMU) mode under-tuned** (F13): only 3/11 EuRoC inertial sequences converge; generic IMU config, not the paper's per-dataset noise/extrinsics calibration | low — does NOT affect the profiled stereo/RGB-D modes; disclosed | scoped config fix: populate EuRoC IMU intrinsics/extrinsics from each `sensor.yaml`, re-run the 22 inertial configs |
+| G10 | **TUM-VI / mono excluded from accuracy validation** (F13): TUM-VI fisheye not undistorted (<180° support); mono needs Sim3 alignment | low — data-prep / metric-definition, not tracking failures; disclosed | undistort TUM-VI to pinhole + re-run; add Sim3 alignment path to the evaluator for mono |
+
+Note: the previous "single-workload accuracy unvalidated" risk is now **closed**
+by F13 for the modes we actually characterize (stereo, RGB-D). G9/G10 are
+residual accuracy items on modes the memory characterization does not use.
 
 ---
 

@@ -494,6 +494,44 @@ and will poison locality analyses that don't filter by space.
 | **hot-persistent** | ba_linear_system 24.3 MB (+15.4 MB pinned mirror) | 96–100 % of solver global traffic on one pre-sized structure, every frame | **DRAM-PiM**: bank-level streaming compute over a fixed-size resident structure |
 | **cold-persistent** | keyframe DB: 6.7 MB fixed on GPU; growing store host-side (LMDB) | scan = scattered gather, footprint grows 0.46→1.09 MB room→street, 10–33 % turnover/scan; DB growth measured host-side | **ISP** at the host store; on-GPU: spill-SRAM (volume) + near-memory gather (latency) |
 
+## 20b. The accuracy validation (why any of the above is admissible)
+
+A characterization only means something if you profiled a *correctly working*
+system. So we ran the entire config matrix — **104 runs**, every dataset ×
+camera type (stereo / stereo-inertial / mono / RGB-D) × pipeline mode
+(odometry / SLAM / sync / async / GPU / CPU) — scored each trajectory against
+ground truth with the paper's own error metrics, and compared to NVIDIA's
+published numbers (arXiv:2506.04359). Definitions you'll need:
+
+- **Ground truth**: the true camera path, from motion capture (EuRoC), GPS/INS
+  (KITTI), or an external tracker (TUM). You compare your estimated path to it.
+- **APE — Absolute Pose/Trajectory Error**: align your path to ground truth
+  (rigid SE3, or Sim3 if scale is free) and take the RMS position difference.
+  The standard, definition-stable accuracy number. **RMS** = root-mean-square.
+- **avgRTE — average Relative Translation Error**: chop the path into fixed-
+  length segments, measure drift over each, average. Scale-independent (works
+  for KITTI's kilometres and EuRoC's metres) — so it's our "did tracking hold?"
+  gate: a run **converged** if avgRTE < 5 %.
+- **QoR — Quality of Results**: does our *instrumented* build produce the same
+  trajectories as the *baseline* build?
+
+Three results carry the defense:
+1. **The profiled modes reproduce the paper.** EuRoC stereo APE
+   **0.114 / 0.051 m** vs paper 0.13 / 0.054 (millimetres apart); TUM
+   long_office **beats** the paper (0.018 vs 0.06 m); KITTI 500 m-segment drift
+   **0.82 %** matches the leaderboard 0.85 %. Stereo + RGB-D SLAM are exactly
+   what the memory work profiled → we measured a correct system.
+2. **QoR: instrumented == baseline** (EuRoC bit-identical; KITTI/TUM within
+   run-to-run noise). The build we profiled *is* the shipping build,
+   behaviourally.
+3. **Toggles behave as designed** — SLAM beats odometry by 0.32 m (loop closure
+   works), async slightly worse than sync, CPU ≈ GPU SLAM — independent proof
+   the pipeline is wired right.
+   One honest defect, isolated: inertial (IMU) mode is under-tuned (generic
+   config, not the paper's per-dataset IMU calibration) and mostly diverges; it
+   does not touch the stereo/RGB-D characterization and has a config-only fix.
+   → `reports/2026-07-06_accuracy/ACCURACY.md`.
+
 ---
 
 # PART V — FACING THE PANEL
@@ -711,6 +749,25 @@ methodology others are using right now; (4) the toolchain itself, portable
 and artifact-ready. "Profilers exist" is precisely the point: profilers
 answered *how much*; none of them answered *which data*.
 
+**Q19. "Your accuracy is off from the cuVSLAM paper — inertial diverges, KITTI
+APE is higher, TUM-VI is kilometres wrong. Did you even run it correctly?"**
+A: Separate the modes, because the answer differs by mode and only some modes
+matter. The modes we profiled — stereo and RGB-D SLAM — reproduce the paper:
+EuRoC stereo APE 0.114/0.051 m vs their 0.13/0.054, TUM long_office better than
+the paper, KITTI at 0.82 % on the 500 m leaderboard segment vs their 0.85 %.
+The discrepancies are all on modes the characterization does not use and each
+has a named cause: inertial mode is under-tuned because we used a generic IMU
+config, not the paper's per-dataset noise/extrinsic calibration — and tellingly,
+turning the IMU *on* makes it worse, the classic signature of mis-scaled IMU
+noise, not a cuVSLAM bug; TUM-VI's 195° fisheye was never undistorted to the
+pinhole model cuVSLAM needs, so that's invalid input, not a tracking result;
+mono needs Sim3 scale alignment which our SE3 evaluator didn't apply. KITTI's
+higher *absolute* APE is one hard highway sequence (01) plus the km-scale of the
+trajectories — on the definition-stable per-segment metric it matches. And the
+clincher: our instrumented build produces trajectories identical to the baseline
+wheel, so whatever accuracy cuVSLAM has, that's the accuracy of the system we
+profiled. It's all in `reports/2026-07-06_accuracy/`, gated and itemized.
+
 ## 23. Numbers to know cold (flashcards)
 
 | number | what it is |
@@ -724,6 +781,9 @@ answered *how much*; none of them answered *which data*.
 | **205.0 GB/s / 5445 GFLOP/s** | measured DRAM / FP32 ceilings at lock |
 | **240 / 108.65 MB** | GPU allocations / total, static for whole run |
 | **6.73 MB** | fixed GPU keyframe-descriptor buffer |
+| **0.114 / 0.13 m** | EuRoC stereo odom APE: ours / paper (reproduces) |
+| **104 / 62** | accuracy runs / converged; the rest excluded with reasons |
+| **QoR ≈ 0** | instrumented vs baseline trajectory diff (EuRoC bit-identical) |
 | **94 % / 5 %** | st_track: spill share / descriptor share |
 | **23–30 vs ~2** | sectors/warp: st_track global (scatter) vs spill (coalesced) |
 | **0.46 → 1.09 MB, J 0.67 → 0.90** | scan footprint & Jaccard, room → street |
@@ -741,6 +801,11 @@ answered *how much*; none of them answered *which data*.
 4. Naming the static-memory residual — optional Layer-3 refinement.
 5. Energy — NVML whole-run imminent; per-kernel with AccelWattch later.
 6. LICENSE for artifact evaluation — administrative, pending.
+7. Inertial-mode accuracy — under-tuned generic IMU config; config-only fix
+   (per-dataset noise/extrinsics). Does not affect the profiled stereo/RGB-D
+   modes.
+8. TUM-VI (fisheye undistortion) and mono (Sim3 alignment) accuracy runs —
+   data-prep / evaluator additions, not tracking failures.
 
 ---
 
@@ -757,6 +822,11 @@ answered *how much*; none of them answered *which data*.
   code/data; badges awarded.
 - **ARI — Adjusted Rand Index** — chance-corrected agreement between two
   clusterings (0 random, 1 identical).
+- **APE / ATE — Absolute Pose / Trajectory Error** — RMS position difference
+  between estimated and ground-truth paths after alignment; the standard
+  accuracy metric.
+- **avgRTE — average Relative Translation Error** — segment-wise drift %,
+  scale-independent; our tracking-convergence gate (< 5 %).
 - **ASLR** — address-space layout randomization; OS loads code at random
   addresses per run; we log memory maps so backtraces stay resolvable.
 - **BA — Bundle Adjustment** — nonlinear least-squares over poses and
@@ -817,6 +887,13 @@ answered *how much*; none of them answered *which data*.
   device-visible under UVA; tagged `:host` in our tables.
 - **pyramid** — multi-resolution image stack for coarse-to-fine tracking.
 - **RGB-D** — color + depth camera.
+- **RMS / RMSE** — root-mean-square (error); the quadratic-mean magnitude.
+- **QoR — Quality of Results** — here, whether the instrumented build's
+  trajectories match the baseline build's (they do → accuracy-neutral).
+- **ground truth** — the true camera path (mocap / GPS-INS / external tracker)
+  that estimated trajectories are scored against.
+- **Sim3 / SE3** — trajectory alignment with / without a free scale factor;
+  monocular needs Sim3 (no metric scale), stereo/RGB-D use SE3.
 - **roofline** — performance bound model: min(compute roof, bandwidth ×
   arithmetic intensity).
 - **Schur complement** — matrix elimination trick making BA tractable.
