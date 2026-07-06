@@ -3,9 +3,10 @@
 *Maps the objectives of the approved FYP proposal ("profiling a
 state-of-the-art autonomous-driving stack on NVIDIA Jetson Orin to justify
 and inform the design of a memory-centric accelerator") onto the completed
-project (the cuVSLAM memory characterization). Every claim cites a committed,
-reproducible artifact in this repository. This is a fulfillment argument, not
-a new proposal.*
+project (the cuVSLAM memory characterization). **Every claim below carries a
+citation to a committed, reproducible artifact in this repository** — file
+paths are given in-line, and §D is a one-page claim→evidence index. This is
+a fulfillment argument, not a new proposal.*
 
 ---
 
@@ -16,22 +17,20 @@ autonomous systems are constrained by the memory wall, that *"a tailored,
 workload-aware PIM design is essential,"* and that the project would
 therefore deliver *"a detailed, quantitative analysis of [a real AD
 workload's] memory access patterns"* to drive that design. **That core is
-fulfilled in full, and at a finer granularity than proposed.** Two
-substitutions were forced by procurement reality (the Jetson Orin could not
-be procured; only the workstation could) and are shown below to be
-scope-preserving: the workload (Autoware → cuVSLAM, NVIDIA's production
-localization stack) and the platform (Jetson Orin → RTX 2000 Ada
-workstation, with the methodology deliberately built hardware-parameterized
-so the Orin run is a configuration swap, not new science). The scheduler
-and analytical-model objectives (5 and 6) are **delivered at the proposal's
-own stated level of implementation** — a Python analytical model over real
-measured counters (`pim_placement_model.py`), which validates the
-proposal's central hypothesis: selective GPU/PIM placement beats both
-static baselines. The single deliberately deferred item is the detailed
-**architectural specification** (Objective 4's design document) and its
-simulation-grade evaluation — deferred for a scientific reason the
-characterization itself produced (§B), with every input artifact for that
-phase already generated and committed.
+fulfilled in full, and at a finer granularity than proposed** — down to
+which named data structure every GPU kernel's memory traffic lands in,
+across 27 sequences from 4 public datasets. Two substitutions were forced by
+procurement reality (the Jetson Orin could not be procured; only the
+workstation could) and are shown below to be scope-preserving: the workload
+(Autoware → cuVSLAM, NVIDIA's production localization stack) and the
+platform (Jetson Orin → RTX 2000 Ada workstation, with the methodology
+deliberately built hardware-parameterized so the Orin run is a
+configuration swap — the descriptor is already committed,
+`profiling/hw/jetson_orin_sm87.toml`). The deliberately deferred item is
+the proposal's Phase-3 co-design back half (Objectives 4–6: the
+architectural specification, scheduler, and analytical model), deferred for
+a scientific reason the characterization itself produced (§B), with every
+input artifact for that phase already generated, committed, and cited.
 
 ---
 
@@ -41,280 +40,340 @@ phase already generated and committed.
 
 **Core requirement:** a stable, repeatable, real-system testbed running a
 state-of-the-art autonomous-system workload, suitable for trustworthy
-profiling (proposal §5.1: "a repeatable and relevant experimental
-environment is the foundation of this research").
+profiling (proposal §5.1: *"a repeatable and relevant experimental
+environment is the foundation of this research"*).
 
-**How it is fulfilled.** We deployed **cuVSLAM 15** — NVIDIA's production
-visual-SLAM stack, shipped inside NVIDIA Isaac and deployed on real robots
-and AVs — as a fully scripted, versioned testbed on the RTX 2000 Ada
-workstation, including a **from-source instrumented build** (which the
-proposal never reached for Autoware). The testbed exceeds the proposal's
-stability bar by construction:
+**How it is fulfilled — with proof:**
 
-- Locked GPU clocks (1620/7001 MHz): run-to-run coefficient of variation
-  **0.14 %** vs 49.6 % unlocked — i.e., the "stable testbed" is *quantified*,
-  not asserted (`profiling/METHODOLOGY.md`).
-- A pinned, mutually compatible driver/toolchain stack (driver 575.64.05,
-  CUDA 12.9, ncu 2025.2, NVBit 1.8) solved on one machine.
-- Full-sequence deterministic replay: the allocation structure is
-  bit-identical across runs and run lengths (240 identical allocations for a
-  30-frame and a 2 500-frame run).
-- **Correctness validated, not assumed**: a 104-run accuracy matrix evaluates
-  our deployment against ground truth on every dataset and reproduces or
-  beats the vendor paper's published accuracy (e.g., KITTI SLAM APE 1.41 m
-  vs the paper's 1.98 m; EuRoC V1_01 ATE 7.78 cm). The proposal had no
-  correctness-validation step at all — our testbed is demonstrably running
-  the workload *as intended by its vendor*.
+- **Deployed production stack.** cuVSLAM 15 — NVIDIA's production visual-SLAM
+  library, shipped in NVIDIA Isaac — deployed as a fully scripted testbed,
+  including a **from-source instrumented build** (which the proposal never
+  contemplated for Autoware).
+  *Proof:* the runner and configs (`run.py`, `cuvslam_runner/`,
+  `configs/`), the build recipe (`patches/0001-podman-wheel-build-cuda13.patch`),
+  and the instrumentation patch (`patches/0002-tagged-allocator-nvtx.patch`).
+- **Stability quantified, not asserted.** Locked GPU clocks give a 5-repeat
+  run-to-run coefficient of variation of **0.14 %**, versus **49.6 %**
+  measured unlocked — a 350× improvement in measurement stability, with the
+  protocol documented.
+  *Proof:* `profiling/PUBLISHABILITY.md` (issue 1, CLOSED),
+  `profiling/METHODOLOGY.md`, variance analysis in
+  `profiling/analysis/variance.py`.
+- **Calibrated, not datasheet-driven.** Roofline ceilings measured on the
+  testbed at lock: **205.0 GB/s ± 0.1 DRAM, 5 445 GFLOP/s ± 3 FP32**.
+  *Proof:* `profiling/env/measure_ceilings.py`;
+  `profiling/hw/dellworkstation_sm89.toml`.
+- **Deterministic replay.** The workload's allocation structure is
+  bit-identical across runs and run lengths — the same 240 device
+  allocations for a 30-frame and a 2 500-frame run.
+  *Proof:* `profiling/reports/2026-07-04_attribution/alloc_table_full_run.csv`
+  and ATTRIBUTION.md ("identical structure across all runs").
+- **Correctness validated against the vendor.** The proposal had no
+  correctness check at all; our testbed's trajectories are evaluated
+  against ground truth with the vendor paper's own metrics, and reproduce
+  or beat its published accuracy: KITTI 00–10 SLAM **RMSE APE 1.413 m vs
+  the paper's 1.98 m**, segment avgRTE **0.750 % vs 0.85 %**; EuRoC V1_01
+  stereo **ATE 7.78 cm**, reproduced exactly across machines and builds.
+  *Proof:* `results/kitti_00-10_sweep.txt` (per-sequence tables with the
+  paper deltas printed), `kitti_paper_sweep.py` (paper constants encoded),
+  `PAPER_DATASETS.md` (per-mode validation status), `evaluate.py` +
+  `cuvslam_runner/eval.py` (the metric implementations), and the 104-config
+  matrix tooling (`gen_accuracy_configs.py`, `ws_accuracy_matrix.sh`,
+  `accuracy_report.py`).
 
 **On the two substitutions:**
 
-- *Platform.* The Jetson Orin AGX Developer Kit **could not be procured**;
-  the department could provide only the Dell workstation (RTX 2000 Ada).
-  This constraint was outside the project's control. The substitution was
-  absorbed methodologically: all analyses are **hardware-parameterized**
-  (per-device descriptor files; `hw/jetson_orin_sm87.toml` is written and
-  committed, ready for the Orin), and the headline analyses are
-  **architecture-independent by construction** (reuse-distance CDFs and
-  address-to-data-structure attribution are properties of the workload's
-  address stream, not of the machine measured on). Orin (SM 8.7) and the
-  RTX 2000 Ada (SM 8.9) are adjacent members of the same architectural
-  family. Moreover, the workstation *enabled* rigor the Orin cannot deliver:
-  NVBit binary instrumentation (driver-version-gated; required a controlled
-  driver downgrade impossible on JetPack), interchangeable Nsight versions,
-  and the trace formats required by the GPU simulator for the follow-on
-  phase.
+- *Platform.* The Jetson Orin AGX Developer Kit **could not be procured;
+  the department could provide only the Dell workstation** (RTX 2000 Ada).
+  The constraint was outside the project's control, and it was absorbed
+  methodologically rather than by narrowing scope: every analysis is
+  hardware-parameterized through per-device descriptor files — the Orin
+  descriptor is already written (*proof:*
+  `profiling/hw/jetson_orin_sm87.toml`, alongside `mx450_sm75.toml` and
+  `rtx2000ada_sm89.toml`, demonstrating the harness genuinely runs across
+  device classes) — and the headline analyses are architecture-independent
+  by construction: reuse-distance CDFs and address-to-structure attribution
+  are properties of the workload's address stream, not of the GPU measured
+  on (*proof:* methodology notes in
+  `profiling/reports/2026-07-04_slice3_locality/FINDINGS.md` §1). Orin
+  (SM 8.7) and the RTX 2000 Ada (SM 8.9) are adjacent members of the same
+  architecture family. The workstation moreover *enabled* rigor a Jetson
+  cannot: NVBit binary instrumentation required a controlled driver
+  downgrade to 575.64.05 coexisting with CUDA-12.9 Nsight tools (*proof:*
+  the unified-stack notes in `profiling/PROJECT_STATUS.md` and the gating
+  script `profiling/blocked/check_capability.sh`), which is impossible on
+  JetPack's fixed driver.
 - *Workload.* Autoware is an umbrella stack; its data-intensive, GPU-heavy
-  core modules are perception and **localization**. cuVSLAM is precisely a
-  production localization module — the visual-SLAM counterpart of the
-  proposal's target — with the decisive advantages that (a) it is
-  GPU-native end-to-end (Autoware's GPU coverage is partial), (b) it is
-  production code, satisfying the proposal's "real-world application needs"
-  requirement more strongly than a research assembly, and (c) its full
-  source was obtainable, enabling the from-source instrumentation that
-  became the project's main contribution. The proposal's gap statement —
-  "a detailed analysis that connects [PIM] architectural concepts to the
-  specific, fine-grained bottlenecks of a full, state-of-the-art
-  [autonomous] stack is still missing" — is answered exactly, for the
-  localization stack.
+  core modules are perception and **localization**. cuVSLAM is a production
+  localization module — with the decisive advantages that it is GPU-native
+  end-to-end, production-deployed (a stronger instance of the proposal's
+  "real-world application needs" than a research assembly), and
+  source-obtainable, which enabled the from-source instrumentation that
+  became the project's main methodological contribution. The proposal's own
+  gap statement — *"a detailed analysis that connects [PIM] architectural
+  concepts to the specific, fine-grained bottlenecks of a full,
+  state-of-the-art [autonomous] stack is still missing"* — is answered
+  exactly, for the localization stack.
 
 ### Objective 2 — *"Perform a comprehensive profiling of data-intensive modules under varying workload conditions (e.g., different sensor data densities) to understand how bottlenecks change dynamically."*
 
 **Core requirement:** multi-configuration profiling across workload
-intensities; understand bottleneck dynamics.
+intensities; understand bottleneck dynamics. The proposal's §5.2 names the
+instruments: nsys for end-to-end movement, ncu for per-kernel stall/bound
+analysis.
 
-**How it is fulfilled — and exceeded.** This is the completed project's
-center of mass:
+**How it is fulfilled — and exceeded, with proof:**
 
-- **Varying workload conditions, at far larger scale than proposed:** a
-  **27-sequence campaign across 4 public datasets** (KITTI street-scale
-  driving 00–10, EuRoC aggressive drone flight ×11, TUM RGB-D indoor ×4
-  including texture/structure ablations, TUM-VI), each in odometry *and*
-  full-SLAM mode, zero failures — spanning indoor/outdoor, room/street
-  scale, sparse/dense features, loop/no-loop trajectories, and (in the
-  accuracy matrix) mono/stereo/RGB-D/inertial sensor configurations. The
-  proposal envisioned "multiple rosbags (sparse highway vs dense urban)";
-  the delivered matrix is the same axis, wider.
-- **The proposed toolchain, plus a deeper one:** the proposal named nsys and
-  ncu stall/roofline analysis; both were used exactly as proposed (Nsight
-  timeline + per-kernel counters, roofline against *measured* ceilings of
-  205.0 GB/s and 5 445 GFLOP/s). We then went two levels deeper than
-  proposed: **NVBit address traces** (ground-truth reuse-distance and
-  coalescing measurement, DAMOV Step-2) and **per-data-structure
-  attribution** (which allocation every access lands in — 48/49 kernels
-  attributed unanimously across all sequences).
-- **Bottleneck classification:** every kernel classified into memory-bound /
-  compute-bound behavior classes (GPU-adapted DAMOV taxonomy), validated by
-  unsupervised clustering (k-means silhouette optimum at k = 7–8 matching
-  the class count), with **61 % of GPU time carrying PiM affinity** — the
-  quantitative justification the proposal's title promised.
-- **"How bottlenecks change dynamically" — answered with evidence:** the
-  cross-sequence analysis shows per-kernel class consistency of **91 %**,
-  and the class flips that do occur happen at a *physically meaningful
-  boundary* (working set vs L2 capacity — e.g., the loop-closure scan's
-  footprint grows 0.46 → 1.09 MB from room-scale to street-scale). This is
-  the direct answer to the objective's question, and it is a *finding*, not
-  a limitation: bottleneck identity in this workload class is
-  predominantly **structural (per kernel and per data structure), not
-  transient (per scene)** — see Objective 3 and §B for why this reshapes
-  the design phase.
+- **The proposed instruments, used as proposed.** nsys end-to-end timelines
+  and ncu per-kernel counters (including the stall set the proposal called
+  out) drive the whole pipeline; the ncu metric taxonomy follows the
+  published GPU-database-characterization methodology [Cao23].
+  *Proof:* `profiling/harness/profile.py` (the nsys/ncu wrapper with its
+  curated `METRIC_SETS`), `profiling/analysis/roofline.py` (arithmetic-
+  intensity/boundness against the measured ceilings — the proposal's
+  memory-bound/compute-bound axis), `profiling/analysis/build_dag.py`,
+  `profiling/WALKTHROUGH.md`.
+- **Varying workload conditions, at far larger scale than proposed.** The
+  proposal envisioned "multiple rosbags (sparse highway vs dense urban)".
+  Delivered: a **27-sequence campaign across 4 public datasets** — KITTI
+  street-scale driving 00–10, EuRoC aggressive drone flight ×11, TUM RGB-D
+  indoor ×4 *including the texture/structure ablations (the direct analog
+  of sensor-density variation)*, TUM-VI — each in odometry *and* full-SLAM
+  mode, **0 failures**; plus a 104-configuration accuracy matrix spanning
+  mono/stereo/RGB-D/inertial sensing and sync/async/CPU-SLAM feature
+  toggles.
+  *Proof:* `profiling/reports/2026-07-04_campaign/CAMPAIGN.md` (the
+  campaign synthesis; re-derivable byte-identical from the committed
+  per-sequence CSVs in `per_sequence/`), `profiling/campaign/gen_configs.py`,
+  `gen_accuracy_configs.py` (the 104-config generator).
+- **Bottleneck classification, validated.** Every kernel classified into
+  memory/compute behavior classes (GPU-adapted DAMOV taxonomy);
+  **61 % of GPU time carries PiM affinity** (21 % strong + 40 %
+  conditional) — the quantitative justification the proposal's title
+  promised; and the class structure is confirmed by unsupervised
+  clustering (k-means silhouette optimum at k = 7–8, matching the class
+  count; purity 0.68).
+  *Proof:* `profiling/analysis/classify.py` (the G1–G7 decision tree),
+  `profiling/reports/2026-07-04_campaign/` (`clusters.csv`,
+  `cluster_sweep.csv`, PiM rollup table in CAMPAIGN.md),
+  `suggestions_and_summuries/Adapting_DAMOV_to_GPU.md` (the adaptation
+  study).
+- **Deeper than proposed, twice.** Beyond counters: (1) ground-truth
+  **address traces** (NVBit) giving measured reuse-distance-vs-capacity
+  curves, footprints, and coalescing — the front-end's reuse CDF is flat
+  from 64 KiB to 48 MiB, i.e. *provably* cache-immune streaming; (2)
+  **per-data-structure attribution** — which named allocation every access
+  lands in.
+  *Proof:* `profiling/analysis/locality.py` +
+  `profiling/reports/2026-07-04_slice3_locality/` (`data/`, `data_v2/`);
+  `profiling/analysis/attribution.py` +
+  `profiling/reports/2026-07-04_attribution/` (274/274 allocations
+  resolved; join tables); `profiling/blocked/mem_trace_windowing.patch`
+  and `mem_trace_alloc_events.patch` (the tool extensions that made both
+  feasible).
+- **Data movement at the system edge, measured.** Explicit host↔device
+  copies cost **41 % of kernel time** on the TUM workload; the sensor
+  upload is **1.68 MB/frame** — the proposal's "data movement overhead"
+  item (§5.2, nsys), quantified.
+  *Proof:* `profiling/analysis/transfers.py`; PUBLISHABILITY issue 11
+  (host↔device side marked resolved, with the numbers).
+- **"How bottlenecks change dynamically" — answered with evidence.**
+  Cross-sequence, per-kernel class consistency is **91 %** (24/49 kernels
+  unanimous, 42/49 ≥ 80 %), and the flips that do occur happen at a
+  physically meaningful boundary — working set vs L2 capacity (e.g., the
+  loop-closure scan's per-scan footprint grows 0.46 → 1.09 MB from
+  room-scale to street-scale).
+  *Proof:* `profiling/reports/2026-07-04_campaign/class_agreement.csv`;
+  footprint/Jaccard rows in
+  `reports/2026-07-04_slice3_locality/FINDINGS.md` (§3 table, unchanged by
+  the §5 correction).
 
-*Residual within this objective:* the proposal listed tegrastats power
-logging. Whole-run power via NVML is pending (it accompanies the deferred
-design phase, where per-kernel energy comes from AccelWattch); energy is the
-one axis of Objective 2 that moved with the deferred phase.
+*Residual within this objective, stated before the panel finds it:* the
+proposal listed tegrastats power logging; energy measurement moved with the
+deferred phase (§B), where per-kernel energy comes from the simulator's
+power model. This is disclosed in `profiling/PUBLISHABILITY.md` (issue 6).
 
 ### Objective 3 — *"Identify a low-cost, runtime-observable metric that correlates with a kernel's shift between memory-bound and compute-bound."*
 
 **Core requirement:** find the observable that predicts bound-ness.
 
-**How it is fulfilled (with an honest reframing).** The proposal
-hypothesized the metric by analogy (LiDAR point-cloud size). The measured
-answer for the localization stack has the same form and is now grounded:
+**How it is fulfilled (with an honest reframing) — with proof:**
 
-- The bound-ness-shifting mechanism, measured from address traces, is
-  **working-set footprint vs cache capacity** (the L2 crossover) — and the
-  runtime-observable quantities that drive that footprint are exactly the
-  workload-density analogs the proposal anticipated: **map size / keyframe
-  count / tracked-feature count / scene scale** (the loop-closure scan's
-  per-scan footprint scales with map extent; the ±25 % threshold
-  sensitivity analysis identifies precisely which kernels sit near the
-  crossover).
-- The stronger scientific result is that for **48 of 49 kernels the
+- The proposal *hypothesized* the metric by analogy (LiDAR point-cloud
+  size). The measured answer has the same form and is now grounded: the
+  bound-ness-shifting mechanism is **working-set footprint vs cache
+  capacity** (the L2 crossover), and the runtime-observable quantities
+  driving that footprint are the workload-density analogs the proposal
+  anticipated — map size / keyframe count / tracked-feature count / scene
+  scale.
+  *Proof:* the loop-closure scan's footprint scaling with map extent
+  (0.464 MB room → 1.093 MB street,
+  `reports/2026-07-04_slice3_locality/data_v2/*_sttrack_global/locality.csv`);
+  the ±25 % threshold sensitivity analysis identifying exactly which
+  kernels sit at the crossover (`profiling/METHODOLOGY.md`;
+  PUBLISHABILITY issue 2's note that the residual class flips are "the
+  physically-meaningful L2 crossover, not noise").
+- The stronger scientific result: for **48 of 49 kernels, the
   memory-behavior composition does not shift at all across 27 sequences**
-  — it is a stable property of the kernel and its data structure. The
-  honest conclusion, which we present as a first-class finding rather than
-  hide: *the dynamic-scheduling premise is largely refuted for this
-  workload class; the observable that matters is which **data structure** a
-  kernel touches (static, known at design time), with a small,
-  well-characterized dynamic residue at the L2 crossover.* An objective is
-  fulfilled when its research question is **answered by measurement** —
-  including when the answer is "the effect you planned to exploit is
-  smaller and more structured than hypothesized." This redirection is what
-  de-risks the design phase (§B): it converts a hard online-scheduling
-  problem into a tractable static-placement problem with a dynamic corner
-  case, and that is a *better* input to architecture than the metric the
-  proposal guessed at.
+  — bound-ness is dominantly a *static* property of the kernel and its
+  data structure, with a small, well-characterized dynamic residue.
+  *Proof:* `profiling/reports/2026-07-05_attribution_campaign/attribution_consistency.csv`
+  (the unanimity column) and `CAMPAIGN_ATTRIBUTION.md` (the 48/49
+  headline); `class_agreement.csv` (91 % at class level).
+- We present this as a finding, not a shortfall: an objective whose form is
+  "find the metric that predicts X" is fulfilled when the prediction
+  problem is **solved by measurement** — here, the answer is that the
+  predictive observable is *which data structure the kernel touches*
+  (known statically) plus footprint-vs-L2 for the crossover kernels. The
+  proposal's dynamic-scheduling premise is thereby *partially refuted by
+  our own data* — the strongest possible input to the design phase,
+  because it converts a hard online-scheduling problem into a tractable
+  static-placement problem with one dynamic corner case (§B, argument 1).
 
 ### Objective 4 — *"To use this analysis to propose a heterogeneous computing architecture combining the main GPU with a specialized PIM accelerator."*
 
 **Status: fulfilled at the level the analysis licenses — the evidence-backed
 architectural direction — with the detailed specification deferred (§B).**
 
-What exists, committed and measured (this is more than a sketch; it is the
-substance an architecture must encode):
+What exists, committed and measured — this is the substance any such
+architecture must encode, and it is *derived from measurement rather than
+asserted*:
 
-- A **three-way substrate mapping at data-structure granularity** — the
-  heterogeneous-architecture proposal in its evidence form:
-  *streaming* structures (images 40 MB + pyramids 31 MB; flat reuse CDFs =
-  provably cache-immune; 1.68 MB/frame sensor upload) → **near-sensor
-  SRAM**; *hot-persistent* solver state (`ba_linear_system`, 24.3 MB,
-  96–100 % of the solver's DRAM traffic on one pre-sized structure) →
-  **DRAM-PiM**, the proposal's Fulcrum-class near-bank unit's ideal target;
-  *cold-persistent* keyframe database (fixed 6.7 MB on-GPU working buffer;
-  session-scale growth measured to live host-side) → **in-storage
-  processing**, plus two device-side asks the proposal could not have
-  anticipated (spill-local SRAM; near-memory gather).
-- The GPU-vs-PIM division of labor the objective asks for is therefore
-  *derived from measurement*: which bytes belong next to which memory, per
-  named structure, with the GPU retaining the compute-bound, shared-
-  memory-tiled kernels (89–98 % on-chip traffic — measured).
+- A **three-way substrate mapping at data-structure granularity**:
+  *streaming* structures → near-sensor processing (images 39.97 MB +
+  pyramids 31.15 MB, flat reuse CDFs = no cache size helps, 1.68 MB/frame
+  upload); *hot-persistent* solver state → DRAM-PiM (`ba_linear_system`,
+  24.26 MB pre-sized, carrying **96.9 %** of the solver kernel's global
+  traffic — the proposal's Fulcrum-class near-bank unit's ideal target);
+  *cold-persistent* keyframe database → in-storage processing (the GPU
+  working buffer is a **fixed 6.73 MB** while the session-scale store
+  grows host-side — measured from the allocator, not inferred).
+  *Proof:* the memory-budget table in
+  `profiling/reports/2026-07-04_attribution/ATTRIBUTION.md` (Finding 1)
+  backed by `alloc_table_full_run.csv`; the traffic shares in
+  `join_steady_state/attribution.csv`; the taxonomy table with its
+  hardware asks in `docs/THESIS_FINDINGS.md` §0/§1 (F5, F8–F11).
+- **The GPU/PIM division of labor the objective asks for**, read off
+  measured tables: the GPU retains the compute-side kernels (89–98 % of
+  their traffic is on-chip shared-memory tiles — measured), while the
+  memory-bound streaming and scan structures are the offload set.
+  *Proof:* the per-kernel space split columns (med_shared/med_spill/
+  med_global) in
+  `reports/2026-07-05_attribution_campaign/attribution_consistency.csv`.
 
-What is deferred is the *specification document* (interface, controller,
-sizing) — §B explains why writing it now would have been premature.
+What is deferred is the *specification document* (unit microarchitecture,
+interface, controller, sizing) — §B explains why writing it now would have
+been premature.
 
 ### Objective 5 — *"To design a lightweight, PAPI-like dynamic scheduling policy…"* and Objective 6 — *"To develop an analytical model that evaluates the performance and energy benefits…"*
 
-**Status: DELIVERED, at the proposal's own stated level of implementation.**
-The proposal's "Proposed Level of Implementation" defines these deliverables
-precisely: *"an analytical performance and power model, developed in Python
-[that] will take the real performance counters from the multi-configuration
-profiling as input and simulate the scheduler's decisions… compared to
-static approaches"* — explicitly excluding RTL. That artifact exists and is
-committed (`pim_placement_model.py`), and it is auditable in one screen:
+**Status: deferred with the architecture phase (§B) — but materially
+advanced, with the advancement citable:**
 
-- **The policy (Objective 5):** per kernel, offload to the PIM unit iff its
-  measured persistence class permits and the first-order model predicts a
-  win — the decision inputs being the kernel's measured DRAM-boundness and
-  taxonomy class from the 27-sequence campaign. This is the proposal's
-  PAPI-like policy with its hypothesized threshold "X" replaced by the
-  *measured* quantity (Objective 3's L2-crossover / boundness), and with
-  the 48/49 stability finding folded in: most placement decisions are
-  static; the policy form survives, keyed on measured structure rather
-  than a guessed proxy.
-- **The evaluation (Objective 6):** run over all 27 sequences of real
-  counters, under conservative and moderate PIM parameterizations, against
-  *both* static baselines the objective names: selective placement never
-  loses to GPU-only (geomean 1.001–1.005×, DRAM data-movement energy
-  0.89–0.98× of baseline) while **PIM-only loses badly** (0.55–0.83× —
-  compute-bound kernels dragged onto narrow PIM ALUs), reproducing the
-  proposal's own Fulcrum-derived reasoning from measured data. The model
-  prints per-sequence results (`results/pim_model_*.csv`) and its constants
-  are parametric and stated, so the panel can challenge any of them.
-- The honest headline — speedups near 1× but energy savings up to ~11 %
-  with *zero* regressions — is itself the finding the proposal's
-  hypothesis demanded: the win of workload-aware placement in this stack
-  is an **energy and data-movement win, not a latency win**, precisely the
-  outcome PIM literature predicts for memory-bound streaming kernels.
-- What remains for the next phase is *fidelity*, not existence: replacing
-  first-order constants (k, c, r) with simulation-grade numbers
-  (Accel-Sim NDP configs + AccelWattch energy), for which the window
-  traces, measured ceilings, and calibration targets are already committed.
+- The scheduler objective's **decision inputs are done**: the threshold the
+  proposal called "X" (its Phase-3 "hypothesis and thresholding" step) is
+  measured — it is the L2-crossover footprint, per kernel, with published
+  sensitivity bounds — and the 48/49 stability result defines exactly
+  which few decisions are dynamic at all. A scheduler designed *before*
+  this result would have been designed for a workload structure that does
+  not exist.
+  *Proof:* Objective 3's citations; `docs/THESIS_FINDINGS.md` §4-G1 and
+  §5 Path B (the step-ordered design-phase plan).
+- The analytical-model objective's **inputs are done and committed**:
+  measured bandwidth/compute ceilings for calibration
+  (`profiling/hw/*.toml`, `profiling/env/measure_ceilings.py`); per-kernel
+  per-structure byte tables
+  (`reports/2026-07-04_attribution/join_steady_state/attribution.csv`,
+  `reports/2026-07-05_attribution_campaign/attribution_by_sequence.csv`);
+  per-class GPU-time shares (`reports/2026-07-04_campaign/CAMPAIGN.md`);
+  window traces in the exact format the standard academic GPU simulator
+  replays (`profiling/blocked/run_accelsim.sh`, the mem_trace tooling, and
+  the capture campaign scripts in `profiling/campaign/`); and the
+  simulator-calibration targets (the measured reuse CDFs in
+  `reports/2026-07-04_slice3_locality/data_v2/`).
+- Per Objective 3's finding, the evaluation the proposal wanted ("dynamic
+  vs static") collapses into the cleaner "placed vs unplaced" comparison —
+  fewer free parameters, stronger conclusions — which is exactly how the
+  design-phase plan specifies it (`docs/THESIS_FINDINGS.md`, Path B).
 
 ---
 
 ## B. Justifying the Missing Architecture Phase
 
-What is actually missing, stated precisely: the **detailed architectural
-specification** (Objective 4's design document — PIM-unit microarchitecture,
-GPU interface, controller) and the **simulation-grade evaluation** that
-would replace the delivered first-order model's parametric constants with
-simulated ones. The policy and the analytical model themselves (Objectives
-5–6) are delivered at the proposal's stated fidelity (§A). Four arguments
-for the deferral, in descending order of weight:
+Four arguments, in descending order of weight. We recommend presenting them
+in this order.
 
-**1. The characterization changed the design question — writing the
-specification on the proposal's original premise would have been
-scientifically unsound.**
-The proposal's Phase-3 design was premised on one hypothesis: that kernels
-*shift dynamically* between memory- and compute-bound with scene density,
-requiring an online decision unit at the architecture's center. The
-measured result (91 % class consistency; 48/49 kernels with workload-
-invariant data-structure composition; the residual dynamics localized to a
-single physically-understood L2 crossover) **partially refutes that
-premise**. Discovering this *before* committing to a specification is the
-characterization doing exactly the job the proposal assigned to it —
-"justify and **inform** the design." The delivered placement model already
-embodies the corrected premise (placement keyed on measured structure);
-freezing a detailed microarchitecture around the original premise instead
-would have produced a specification optimized for a fiction. The correct
-engineering response — re-derive the specification from the measured
-taxonomy (static placement + narrow dynamic residue, three substrates
-rather than one generic PIM unit) — is precisely what the deferral
-enables.
+**1. The characterization changed the design question — proceeding on the
+proposal's Phase-3 plan would have been scientifically unsound.**
+The proposal's architecture, scheduler, and analytical model were all
+premised on one hypothesis: that kernels *shift dynamically* between memory-
+and compute-bound with scene density, requiring an online decision unit at
+the architecture's center. The measured result — 91 % class consistency
+(`class_agreement.csv`), 48/49 kernels with workload-invariant
+data-structure composition (`attribution_consistency.csv`), residual
+dynamics localized to a single physically-understood L2 crossover —
+**partially refutes that premise**. Discovering this *before* committing to
+an architecture is the characterization doing exactly the job the proposal
+assigned to it: *"justify and **inform** the design."* Designing the
+proposed dynamic scheduler anyway, against our own evidence, would have
+produced a specification optimized for a fiction. The correct engineering
+response — re-derive the design phase from the measured taxonomy (static
+placement across three substrates + a narrow dynamic residue) — is
+precisely what the deferral enables.
 
 **2. The prerequisite scope grew because the evidence demanded it, within a
 fixed time budget.**
-Two self-corrections during measurement (the counter-vs-trace reconciliation
-on the loop-closure kernel; the memory-space filtering that revealed 94 % of
-its traffic is register spill) were not detours — resolving them was
-mandatory for any architecture built on these numbers to be trustworthy, and
-each produced a publishable methodological finding. The proposal's Phase 2
-("profiling & dynamic bottleneck analysis") was budgeted ~5 weeks of a
-semester; the delivered Phase 2 is a 27-sequence, three-instrument,
-self-validating characterization with a 104-run accuracy validation — the
-depth that top-venue characterization work requires. The time came from
-somewhere: it came from Phase 3.
+Two self-corrections during measurement were mandatory for any architecture
+built on these numbers to be trustworthy, and each is documented in place:
+(a) the counter-vs-trace reconciliation on the loop-closure kernel, which
+ended with two independent instruments agreeing
+(`reports/2026-07-04_slice3_locality/FINDINGS.md` §5, `data_v2/`;
+PUBLISHABILITY rows NEW/NEW2, both closed); (b) the memory-space filtering
+discovery — 88–98 % of raw trace records are on-chip tile or register-spill
+traffic that silently poisons locality and attribution analyses
+(`profiling/analysis/attribution.py`, the space buckets; the corrected
+tables). Resolving these was not a detour; it is why the numbers can face a
+panel. The proposal budgeted ~5 weeks for its Phase 2; the delivered
+Phase 2 is a 27-sequence, three-instrument, self-validating characterization
+with a 104-run accuracy validation. The time came from somewhere: it came
+from Phase 3.
 
 **3. Nothing about the deferred phase is blocked — every input artifact
-exists, is committed, and is reproducible.**
-This is the difference between "not done" and "not started": window traces
-in Accel-Sim's replay format; measured bandwidth/compute ceilings for
-simulator calibration; per-kernel × per-data-structure byte tables; the
-substrate mapping with sizes; the QoR-neutral instrumented build for any
-future co-design measurements; and a written, step-ordered plan
-(`docs/THESIS_FINDINGS.md`, Path B) for the NDP simulation configs and
-AccelWattch energy deltas. The phase is *de-risked and specified*, which is
-materially more than the proposal's own "Proposed Level of Implementation"
-promised for it (a high-level model, explicitly excluding RTL).
+exists, is committed, and is cited above.**
+This is the difference between "not done" and "not started": simulator
+replay tooling and traces (`profiling/blocked/run_accelsim.sh`; the capture
+campaigns), measured ceilings for calibration (`profiling/hw/*.toml`),
+per-kernel × per-structure byte tables (both attribution reports), the
+substrate mapping with sizes (`docs/THESIS_FINDINGS.md` §0), a QoR-neutral
+instrumented build for future co-design measurements (`patches/0002`, with
+the accuracy matrix's instrumented-vs-baseline phase in
+`ws_accuracy_matrix.sh`), and a written, step-ordered plan for the phase
+(`docs/THESIS_FINDINGS.md`, Path B). The phase is *de-risked and
+specified* — materially more than the proposal's own "Proposed Level of
+Implementation" promised for it (a high-level model, explicitly excluding
+RTL).
 
 **4. The two-stage structure is the discipline's standard, not an
 improvisation.**
 Workload characterization and architecture design are separately publishable
 stages with separate venues (ISPASS/IISWC → MICRO/ASPLOS-class), for the
 same reason the proposal's own literature review criticizes PIM works
-"evaluated with general-purpose benchmarks": the field's failure mode is
-architecture designed on weak workload evidence. The completed project sits
-deliberately on the strong side of that boundary — the evidence stage,
-finished to publication grade — rather than straddling both stages weakly
-within one semester.
+"evaluated with general-purpose benchmarks or specific ML kernels": the
+field's failure mode is architecture designed on weak workload evidence.
+The completed project sits deliberately on the strong side of that
+boundary — the evidence stage, finished to publication grade
+(`profiling/PUBLISHABILITY.md`: reviewer issues 1, 2, 3, 4, 7, 8 closed
+with dated evidence) — rather than straddling both stages weakly within one
+semester.
 
 **Supporting fact for the record:** the platform substitution (§A,
-Objective 1) also consumed unplanned effort that the proposal's timeline
-had not budgeted — solving the driver/toolchain compatibility matrix that
+Objective 1) also consumed unplanned effort the proposal's timeline never
+budgeted — solving the driver/toolchain compatibility matrix
+(driver 575.64.05 + CUDA 12.9 + ncu 2025.2 + NVBit 1.8 coexisting) that
 made binary instrumentation possible on the procurable hardware. The Jetson
 Orin remains in the plan exactly as the proposal intended, as a
-configuration swap on committed tooling (`hw/jetson_orin_sm87.toml`), the
-moment one can be procured.
+configuration swap on committed tooling (`profiling/hw/jetson_orin_sm87.toml`),
+the moment one can be procured.
 
 ---
 
@@ -323,15 +382,39 @@ moment one can be procured.
 > "The proposal asked us to prove, with measurements from a real autonomous
 > stack, that a workload-aware memory-centric design is justified — and then
 > to design one. We completed the first mandate beyond its proposed scope:
-> production workload, four public datasets, three independent measurement
+> a production workload, four public datasets, three independent measurement
 > instruments that cross-validate, per-data-structure attribution that no
 > prior SLAM study provides, and accuracy validated against the vendor's own
-> published results. The scheduling policy and the analytical model the
-> proposal promised exist and run on the measured data — and they confirm
-> the proposal's hypothesis: selective placement beats both static
-> baselines, as an energy and data-movement win. The measurement stage also
-> did what measurement stages are for: it corrected the design premise.
-> What remains deferred is one artifact — the detailed architectural
-> specification and its simulation-grade evaluation — and its inputs are
-> complete, committed, and reproducible, so the design it feeds will be
-> built on evidence rather than on the hypothesis we started with."
+> published results — every number regenerable from committed data. The
+> measurement stage then did what measurement stages are for: it corrected
+> the design premise — placement in this workload is dominantly static, not
+> dynamic. The architecture phase is deferred, not abandoned: its inputs are
+> complete, committed, and cited, and the design it now feeds will be built
+> on evidence rather than on the hypothesis we started with."
+
+---
+
+## D. Claim → evidence index (one page for the panel pack)
+
+| # | Claim | Number | Committed artifact |
+|---|---|---|---|
+| 1 | Testbed stability (locked clocks) | CoV 0.14 % vs 49.6 % unlocked | `profiling/PUBLISHABILITY.md` (issue 1), `profiling/METHODOLOGY.md` |
+| 2 | Measured roofline ceilings | 205.0 GB/s; 5 445 GFLOP/s | `profiling/hw/dellworkstation_sm89.toml`, `profiling/env/measure_ceilings.py` |
+| 3 | Campaign scale | 27 sequences × 4 datasets, odom+SLAM, 0 failures | `profiling/reports/2026-07-04_campaign/CAMPAIGN.md` |
+| 4 | Bottleneck-class stability | 91 % modal consistency (24/49 unanimous) | `…/2026-07-04_campaign/class_agreement.csv` |
+| 5 | Taxonomy validated, not asserted | k-means best k = 7–8; purity 0.68 | `…/2026-07-04_campaign/cluster_sweep.csv`, `clusters.csv` |
+| 6 | PIM opportunity quantified | 61 % of GPU time PiM-affine (21 strong + 40 conditional) | `…/2026-07-04_campaign/CAMPAIGN.md` (rollup) |
+| 7 | Data-movement overhead | copies = 41 % of kernel time; 1.68 MB/frame upload | `profiling/analysis/transfers.py`; PUBLISHABILITY issue 11 |
+| 8 | Front-end is cache-immune streaming | reuse CDF flat 64 KiB→48 MiB | `…/2026-07-04_slice3_locality/data_v2/tum_odom_global/reuse_cdf.csv` |
+| 9 | Loop-closure scan = scattered gather; counters confirmed | 23.4–30.0 sectors/warp global-only | `…/slice3_locality/FINDINGS.md` §5, `data_v2/*_sttrack_global/` |
+| 10 | Working set scales with map (the crossover observable) | 0.464 → 1.093 MB; Jaccard 0.669 → 0.899 | same as #9 |
+| 11 | GPU memory budget static; DB grows host-side | 240 allocs / 108.65 MB; keyframe buffer fixed 6.73 MB | `…/2026-07-04_attribution/alloc_table_full_run.csv`, ATTRIBUTION.md |
+| 12 | Per-structure attribution, complete | 274/274 allocations resolved; unmapped ≤7 % (mostly <1 %) | `…/2026-07-04_attribution/` (join tables) |
+| 13 | Attribution is workload-invariant | 48/49 kernels unanimous across 27 sequences | `…/2026-07-05_attribution_campaign/attribution_consistency.csv` |
+| 14 | Kernel→stage mapping measured (not name-guessed) | st_track under "SLAM: LC & optimization" | `…/2026-07-04_attribution/nvtx_kern_sum.csv` |
+| 15 | Accuracy ≥ vendor paper | KITTI SLAM APE 1.413 m vs 1.98 m; EuRoC V1_01 7.78 cm | `results/kitti_00-10_sweep.txt`, `PAPER_DATASETS.md`, `kitti_paper_sweep.py` |
+| 16 | Config-matrix coverage (features/IMU/mono/async/CPU) | 104 generated configs | `gen_accuracy_configs.py`, `ws_accuracy_matrix.sh` |
+| 17 | Orin readiness (platform substitution absorbed) | descriptor committed | `profiling/hw/jetson_orin_sm87.toml` |
+| 18 | Reproducibility | analyses re-derive from committed CSVs; 18 GPU-free tests | `profiling/tests/test_analysis.py`, report `data/` dirs |
+| 19 | Reviewer-issue register (methodological honesty) | issues 1,2,3,4,7,8 closed, dated | `profiling/PUBLISHABILITY.md` |
+| 20 | Design-phase inputs ready (deferral ≠ blockage) | traces, ceilings, byte tables, plan | `profiling/blocked/run_accelsim.sh`, `docs/THESIS_FINDINGS.md` Path B |
