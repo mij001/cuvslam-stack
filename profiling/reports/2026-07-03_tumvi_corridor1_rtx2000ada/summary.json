@@ -1,0 +1,1030 @@
+{
+ "workload": "2026-07-03_tumvi_corridor1_rtx2000ada",
+ "device": "rtx2000ada",
+ "adapter": "cuvslam",
+ "source": "profiling/reports/2026-07-03_tumvi_corridor1_rtx2000ada",
+ "qor": null,
+ "stages": [
+  {
+   "name": "preprocess",
+   "time_ms": 19.759,
+   "share_pct": 7.75,
+   "n_kernels": 2
+  },
+  {
+   "name": "feature_detect",
+   "time_ms": 27.399,
+   "share_pct": 10.75,
+   "n_kernels": 8
+  },
+  {
+   "name": "keypoint_sort",
+   "time_ms": 6.572,
+   "share_pct": 2.58,
+   "n_kernels": 3
+  },
+  {
+   "name": "tracking",
+   "time_ms": 36.69,
+   "share_pct": 14.39,
+   "n_kernels": 1
+  },
+  {
+   "name": "bundle_adjust",
+   "time_ms": 115.931,
+   "share_pct": 45.47,
+   "n_kernels": 20
+  },
+  {
+   "name": "ba_solver",
+   "time_ms": 48.632,
+   "share_pct": 19.07,
+   "n_kernels": 7
+  }
+ ],
+ "kernels": [
+  {
+   "name": "lk_track_kernel",
+   "stage": "tracking",
+   "time_ms": 36.69,
+   "share_pct": 14.39,
+   "limiter": "G4-latency",
+   "substrate": "near-memory compute (latency, uncacheable set)",
+   "pim_affinity": "strong",
+   "rationale": "long-scoreboard dominant at 22% occupancy, DRAM-SoL 17%; only n=3 profiled launches \u2014 small sample",
+   "evidence": {
+    "dram_sol_pct": 17.1,
+    "sectors_per_req": 2.3,
+    "lfmr": 0.445,
+    "mpki": 42.76,
+    "occupancy_pct": 22.4,
+    "ai": 14.125,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 14.1249,
+    "gflops": 524.13
+   }
+  },
+  {
+   "name": "sba::reduced_system_stage_1_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 21.298,
+   "share_pct": 8.35,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 0.5,
+    "sectors_per_req": 6.0,
+    "lfmr": 0.258,
+    "mpki": 111.94,
+    "occupancy_pct": 2.1,
+    "ai": 1.047,
+    "dominant_stall": "wait"
+   },
+   "roofline": {
+    "ai": 1.04748,
+    "gflops": 1.18788
+   }
+  },
+  {
+   "name": "gaussian_scaling_kernel",
+   "stage": "preprocess",
+   "time_ms": 16.743,
+   "share_pct": 6.57,
+   "limiter": "G1-bandwidth",
+   "substrate": "near-sensor SRAM (consume before DRAM)",
+   "pim_affinity": "strong",
+   "rationale": "memory-limited (MemSoL 40%) without a sharper signature",
+   "evidence": {
+    "dram_sol_pct": 17.0,
+    "sectors_per_req": 4.0,
+    "lfmr": 0.512,
+    "mpki": 26.73,
+    "occupancy_pct": 42.6,
+    "ai": 2.988,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 2.98841,
+    "gflops": 110.131
+   }
+  },
+  {
+   "name": "sba::reduced_system_stage_2_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 14.988,
+   "share_pct": 5.88,
+   "limiter": "G5-compute",
+   "substrate": "host GPU",
+   "pim_affinity": "none",
+   "rationale": "CompSoL 40% dominant, AI 22.4 FLOP/B",
+   "evidence": {
+    "dram_sol_pct": 1.9,
+    "sectors_per_req": 2.3,
+    "lfmr": 0.186,
+    "mpki": 2.38,
+    "occupancy_pct": 67.4,
+    "ai": 22.448,
+    "dominant_stall": "barrier"
+   },
+   "roofline": {
+    "ai": 22.4483,
+    "gflops": 92.117
+   }
+  },
+  {
+   "name": "trsv_lt_exec",
+   "stage": "ba_solver",
+   "time_ms": 14.891,
+   "share_pct": 5.84,
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.34 \u2014 the L2 is earning its keep",
+   "evidence": {
+    "dram_sol_pct": 1.5,
+    "sectors_per_req": 2.0,
+    "lfmr": 0.343,
+    "mpki": 409.6,
+    "occupancy_pct": 7.1,
+    "ai": 0.059,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.0586838,
+    "gflops": 0.190258
+   }
+  },
+  {
+   "name": "sba::build_full_system_1_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 14.427,
+   "share_pct": 5.66,
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.18 \u2014 the L2 is earning its keep",
+   "evidence": {
+    "dram_sol_pct": 0.2,
+    "sectors_per_req": 2.8,
+    "lfmr": 0.185,
+    "mpki": 162.96,
+    "occupancy_pct": 2.4,
+    "ai": 0.468,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.467942,
+    "gflops": 0.222209
+   }
+  },
+  {
+   "name": "getrf_wo_pivot_params",
+   "stage": "ba_solver",
+   "time_ms": 13.853,
+   "share_pct": 5.43,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'wait' stall dominant at 8% occupancy; memory is not the wall (MemSoL 3%, DRAM-SoL 3%)",
+   "evidence": {
+    "dram_sol_pct": 3.0,
+    "sectors_per_req": 5.8,
+    "lfmr": 0.341,
+    "mpki": 282.62,
+    "occupancy_pct": 8.1,
+    "ai": 1.256,
+    "dominant_stall": "wait"
+   },
+   "roofline": {
+    "ai": 1.25569,
+    "gflops": 8.1127
+   }
+  },
+  {
+   "name": "trsv_ln_exec",
+   "stage": "ba_solver",
+   "time_ms": 10.818,
+   "share_pct": 4.24,
+   "limiter": "G4-latency",
+   "substrate": "raise occupancy first; PiM if the set defeats caches",
+   "pim_affinity": "conditional",
+   "rationale": "long-scoreboard dominant at 7% occupancy, DRAM-SoL 1%",
+   "evidence": {
+    "dram_sol_pct": 1.2,
+    "sectors_per_req": 2.0,
+    "lfmr": 0.365,
+    "mpki": 406.9,
+    "occupancy_pct": 7.0,
+    "ai": 0.065,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.0653041,
+    "gflops": 0.167476
+   }
+  },
+  {
+   "name": "conv_grad_x_kernel",
+   "stage": "feature_detect",
+   "time_ms": 10.089,
+   "share_pct": 3.96,
+   "limiter": "G1-bandwidth",
+   "substrate": "near-sensor SRAM (consume before DRAM)",
+   "pim_affinity": "strong",
+   "rationale": "memory-limited (MemSoL 22%) without a sharper signature",
+   "evidence": {
+    "dram_sol_pct": 22.3,
+    "sectors_per_req": 4.0,
+    "lfmr": 0.417,
+    "mpki": 109.46,
+    "occupancy_pct": 32.1,
+    "ai": 3.465,
+    "dominant_stall": "tex_throttle"
+   },
+   "roofline": {
+    "ai": 3.46543,
+    "gflops": 166.717
+   }
+  },
+  {
+   "name": "sba::point_term_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 7.925,
+   "share_pct": 3.11,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'barrier' stall dominant at 13% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 0.7,
+    "sectors_per_req": 5.5,
+    "lfmr": 0.277,
+    "mpki": 179.88,
+    "occupancy_pct": 12.6,
+    "ai": 0.316,
+    "dominant_stall": "barrier"
+   },
+   "roofline": {
+    "ai": 0.316201,
+    "gflops": 0.474041
+   }
+  },
+  {
+   "name": "sba::reduce_abs_max_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 7.165,
+   "share_pct": 2.81,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'barrier' stall dominant at 15% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 0.7,
+    "sectors_per_req": 3.0,
+    "lfmr": 0.265,
+    "mpki": 166.46,
+    "occupancy_pct": 14.6,
+    "ai": 0.0,
+    "dominant_stall": "barrier"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "sba::evaluate_cost_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 6.908,
+   "share_pct": 2.71,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'barrier' stall dominant at 14% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 0.9,
+    "sectors_per_req": 5.6,
+    "lfmr": 0.323,
+    "mpki": 267.82,
+    "occupancy_pct": 14.0,
+    "ai": 0.425,
+    "dominant_stall": "barrier"
+   },
+   "roofline": {
+    "ai": 0.424554,
+    "gflops": 0.852296
+   }
+  },
+  {
+   "name": "sba::build_full_system_2_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 5.951,
+   "share_pct": 2.33,
+   "limiter": "G6-onchip",
+   "substrate": "host GPU",
+   "pim_affinity": "none",
+   "rationale": "dominant stall mio_throttle (3.2 warps) with DRAM unsaturated",
+   "evidence": {
+    "dram_sol_pct": 1.5,
+    "sectors_per_req": 6.4,
+    "lfmr": 0.322,
+    "mpki": 35.98,
+    "occupancy_pct": 13.4,
+    "ai": 9.094,
+    "dominant_stall": "mio_throttle"
+   },
+   "roofline": {
+    "ai": 9.09372,
+    "gflops": 29.8922
+   }
+  },
+  {
+   "name": "gftt_values_kernel",
+   "stage": "feature_detect",
+   "time_ms": 5.772,
+   "share_pct": 2.26,
+   "limiter": "G1-bandwidth",
+   "substrate": "near-sensor SRAM (consume before DRAM)",
+   "pim_affinity": "strong",
+   "rationale": "memory-limited (MemSoL 60%) without a sharper signature",
+   "evidence": {
+    "dram_sol_pct": 38.6,
+    "sectors_per_req": 4.0,
+    "lfmr": 0.354,
+    "mpki": 39.14,
+    "occupancy_pct": 86.0,
+    "ai": 15.952,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 15.9523,
+    "gflops": 1335.77
+   }
+  },
+  {
+   "name": "conv_grad_y_kernel",
+   "stage": "feature_detect",
+   "time_ms": 5.616,
+   "share_pct": 2.2,
+   "limiter": "G1-bandwidth",
+   "substrate": "near-sensor SRAM (consume before DRAM)",
+   "pim_affinity": "strong",
+   "rationale": "memory-limited (MemSoL 28%) without a sharper signature",
+   "evidence": {
+    "dram_sol_pct": 24.0,
+    "sectors_per_req": 4.0,
+    "lfmr": 0.496,
+    "mpki": 145.94,
+    "occupancy_pct": 31.7,
+    "ai": 2.929,
+    "dominant_stall": "tex_throttle"
+   },
+   "roofline": {
+    "ai": 2.92906,
+    "gflops": 152.032
+   }
+  },
+  {
+   "name": "sba::calc_pose_update_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 4.503,
+   "share_pct": 1.77,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'wait' stall dominant at 6% occupancy; memory is not the wall (MemSoL 2%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 1.3,
+    "sectors_per_req": 4.0,
+    "lfmr": 0.315,
+    "mpki": 1084.55,
+    "occupancy_pct": 6.4,
+    "ai": 0.06,
+    "dominant_stall": "wait"
+   },
+   "roofline": {
+    "ai": 0.0604385,
+    "gflops": 0.17246
+   }
+  },
+  {
+   "name": "sba::v1T_x_M_x_v2_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 4.214,
+   "share_pct": 1.65,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'barrier' stall dominant at 14% occupancy; memory is not the wall (MemSoL 3%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 1.0,
+    "sectors_per_req": 2.3,
+    "lfmr": 0.282,
+    "mpki": 11.23,
+    "occupancy_pct": 13.9,
+    "ai": 4.917,
+    "dominant_stall": "barrier"
+   },
+   "roofline": {
+    "ai": 4.9172,
+    "gflops": 10.4914
+   }
+  },
+  {
+   "name": "sba::reduced_system_stage_3_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 4.014,
+   "share_pct": 1.57,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'barrier' stall dominant at 14% occupancy; memory is not the wall (MemSoL 3%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 0.9,
+    "sectors_per_req": 2.3,
+    "lfmr": 0.264,
+    "mpki": 10.25,
+    "occupancy_pct": 13.8,
+    "ai": 5.389,
+    "dominant_stall": "barrier"
+   },
+   "roofline": {
+    "ai": 5.38881,
+    "gflops": 10.8937
+   }
+  },
+  {
+   "name": "sba::pose_scaling_term_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 3.929,
+   "share_pct": 1.54,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'barrier' stall dominant at 12% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%); note: scattered access (14 sect/req) \u2014 re-screen for PiM once occupancy is fixed",
+   "evidence": {
+    "dram_sol_pct": 0.7,
+    "sectors_per_req": 13.5,
+    "lfmr": 0.282,
+    "mpki": 170.17,
+    "occupancy_pct": 12.3,
+    "ai": 0.308,
+    "dominant_stall": "barrier"
+   },
+   "roofline": {
+    "ai": 0.307721,
+    "gflops": 0.456379
+   }
+  },
+  {
+   "name": "sba::v1T_x_M_T_x_v2_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 3.627,
+   "share_pct": 1.42,
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.30 \u2014 the L2 is earning its keep",
+   "evidence": {
+    "dram_sol_pct": 1.1,
+    "sectors_per_req": 2.4,
+    "lfmr": 0.305,
+    "mpki": 287.55,
+    "occupancy_pct": 7.9,
+    "ai": 0.138,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.13755,
+    "gflops": 0.318729
+   }
+  },
+  {
+   "name": "sba::reduced_system_stage_12_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 3.22,
+   "share_pct": 1.26,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'barrier' stall dominant at 16% occupancy; memory is not the wall (MemSoL 2%, DRAM-SoL 1%); note: scattered access (11 sect/req) \u2014 re-screen for PiM once occupancy is fixed",
+   "evidence": {
+    "dram_sol_pct": 1.0,
+    "sectors_per_req": 10.9,
+    "lfmr": 0.186,
+    "mpki": 94.72,
+    "occupancy_pct": 15.8,
+    "ai": 0.488,
+    "dominant_stall": "barrier"
+   },
+   "roofline": {
+    "ai": 0.48812,
+    "gflops": 1.04305
+   }
+  },
+  {
+   "name": "sba::calc_point_update_kernel_xavier_special",
+   "stage": "bundle_adjust",
+   "time_ms": 3.195,
+   "share_pct": 1.25,
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.32 \u2014 the L2 is earning its keep",
+   "evidence": {
+    "dram_sol_pct": 1.2,
+    "sectors_per_req": 2.4,
+    "lfmr": 0.316,
+    "mpki": 262.59,
+    "occupancy_pct": 9.2,
+    "ai": 0.136,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.13601,
+    "gflops": 0.342764
+   }
+  },
+  {
+   "name": "cast_image_kernel",
+   "stage": "preprocess",
+   "time_ms": 3.016,
+   "share_pct": 1.18,
+   "limiter": "G3-l2-reuse",
+   "substrate": "weak, cache-friendly",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.17 \u2014 the L2 is earning its keep; only n=2 profiled launches \u2014 small sample",
+   "evidence": {
+    "dram_sol_pct": 17.2,
+    "sectors_per_req": 4.0,
+    "lfmr": 0.172,
+    "mpki": 36.12,
+    "occupancy_pct": 74.6,
+    "ai": 0.0,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "sba::make_prediction",
+   "stage": "bundle_adjust",
+   "time_ms": 2.824,
+   "share_pct": 1.11,
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.34 \u2014 the L2 is earning its keep",
+   "evidence": {
+    "dram_sol_pct": 2.0,
+    "sectors_per_req": 1.0,
+    "lfmr": 0.345,
+    "mpki": 8373.33,
+    "occupancy_pct": 2.1,
+    "ai": 0.001,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.00137341,
+    "gflops": 0.00589945
+   }
+  },
+  {
+   "name": "cub::DeviceMergeSortBlockSortKernel",
+   "stage": "keypoint_sort",
+   "time_ms": 2.733,
+   "share_pct": 1.07,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'wait' stall dominant at 17% occupancy; memory is not the wall (MemSoL 8%, DRAM-SoL 3%); note: scattered access (11 sect/req) \u2014 re-screen for PiM once occupancy is fixed; only n=1 profiled launches \u2014 small sample",
+   "evidence": {
+    "dram_sol_pct": 2.7,
+    "sectors_per_req": 11.3,
+    "lfmr": 0.351,
+    "mpki": 34.27,
+    "occupancy_pct": 16.6,
+    "ai": 0.0,
+    "dominant_stall": "wait"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "sba::calc_jacobians_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 2.398,
+   "share_pct": 0.94,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'barrier' stall dominant at 11% occupancy; memory is not the wall (MemSoL 2%, DRAM-SoL 1%); note: scattered access (23 sect/req) \u2014 re-screen for PiM once occupancy is fixed",
+   "evidence": {
+    "dram_sol_pct": 1.2,
+    "sectors_per_req": 23.4,
+    "lfmr": 0.289,
+    "mpki": 669.52,
+    "occupancy_pct": 11.0,
+    "ai": 0.932,
+    "dominant_stall": "barrier"
+   },
+   "roofline": {
+    "ai": 0.932429,
+    "gflops": 2.34154
+   }
+  },
+  {
+   "name": "sba::clear_full_system_stage_1_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 2.35,
+   "share_pct": 0.92,
+   "limiter": "G0-nosignal",
+   "substrate": "\u2014",
+   "pim_affinity": "n/a",
+   "rationale": "no dominant bottleneck signal (short/latency-tax kernels)",
+   "evidence": {
+    "dram_sol_pct": 0.4,
+    "sectors_per_req": 24.0,
+    "lfmr": 0.106,
+    "mpki": 93.2,
+    "occupancy_pct": 48.6,
+    "ai": 0.0,
+    "dominant_stall": "wait"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "dtrsv_init_up",
+   "stage": "ba_solver",
+   "time_ms": 2.266,
+   "share_pct": 0.89,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 0.7,
+    "sectors_per_req": 1.0,
+    "lfmr": 0.261,
+    "mpki": 10088.89,
+    "occupancy_pct": 2.1,
+    "ai": 0.0,
+    "dominant_stall": "wait"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "dtrsv_init",
+   "stage": "ba_solver",
+   "time_ms": 2.264,
+   "share_pct": 0.89,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 0.7,
+    "sectors_per_req": 1.0,
+    "lfmr": 0.236,
+    "mpki": 10750.0,
+    "occupancy_pct": 2.1,
+    "ai": 0.0,
+    "dominant_stall": "wait"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "copy_info_kernel",
+   "stage": "ba_solver",
+   "time_ms": 2.272,
+   "share_pct": 0.89,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 0.6,
+    "sectors_per_req": 1.0,
+    "lfmr": 0.235,
+    "mpki": 10971.43,
+    "occupancy_pct": 2.1,
+    "ai": 0.0,
+    "dominant_stall": "wait"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "xxtrf4_set_info_ker",
+   "stage": "ba_solver",
+   "time_ms": 2.268,
+   "share_pct": 0.89,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 0.6,
+    "sectors_per_req": 1.0,
+    "lfmr": 0.235,
+    "mpki": 11085.71,
+    "occupancy_pct": 2.1,
+    "ai": 0.0,
+    "dominant_stall": "wait"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "cub::DeviceMergeSortMergeKernel",
+   "stage": "keypoint_sort",
+   "time_ms": 1.969,
+   "share_pct": 0.77,
+   "limiter": "G2-coalescing",
+   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
+   "pim_affinity": "conditional",
+   "rationale": "11 sectors/request (4 = coalesced); only n=2 profiled launches \u2014 small sample",
+   "evidence": {
+    "dram_sol_pct": 6.1,
+    "sectors_per_req": 11.2,
+    "lfmr": 0.345,
+    "mpki": 144.09,
+    "occupancy_pct": 16.5,
+    "ai": 0.0,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "non_max_suppression_kernel",
+   "stage": "feature_detect",
+   "time_ms": 1.897,
+   "share_pct": 0.74,
+   "limiter": "G1-bandwidth",
+   "substrate": "near-sensor SRAM (consume before DRAM)",
+   "pim_affinity": "strong",
+   "rationale": "memory-limited (MemSoL 49%) without a sharper signature",
+   "evidence": {
+    "dram_sol_pct": 49.0,
+    "sectors_per_req": 4.0,
+    "lfmr": 0.391,
+    "mpki": 80.3,
+    "occupancy_pct": 86.2,
+    "ai": 0.0,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "cub::DeviceMergeSortPartitionKernel",
+   "stage": "keypoint_sort",
+   "time_ms": 1.871,
+   "share_pct": 0.73,
+   "limiter": "G3-l2-reuse",
+   "substrate": "weak, cache-friendly",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.29 \u2014 the L2 is earning its keep; only n=2 profiled launches \u2014 small sample",
+   "evidence": {
+    "dram_sol_pct": 0.5,
+    "sectors_per_req": 2.2,
+    "lfmr": 0.287,
+    "mpki": 406.5,
+    "occupancy_pct": 3.9,
+    "ai": 0.0,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "downsample_gftt_x8_kernel",
+   "stage": "feature_detect",
+   "time_ms": 1.457,
+   "share_pct": 0.57,
+   "limiter": "G1-bandwidth",
+   "substrate": "near-sensor SRAM (consume before DRAM)",
+   "pim_affinity": "strong",
+   "rationale": "DRAM-SoL 59%; LFMR 0.81 (L2 not helping); only n=1 profiled launches \u2014 small sample",
+   "evidence": {
+    "dram_sol_pct": 59.0,
+    "sectors_per_req": 4.0,
+    "lfmr": 0.808,
+    "mpki": 122.66,
+    "occupancy_pct": 80.1,
+    "ai": 0.0,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "accumulateGFTT_kernel",
+   "stage": "feature_detect",
+   "time_ms": 1.424,
+   "share_pct": 0.56,
+   "limiter": "G1-bandwidth",
+   "substrate": "near-sensor SRAM (consume before DRAM)",
+   "pim_affinity": "strong",
+   "rationale": "DRAM-SoL 53%; LFMR 0.95 (L2 not helping); only n=1 profiled launches \u2014 small sample",
+   "evidence": {
+    "dram_sol_pct": 52.9,
+    "sectors_per_req": 0.0,
+    "lfmr": 0.951,
+    "mpki": 128.14,
+    "occupancy_pct": 80.9,
+    "ai": 1.307,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 1.30678,
+    "gflops": 148.927
+   }
+  },
+  {
+   "name": "sba::clear_full_system_stage_2_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 1.106,
+   "share_pct": 0.43,
+   "limiter": "G7-dependency",
+   "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
+   "pim_affinity": "none",
+   "rationale": "'wait' stall dominant at 15% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "evidence": {
+    "dram_sol_pct": 0.7,
+    "sectors_per_req": 3.0,
+    "lfmr": 0.233,
+    "mpki": 1217.39,
+    "occupancy_pct": 15.1,
+    "ai": 0.0,
+    "dominant_stall": "wait"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "sba::update_poses_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 0.987,
+   "share_pct": 0.39,
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.27 \u2014 the L2 is earning its keep",
+   "evidence": {
+    "dram_sol_pct": 0.9,
+    "sectors_per_req": 4.0,
+    "lfmr": 0.275,
+    "mpki": 1024.66,
+    "occupancy_pct": 9.1,
+    "ai": 0.08,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.0802139,
+    "gflops": 0.15625
+   }
+  },
+  {
+   "name": "sba::update_points_kernel",
+   "stage": "bundle_adjust",
+   "time_ms": 0.903,
+   "share_pct": 0.35,
+   "limiter": "G4-latency",
+   "substrate": "raise occupancy first; PiM if the set defeats caches",
+   "pim_affinity": "conditional",
+   "rationale": "long-scoreboard dominant at 10% occupancy, DRAM-SoL 3%",
+   "evidence": {
+    "dram_sol_pct": 3.4,
+    "sectors_per_req": 7.0,
+    "lfmr": 0.395,
+    "mpki": 7903.03,
+    "occupancy_pct": 10.5,
+    "ai": 0.001,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.00125815,
+    "gflops": 0.00913997
+   }
+  },
+  {
+   "name": "select_features_kernel",
+   "stage": "feature_detect",
+   "time_ms": 0.765,
+   "share_pct": 0.3,
+   "limiter": "G2-coalescing",
+   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
+   "pim_affinity": "conditional",
+   "rationale": "24 sectors/request (4 = coalesced); only n=1 profiled launches \u2014 small sample",
+   "evidence": {
+    "dram_sol_pct": 38.3,
+    "sectors_per_req": 24.1,
+    "lfmr": 0.849,
+    "mpki": 932.51,
+    "occupancy_pct": 15.2,
+    "ai": 0.115,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.115119,
+    "gflops": 9.45177
+   }
+  },
+  {
+   "name": "filter_maximums_kernel",
+   "stage": "feature_detect",
+   "time_ms": 0.379,
+   "share_pct": 0.15,
+   "limiter": "G3-l2-reuse",
+   "substrate": "weak, cache-friendly",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.20 \u2014 the L2 is earning its keep; only n=1 profiled launches \u2014 small sample",
+   "evidence": {
+    "dram_sol_pct": 0.7,
+    "sectors_per_req": 6.7,
+    "lfmr": 0.199,
+    "mpki": 337.5,
+    "occupancy_pct": 2.1,
+    "ai": 0.0,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": {
+    "ai": 0.0,
+    "gflops": 0.0
+   }
+  },
+  {
+   "name": "st_track_with_cache_kernel",
+   "stage": "slam_loop",
+   "time_ms": 214.079,
+   "share_pct": 0.0,
+   "limiter": "G3-l2-reuse",
+   "substrate": "weak, cache-friendly",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.20 \u2014 the L2 is earning its keep",
+   "evidence": {
+    "dram_sol_pct": 0.3,
+    "sectors_per_req": 7.4,
+    "lfmr": 0.203,
+    "mpki": 83.11,
+    "occupancy_pct": 2.1,
+    "ai": 0.923,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": null
+  },
+  {
+   "name": "st_build_cache_kernel",
+   "stage": "slam_loop",
+   "time_ms": 1.209,
+   "share_pct": 0.0,
+   "limiter": "G3-l2-reuse",
+   "substrate": "weak, cache-friendly",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.32 \u2014 the L2 is earning its keep",
+   "evidence": {
+    "dram_sol_pct": 1.0,
+    "sectors_per_req": 2.8,
+    "lfmr": 0.316,
+    "mpki": 214.14,
+    "occupancy_pct": 2.1,
+    "ai": 0.047,
+    "dominant_stall": "long_scoreboard"
+   },
+   "roofline": null
+  }
+ ]
+}

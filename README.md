@@ -112,7 +112,7 @@ scripts/validation_regime.sh         # THE regime: matrix × {plain,nsys,ncu,nvb
 scripts/validate_accuracy_configs.sh # every config validates under runner + profiling flow
 ```
 
-The rest of this README documents the runner itself; deeper profiling docs are in
+Profiling YOUR OWN codebase: see [`docs/ADAPTERS.md`](docs/ADAPTERS.md) — the adapter contract, drop-in integration, and the standard evidence schema. The rest of this README documents the runner itself; deeper profiling docs are in
 [`profiling/README.md`](profiling/README.md) and
 [`profiling/PROJECT_STATUS.md`](profiling/PROJECT_STATUS.md).
 

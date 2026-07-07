@@ -205,7 +205,7 @@ def main(argv=None):
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--config", required=True, help="stack runner TOML (the workload)")
     p.add_argument("--profiler", required=True, choices=["nsys", "ncu", "nvbit"])
-    p.add_argument("--adapter", default="auto", choices=["auto", "cuvslam", "command"],
+    p.add_argument("--adapter", default="auto",
                    help="workload adapter: cuvslam (run.py <config>, the default) or "
                         "command (any argv from the config's [workload] table); auto "
                         "picks command when [workload] is present. See profiling/adapters.py")

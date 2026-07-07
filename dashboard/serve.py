@@ -342,6 +342,31 @@ def rebuild_site():
 
 
 # ─────────────────────────── the page ───────────────────────────
+def list_summaries():
+    """Every summary.json (the standard evidence schema) -> selector list."""
+    out = []
+    for pat in ("profiling/reports/*/summary.json",
+                "profiling/results/*/summary.json",
+                "reports/*/summary.json"):
+        for p in sorted(glob.glob(os.path.join(ROOT, pat))):
+            try:
+                s = json.load(open(p))
+            except json.JSONDecodeError:
+                continue
+            out.append({"source": os.path.relpath(p, ROOT),
+                        "workload": s.get("workload", "?"),
+                        "device": s.get("device", "?"),
+                        "adapter": s.get("adapter", "?")})
+    return out
+
+
+def read_summary(src):
+    full = os.path.realpath(os.path.join(ROOT, src))
+    if not full.startswith(os.path.realpath(ROOT)) or not full.endswith("summary.json"):
+        raise ValueError("src must be a summary.json inside the repo")
+    return json.load(open(full))
+
+
 def regime_runs():
     """Recent cohesive-pipeline runs (manifest.json) -> list for the UI."""
     out = []
@@ -451,6 +476,32 @@ th,td {{ border:1px solid var(--line); padding:4px 7px; text-align:left; }}
 th {{ background:#f5f5f5; }}
 .tablewrap {{ max-height:300px; overflow:auto; border:1px solid var(--line); border-radius:8px; }}
 h3 {{ font-size:14px; margin:18px 0 6px; }}
+/* evidence explorer */
+.xp-cols {{ display:grid; grid-template-columns:1fr 1fr; gap:0 18px; }}
+@media (max-width:900px) {{ .xp-cols {{ grid-template-columns:1fr; }} }}
+.xp-row {{ display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:6px;
+  cursor:pointer; font-size:12.5px; }}
+.xp-row:hover {{ background:#eef3fa; }}
+.xp-sel {{ background:#e3ecf7; outline:1px solid var(--acc); }}
+.xp-tail {{ color:#888; cursor:default; }}
+.xp-pct {{ width:46px; text-align:right; font-variant-numeric:tabular-nums; }}
+.xp-bar {{ width:90px; height:9px; background:#eee; border-radius:5px; overflow:hidden; flex:none; }}
+.xp-fill {{ height:100%; background:var(--acc); }}
+.xp-name {{ flex:1; font-family:monospace; font-size:12px; overflow:hidden; white-space:nowrap; }}
+.xp-chip {{ color:#fff; border-radius:9px; padding:1px 8px; font-size:10.5px; flex:none; }}
+.xp-sub {{ background:#37474f; }}
+.xp-evbox {{ border:1px solid var(--line); border-radius:8px; padding:10px 14px; background:#fcfdff; }}
+.xp-evtitle {{ font-family:monospace; font-size:13px; font-weight:600; word-break:break-all; }}
+.xp-evsub {{ font-size:12px; color:#555; margin:2px 0 10px; }}
+.xp-metric {{ margin:7px 0; }}
+.xp-mlabel {{ font-size:12px; }}
+.xp-mbar {{ position:relative; height:10px; background:#eee; border-radius:5px; }}
+.xp-mfill {{ height:100%; background:#1565c0; border-radius:5px; }}
+.xp-mcut {{ position:absolute; top:-3px; width:2px; height:16px; background:#c62828; }}
+.xp-mnote {{ font-size:10.5px; color:#888; }}
+.xp-rat {{ font-size:11.5px; color:#555; margin-top:8px; font-style:italic; }}
+.xp-verdict {{ margin-top:10px; padding:8px 12px; border-left:4px solid #2e7d32;
+  background:#f0f7f1; font-size:13px; border-radius:0 6px 6px 0; }}
 </style></head><body>
 <header><h1>cuvslam-stack profiler</h1>
 <p>controller: pick a target → pick a config → profile → findings (PiM/ISP candidacy, memory behaviour)</p></header>
@@ -526,31 +577,44 @@ check prints its one-line fix (driver/CUDA/ncu/NVBit/kernel incompatibilities).<
 still runs the full sequence). Logs stream back live from the target.</p>
 <pre class="log" id="runlog" style="display:none"></pre></div>
 
-<div class="card"><h2>Findings</h2>
-<p class="note">what the studies found — one place. Click any figure for full size.</p>
-
-<h3>PiM / ISP substrate candidacy (per kernel, with cross-workload dynamics)</h3>
-<div class="figgrid">
-{_fig("reports/2026-07-07_substrate/figs/verdict_heatmap.png", "substrate verdict per kernel x workload (GPU / CPU / PiM-bank / PiM-scatter / ISP)")}
-{_fig("reports/2026-07-07_substrate/figs/substrate_mix.png", "GPU-time share by best substrate — the offload opportunity")}
-{_fig("reports/2026-07-07_substrate/figs/flip_drivers.png", "kernels whose verdict FLIPS across workloads + the metric that drives it")}
-</div>
-{subst_html}
-
-<h3>Memory behaviour (why: attribution + roofline)</h3>
-<div class="figgrid">
-{_fig("profiling/reports/2026-07-05_attribution_campaign/figs/memory_space_composition.png", "per-kernel memory-space composition (shared / spill / DRAM) — 27 sequences")}
-{_fig("profiling/reports/2026-07-04_campaign/figs/taxonomy.png", "kernel taxonomy classes + cross-sequence stability (91%)")}
-{_fig("profiling/reports/2026-07-03_tum_office_rtx2000ada/figs/roofline.png", "DRAM roofline, TUM office (RTX 2000 Ada)")}
-{_fig("profiling/reports/2026-07-03_kitti06_rtx2000ada/figs/roofline.png", "DRAM roofline, KITTI 06 (RTX 2000 Ada)")}
-{_fig("profiling/reports/2026-07-03_tum_office_rtx2000ada/figs/pim_affinity.png", "PiM-affinity share of GPU time (61%)")}
-{_fig("profiling/reports/2026-07-05_attribution_campaign/figs/tag_agreement.png", "data-structure attribution: 48/49 kernels unanimous")}
+<div class="card"><h2>Findings — the evidence explorer</h2>
+<p class="note">the automated bottleneck→improvement chain: <b>where</b> time goes →
+<b>who</b> dominates → <b>why</b> (metrics vs decision thresholds) → <b>verdict</b>
+(best substrate). Every number is from the run's <code>summary.json</code> — the same
+schema for every adapter.</p>
+<div class="row2">
+  <div><label>profiled run</label><select id="xp-run"></select></div>
+  <div><label>&nbsp;</label><span id="xp-meta" class="note"></span></div>
 </div>
 
-<h3>Recent profiled runs (cohesive pipeline)</h3>
+<h3>1 · where the GPU time goes</h3>
+<div id="xp-stages"></div>
+
+<div class="xp-cols">
+<div>
+<h3>2 · who dominates (click a kernel)</h3>
+<div id="xp-kernels"></div>
+</div>
+<div>
+<h3>3 · why — evidence vs thresholds → verdict</h3>
+<div id="xp-evidence" class="xp-evbox"></div>
+</div>
+</div>
+
+<h3>4 · roofline position (hover a point; size = time share)</h3>
+<div id="xp-roofline"></div>
+
+<details><summary>cross-workload dynamics: verdicts that flip between workloads + kernel-level table</summary>
+<div class="figgrid">
+{_fig("reports/2026-07-07_substrate/figs/substrate_mix.png", "GPU-time share by best substrate, per workload")}
+{_fig("reports/2026-07-07_substrate/figs/flip_drivers.png", "25/49 kernels flip verdict across workloads — the driving metric per flip")}
+</div>
+{subst_html}</details>
+
+<details><summary>recent pipeline runs</summary>
 <div class="tablewrap"><table>
 <tr><th>workload</th><th>when</th><th>captures</th><th>analyses</th><th></th></tr>
-{runs_html}</table></div>
+{runs_html}</table></div></details>
 
 <details><summary>validity: accuracy vs the paper + profiler neutrality (checked on every run — not the headline)</summary>
 <div class="figgrid">
@@ -565,6 +629,7 @@ still runs the full sequence). Logs stream back live from the target.</p>
 </div>
 
 </main>
+<script src="/explorer.js"></script>
 <script>
 const $ = s => document.querySelector(s);
 $("#tgform") && $("#tgform").addEventListener("submit", async ev => {{
@@ -681,6 +746,18 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(list_configs())
         if path == "api/targets":
             return self._json(load_targets())
+        if path == "api/summaries":
+            return self._json(list_summaries())
+        if path == "api/summary":
+            q = urllib.parse.parse_qs(url.query)
+            try:
+                return self._json(read_summary(q.get("src", [""])[0]))
+            except Exception as e:  # noqa: BLE001
+                return self._json({"error": str(e)}, 400)
+        if path == "explorer.js":
+            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "explorer.js"), "rb") as fh:
+                return self._send(200, fh.read(), "text/javascript")
         if path == "api/doctor":
             q = urllib.parse.parse_qs(url.query)
             name = q.get("target", ["local"])[0]

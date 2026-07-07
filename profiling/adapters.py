@@ -139,13 +139,43 @@ class CommandAdapter(Adapter):
 
 ADAPTERS = {"cuvslam": CuvslamAdapter, "command": CommandAdapter}
 
+# ── drop-in adapters: profiling/adapters.d/<name>.py ─────────────────────────
+# A user integrating their own codebase writes ONE file defining a subclass of
+# Adapter with a unique `name`; it is discovered here and selectable via
+# `--adapter <name>` or `[workload] adapter = "<name>"` in the config.
+# Files starting with "_" are skipped (keep examples/docs there).
+_DROPIN_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "adapters.d")
+if os.path.isdir(_DROPIN_DIR):
+    import importlib.util as _ilu
+    for _f in sorted(os.listdir(_DROPIN_DIR)):
+        if not _f.endswith(".py") or _f.startswith("_"):
+            continue
+        try:
+            _spec = _ilu.spec_from_file_location(f"adapters_d.{_f[:-3]}",
+                                                 os.path.join(_DROPIN_DIR, _f))
+            _mod = _ilu.module_from_spec(_spec)
+            _spec.loader.exec_module(_mod)
+            for _v in vars(_mod).values():
+                if (isinstance(_v, type) and issubclass(_v, Adapter)
+                        and _v.name not in ("abstract",) and _v.name not in ADAPTERS):
+                    ADAPTERS[_v.name] = _v
+        except Exception as _e:  # noqa: BLE001 — a broken drop-in must not kill the harness
+            print(f"[adapters] skipping adapters.d/{_f}: {_e}")
+
 
 def pick_adapter(config_path: str, repo_root: str, venv_python: str,
                  forced: str | None = None) -> Adapter:
-    """Auto-select: [workload] table -> command, else cuvslam."""
+    """Select the adapter for a config.
+
+    Priority: --adapter flag > `[workload] adapter = "x"` in the config >
+    auto ([workload] table present -> command, else cuvslam)."""
     text = open(config_path).read()
     if forced and forced != "auto":
         cls = ADAPTERS[forced]
     else:
-        cls = CommandAdapter if re.search(r"(?m)^\[workload\]", text) else CuvslamAdapter
+        named = re.search(r'(?ms)^\[workload\].*?^adapter\s*=\s*"([^"]+)"', text)
+        if named and named.group(1) in ADAPTERS:
+            cls = ADAPTERS[named.group(1)]
+        else:
+            cls = CommandAdapter if re.search(r"(?m)^\[workload\]", text) else CuvslamAdapter
     return cls(config_path, text, repo_root, venv_python)
