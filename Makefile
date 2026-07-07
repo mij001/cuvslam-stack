@@ -21,7 +21,7 @@ PY    ?= ./cuvslam_venv/bin/python
 DATA  ?= /mnt/data
 HW    ?= profiling/hw/dellworkstation_sm89.toml
 CFG   ?= configs/base/kitti06_stereo_slam.toml
-SCOPE ?= accuracy
+ONLY ?=
 
 help:
 	@echo "BUILD phase (wheel + venv — no GPU profiling here):"
@@ -35,7 +35,7 @@ help:
 	@echo "  make configs  - bases from DATA=$(DATA) + all mutations -> configs/generated/"
 	@echo ""
 	@echo "PROFILING phase (workstation, GPU):"
-	@echo "  make validate - validation regime: configs x {plain,nsys,ncu,nvbit} (SCOPE=$(SCOPE))"
+	@echo "  make validate - validation regime: matrix x {plain,nsys,ncu} + nvbit-marked (ONLY= regex filter)"
 	@echo "  make profile  - cohesive pipeline on CFG=$(CFG): nsys->window->ncu->nvbit->analyses"
 	@echo ""
 	@echo "ANALYSIS phase (anywhere):"
@@ -49,10 +49,10 @@ build: wheel
 
 configs:
 	-python3 scripts/gen_base_configs.py --root $(DATA)
-	python3 scripts/mutate_configs.py --select all
+	python3 scripts/mutate_configs.py
 
 validate:
-	scripts/validation_regime.sh $(SCOPE)
+	ONLY="$(ONLY)" scripts/validation_regime.sh
 
 profile:
 	$(PY) profiling/regime.py --config $(CFG) --hw $(HW)

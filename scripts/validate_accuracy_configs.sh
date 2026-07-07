@@ -10,9 +10,9 @@
 # exits non-zero if any config fails.
 set -uo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"      # cd's to the repo root
-CFGDIR="${1:-configs/generated/accuracy}"
+CFGDIR="${1:-configs/generated}"
 # regenerate the accuracy set from the bases if it is absent
-[ -d "$CFGDIR" ] || python3 scripts/mutate_configs.py --select accuracy
+[ -d "$CFGDIR" ] || python3 scripts/mutate_configs.py
 PY="${CUVSLAM_PYTHON:-./cuvslam_venv/bin/python}"
 HW="${HW:-profiling/hw/dellworkstation_sm89.toml}"
 

@@ -72,16 +72,17 @@ DATA=/mnt/data scripts/fetch_paper_datasets.sh  # aria2c: TUM fr3 + ICL-NUIM (se
 #   KITTI / EuRoC / TUM-VI are large — fetch per PAPER_DATASETS.md and place under $DATA
 
 # CONFIG phase — ONE tree: configs/base + script mutations (see configs/README.md)
-make configs               # gen_base_configs (scans $DATA) + mutate_configs --select all
-#   -> configs/generated/{accuracy,coverage,window}; bases are committed
+make configs               # gen_base_configs (scans $DATA) + mutate_configs -> configs/generated/ (flat)
+#   bases are committed and human-owned; every variant is a scripted mutation
 
 # run one config, a list, or everything
 ./cuvslam_venv/bin/python run.py configs/base/euroc_MH_01_easy_stereo_slam.toml
-python run_list.py --configs configs/generated/accuracy --check    # validate the whole set
+python run_list.py --configs configs/generated --check    # validate the whole set
 
 # PROFILING phase (workstation, clocks locked)
-make validate SCOPE=accuracy   # the validation regime: {base+mutated} × {plain,nsys,ncu,nvbit}
-                               # scopes: reps | accuracy | coverage | full (see the script header)
+make validate                  # the validation regime: EVERY config × {plain,nsys,ncu}
+                               # + the deep NVBit leg where the config says `[profiling] nvbit = true`
+                               # (ONLY="regex" narrows the matrix; windows optional via NCU_WINDOW/NVBIT_WINDOW)| accuracy | coverage | full (see the script header)
 make profile CFG=configs/base/kitti06_stereo_slam.toml   # cohesive pipeline on one workload:
                                # nsys → steady-window → ncu characterize → nvbit trace →
                                # DAG/screen/roofline/classify/locality analyses + manifest
@@ -104,7 +105,7 @@ resumable). These produced the committed results under `reports/`:
 
 ```bash
 scripts/ws_accuracy_matrix.sh        # 141-run accuracy matrix vs the paper  -> reports/2026-07-07_accuracy_full/
-scripts/validation_regime.sh accuracy# configs × {plain,nsys,ncu,nvbit} accuracy-neutrality regime
+scripts/validation_regime.sh         # THE regime: matrix × {plain,nsys,ncu,nvbit-marked}
                                      #   (supersedes the retired ws_profiling_campaign /
                                      #    ws_profiler_neutrality scripts; those results:
                                      #    reports/2026-07-07_profiling_coverage + _profiler_neutrality)

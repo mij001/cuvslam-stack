@@ -29,3 +29,6 @@ apply_gt_extrinsic = "auto"
 rpe_distances = [8, 16, 32]
 rpe_delta = 1
 rpe_delta_unit = "s"
+
+[profiling]
+nvbit = true

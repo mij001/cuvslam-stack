@@ -105,6 +105,10 @@ def make_configs(form):
     chosen = [v for v in VARIANTS if form.get(f"var_{v}") in ("on", "true", "1")]
     if not chosen:
         chosen = ["slam"]
+    return _write_variants(name, preset, text0, chosen)
+
+
+def _write_variants(name, preset, text0, chosen):
     written = []
     os.makedirs(CUSTOM_DIR, exist_ok=True)
     for var in chosen:
@@ -124,10 +128,37 @@ def make_configs(form):
     return written
 
 
+def make_workload_config(form):
+    """ANY GPU codebase -> a [workload] config the whole harness understands."""
+    name = re.sub(r"[^A-Za-z0-9_]+", "_", form.get("name", "")).strip("_")
+    cmd = form.get("cmd", "").strip()
+    if not name or not cmd:
+        raise ValueError("workload name and command are required")
+    lines = [f"# GPU workload: {name} (registered via dashboard)",
+             "", "[workload]", f'cmd = "{cmd}"']
+    if form.get("cwd", "").strip():
+        lines.append(f'cwd = "{form["cwd"].strip()}"')
+    env_lines = [l for l in form.get("env", "").splitlines() if "=" in l]
+    if env_lines:
+        lines.append("[workload.env]")
+        for l in env_lines:
+            k, _, v = l.partition("=")
+            lines.append(f'{k.strip()} = "{v.strip()}"')
+    if form.get("qor_regex", "").strip():
+        lines += ["", "[qor]", f'stdout_regex = "{form["qor_regex"].strip()}"']
+    if form.get("nvbit") in ("on", "true", "1"):
+        lines += ["", "[profiling]", "nvbit = true"]
+    os.makedirs(CUSTOM_DIR, exist_ok=True)
+    out = os.path.join(CUSTOM_DIR, f"{name}_workload.toml")
+    with open(out, "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+    return [os.path.relpath(out, ROOT)]
+
+
 # ─────────────────────────── run management ───────────────────────────
 def list_configs():
     pats = ["configs/custom/*.toml", "configs/base/*.toml",
-            "configs/generated/accuracy/*.toml", "configs/generated/coverage/*.toml", "configs/*.toml",
+            "configs/generated/*.toml", "configs/*.toml",
             "configs/profiling/*.toml"]
     out = []
     for p in pats:
@@ -147,12 +178,19 @@ def start_job(cfg, profiler, hw):
     jobid = time.strftime("%H%M%S") + "_" + re.sub(r"\W+", "_", os.path.basename(cfg))[:40]
     os.makedirs(LOG_DIR, exist_ok=True)
     log = os.path.join(LOG_DIR, jobid + ".log")
-    if profiler in ("nsys", "ncu"):
+    if profiler in ("nsys", "ncu", "nvbit"):
         hw = hw or (hw_files()[0] if hw_files() else "")
         cmd = [VENV_PY, os.path.join(ROOT, "profiling/harness/profile.py"),
                "--config", cfg_abs, "--profiler", profiler, "--hw", os.path.join(ROOT, hw)]
         if profiler == "ncu":
             cmd += ["--metrics", "quick", "--launch-skip", "3000", "--launch-count", "20"]
+        if profiler == "nvbit":
+            cmd += ["--launch-skip", "1000", "--launch-count", "200"]
+    elif profiler == "regime":
+        # the whole cohesive pipeline: nsys -> window -> ncu -> nvbit -> analyses
+        hw = hw or (hw_files()[0] if hw_files() else "")
+        cmd = [VENV_PY, os.path.join(ROOT, "profiling/regime.py"),
+               "--config", cfg_abs, "--hw", os.path.join(ROOT, hw)]
     else:
         cmd = [VENV_PY, os.path.join(ROOT, "run.py"), cfg_abs]
     env = dict(os.environ)
@@ -274,13 +312,37 @@ iframe {{ width:100%; height:75vh; border:1px solid var(--line); border-radius:8
 <div id="mkout" class="status"></div>
 </form></div>
 
+<div class="card"><h2>1b · New GPU workload — profile ANY codebase</h2>
+<form id="wlform">
+<div class="grid2">
+  <div><label>workload name</label>
+    <input type="text" name="name" placeholder="my_dnn_train" required></div>
+  <div><label>command (launched under the profilers)</label>
+    <input type="text" name="cmd" placeholder="python3 train.py --iters 100" required></div>
+</div>
+<div class="grid3">
+  <div><label>working directory (optional — your codebase)</label>
+    <input type="text" name="cwd" placeholder="/home/me/my_repo"></div>
+  <div><label>QoR regex over stdout (optional — proves neutrality)</label>
+    <input type="text" name="qor_regex" placeholder="loss=([0-9.eE+-]+)"></div>
+  <div><label style="margin-top:26px"><input type="checkbox" name="nvbit"> deep NVBit memory trace</label></div>
+</div>
+<label>environment (optional, KEY=VALUE per line)</label>
+<input type="text" name="env" placeholder="CUDA_VISIBLE_DEVICES=0">
+<br><button type="submit">register workload</button>
+<span class="note">&nbsp; annotate stages in your code with NVTX ranges and the DAG/stage analyses pick them up</span>
+<div id="wlout" class="status"></div>
+</form></div>
+
 <div class="card"><h2>2 · Run / profile a config</h2>
 <div class="grid3">
   <div><label>config</label><select id="runcfg">{cfg_opts}</select></div>
   <div><label>profiler</label><select id="runprof">
-    <option value="none">none — plain run.py (accuracy)</option>
+    <option value="none">none — plain run (accuracy / QoR)</option>
     <option value="nsys">nsys — Nsight Systems timeline</option>
-    <option value="ncu">ncu — Nsight Compute (windowed)</option></select></div>
+    <option value="ncu">ncu — Nsight Compute (windowed)</option>
+    <option value="nvbit">nvbit — memory trace (windowed)</option>
+    <option value="regime">regime — full pipeline (nsys→ncu→nvbit→analyses)</option></select></div>
   <div><label>hardware descriptor (profiled runs)</label>
     <select id="runhw">{hw_opts}</select></div>
 </div>
@@ -307,6 +369,16 @@ $("#mkform").addEventListener("submit", async ev => {{
     ? `<span class="err">✗ ${{j.error}}</span>`
     : `<span class="ok">✓ wrote ${{j.written.length}} config(s):</span> ` +
       j.written.map(w=>`<code>${{w}}</code>`).join(", ") +
+      ` — <a href="#" onclick="location.reload();return false">refresh run list</a>`;
+}});
+$("#wlform").addEventListener("submit", async ev => {{
+  ev.preventDefault();
+  const data = Object.fromEntries(new FormData(ev.target).entries());
+  const r = await fetch("/api/create_workload", {{method:"POST", body:JSON.stringify(data)}});
+  const j = await r.json();
+  $("#wlout").innerHTML = j.error
+    ? `<span class="err">✗ ${{j.error}}</span>`
+    : `<span class="ok">✓ registered:</span> <code>${{j.written[0]}}</code>` +
       ` — <a href="#" onclick="location.reload();return false">refresh run list</a>`;
 }});
 let poll = null;
@@ -393,6 +465,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if self.path == "/api/create":
                 return self._json({"written": make_configs(form)})
+            if self.path == "/api/create_workload":
+                return self._json({"written": make_workload_config(form)})
             if self.path == "/api/run":
                 job = start_job(form.get("config", ""), form.get("profiler", "none"),
                                 form.get("hw", ""))

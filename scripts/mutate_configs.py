@@ -1,36 +1,33 @@
 #!/usr/bin/env python3
 """mutate_configs.py — THE config mutation engine.
 
-One base config per dataset-sequence × sensor modality lives in configs/base/
-(a full-featured SLAM config with [eval], or an odometry config where SLAM
-does not apply, e.g. mono). Every other config the stack consumes is a
-MUTATION of a base, produced by this script — nothing else generates variant
-TOMLs, so the mutation matrix is defined exactly once:
+The human owns configs/base/ — one full-featured SLAM config per
+dataset-sequence × sensor modality (odometry-only where SLAM does not apply,
+e.g. mono), each with an [eval] block. This script derives EVERYTHING else
+into configs/generated/ (flat, gitignored, regenerate at will):
 
-  accuracy set   pipeline-kind mutations, matching the paper's evaluation
-                 axes:  <base>            (slam, as-is)
-                        <stem>_odom       ([slam] removed, pose from odometry)
-                        <base>_async      (sync_mode=false + async_sba=true;
-                                           KITTI bases — the paper's async row)
-                        <base>_cpu        ([slam].use_gpu=false; TUM RGB-D
-                                           bases — the paper's CPU row)
-  coverage set   accuracy set × feature toggles: every accuracy config as
-                 `__base` (breadth) + finer cuVSLAM toggles on one
-                 representative per modality (depth): sync/async/cpu/planar,
-                 odom_only, sba_async, motion-model, denoising, landmark
-                 export, multicam Precision, unrectified, depth-stereo-track
-  window set     bounded-frame captures for kernel-level profiling:
-                 <name>__win<START>x<COUNT> ([run].start_index/max_frames)
+  pipeline kinds     <stem>_odom      [slam] removed, pose from odometry
+                     <base>_async     sync_mode=false + async_sba=true (KITTI)
+                     <base>_cpu       [slam].use_gpu=false (TUM RGB-D)
+  feature toggles    <base>__<toggle> on one representative per modality:
+                     sync/async/cpu/planar, odom_only, sba_async,
+                     motion-model, denoising, landmarks export, multicam
+                     Precision, unrectified, depth-stereo-tracking
+  frame windows      <name>__win<START>x<COUNT> — OPTIONAL (--window); the
+                     regime profiles full sequences by default
+
+Deep-profiling selection is EMBEDDED IN THE CONFIGS: a `[profiling]
+nvbit = true` block marks the runs that also get the (expensive) NVBit
+memory-trace leg. The rule is deterministic: every base keeps its own marker
+(the human's knob), and mutations in IMPORTANT_TOGGLES re-gain it; plain
+pipeline kinds drop it. ~bases + important toggles ≈ 30% of the matrix.
 
 Usage:
-  python3 scripts/mutate_configs.py --select accuracy            # -> configs/generated/accuracy/
-  python3 scripts/mutate_configs.py --select coverage            # -> configs/generated/coverage/
-  python3 scripts/mutate_configs.py --select all
-  python3 scripts/mutate_configs.py --select window --window 200:260
+  python3 scripts/mutate_configs.py                      # -> configs/generated/ (flat)
+  python3 scripts/mutate_configs.py --window 200:260     # + __win variants
 
-configs/generated/ is disposable (gitignored); regenerate at will. The
-dashboard imports set_key/remove_slam from here, so its custom-config variants
-apply the identical transforms.
+The dashboard imports set_key/remove_slam from here, so custom configs go
+through the identical transforms.
 """
 from __future__ import annotations
 
@@ -38,8 +35,8 @@ import argparse
 import os
 import re
 
-# representative base per modality family for the coverage depth pass
-COVERAGE_REPS = [
+# representative base per modality family for the toggle pass
+TOGGLE_REPS = [
     "kitti06_stereo_slam",
     "euroc_MH_01_easy_stereo_slam",
     "euroc_MH_01_easy_inertial_slam",
@@ -47,8 +44,16 @@ COVERAGE_REPS = [
     "icl_living_room_traj1_rgbd_slam",
 ]
 
+# toggles whose accuracy/behaviour effect is PROVEN large (coverage campaign,
+# reports/2026-07-07_profiling_coverage) — these mutations keep the nvbit
+# marker, so the deep memory-trace leg lands on the runs that matter.
+IMPORTANT_TOGGLES = {"denoising", "slam_planar", "no_motion_model", "slam_cpu",
+                     "odom_only", "unrectified", "slam_async"}
+
 STEREO = ("stereo",)          # toggles valid only for a stereo base
 RGBD = ("rgbd",)
+
+NVBIT_BLOCK = "\n[profiling]\nnvbit = true\n"
 
 
 def modality(base):
@@ -93,13 +98,24 @@ def remove_slam(text):
     return text.rstrip() + "\n"
 
 
-def retitle(text, tag):
-    """Update the leading comment + output/eval paths to a unique per-variant
-    run dir so variants don't overwrite each other's trajectory/eval."""
-    text = re.sub(r"(?m)^# .*$", f"# profiling-coverage variant: {tag}", text, count=1)
-    text = text.replace("/accuracy_out/", "/profiling_coverage_out/")
-    # rename the run-dir segment (the one right after the out root) to <tag>
-    text = re.sub(r"(/profiling_coverage_out/)[^/\"]+(/)", rf"\g<1>{tag}\g<2>", text)
+def strip_nvbit(text):
+    return re.sub(r"(?ms)^\[profiling\]\s*$.*?(?=^\[|\Z)", "", text).rstrip() + "\n"
+
+
+def mark_nvbit(text):
+    text = strip_nvbit(text)
+    return text.rstrip() + "\n" + NVBIT_BLOCK
+
+
+def nvbit_marked(text):
+    return re.search(r"(?ms)^\[profiling\].*?^nvbit\s*=\s*true", text) is not None
+
+
+def retarget(text, old_name, new_name, title=None):
+    """Point the run-dir segment of output/eval paths at <new_name> and retitle."""
+    text = text.replace(f"/{old_name}/", f"/{new_name}/")
+    if title:
+        text = re.sub(r"(?m)^# .*$", f"# {title}", text, count=1)
     return text
 
 
@@ -120,8 +136,7 @@ def set_window(text, start, count):
 
 
 # ─────────────────────────── mutation sets ───────────────────────────
-# feature toggles for the coverage depth pass
-# (variant-suffix, applies-to-modalities or None=all, transform)
+# feature toggles (variant-suffix, applies-to-modalities or None=all, transform)
 VARIANTS = [
     ("slam_sync",        None,   lambda t: set_key(t, "slam", "sync_mode", "true")),
     ("slam_async",       None,   lambda t: set_key(t, "slam", "sync_mode", "false")),
@@ -138,12 +153,13 @@ VARIANTS = [
 ]
 
 
-def accuracy_set(base_dir):
-    """bases -> the full accuracy matrix as [(name, text)], sorted by name.
+def mutations(base_dir):
+    """bases -> every derived config as [(name, text)], flat.
 
-    Pipeline-kind targets mirror the paper's evaluation axes per family:
-    every SLAM base yields slam+odom; KITTI adds slam_async; TUM RGB-D adds
-    slam_cpu; odometry-only bases (mono) pass through unchanged.
+    Pipeline kinds mirror the paper's evaluation axes per family (KITTI adds
+    async, TUM RGB-D adds cpu); feature toggles go on one representative per
+    modality. The nvbit marker survives only where the deep leg matters:
+    kind mutations drop it, IMPORTANT_TOGGLES re-gain it.
     """
     out = []
     for fn in sorted(os.listdir(base_dir)):
@@ -151,80 +167,73 @@ def accuracy_set(base_dir):
             continue
         name = fn[:-5]
         text = open(os.path.join(base_dir, fn)).read()
-        if not name.endswith("_slam"):        # odometry-only base (mono)
-            out.append((name, text))
-            continue
+        if not name.endswith("_slam"):
+            continue                      # odometry-only base (mono): no kinds
         stem = name[: -len("_slam")]
-        out.append((name, text))                                     # slam
         out.append((f"{stem}_odom",
-                    retarget_kind(remove_slam(text), name, f"{stem}_odom", "odom")))
+                    retarget_kind(strip_nvbit(remove_slam(text)),
+                                  name, f"{stem}_odom", "odom")))
         if name.startswith("kitti"):
             t = set_key(set_key(text, "odometry", "async_sba", "true"),
                         "slam", "sync_mode", "false")
             out.append((f"{name}_async",
-                        retarget_kind(t, name, f"{name}_async", "slam_async")))
+                        retarget_kind(strip_nvbit(t), name, f"{name}_async", "slam_async")))
         if name.startswith("tum_") and "_rgbd_" in f"{name}_":
             t = set_key(text, "slam", "use_gpu", "false")
             out.append((f"{name}_cpu",
-                        retarget_kind(t, name, f"{name}_cpu", "slam_cpu")))
-    return sorted(out)
+                        retarget_kind(strip_nvbit(t), name, f"{name}_cpu", "slam_cpu")))
 
-
-def coverage_set(acc):
-    """accuracy set -> the feature-toggle coverage set as [(tag, text)]."""
-    out = []
-    # breadth: every accuracy config, retargeted into profiling_coverage_out
-    for name, text in acc:
-        out.append((f"{name}__base", retitle(text, f"{name}__base")))
-    # depth: finer toggles on one representative per modality
-    acc_by_name = dict(acc)
-    for base in COVERAGE_REPS:
-        btext = acc_by_name.get(base)
-        if btext is None:
+    # feature toggles on the representatives
+    for base in TOGGLE_REPS:
+        bpath = os.path.join(base_dir, base + ".toml")
+        if not os.path.isfile(bpath):
             print(f"[skip] representative absent: {base}")
             continue
+        btext = open(bpath).read()
         mod = modality(base)
         for suffix, mods, fn in VARIANTS:
             if mods is not None and mod not in mods:
                 continue
             tag = f"{base}__{suffix}"
-            out.append((tag, retitle(fn(btext), tag)))
-    return out
+            t = fn(btext)
+            t = retarget(t, base, tag, title=f"toggle mutation: {tag}")
+            t = mark_nvbit(t) if suffix in IMPORTANT_TOGGLES else strip_nvbit(t)
+            out.append((tag, t))
+    return sorted(out)
 
 
 # ─────────────────────────── cli ───────────────────────────
-def write_set(pairs, out_dir):
-    os.makedirs(out_dir, exist_ok=True)
-    for name, text in pairs:
-        with open(os.path.join(out_dir, name + ".toml"), "w") as fh:
-            fh.write(text)
-    return len(pairs)
-
-
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--base", default="configs/base", help="canonical base configs")
-    ap.add_argument("--out", default="configs/generated", help="output root (gitignored)")
-    ap.add_argument("--select", default="all",
-                    choices=["accuracy", "coverage", "window", "all"])
-    ap.add_argument("--window", default="200:260", metavar="START:COUNT",
-                    help="frame window for --select window")
+    ap.add_argument("--base", default="configs/base", help="human-owned base configs")
+    ap.add_argument("--out", default="configs/generated", help="output dir (gitignored, flat)")
+    ap.add_argument("--window", metavar="START:COUNT",
+                    help="ALSO emit __win<START>x<COUNT> frame-window variants (optional)")
     args = ap.parse_args()
 
-    acc = accuracy_set(args.base)
-    total = 0
-    if args.select in ("accuracy", "all"):
-        total += write_set(acc, os.path.join(args.out, "accuracy"))
-    if args.select in ("coverage", "all"):
-        total += write_set(coverage_set(acc), os.path.join(args.out, "coverage"))
-    if args.select == "window":
+    muts = mutations(args.base)
+    os.makedirs(args.out, exist_ok=True)
+    for name, text in muts:
+        with open(os.path.join(args.out, name + ".toml"), "w") as fh:
+            fh.write(text)
+    n = len(muts)
+    if args.window:
         start, count = args.window.split(":")
-        win = [(f"{n}__win{start}x{count}", set_window(t, int(start), int(count)))
-               for n, t in acc]
-        total += write_set(win, os.path.join(args.out, "window"))
-    print(f"[✓] {total} mutated configs -> {args.out} (from {len(acc)} accuracy "
-          f"configs / {sum(1 for _ in os.listdir(args.base) if _.endswith('.toml'))} bases)")
+        for fn in sorted(os.listdir(args.base)):
+            if not fn.endswith(".toml"):
+                continue
+            text = open(os.path.join(args.base, fn)).read()
+            tag = f"{fn[:-5]}__win{start}x{count}"
+            with open(os.path.join(args.out, tag + ".toml"), "w") as fh:
+                fh.write(set_window(strip_nvbit(text), int(start), int(count)))
+            n += 1
+    nb = sum(1 for _, t in muts if nvbit_marked(t))
+    base_nb = sum(1 for f in os.listdir(args.base)
+                  if f.endswith(".toml") and nvbit_marked(open(os.path.join(args.base, f)).read()))
+    total_cfgs = n + sum(1 for f in os.listdir(args.base) if f.endswith(".toml"))
+    print(f"[✓] {n} mutations -> {args.out}; matrix = {total_cfgs} configs; "
+          f"nvbit-marked = {base_nb} bases + {nb} mutations")
 
 
 if __name__ == "__main__":

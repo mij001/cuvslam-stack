@@ -1,0 +1,19 @@
+# Example: profiling an ARBITRARY GPU workload (here: torch matmul chain)
+# through the same harness as cuVSLAM. The [workload] table selects the
+# command adapter (profiling/adapters.py); [qor] gives the harness a scalar
+# to verify profiling neutrality; [profiling] opts into the deep NVBit leg.
+#
+#   python3 profiling/harness/profile.py --config configs/workload_torch_matmul.toml \
+#       --profiler nsys --hw profiling/hw/rtx2000ada_sm89.toml
+
+[workload]
+cmd = "python3 examples/gpu_workloads/torch_matmul.py --n 2048 --iters 100"
+# cwd = "/path/to/your/codebase"     # optional; defaults to this repo's root
+[workload.env]
+CUDA_VISIBLE_DEVICES = "0"
+
+[qor]
+stdout_regex = "checksum=([0-9.eE+-]+)"
+
+[profiling]
+nvbit = true

@@ -48,3 +48,6 @@ gt_time_unit = "s"
 rpe_distances = [1, 2, 4]
 rpe_delta = 1
 rpe_delta_unit = "s"
+
+[profiling]
+nvbit = true

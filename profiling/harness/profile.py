@@ -205,6 +205,10 @@ def main(argv=None):
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--config", required=True, help="stack runner TOML (the workload)")
     p.add_argument("--profiler", required=True, choices=["nsys", "ncu", "nvbit"])
+    p.add_argument("--adapter", default="auto", choices=["auto", "cuvslam", "command"],
+                   help="workload adapter: cuvslam (run.py <config>, the default) or "
+                        "command (any argv from the config's [workload] table); auto "
+                        "picks command when [workload] is present. See profiling/adapters.py")
     p.add_argument("--hw", required=True, help="profiling/hw/*.toml descriptor")
     p.add_argument("--tag", default="default")
     p.add_argument("--venv-python", default=DEFAULT_VENV_PY,
@@ -272,8 +276,16 @@ def main(argv=None):
         except ValueError:
             p.error("--auto-window expects NSYS_DIR:WARM_FRAMES:LAUNCHES")
 
-    # The workload command: run the stack runner from REPO_ROOT (so imports resolve).
-    workload = [args.venv_python, os.path.join(REPO_ROOT, "run.py"), used_config]
+    # The workload command comes from the adapter: cuvslam = the stack runner
+    # (default, byte-compatible); command = any argv from [workload] — profile
+    # ANY GPU codebase (torch, CUDA benchmarks, image pipelines, ...).
+    sys.path.insert(0, os.path.join(REPO_ROOT, "profiling"))
+    from adapters import pick_adapter  # noqa: E402
+    adapter = pick_adapter(used_config, REPO_ROOT, args.venv_python, args.adapter)
+    workload = adapter.argv()
+    workload_env = adapter.env()
+    if workload_env:
+        os.environ.update(workload_env)   # profiler children inherit it
 
     # ── metadata.json (provenance) ───────────────────────────────────────────
     gpu = nvidia_smi_gpu()
@@ -292,6 +304,7 @@ def main(argv=None):
         "cuvslam_version": cuvslam_ver,
         "config": os.path.relpath(config, REPO_ROOT),
         "frame_override": frame_range,
+        "adapter": adapter.name,
         "workload_cmd": " ".join(os.path.relpath(c, REPO_ROOT) if os.path.exists(c) else c for c in workload),
     }
 

@@ -56,3 +56,6 @@ align = "se3"
 report = "/mnt/data/accuracy_out/kitti01_stereo_slam/eval.txt"
 gt_fps = 10.0
 rpe_distances = "kitti"
+
+[profiling]
+nvbit = true

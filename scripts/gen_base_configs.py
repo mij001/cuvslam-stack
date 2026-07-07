@@ -342,6 +342,10 @@ def main():
 
     def emit(name, body):
         nonlocal n
+        # every base carries the deep-profiling marker; the human edits it per
+        # config, and mutate_configs.py decides which mutations inherit it
+        if "[profiling]" not in body:
+            body = body.rstrip() + "\n\n[profiling]\nnvbit = true\n"
         with open(os.path.join(args.out, name + ".toml"), "w") as fh:
             fh.write(body)
         n += 1

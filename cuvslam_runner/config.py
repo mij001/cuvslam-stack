@@ -331,7 +331,10 @@ def load_config(path: str) -> Config:
     with open(path, "rb") as handle:
         data: dict[str, Any] = tomllib.load(handle)
 
-    _check_keys(data, {"run", "input", "rig", "odometry", "slam", "output", "eval"}, "<root>")
+    # [profiling] and [workload] belong to the profiling harness (deep-trace
+    # marker / workload adapters, see profiling/adapters.py) — allowed, ignored.
+    _check_keys(data, {"run", "input", "rig", "odometry", "slam", "output", "eval",
+                       "profiling", "workload", "qor"}, "<root>")
 
     if "input" not in data:
         raise ConfigError("Missing required [input] table.")
