@@ -1,0 +1,7 @@
+sequence	mode	plain_APE	nsys_APE	ncu_APE	nvbit_APE	nsys_d	ncu_d	nvbit_d	verdict
+euroc_V1_01_easy_stereo_slam	Multicamera	0.0369	0.0369	0.0369	0.0349	0	0	0.002	OK
+euroc_MH_01_easy_stereo_slam	Multicamera	0.0196	0.0196	0.0196	0.0196	0	0	0	OK
+euroc_MH_01_easy_inertial_slam	Inertial	0.6891	0.6891	0.6891	0.6891	0	0	0	OK
+tum_fr3_long_office_household_rgbd_slam	RGBD	0.0179	0.0179	0.0179	0.0186	0	0	0.0007	OK
+icl_living_room_traj1_rgbd_slam	RGBD	0.0386	0.0386	0.0386	0.0386	0	0	0	OK
+kitti06_stereo_slam	Multicamera	2.3120	2.3059	2.2769	2.2870	0.0061	0.0351	0.025	OK
