@@ -49,6 +49,14 @@ sys.path.insert(0, HERE)
 
 DEFAULT_STEPS = "nsys,window,ncu,nvbit,analyze"
 
+# On a downgraded 575 driver the system ncu (2026.2/2025.3, CUDA-13) rejects the
+# driver; profile.py honours $NCU_BIN, so default it to the CUDA-12.9 ncu 2025.2
+# when present and unset (matches scripts/validation_regime.sh). Harmless
+# elsewhere — profile.py falls back to plain "ncu" if the path does not exist.
+_NCU_129 = os.path.expanduser("~/ncu2025/nsight_compute-linux-x86_64-2025.2.1.3-archive/ncu")
+if "NCU_BIN" not in os.environ and os.path.isfile(_NCU_129):
+    os.environ["NCU_BIN"] = _NCU_129
+
 
 def sh(cmd, **kw):
     print(f"[regime] $ {' '.join(str(c) for c in cmd)}", flush=True)
@@ -121,9 +129,19 @@ def main(argv=None):
         if not nsys_dir:
             sys.exit("[regime] window step needs a prior nsys capture")
         from harness.profile import derive_launch_window  # reuse, one implementation
-        skip, count = derive_launch_window(nsys_dir, args.warm_frames, args.window_launches)
+        try:
+            skip, count = derive_launch_window(nsys_dir, args.warm_frames, args.window_launches)
+            how = "derived"
+        except SystemExit:
+            # unbounded run (max_frames = 0) — kernels/frame underivable; fall
+            # back to the launch window proven accuracy-neutral in the
+            # profiler-neutrality report (skip past warm-up, bounded count)
+            skip, count = 3000, args.window_launches
+            how = "fallback"
+            print(f"[regime] auto-window underivable (unbounded run) — "
+                  f"falling back to launch-skip={skip}, count={count}")
         man["window"] = {"launch_skip": skip, "launch_count": count,
-                         "warm_frames": args.warm_frames}; save()
+                         "warm_frames": args.warm_frames, "how": how}; save()
     elif man.get("window"):
         skip, count = man["window"]["launch_skip"], man["window"]["launch_count"]
 

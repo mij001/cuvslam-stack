@@ -167,6 +167,8 @@ def main():
 
     # headline reports first (newest → oldest), then the per-device deep dives
     ordered = [
+        ("Substrate candidacy — GPU / CPU / PiM / ISP per kernel + dynamics",
+         "reports/2026-07-07_substrate"),
         ("Accuracy matrix — 141 runs vs the cuVSLAM paper",
          "reports/2026-07-07_accuracy_full"),
         ("Profiler neutrality — nsys / ncu / NVBit",
