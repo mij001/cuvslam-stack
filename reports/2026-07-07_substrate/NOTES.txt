@@ -1,0 +1,1 @@
+class stability across sequences: 24 unanimous, 25 with per-sequence variation (see class_agreement.csv)

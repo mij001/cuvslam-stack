@@ -8,13 +8,14 @@ cuvslam-stack/                 (this repo — the main project)
 ├── run.py evaluate.py run_list.py runner.sh setup_env.sh   the TOML runner entrypoints
 ├── cuvslam_runner/            the runner package itself
 ├── configs/                   THE config tree (see configs/README.md):
-│     *.toml                     hand-written examples · accuracy_matrix/ (141, generated)
-│     profiling_coverage/ (192)  profiling/ (harness workloads) · campaign/ + custom/ (generated)
-├── scripts/                   generators + dataset tooling + workstation campaign drivers
-│                              (shared shell helpers in scripts/lib.sh; dataset knowledge
-│                               in scripts/dataset_catalog.py — single source of truth)
-├── profiling/                 memory characterization: nsys/ncu harness + headless analysis
-│                              (see profiling/README.md; one command: profiling/run_characterization.sh)
+│     *.toml (examples) · base/ (65 canonical, committed) · profiling/ (workloads)
+│     generated/ + custom/     every variant = a mutation of a base (gitignored, regen)
+├── scripts/                   gen_base_configs + mutate_configs (THE mutation engine),
+│                              validation_regime.sh, dataset tooling, campaign drivers
+│                              (shared shell lib.sh · dataset_catalog.py — one source each)
+├── profiling/                 memory characterization: regime.py (cohesive pipeline:
+│                              nsys→window→ncu→nvbit→analyses), harness/profile.py (one
+│                              capture entrypoint), analysis/ (incl. substrate dynamics)
 ├── viz/ · dashboard/ · site/  figures for every output · web UI · static results site
 ├── reports/                   committed campaign results (accuracy, coverage, neutrality)
 ├── cuvslam_src/               git submodule -> nvidia-isaac/cuVSLAM @ efdfbe56 (release 15.0)
@@ -53,59 +54,60 @@ the datasets, the built wheel, the Python venv, and raw profiler captures
 re-clone, rebuild the wheel, re-point the datasets, and every run/campaign below
 reproduces.
 
+The Makefile separates the phases — **build** (wheel/venv, no GPU profiling),
+**configs** (bases → mutations), **profiling** (validation regime + the cohesive
+capture pipeline), **analysis** (substrate + figures + site). `make help` prints
+the map.
+
 ```bash
 # 0 · prerequisites: NVIDIA GPU + driver, Podman (for the wheel build), python3.10
 git clone https://github.com/mij001/cuvslam-stack && cd cuvslam-stack
 
-# 1 · build the cuVSLAM wheel from the pinned submodule + patches, install into a venv
-make wheel                 # -> cuvslam_src/dist/cuvslam-*.whl   (Podman, CUDA 13, py3.10)
-./setup_env.sh             # -> ./cuvslam_venv with requirements + the newest wheel
+# BUILD phase — wheel + venv (kept apart from profiling)
+make build                 # = make wheel (submodule+patches, Podman) + ./setup_env.sh
 #   CUDA-mismatched host? build/install a matching wheel and pass WHEEL=... to setup_env.sh
-#   (e.g. the workstation runs a cu12 wheel on driver 575 — see docs/, Troubleshooting)
 
-# 2 · get the datasets (paper benchmark set) onto a data volume
+# datasets (paper benchmark set) onto a data volume
 DATA=/mnt/data scripts/fetch_paper_datasets.sh  # aria2c: TUM fr3 + ICL-NUIM (see PAPER_DATASETS.md)
 #   KITTI / EuRoC / TUM-VI are large — fetch per PAPER_DATASETS.md and place under $DATA
 
-# 3 · run one config, a list, or everything
-./cuvslam_venv/bin/python run.py configs/euroc_v1_eval.toml     # run + evaluate vs ground truth
-./cuvslam_venv/bin/python run.py configs/kitti_stereo.toml --check   # validate only (no wheel needed)
-python run_list.py runlist.txt                                  # a batch, one TOML per line
+# CONFIG phase — ONE tree: configs/base + script mutations (see configs/README.md)
+make configs               # gen_base_configs (scans $DATA) + mutate_configs --select all
+#   -> configs/generated/{accuracy,coverage,window}; bases are committed
 
-# 4 · profile a run (memory characterization) under Nsight Systems / Compute
-./cuvslam_venv/bin/python profiling/harness/profile.py \
-    --config configs/accuracy_matrix/kitti06_stereo_slam.toml \
-    --profiler nsys --hw profiling/hw/rtx2000ada_sm89.toml
+# run one config, a list, or everything
+./cuvslam_venv/bin/python run.py configs/base/euroc_MH_01_easy_stereo_slam.toml
+python run_list.py --configs configs/generated/accuracy --check    # validate the whole set
 
-# 5 · visualize everything + browse the results site + open the dashboard
-./cuvslam_venv/bin/python viz/make_figures.py        # PNGs from every committed CSV/TSV
-./cuvslam_venv/bin/python viz/build_site.py         # -> site/index.html (static, browsable)
-./cuvslam_venv/bin/python dashboard/serve.py        # web UI on http://127.0.0.1:8642/
+# PROFILING phase (workstation, clocks locked)
+make validate SCOPE=accuracy   # the validation regime: {base+mutated} × {plain,nsys,ncu,nvbit}
+                               # scopes: reps | accuracy | coverage | full (see the script header)
+make profile CFG=configs/base/kitti06_stereo_slam.toml   # cohesive pipeline on one workload:
+                               # nsys → steady-window → ncu characterize → nvbit trace →
+                               # DAG/screen/roofline/classify/locality analyses + manifest
+
+# ANALYSIS phase (anywhere — works from the committed tables)
+make analyze               # substrate candidacy (GPU/CPU/PiM/ISP) + dynamics/flips
+make site                  # every figure + the browsable results site (site/index.html)
+./cuvslam_venv/bin/python dashboard/serve.py             # web UI on http://127.0.0.1:8642/
 ```
 
-**Pointing configs at your datasets.** The bundled `configs/*.toml` and the
-committed `configs/accuracy_matrix/` + `configs/profiling_coverage/` matrices use
+**Pointing configs at your datasets.** The committed `configs/base/` files use
 absolute dataset paths (the workstation's `/mnt/data/...`). On a different host,
-either edit the `[input].path` / `[eval].ground_truth` fields, or **regenerate**
-the matrices against your own data root — the generators are the source of truth:
+regenerate the bases against your own data root (`make configs DATA=/your/data`),
+edit the `[input].path` / `[eval].ground_truth` fields, or use the **dashboard**
+(§ *Dashboard & results site*): register a dataset from a preset template and it
+writes correctly pointed TOML variants into `configs/custom/` for you.
 
-```bash
-python scripts/gen_accuracy_configs.py  --root $DATA --out configs/accuracy_matrix   # 141 accuracy configs
-python scripts/gen_profiling_coverage.py --matrix configs/accuracy_matrix \
-                                         --out configs/profiling_coverage            # 192 toggle variants
-```
-
-Or skip the files entirely and use the **dashboard** (§ *Dashboard & results
-site* below): register a dataset from a preset template, and it writes correctly
-pointed TOML variants into `configs/custom/` for you.
-
-**Reproduce the campaigns** (workstation, GPU clocks locked; each streams a
-tailable log and is resumable). These are the committed results under `reports/`:
+**Reproduce the campaigns** (workstation; each streams a tailable log and is
+resumable). These produced the committed results under `reports/`:
 
 ```bash
 scripts/ws_accuracy_matrix.sh        # 141-run accuracy matrix vs the paper  -> reports/2026-07-07_accuracy_full/
-scripts/ws_profiling_campaign.sh     # 192 feature-toggle variants, plain vs nsys -> reports/2026-07-07_profiling_coverage/
-scripts/ws_profiler_neutrality.sh    # nsys/ncu/NVBit accuracy-neutrality check   -> reports/2026-07-07_profiler_neutrality/
+scripts/validation_regime.sh accuracy# configs × {plain,nsys,ncu,nvbit} accuracy-neutrality regime
+                                     #   (supersedes the retired ws_profiling_campaign /
+                                     #    ws_profiler_neutrality scripts; those results:
+                                     #    reports/2026-07-07_profiling_coverage + _profiler_neutrality)
 scripts/validate_accuracy_configs.sh # every config validates under runner + profiling flow
 ```
 

@@ -198,6 +198,29 @@ data-structure-level motivation. +(3b)+(6) → MICRO/ASPLOS/ISCA/HPCA. See
 
 ## 8. Changelog
 
+- **2026-07-07 (regime overhaul)** — **Base+mutate config regime, one capture
+  entrypoint, one validation regime, cohesive profiling pipeline, substrate
+  dynamics.** (1) Configs: 65 canonical bases in `configs/base/` (committed);
+  ALL variants are mutations by `scripts/mutate_configs.py` (accuracy kinds,
+  feature toggles, frame windows) into gitignored `configs/generated/` —
+  PROOF: mutator reproduces the previously committed 141-accuracy +
+  192-coverage sets byte-identically, and `gen_base_configs.py` regenerates
+  the 65 bases byte-identically from /mnt/data. (2) `profile.py --profiler
+  nvbit` — NVBit mem_trace (launch-windowed, gz) through the same results-dir
+  schema as nsys/ncu. (3) `scripts/validation_regime.sh` — {base+mutated} ×
+  {plain,nsys,ncu,nvbit} with scope tiers (reps/accuracy/coverage/full),
+  per-cell ledger, paper-metric report; retires ws_profiling_campaign.sh +
+  ws_profiler_neutrality.sh (their results stand). (4) `profiling/regime.py`
+  — one command per workload: nsys → auto steady-window → ncu characterize →
+  nvbit trace → DAG/screen/roofline/classify/locality + manifest.json.
+  (5) `analysis/substrate.py` — categorical GPU/CPU/PiM-bank/PiM-scatter/ISP
+  verdict per kernel × workload from the classification features, plus
+  DYNAMICS: kernels whose verdict flips across workloads with the driving
+  metric. First run on the 4 device reports: **49 kernels, 25 verdict flips,
+  dram_sol_pct the dominant flip driver** (`reports/2026-07-07_substrate/` +
+  heatmap/mix/flip figures). Makefile now separates phases: build | configs |
+  validate | profile | analyze | figures | site.
+
 - **2026-07-07 (refactor)** — **De-fragmentation overhaul**, verified
   behavior-neutral by regeneration byte-diffs. (1) All loose root scripts →
   `scripts/` with shared `scripts/lib.sh` (mount-rw, clock-lock, free-gpu/

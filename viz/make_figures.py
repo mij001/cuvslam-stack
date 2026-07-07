@@ -500,6 +500,109 @@ def fig_trajectories(traj_root, config_dir="configs/accuracy_matrix"):
         save(fig, f"reports/2026-07-07_accuracy_full/figs/traj_{fam}.png")
 
 
+# ────────────────────────── substrate candidacy + dynamics ──────────────────────────
+SUBSTRATE_C = {"GPU-keep": "#546e7a", "GPU+layout-fix": "#90a4ae",
+               "CPU/host": "#8d6e63", "PiM-near-bank": "#2e7d32",
+               "PiM-scatter": "#f9a825", "ISP/near-storage": "#6a1b9a"}
+
+
+def fig_substrate():
+    base = os.path.join(ROOT, "reports/2026-07-07_substrate")
+    vrows = read_rows(os.path.join(base, "substrate_verdicts.csv"))
+    mrows = read_rows(os.path.join(base, "substrate_mix.csv"))
+    frows = read_rows(os.path.join(base, "substrate_flips.csv"))
+    if not vrows:
+        return
+
+    # (1) kernel × workload verdict heatmap (categorical)
+    kernels = sorted({r["kernel"] for r in vrows})
+    works = sorted({r["workload"] for r in vrows})
+    cats = list(SUBSTRATE_C)
+    M = np.full((len(kernels), len(works)), np.nan)
+    for r in vrows:
+        M[kernels.index(r["kernel"]), works.index(r["workload"])] = cats.index(r["substrate"])
+    from matplotlib.colors import ListedColormap
+    fig, ax = plt.subplots(figsize=(2.1 + 1.5 * len(works), 0.24 * len(kernels) + 1.8))
+    ax.imshow(M, aspect="auto", cmap=ListedColormap(list(SUBSTRATE_C.values())),
+              vmin=0, vmax=len(cats) - 1)
+    ax.set_xticks(range(len(works)), [w.replace("_", "\n") for w in works], fontsize=7)
+    ax.set_yticks(range(len(kernels)), [k[:38] for k in kernels], fontsize=5.5)
+    ax.set_title("Best-substrate verdict per kernel × workload\n"
+                 "(a row with mixed colors = placement is DYNAMIC — flips with the workload)")
+    handles = [plt.Rectangle((0, 0), 1, 1, color=c) for c in SUBSTRATE_C.values()]
+    ax.legend(handles, cats, fontsize=6.5, loc="upper left", bbox_to_anchor=(1.01, 1))
+    ax.grid(False)
+    save(fig, "reports/2026-07-07_substrate/figs/verdict_heatmap.png")
+
+    # (2) time-weighted substrate mix per workload
+    if mrows:
+        works_m = sorted({r["workload"] for r in mrows})
+        fig, ax = plt.subplots(figsize=(7.6, 4))
+        bottoms = {w: 0.0 for w in works_m}
+        for cat in cats:
+            vals = []
+            for w in works_m:
+                v = next((fnum(r["time_pct"], 0) for r in mrows
+                          if r["workload"] == w and r["substrate"] == cat), 0.0)
+                vals.append(v)
+            ax.bar(range(len(works_m)), vals, 0.6,
+                   bottom=[bottoms[w] for w in works_m], color=SUBSTRATE_C[cat], label=cat)
+            for w, v in zip(works_m, vals):
+                bottoms[w] += v
+        ax.set_xticks(range(len(works_m)), [w.replace("_", "\n") for w in works_m], fontsize=8)
+        ax.set_ylabel("% of profiled-window GPU time")
+        ax.set_title("Where the GPU second would go: time-weighted substrate mix\n"
+                     "(within the steady-state ncu capture window)")
+        ax.legend(fontsize=7, ncols=3)
+        save(fig, "reports/2026-07-07_substrate/figs/substrate_mix.png")
+
+    # (3) what drives the flips
+    if frows:
+        drv = {}
+        for r in frows:
+            drv[r["most_moved_feature"] or "?"] = drv.get(r["most_moved_feature"] or "?", 0) + 1
+        fig, ax = plt.subplots(figsize=(5.6, 3.2))
+        keys = sorted(drv, key=drv.get, reverse=True)
+        ax.bar(range(len(keys)), [drv[k] for k in keys], color="#c62828", alpha=0.85)
+        ax.set_xticks(range(len(keys)), keys, rotation=20, ha="right", fontsize=8)
+        ax.set_ylabel("kernels flipping")
+        ax.set_title(f"Substrate flips across workloads: {len(frows)}/{len(kernels)} kernels\n"
+                     "— the dynamic metric that moved most per flip")
+        save(fig, "reports/2026-07-07_substrate/figs/flip_drivers.png")
+
+
+def fig_validation_regime():
+    """config × profiler APE matrix — drawn once the validation regime has run
+    (reads any REGIME.tsv copied under reports/)."""
+    import glob as _g
+    paths = _g.glob(os.path.join(ROOT, "reports", "*validation_regime*", "REGIME.tsv")) + \
+        _g.glob(os.path.join(ROOT, "reports", "*", "REGIME.tsv"))
+    if not paths:
+        return
+    rows = read_rows(paths[0])
+    if not rows:
+        return
+    ok = [r for r in rows if r["status"] == "OK"]
+    fig, ax = plt.subplots(figsize=(6.4, 5.4))
+    for prof, c, m in (("nsys", "#1565c0", "o"), ("ncu", "#6a1b9a", "s"), ("nvbit", "#ef6c00", "^")):
+        sel = [r for r in rows if r["profiler"] == prof]
+        if not sel:
+            continue
+        x = [max(fnum(r["plain_APE_m"]), 1e-4) for r in sel]
+        y = [max(fnum(r["prof_APE_m"]), 1e-4) for r in sel]
+        ax.scatter(x, y, s=20, c=c, marker=m, alpha=0.7,
+                   label=f"{prof} ({len(sel)})")
+    lim = [8e-4, 2e5]
+    ax.plot(lim, lim, "k-", lw=1, alpha=0.7)
+    ax.set_xscale("log"); ax.set_yscale("log"); ax.set_xlim(lim); ax.set_ylim(lim)
+    ax.set_xlabel("plain APE (m)"); ax.set_ylabel("profiled APE (m)")
+    ax.set_title(f"Validation regime: accuracy under every profiler "
+                 f"({len(ok)}/{len(rows)} cells OK)")
+    ax.legend(fontsize=8)
+    save(fig, os.path.join(os.path.relpath(os.path.dirname(paths[0]), ROOT),
+                           "figs/regime_matrix.png"))
+
+
 ALL = {
     "accuracy": fig_accuracy,
     "coverage": fig_coverage,
@@ -509,6 +612,8 @@ ALL = {
     "taxonomy": fig_taxonomy,
     "roofline": fig_roofline,
     "pim": fig_pim,
+    "substrate": fig_substrate,
+    "regime": fig_validation_regime,
 }
 
 

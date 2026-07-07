@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ws_accuracy_matrix.sh — run the full accuracy matrix (workstation).
 #
-# Phase 1: every configs/accuracy_matrix/*.toml on the BASELINE wheel
+# Phase 1: every configs/generated/accuracy/*.toml on the BASELINE wheel
 #          (cuvslam_venv) — trajectories + [eval] reports vs ground truth
 #          land in /mnt/data/accuracy_out/<run_name>/.
 # Phase 2: QoR-neutrality check — a representative subset re-run on the
@@ -28,10 +28,12 @@ progress() {
 
 ensure_data_rw /mnt/data /dev/sda2 || exit 1
 
-python3 scripts/gen_accuracy_configs.py --root /mnt/data --tumvi-extracted "$HOME/tumvi_extracted" \
-    --out configs/accuracy_matrix 2>&1 | tee -a "$LOG"
+# bases from the dataset volume, then the accuracy set by mutation
+python3 scripts/gen_base_configs.py --root /mnt/data --tumvi-extracted "$HOME/tumvi_extracted" \
+    --out configs/base 2>&1 | tee -a "$LOG"
+python3 scripts/mutate_configs.py --select accuracy 2>&1 | tee -a "$LOG"
 
-CFGS=$(ls configs/accuracy_matrix/*.toml | sort)
+CFGS=$(ls configs/generated/accuracy/*.toml | sort)
 TOTAL=$(echo "$CFGS" | wc -l)
 log "accuracy matrix start — $TOTAL runs (baseline wheel)"
 
@@ -57,7 +59,7 @@ QOR="kitti06_stereo_slam euroc_V1_01_easy_stereo_slam euroc_MH_01_easy_inertial_
      tum_fr3_long_office_household_rgbd_slam kitti00_stereo_odom euroc_V2_02_medium_stereo_odom"
 log "QoR phase — instrumented wheel on: $QOR"
 for NAME in $QOR; do
-    CFG="configs/accuracy_matrix/$NAME.toml"
+    CFG="configs/generated/accuracy/$NAME.toml"
     [ -f "$CFG" ] || { log "QoR skip $NAME (no config)"; continue; }
     D="$OUT/qor_tagged/$NAME"
     mkdir -p "$D"

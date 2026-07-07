@@ -309,28 +309,44 @@ def main():
     os.makedirs(args.out, exist_ok=True)
     written = []
 
+    # toggle extras (slam_async + slam_cpu) go on ONE representative per
+    # input-source family (TOGGLE_REPS); everything else emits odom+slam.
+    TOGGLES = ["slam_async", "slam_cpu"]
+
     for seq in KITTI_SEQS:
         calib = os.path.join(args.root, "dataset", "sequences", seq, "calib.txt")
         if not os.path.isfile(calib):
             print(f"[skip] KITTI {seq}: no calib.txt")
             continue
-        odom, slam = kitti_bodies(args.root, seq)
-        written += list(emit(args.out, f"kitti{seq}", odom, slam))
+        extra = TOGGLES if seq == TOGGLE_REPS["kitti"] else None
+        written += list(emit(args.out, f"kitti{seq}", kitti_bodies(args.root, seq, extra)))
 
     for rel, seq in EUROC:
         if not os.path.isdir(os.path.join(args.root, "EuRoC", rel, seq, "mav0")):
             print(f"[skip] EuRoC {seq}: no mav0")
             continue
-        odom, slam = euroc_bodies(rel, seq)
-        written += list(emit(args.out, f"euroc_{seq}", odom, slam))
+        extra = TOGGLES if (rel, seq) == TOGGLE_REPS["euroc"] else None
+        written += list(emit(args.out, f"euroc_{seq}", euroc_bodies(rel, seq, extra)))
+        # sensor-variant reps: also profile the inertial (IMU-fusion) and mono paths
+        if (rel, seq) in EUROC_VARIANT_REPS:
+            for variant in ("inertial", "mono"):
+                written += list(emit(args.out, f"euroc_{seq}_{variant}",
+                                     euroc_bodies(rel, seq, variant=variant)))
 
     for seq in TUM_RGBD:
         if not os.path.isdir(os.path.join(args.root, "TUM_RGBD", "extracted", seq)):
             print(f"[skip] TUM {seq}")
             continue
-        odom, slam = tum_bodies(seq)
+        extra = TOGGLES if seq == TOGGLE_REPS["tum"] else None
         short = seq.replace("rgbd_dataset_freiburg3_", "fr3_")
-        written += list(emit(args.out, f"tum_{short}", odom, slam))
+        written += list(emit(args.out, f"tum_{short}", tum_bodies(seq, extra)))
+
+    for seq in ICL_NUIM:
+        if not os.path.isdir(os.path.join(args.root, "ICL-NUIM", seq)):
+            print(f"[skip] ICL {seq}")
+            continue
+        short = seq.replace("_frei_png", "")
+        written += list(emit(args.out, f"icl_{short}", icl_bodies(seq)))
 
     if os.path.isdir(args.tumvi_extracted):
         for d in sorted(os.listdir(args.tumvi_extracted)):
@@ -340,8 +356,7 @@ def main():
             # pre-converted). TODO: TUM-VI->EuRoC calib conversion.
             if os.path.isdir(mav0) and os.path.isfile(os.path.join(mav0, "cam0", "sensor.yaml")):
                 name = d.replace("dataset-", "").replace("_512_16", "")
-                odom, slam = tumvi_bodies(name, mav0)
-                written += list(emit(args.out, f"tumvi_{name}", odom, slam))
+                written += list(emit(args.out, f"tumvi_{name}", tumvi_bodies(name, mav0)))
             elif os.path.isdir(mav0):
                 print(f"[skip] TUM-VI {d}: no cam0/sensor.yaml (needs calib conversion)")
 

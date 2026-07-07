@@ -4,7 +4,7 @@
 Three things, no dependencies beyond the stdlib:
   1. REGISTER a new dataset → generate TOML config variants for it
      (preset templates are the validated accuracy-matrix configs; feature
-     variants reuse gen_profiling_coverage's transforms).
+     variants reuse mutate_configs's transforms).
   2. RUN any config — plain (run.py) or under a profiler
      (profiling/harness/profile.py --profiler nsys|ncu) — with a live log tail.
   3. VIEW all results: embeds the static results site (viz/build_site.py),
@@ -30,7 +30,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-from gen_profiling_coverage import remove_slam, set_key  # noqa: E402  (reuse, one source of truth)
+from mutate_configs import remove_slam, set_key  # noqa: E402  (reuse, one source of truth)
 
 VENV_PY = os.path.join(ROOT, "cuvslam_venv", "bin", "python")
 if not os.path.isfile(VENV_PY):
@@ -41,17 +41,17 @@ OUT_DIR = os.path.join(ROOT, "out", "dashboard")
 
 # dataset presets → a validated accuracy-matrix config used as the template
 PRESETS = {
-    "kitti_stereo":   ("configs/accuracy_matrix/kitti06_stereo_slam.toml",
+    "kitti_stereo":   ("configs/base/kitti06_stereo_slam.toml",
                        "KITTI-style stereo (image_2/3 + times.txt, KITTI-pose GT)"),
-    "euroc_stereo":   ("configs/accuracy_matrix/euroc_MH_01_easy_stereo_slam.toml",
+    "euroc_stereo":   ("configs/base/euroc_MH_01_easy_stereo_slam.toml",
                        "EuRoC-style stereo (mav0/cam0+cam1, EuRoC-csv GT)"),
-    "euroc_inertial": ("configs/accuracy_matrix/euroc_MH_01_easy_inertial_slam.toml",
+    "euroc_inertial": ("configs/base/euroc_MH_01_easy_inertial_slam.toml",
                        "EuRoC-style stereo + IMU"),
-    "euroc_mono":     ("configs/accuracy_matrix/euroc_MH_01_easy_mono_odom.toml",
+    "euroc_mono":     ("configs/base/euroc_MH_01_easy_mono_odom.toml",
                        "EuRoC-style monocular (odometry only)"),
-    "tum_rgbd":       ("configs/accuracy_matrix/tum_fr3_long_office_household_rgbd_slam.toml",
+    "tum_rgbd":       ("configs/base/tum_fr3_long_office_household_rgbd_slam.toml",
                        "TUM-RGBD-style (rgb.txt/depth.txt associations, TUM GT)"),
-    "icl_rgbd":       ("configs/accuracy_matrix/icl_living_room_traj1_rgbd_slam.toml",
+    "icl_rgbd":       ("configs/base/icl_living_room_traj1_rgbd_slam.toml",
                        "ICL-NUIM-style RGB-D (TUM layout, synthetic)"),
 }
 
@@ -126,8 +126,8 @@ def make_configs(form):
 
 # ─────────────────────────── run management ───────────────────────────
 def list_configs():
-    pats = ["configs/custom/*.toml", "configs/accuracy_matrix/*.toml",
-            "configs/profiling_coverage/*.toml", "configs/*.toml",
+    pats = ["configs/custom/*.toml", "configs/base/*.toml",
+            "configs/generated/accuracy/*.toml", "configs/generated/coverage/*.toml", "configs/*.toml",
             "configs/profiling/*.toml"]
     out = []
     for p in pats:

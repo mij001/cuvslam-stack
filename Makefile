@@ -9,19 +9,64 @@
 #   make wheel   -> init submodule, apply patches, build the wheel (Podman)
 #   make verify  -> install the wheel (setup_env) and run a TOML config
 #
-.PHONY: help init patch wheel verify check clean unpatch all
+.PHONY: help init patch wheel verify check clean unpatch all \
+        build configs validate profile analyze figures site
 .DEFAULT_GOAL := help
 
 TOML := configs/kitti_eval.toml
 DIST := $(CURDIR)/cuvslam_src/dist
 
+# ── phase parameters (override on the command line) ──────────────────────────
+PY    ?= ./cuvslam_venv/bin/python
+DATA  ?= /mnt/data
+HW    ?= profiling/hw/dellworkstation_sm89.toml
+CFG   ?= configs/base/kitti06_stereo_slam.toml
+SCOPE ?= accuracy
+
 help:
-	@echo "make wheel   - init the cuvslam_src submodule, apply patches/, build the wheel (Podman, CUDA 13, py3.10)"
-	@echo "make verify  - install the built wheel via setup_env and run $(TOML)"
-	@echo "make check   - install the built wheel and validate $(TOML)"
-	@echo "make clean   - remove the runner venv"
-	@echo "make unpatch - revert the submodule overlay back to pristine efdfbe56"
-	@echo "make all     - wheel + verify"
+	@echo "BUILD phase (wheel + venv — no GPU profiling here):"
+	@echo "  make build    - wheel (submodule+patches, Podman) + setup_env venv"
+	@echo "  make wheel    - just the wheel"
+	@echo "  make verify   - install the built wheel and run $(TOML)"
+	@echo "  make check    - install the built wheel and validate $(TOML)"
+	@echo "  make clean    - remove the runner venv;  make unpatch - pristine submodule"
+	@echo ""
+	@echo "CONFIG phase:"
+	@echo "  make configs  - bases from DATA=$(DATA) + all mutations -> configs/generated/"
+	@echo ""
+	@echo "PROFILING phase (workstation, GPU):"
+	@echo "  make validate - validation regime: configs x {plain,nsys,ncu,nvbit} (SCOPE=$(SCOPE))"
+	@echo "  make profile  - cohesive pipeline on CFG=$(CFG): nsys->window->ncu->nvbit->analyses"
+	@echo ""
+	@echo "ANALYSIS phase (anywhere):"
+	@echo "  make analyze  - substrate candidacy + dynamics from the classification tables"
+	@echo "  make figures  - PNG counterparts for every committed artifact"
+	@echo "  make site     - figures + the browsable results site (site/index.html)"
+
+# ── phases ────────────────────────────────────────────────────────────────────
+build: wheel
+	./setup_env.sh
+
+configs:
+	-python3 scripts/gen_base_configs.py --root $(DATA)
+	python3 scripts/mutate_configs.py --select all
+
+validate:
+	scripts/validation_regime.sh $(SCOPE)
+
+profile:
+	$(PY) profiling/regime.py --config $(CFG) --hw $(HW)
+
+analyze:
+	$(PY) profiling/analysis/substrate.py profiling/reports/*/data/classification.csv \
+	    --agreement profiling/reports/2026-07-04_campaign/class_agreement.csv \
+	    --out reports/2026-07-07_substrate
+
+figures:
+	$(PY) viz/make_figures.py
+
+site: figures
+	$(PY) viz/build_site.py
 
 # Fetch the pinned cuVSLAM source. Skip LFS smudge -- the build needs only the
 # source (libs/, python/, CMake), not the example media stored in Git LFS, and

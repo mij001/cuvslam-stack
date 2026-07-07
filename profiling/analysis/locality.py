@@ -132,6 +132,9 @@ def open_trace(path):
         proc = subprocess.Popen(["zstdcat", path], stdout=subprocess.PIPE, text=True,
                                 errors="replace")
         return proc.stdout
+    if path.endswith(".gz"):        # profile.py --profiler nvbit writes .txt.gz
+        import gzip
+        return gzip.open(path, "rt", errors="replace")
     return open(path, errors="replace")
 
 

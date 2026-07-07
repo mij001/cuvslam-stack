@@ -4,6 +4,8 @@ out/
 cuvslam_venv/
 cuvslam_venv_*/
 results/
+configs/generated/
+configs/custom/
 
 # Editor / tooling local state
 .claude/

@@ -1,0 +1,26 @@
+kernel,verdicts,most_moved_feature,max_over_min
+cast_image_kernel_rgb,kitti06_rtx2000ada:GPU-keep | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:GPU-keep,dram_sol_pct,6.7x
+conv_grad_y_kernel,kitti06_rtx2000ada:GPU-keep | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:PiM-near-bank | tumvi_corridor1_rtx2000ada:PiM-near-bank,dram_sol_pct,3.5x
+cub::DeviceMergeSortPartitionKernel,kitti06_rtx2000ada:CPU/host | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:CPU/host | tumvi_corridor1_rtx2000ada:CPU/host,dram_sol_pct,6.2x
+filter_maximums_kernel,kitti06_rtx2000ada:GPU-keep | tum_office_mx450:GPU-keep | tum_office_rtx2000ada:GPU-keep | tumvi_corridor1_rtx2000ada:CPU/host,dram_sol_pct,60.6x
+gftt_values_kernel,kitti06_rtx2000ada:GPU-keep | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:PiM-near-bank | tumvi_corridor1_rtx2000ada:PiM-near-bank,dram_sol_pct,2.2x
+sba::build_full_system_1_kernel,kitti06_rtx2000ada:PiM-scatter | tum_office_mx450:PiM-scatter | tum_office_rtx2000ada:PiM-scatter | tumvi_corridor1_rtx2000ada:CPU/host,dram_sol_pct,81.5x
+sba::build_full_system_2_kernel,kitti06_rtx2000ada:PiM-near-bank | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:PiM-near-bank | tumvi_corridor1_rtx2000ada:GPU-keep,dram_sol_pct,14.3x
+sba::calc_jacobians_kernel,kitti06_rtx2000ada:PiM-scatter | tum_office_mx450:PiM-scatter | tum_office_rtx2000ada:PiM-scatter | tumvi_corridor1_rtx2000ada:GPU-keep,dram_sol_pct,24.4x
+sba::calc_point_update_kernel_xavier_special,kitti06_rtx2000ada:PiM-near-bank | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:PiM-near-bank | tumvi_corridor1_rtx2000ada:GPU-keep,dram_sol_pct,37.2x
+sba::calc_pose_update_kernel,kitti06_rtx2000ada:CPU/host | tum_office_mx450:GPU-keep | tum_office_rtx2000ada:CPU/host | tumvi_corridor1_rtx2000ada:CPU/host,dram_sol_pct,6.6x
+sba::clear_full_system_stage_1_kernel,kitti06_rtx2000ada:PiM-scatter | tum_office_mx450:PiM-scatter | tum_office_rtx2000ada:PiM-scatter | tumvi_corridor1_rtx2000ada:GPU-keep,dram_sol_pct,59.5x
+sba::evaluate_cost_kernel,kitti06_rtx2000ada:GPU+layout-fix | tum_office_mx450:GPU+layout-fix | tum_office_rtx2000ada:GPU+layout-fix | tumvi_corridor1_rtx2000ada:GPU-keep,dram_sol_pct,36.2x
+sba::make_prediction,kitti06_rtx2000ada:CPU/host | tum_office_mx450:CPU/host | tum_office_rtx2000ada:PiM-near-bank | tumvi_corridor1_rtx2000ada:CPU/host,dram_sol_pct,7.2x
+sba::point_term_kernel,kitti06_rtx2000ada:PiM-scatter | tum_office_mx450:PiM-scatter | tum_office_rtx2000ada:PiM-scatter | tumvi_corridor1_rtx2000ada:GPU-keep,dram_sol_pct,25.4x
+sba::reduce_abs_max_kernel,kitti06_rtx2000ada:PiM-near-bank | tum_office_mx450:GPU-keep | tum_office_rtx2000ada:PiM-near-bank | tumvi_corridor1_rtx2000ada:GPU-keep,dram_sol_pct,7.3x
+sba::reduced_system_stage_12_kernel,kitti06_rtx2000ada:GPU-keep | tum_office_mx450:GPU+layout-fix | tum_office_rtx2000ada:GPU-keep | tumvi_corridor1_rtx2000ada:GPU-keep,dram_sol_pct,34.3x
+sba::reduced_system_stage_1_kernel,kitti06_rtx2000ada:CPU/host | tum_office_mx450:PiM-scatter | tum_office_rtx2000ada:CPU/host | tumvi_corridor1_rtx2000ada:CPU/host,ai_flop_per_byte,26.5x
+sba::reduced_system_stage_3_kernel,kitti06_rtx2000ada:PiM-near-bank | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:PiM-near-bank | tumvi_corridor1_rtx2000ada:GPU-keep,dram_sol_pct,57.0x
+sba::update_points_kernel,kitti06_rtx2000ada:PiM-scatter | tum_office_mx450:PiM-scatter | tum_office_rtx2000ada:PiM-scatter | tumvi_corridor1_rtx2000ada:PiM-near-bank,ai_flop_per_byte,56.0x
+sba::v1T_x_M_T_x_v2_kernel,kitti06_rtx2000ada:PiM-near-bank | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:PiM-near-bank | tumvi_corridor1_rtx2000ada:CPU/host,dram_sol_pct,39.5x
+select_features_kernel,kitti06_rtx2000ada:PiM-scatter | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:PiM-scatter | tumvi_corridor1_rtx2000ada:PiM-scatter,occupancy_pct,2.6x
+st_build_cache_kernel,kitti06_rtx2000ada:PiM-scatter | tum_office_mx450:PiM-scatter | tum_office_rtx2000ada:PiM-scatter | tumvi_corridor1_rtx2000ada:GPU-keep,lfmr_gpu,10.5x
+st_track_with_cache_kernel,tum_office_mx450:ISP/near-storage | tum_office_rtx2000ada:PiM-scatter | tumvi_corridor1_rtx2000ada:GPU-keep,dram_sol_pct,28.0x
+trsv_ln_exec,kitti06_rtx2000ada:PiM-near-bank | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:CPU/host | tumvi_corridor1_rtx2000ada:PiM-near-bank,dram_sol_pct,5.8x
+trsv_lt_exec,kitti06_rtx2000ada:CPU/host | tum_office_mx450:PiM-near-bank | tum_office_rtx2000ada:PiM-near-bank | tumvi_corridor1_rtx2000ada:CPU/host,dram_sol_pct,5.5x

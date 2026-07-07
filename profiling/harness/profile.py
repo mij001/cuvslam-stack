@@ -43,6 +43,9 @@ RESULTS_ROOT = os.path.join(REPO_ROOT, "profiling", "results")
 # ncu 2025.2 needed on a downgraded 575 driver) can be used without touching PATH.
 NCU = os.environ.get("NCU_BIN", "ncu")
 NSYS = os.environ.get("NSYS_BIN", "nsys")
+# NVBit mem_trace shared object (built in the podman wheel-builder; needs driver ≤575)
+NVBIT_TOOL = os.environ.get("NVBIT_TOOL", os.path.join(
+    REPO_ROOT, "external_repos", "nvbit_release_x86_64", "tools", "mem_trace", "mem_trace.so"))
 
 # ── Targeted Nsight Compute metric sets ──────────────────────────────────────
 # Curated from the Cao23 "gpudb" taxonomy: just the counters that drive the
@@ -201,7 +204,7 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--config", required=True, help="stack runner TOML (the workload)")
-    p.add_argument("--profiler", required=True, choices=["nsys", "ncu"])
+    p.add_argument("--profiler", required=True, choices=["nsys", "ncu", "nvbit"])
     p.add_argument("--hw", required=True, help="profiling/hw/*.toml descriptor")
     p.add_argument("--tag", default="default")
     p.add_argument("--venv-python", default=DEFAULT_VENV_PY,
@@ -278,7 +281,8 @@ def main(argv=None):
         [args.venv_python, "-c", "import cuvslam;print(getattr(cuvslam,'__version__','?'))"],
         capture_output=True, text=True).stdout.strip() or "unknown"
     meta = {
-        "profiler": {"nsys": "nsight_systems", "ncu": "nsight_compute"}[args.profiler],
+        "profiler": {"nsys": "nsight_systems", "ncu": "nsight_compute",
+                     "nvbit": "nvbit_memtrace"}[args.profiler],
         "date": datetime.now(timezone.utc).astimezone().isoformat(),
         "timestamp": ts, "hostname": os.uname().nodename, "tag": args.tag,
         "hw_descriptor": os.path.relpath(hw, REPO_ROOT), "hw_name": hw_name,
@@ -317,6 +321,50 @@ def main(argv=None):
                 "--force-export=true", "--output", os.path.join(derived, "kern_sum"), rep])
         else:
             print("[✗] no .nsys-rep produced", file=sys.stderr)
+
+    elif args.profiler == "nvbit":
+        # Binary-instrumentation memory trace (32B-sector level) via NVBit
+        # mem_trace, bounded to a launch window (LAUNCH_BEGIN/END — the same
+        # windowing idea as ncu's --launch-skip/count) so traces stay disk-
+        # bounded; outside the window kernels run native, so the app completes
+        # a FULL run and any [eval] block still produces a comparable eval.txt.
+        if not os.path.isfile(NVBIT_TOOL):
+            p.error(f"NVBit tool not found: {NVBIT_TOOL} (build it in the podman "
+                    "wheel-builder or set NVBIT_TOOL)")
+        begin, end = args.launch_skip, args.launch_skip + args.launch_count
+        meta["nvbit_config"] = {"tool": os.path.relpath(NVBIT_TOOL, REPO_ROOT),
+                                "launch_begin": begin, "launch_end": end,
+                                "kernel_filter": args.kernel_filter}
+        json.dump(meta, open(os.path.join(run_dir, "metadata.json"), "w"), indent=2)
+        env = dict(os.environ)
+        env["CUDA_INJECTION64_PATH"] = NVBIT_TOOL
+        env["LAUNCH_BEGIN"], env["LAUNCH_END"] = str(begin), str(end)
+        if args.kernel_filter:
+            env["KERNEL_FILTER"] = args.kernel_filter
+        # mem_trace disassembles with nvdisasm at runtime — make sure it's on PATH
+        if os.path.isdir("/opt/cuda/bin"):
+            env["PATH"] = "/opt/cuda/bin" + os.pathsep + env.get("PATH", "")
+        rep = os.path.join(raw, "mem_trace.txt.gz")
+        print(f"  $ LAUNCH_BEGIN={begin} LAUNCH_END={end} CUDA_INJECTION64_PATH="
+              f"{os.path.relpath(NVBIT_TOOL, REPO_ROOT)} {' '.join(workload)}", flush=True)
+        import gzip
+        try:
+            with gzip.open(rep, "wt") as gz:
+                proc = subprocess.Popen(workload, cwd=REPO_ROOT, env=env,
+                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                        text=True)
+                for line in proc.stdout:
+                    gz.write(line)
+                proc.wait(timeout=args.timeout)
+                rc = proc.returncode
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            print(f"[✗] nvbit run exceeded {args.timeout}s — aborted", file=sys.stderr)
+            rc = 124
+        if os.path.isfile(rep) and os.path.getsize(rep) > 0:
+            print(f"[✓] {rep} ({human(os.path.getsize(rep))})")
+        else:
+            print("[✗] no mem_trace output produced", file=sys.stderr)
 
     else:  # ncu
         metrics = resolve_metrics(args.metrics)
