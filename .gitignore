@@ -6,6 +6,7 @@ cuvslam_venv_*/
 results/
 configs/generated/
 configs/custom/
+configs/targets.toml
 
 # Editor / tooling local state
 .claude/

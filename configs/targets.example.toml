@@ -1,0 +1,15 @@
+# Profiling targets — copy to configs/targets.toml (gitignored, machine-local)
+# and edit. The dashboard machine is the CONTROLLER; every target is reached
+# over ssh (set up keys first: ssh-copy-id user@host). "local" always exists.
+
+[targets.ws]
+ssh = "ndpvslam@dell-workstation"
+repo = "~/Projects/cuvslam-stack"
+hw = "profiling/hw/dellworkstation_sm89.toml"
+data = "/mnt/data"
+
+[targets.jetson_orin]
+ssh = "nvidia@jetson-orin"
+repo = "~/cuvslam-stack"
+hw = "profiling/hw/jetson_orin_sm87.toml"
+data = "/data"

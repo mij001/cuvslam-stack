@@ -155,6 +155,56 @@ def make_workload_config(form):
     return [os.path.relpath(out, ROOT)]
 
 
+# ─────────────────────────── profiling targets (controller -> ssh) ─────────
+TARGETS_FILE = os.path.join(ROOT, "configs", "targets.toml")
+
+
+def load_targets():
+    """targets.toml -> {name: {ssh, repo, hw, data}}. 'local' always exists."""
+    targets = {"local": {"ssh": "", "repo": ".", "hw": "", "data": ""}}
+    if os.path.isfile(TARGETS_FILE):
+        text = open(TARGETS_FILE).read()
+        for m in re.finditer(r"(?ms)^\[targets\.([A-Za-z0-9_-]+)\]\s*$(.*?)(?=^\[|\Z)", text):
+            t = {"ssh": "", "repo": "~/Projects/cuvslam-stack", "hw": "", "data": ""}
+            for kv in re.finditer(r'(?m)^(ssh|repo|hw|data)\s*=\s*"([^"]*)"', m.group(2)):
+                t[kv.group(1)] = kv.group(2)
+            targets[m.group(1)] = t
+    return targets
+
+
+def add_target(form):
+    name = re.sub(r"[^A-Za-z0-9_-]+", "_", form.get("name", "")).strip("_")
+    ssh_host = form.get("ssh", "").strip()
+    if not name or not ssh_host:
+        raise ValueError("target name and ssh host (user@host) are required")
+    block = (f'\n[targets.{name}]\nssh = "{ssh_host}"\n'
+             f'repo = "{form.get("repo", "~/Projects/cuvslam-stack").strip()}"\n'
+             f'hw = "{form.get("hw", "").strip()}"\n'
+             f'data = "{form.get("data", "").strip()}"\n')
+    with open(TARGETS_FILE, "a") as fh:
+        fh.write(block)
+    return name
+
+
+def target_exec(name, remote_cmd, timeout=90):
+    """Run a shell command on a target (locally or over ssh); return text."""
+    t = load_targets().get(name)
+    if t is None:
+        raise ValueError(f"unknown target {name!r}")
+    if t["ssh"]:
+        cmd = ["ssh", "-o", "ConnectTimeout=10", "-o", "BatchMode=yes", t["ssh"],
+               f"cd {t['repo']} && {remote_cmd}"]
+    else:
+        cmd = ["bash", "-c", remote_cmd]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, cwd=ROOT)
+    out = (r.stdout or "") + (r.stderr or "")
+    if r.returncode != 0 and "Permission denied" in out or "Could not resolve" in out:
+        out += ("\n[controller] ssh to this target failed — check the host is up, "
+                "keys are installed (ssh-copy-id), and any VPN (e.g. Tailscale) "
+                "is authenticated.")
+    return out, r.returncode
+
+
 # ─────────────────────────── run management ───────────────────────────
 def list_configs():
     pats = ["configs/custom/*.toml", "configs/base/*.toml",
@@ -171,17 +221,15 @@ def hw_files():
                   for f in glob.glob(os.path.join(ROOT, "profiling/hw/*.toml")))
 
 
-def start_job(cfg, profiler, hw):
-    cfg_abs = os.path.join(ROOT, cfg)
-    if not os.path.isfile(cfg_abs) or not cfg.startswith("configs") and not cfg.startswith("profiling"):
-        raise ValueError("config must be an existing .toml under configs/ or profiling/")
-    jobid = time.strftime("%H%M%S") + "_" + re.sub(r"\W+", "_", os.path.basename(cfg))[:40]
-    os.makedirs(LOG_DIR, exist_ok=True)
-    log = os.path.join(LOG_DIR, jobid + ".log")
+def _job_argv(cfg, profiler, hw, remote=False):
+    """The command for one job. remote=True -> repo-relative paths + venv python
+    (executed on the target via `cd <repo> && ...`)."""
+    py = "./cuvslam_venv/bin/python" if remote else VENV_PY
+    j = (lambda p: p) if remote else (lambda p: os.path.join(ROOT, p))
     if profiler in ("nsys", "ncu", "nvbit"):
         hw = hw or (hw_files()[0] if hw_files() else "")
-        cmd = [VENV_PY, os.path.join(ROOT, "profiling/harness/profile.py"),
-               "--config", cfg_abs, "--profiler", profiler, "--hw", os.path.join(ROOT, hw)]
+        cmd = [py, j("profiling/harness/profile.py"),
+               "--config", j(cfg), "--profiler", profiler, "--hw", j(hw)]
         if profiler == "ncu":
             cmd += ["--metrics", "quick", "--launch-skip", "3000", "--launch-count", "20"]
         if profiler == "nvbit":
@@ -189,10 +237,38 @@ def start_job(cfg, profiler, hw):
     elif profiler == "regime":
         # the whole cohesive pipeline: nsys -> window -> ncu -> nvbit -> analyses
         hw = hw or (hw_files()[0] if hw_files() else "")
-        cmd = [VENV_PY, os.path.join(ROOT, "profiling/regime.py"),
-               "--config", cfg_abs, "--hw", os.path.join(ROOT, hw)]
+        cmd = [py, j("profiling/regime.py"), "--config", j(cfg), "--hw", j(hw)]
     else:
-        cmd = [VENV_PY, os.path.join(ROOT, "run.py"), cfg_abs]
+        cmd = [py, j("run.py"), j(cfg)]
+    return cmd
+
+
+def start_job(cfg, profiler, hw, target="local"):
+    cfg_abs = os.path.join(ROOT, cfg)
+    if not os.path.isfile(cfg_abs) or not cfg.startswith("configs") and not cfg.startswith("profiling"):
+        raise ValueError("config must be an existing .toml under configs/ or profiling/")
+    t = load_targets().get(target)
+    if t is None:
+        raise ValueError(f"unknown target {target!r}")
+    jobid = time.strftime("%H%M%S") + "_" + re.sub(r"\W+", "_", os.path.basename(cfg))[:36] \
+        + ("" if target == "local" else f"@{target}")
+    os.makedirs(LOG_DIR, exist_ok=True)
+    log = os.path.join(LOG_DIR, jobid + ".log")
+    if t["ssh"]:
+        # controller -> target: the config file is shipped first (configs are
+        # tiny; targets share the repo via git but custom/generated ones may
+        # only exist here), then the job runs in the target repo over ssh —
+        # its stdout streams back through the ssh pipe into the local log.
+        remote = " ".join(_job_argv(cfg, profiler, hw, remote=True))
+        ship = subprocess.run(["scp", "-q", cfg_abs, f"{t['ssh']}:{t['repo']}/{cfg}"],
+                              capture_output=True, text=True)
+        if ship.returncode != 0:
+            raise ValueError(f"cannot ship config to {target}: {ship.stderr.strip()[:200]} "
+                             "(is ssh set up? run the doctor on this target)")
+        cmd = ["ssh", "-o", "ConnectTimeout=10", t["ssh"],
+               f"cd {t['repo']} && exec {remote}"]
+    else:
+        cmd = _job_argv(cfg, profiler, hw, remote=False)
     env = dict(os.environ)
     env.setdefault("PATH", "")
     # laptop CUDA-install repair shim (harmless elsewhere): prepend if present
@@ -204,8 +280,32 @@ def start_job(cfg, profiler, hw):
     lf.flush()
     proc = subprocess.Popen(cmd, cwd=ROOT, stdout=lf, stderr=subprocess.STDOUT,
                             start_new_session=True, env=env)
-    JOBS[jobid] = {"proc": proc, "cmd": cmd, "log": log, "cfg": cfg, "t0": time.time()}
+    JOBS[jobid] = {"proc": proc, "cmd": cmd, "log": log, "cfg": cfg, "t0": time.time(),
+                   "target": target}
     return jobid
+
+
+# ─────────────────────────── file editor (configs) ─────────────────────────
+def _editable(relpath):
+    """Only TOML under configs/ or profiling/hw/ — and inside the repo."""
+    full = os.path.realpath(os.path.join(ROOT, relpath))
+    ok_root = full.startswith(os.path.realpath(os.path.join(ROOT, "configs"))) or \
+        full.startswith(os.path.realpath(os.path.join(ROOT, "profiling", "hw")))
+    if not (ok_root and full.endswith(".toml")):
+        raise ValueError("editable files: configs/**.toml and profiling/hw/*.toml")
+    return full
+
+
+def read_file(relpath):
+    return open(_editable(relpath)).read()
+
+
+def save_file(relpath, content):
+    full = _editable(relpath)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    with open(full, "w") as fh:
+        fh.write(content)
+    return os.path.relpath(full, ROOT)
 
 
 def job_state(jobid):
@@ -281,6 +381,27 @@ iframe {{ width:100%; height:75vh; border:1px solid var(--line); border-radius:8
 <p>register a dataset → generate TOML variants → run / profile → view results</p></header>
 <main>
 
+<div class="card"><h2>0 · Profiling targets — this machine is the CONTROLLER</h2>
+<p class="note">register machines reachable over ssh (workstation, gaming laptop, Jetson Orin/Nano/AGX …);
+jobs run on the selected target and stream their logs back here. Set up keys first: <code>ssh-copy-id user@host</code>.</p>
+<div id="tglist" class="status">loading targets…</div>
+<form id="tgform">
+<div class="grid3">
+  <div><label>target name</label><input type="text" name="name" placeholder="jetson_orin"></div>
+  <div><label>ssh (user@host)</label><input type="text" name="ssh" placeholder="nvidia@192.168.1.42"></div>
+  <div><label>repo path on target</label><input type="text" name="repo" placeholder="~/Projects/cuvslam-stack"></div>
+</div>
+<div class="grid2">
+  <div><label>hardware descriptor (profiling/hw/*.toml)</label><input type="text" name="hw" placeholder="profiling/hw/jetson_orin_sm87.toml"></div>
+  <div><label>dataset root on target</label><input type="text" name="data" placeholder="/mnt/data"></div>
+</div>
+<button type="submit">add target</button>
+<button type="button" class="sec" id="doctorbtn">run doctor on selected target</button>
+<select id="doctortg" style="width:auto;padding:6px"></select>
+<div id="tgout" class="status"></div>
+<pre class="log" id="doctorout" style="display:none"></pre>
+</form></div>
+
 <div class="card"><h2>1 · New dataset → TOML configs</h2>
 <form id="mkform">
 <div class="grid2">
@@ -346,10 +467,24 @@ iframe {{ width:100%; height:75vh; border:1px solid var(--line); border-radius:8
   <div><label>hardware descriptor (profiled runs)</label>
     <select id="runhw">{hw_opts}</select></div>
 </div>
+<label>run on target</label>
+<select id="runtarget" style="width:auto;padding:6px"><option>local</option></select>
 <button id="runbtn">start run</button>
 <span class="note">&nbsp; jobs run detached (start_new_session) with logs under out/dashboard/logs/</span>
 <div id="runstat" class="status"></div>
 <pre class="log" id="runlog" style="display:none"></pre></div>
+
+<div class="card"><h2>2b · Edit config files directly</h2>
+<div class="grid2">
+  <div><label>file (configs/**.toml, profiling/hw/*.toml)</label>
+    <select id="edsel">{cfg_opts}</select></div>
+  <div><label>&nbsp;</label>
+    <button type="button" id="edload">load</button>
+    <button type="button" id="edsave" class="sec">save</button>
+    <span id="edstat" class="status" style="display:inline"></span></div>
+</div>
+<textarea id="edtext" style="width:100%;height:260px;font:12.5px monospace;display:none;
+  border:1px solid #bbb;border-radius:8px;padding:10px"></textarea></div>
 
 <div class="card"><h2>3 · Results</h2>
 <button class="sec" id="rebuild">rebuild figures + site</button>
@@ -371,6 +506,47 @@ $("#mkform").addEventListener("submit", async ev => {{
       j.written.map(w=>`<code>${{w}}</code>`).join(", ") +
       ` — <a href="#" onclick="location.reload();return false">refresh run list</a>`;
 }});
+async function refreshTargets() {{
+  const t = await (await fetch("/api/targets")).json();
+  const names = Object.keys(t);
+  $("#tglist").innerHTML = "registered: " + names.map(n =>
+    `<code>${{n}}${{t[n].ssh ? " → " + t[n].ssh : " (this machine)"}}</code>`).join("  ");
+  for (const sel of ["#doctortg", "#runtarget"]) {{
+    document.querySelector(sel).innerHTML =
+      names.map(n => `<option>${{n}}</option>`).join("");
+  }}
+}}
+refreshTargets();
+$("#tgform").addEventListener("submit", async ev => {{
+  ev.preventDefault();
+  const data = Object.fromEntries(new FormData(ev.target).entries());
+  const j = await (await fetch("/api/add_target", {{method:"POST", body:JSON.stringify(data)}})).json();
+  $("#tgout").innerHTML = j.error ? `<span class="err">✗ ${{j.error}}</span>`
+                                  : `<span class="ok">✓ added ${{j.added}}</span>`;
+  refreshTargets();
+}});
+$("#doctorbtn").addEventListener("click", async () => {{
+  const t = $("#doctortg").value;
+  $("#doctorout").style.display = "block";
+  $("#doctorout").textContent = `running doctor on ${{t}} …`;
+  const j = await (await fetch(`/api/doctor?target=${{encodeURIComponent(t)}}`)).json();
+  $("#doctorout").textContent = j.output;
+  $("#tgout").innerHTML = j.ready
+    ? `<span class="ok">✓ ${{t}} is READY to profile</span>`
+    : `<span class="err">✗ ${{t}} is NOT ready — every finding above has its fix</span>`;
+}});
+$("#edload").addEventListener("click", async () => {{
+  const j = await (await fetch(`/api/file?path=${{encodeURIComponent($("#edsel").value)}}`)).json();
+  if (j.error) {{ $("#edstat").innerHTML = `<span class="err">✗ ${{j.error}}</span>`; return; }}
+  $("#edtext").style.display = "block"; $("#edtext").value = j.content;
+  $("#edstat").innerHTML = `<span class="ok">loaded</span>`;
+}});
+$("#edsave").addEventListener("click", async () => {{
+  const j = await (await fetch("/api/savefile", {{method:"POST", body:JSON.stringify(
+    {{path: $("#edsel").value, content: $("#edtext").value}})}})).json();
+  $("#edstat").innerHTML = j.error ? `<span class="err">✗ ${{j.error}}</span>`
+                                   : `<span class="ok">✓ saved ${{j.saved}}</span>`;
+}});
 $("#wlform").addEventListener("submit", async ev => {{
   ev.preventDefault();
   const data = Object.fromEntries(new FormData(ev.target).entries());
@@ -384,7 +560,8 @@ $("#wlform").addEventListener("submit", async ev => {{
 let poll = null;
 $("#runbtn").addEventListener("click", async () => {{
   const body = JSON.stringify({{config: $("#runcfg").value,
-    profiler: $("#runprof").value, hw: $("#runhw").value}});
+    profiler: $("#runprof").value, hw: $("#runhw").value,
+    target: $("#runtarget").value}});
   const r = await fetch("/api/run", {{method:"POST", body}});
   const j = await r.json();
   if (j.error) {{ $("#runstat").innerHTML = `<span class="err">✗ ${{j.error}}</span>`; return; }}
@@ -452,6 +629,23 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(job_state(q.get("id", [""])[0]))
         if path == "api/configs":
             return self._json(list_configs())
+        if path == "api/targets":
+            return self._json(load_targets())
+        if path == "api/doctor":
+            q = urllib.parse.parse_qs(url.query)
+            name = q.get("target", ["local"])[0]
+            try:
+                out, rc = target_exec(name, "bash scripts/doctor.sh", timeout=120)
+            except Exception as e:  # noqa: BLE001
+                out, rc = f"doctor failed to reach target: {e}", 1
+            return self._json({"target": name, "output": out, "ready": rc == 0})
+        if path == "api/file":
+            q = urllib.parse.parse_qs(url.query)
+            try:
+                return self._json({"path": q.get("path", [""])[0],
+                                   "content": read_file(q.get("path", [""])[0])})
+            except Exception as e:  # noqa: BLE001
+                return self._json({"error": str(e)}, 400)
         if any(path.startswith(p) for p in STATIC_OK):
             return self._static(path)
         return self._send(404, "not found", "text/plain")
@@ -467,9 +661,14 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"written": make_configs(form)})
             if self.path == "/api/create_workload":
                 return self._json({"written": make_workload_config(form)})
+            if self.path == "/api/add_target":
+                return self._json({"added": add_target(form)})
+            if self.path == "/api/savefile":
+                return self._json({"saved": save_file(form.get("path", ""),
+                                                      form.get("content", ""))})
             if self.path == "/api/run":
                 job = start_job(form.get("config", ""), form.get("profiler", "none"),
-                                form.get("hw", ""))
+                                form.get("hw", ""), form.get("target", "local"))
                 return self._json({"job": job})
             if self.path == "/api/rebuild":
                 return self._json({"log": rebuild_site()})
