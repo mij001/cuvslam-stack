@@ -198,6 +198,26 @@ data-structure-level motivation. +(3b)+(6) → MICRO/ASPLOS/ISCA/HPCA. See
 
 ## 8. Changelog
 
+- **2026-07-07 (later)** — **Profiling proven accuracy-neutral, all three tools,
+  full matrix.** (a) Focused check (`reports/2026-07-07_profiler_neutrality/`):
+  6 deterministic sequences × {plain, nsys, ncu, NVBit} — nsys+ncu **bit-identical
+  (Δ=0)** on every deterministic indoor sequence, NVBit ≤2 mm; the only >1 cm
+  deltas (kitti06) appear at the same magnitude under all three profilers =
+  the F13 nondeterminism floor, not instrumentation. ncu via CUDA-12.9 NCU_BIN;
+  ncu/NVBit launch-windowed so the app completes natively → full-trajectory eval.
+  (b) Breadth campaign (`reports/2026-07-07_profiling_coverage/`): **192 variants**
+  (every accuracy config + feature-toggle sweep: sync/async/cpu/planar/odom-only/
+  sba-async/motion-model/denoising/landmarks/precision/unrectified/depth-stereo)
+  run plain→nsys — **166/192 OK; all 26 CHECK classified benign** (8 mono-scale,
+  7 diverging/invalid-input, 6 km-scale F13, 3 stale baselines the profiled run
+  *corrects*, 2 teddy). The one real-looking suspect (teddy RGB-D, matched-poses
+  equal, Δ>5%) was **disproven by a plain-re-run test**: three un-profiled runs
+  scatter 0.035→1.104 m (31×) with the nsys value inside the plain distribution
+  (`reproducibility_check.log`). Toggle sweep also yielded behavior findings:
+  denoising fixes under-tuned inertial (0.69→0.03, bears on G9); planar
+  constraints wreck 6DOF but are neutral on KITTI; motion model helps drones,
+  hurts cars; sync bit-deterministic vs async scatter.
+
 - **2026-07-07** — Accuracy matrix expanded to the full paper set (141 runs,
   `reports/2026-07-07_accuracy_full/`): added all 8 ICL-NUIM Mono-Depth
   trajectories + the 10 TUM fr3 sequences. Reproduces the paper on profiled

@@ -1,0 +1,14 @@
+== teddy SLAM (prime real-suspect: 0.164 plain vs 0.055 nsys) ==
+tum_fr3_teddy_rgbd_slam__base  run1  APE=0.0350  matched=2323
+tum_fr3_teddy_rgbd_slam__base  run2  APE=0.4092  matched=2323
+tum_fr3_teddy_rgbd_slam__base  run3  APE=1.1038  matched=2323
+== teddy ODOM (0.108 plain vs 0.163 nsys) ==
+tum_fr3_teddy_rgbd_odom__base  run1  APE=0.1142  matched=2323
+tum_fr3_teddy_rgbd_odom__base  run2  APE=0.3163  matched=2323
+tum_fr3_teddy_rgbd_odom__base  run3  APE=0.2581  matched=2323
+== CONTROL: long_office rgbd SLAM (was bit-identical) ==
+tum_fr3_long_office_household_rgbd_slam__base  run1  APE=0.0179  matched=2486
+tum_fr3_long_office_household_rgbd_slam__base  run2  APE=0.0179  matched=2486
+== VERIFY denoising fixes inertial (expect ~0.026, full matched) ==
+euroc_MH_01_easy_inertial_slam__denoising  run1  APE=0.0314  matched=3639
+REPRO_DONE
