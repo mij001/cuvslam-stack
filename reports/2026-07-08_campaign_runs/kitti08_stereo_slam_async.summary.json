@@ -1,0 +1,438 @@
+{
+ "workload": "kitti08_stereo_slam_async",
+ "device": "dellworkstation_sm89",
+ "adapter": "cuvslam",
+ "source": "profiling/results/2026-07-08_020220_kitti08_ncu_dellworkstation_sm89",
+ "device_peaks": {
+  "dram_gbps": 205.0,
+  "peak_gflops": 5445.0,
+  "hw": "dellworkstation_sm89.toml",
+  "basis": "measured"
+ },
+ "qor": {
+  "plain_ape_m": 4.2891,
+  "nsys_ape_m": 4.2121,
+  "ncu_ape_m": 4.449
+ },
+ "note": "campaign cell (ncu quick window)",
+ "stages": [],
+ "kernels": [
+  {
+   "name": "cast_image_kernel_rgb",
+   "stage": "?",
+   "time_ms": 0.053,
+   "share_pct": 28.23,
+   "limiter": "compute-leaning",
+   "substrate": "GPU-keep",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "pyramid_levels",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G5",
+     "n_seq": "15",
+     "verdict": "unanimous"
+    },
+    "kmeans": {
+     "cluster_k8": "1",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 11.759578,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 83.870323,
+   "roofline": null
+  },
+  {
+   "name": "gaussian_scaling_kernel",
+   "stage": "?",
+   "time_ms": 0.048,
+   "share_pct": 25.54,
+   "limiter": "compute-leaning",
+   "substrate": "PiM-near-bank",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "images_raw",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    },
+    "kmeans": {
+     "cluster_k8": "6",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 41.950632,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 44.859978500000004,
+   "roofline": null
+  },
+  {
+   "name": "conv_grad_x_kernel",
+   "stage": "?",
+   "time_ms": 0.029,
+   "share_pct": 15.25,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-near-bank",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 92.2,
+     "spill_pct": 0.0,
+     "global_pct": 7.8,
+     "data_structure": "pyramid_levels",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    },
+    "kmeans": {
+     "cluster_k8": "5",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 28.46361425,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 27.11939875,
+   "roofline": null
+  },
+  {
+   "name": "conv_grad_y_kernel",
+   "stage": "?",
+   "time_ms": 0.027,
+   "share_pct": 14.39,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-near-bank",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 96.2,
+     "spill_pct": 0.0,
+     "global_pct": 3.8,
+     "data_structure": "pyramid_levels",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "27",
+     "verdict": "\u00b1G1:16/G6:11"
+    },
+    "kmeans": {
+     "cluster_k8": "5",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 41.844773333333336,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 22.25233366666667,
+   "roofline": null
+  },
+  {
+   "name": "sba::v1T_x_M_T_x_v2_kernel",
+   "stage": "?",
+   "time_ms": 0.007,
+   "share_pct": 3.81,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-near-bank",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 87.6,
+     "spill_pct": 0.0,
+     "global_pct": 12.4,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "5",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 11.400975,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 11.400975,
+   "roofline": null
+  },
+  {
+   "name": "sba::point_term_kernel",
+   "stage": "?",
+   "time_ms": 0.007,
+   "share_pct": 3.52,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-scatter",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 1.2,
+     "spill_pct": 0.0,
+     "global_pct": 98.8,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "7",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 4.407662,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.7351585,
+   "roofline": null
+  },
+  {
+   "name": "sba::evaluate_cost_kernel",
+   "stage": "?",
+   "time_ms": 0.006,
+   "share_pct": 3.03,
+   "limiter": "memory-leaning",
+   "substrate": "GPU+layout-fix",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 4.2,
+     "spill_pct": 0.0,
+     "global_pct": 95.8,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G4",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "7",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 12.15625,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 5.074959,
+   "roofline": null
+  },
+  {
+   "name": "sba::v1T_x_M_x_v2_kernel",
+   "stage": "?",
+   "time_ms": 0.003,
+   "share_pct": 1.76,
+   "limiter": "compute-leaning",
+   "substrate": "GPU-keep",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 57.1,
+     "spill_pct": 0.0,
+     "global_pct": 42.9,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 3.013312,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 4.736249,
+   "roofline": null
+  },
+  {
+   "name": "sba::pose_scaling_term_kernel",
+   "stage": "?",
+   "time_ms": 0.003,
+   "share_pct": 1.69,
+   "limiter": "memory-leaning",
+   "substrate": "GPU-keep",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 34.0,
+     "spill_pct": 0.0,
+     "global_pct": 66.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 0.706845,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.214567,
+   "roofline": null
+  },
+  {
+   "name": "sba::reduce_abs_max_kernel",
+   "stage": "?",
+   "time_ms": 0.003,
+   "share_pct": 1.54,
+   "limiter": "memory-leaning",
+   "substrate": "GPU-keep",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 14.8,
+     "spill_pct": 0.0,
+     "global_pct": 85.2,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G4",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "0",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 0.650168,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.228794,
+   "roofline": null
+  },
+  {
+   "name": "sba::make_prediction",
+   "stage": "?",
+   "time_ms": 0.002,
+   "share_pct": 1.25,
+   "limiter": "memory-leaning",
+   "substrate": "CPU/host",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "27",
+     "verdict": "\u00b1G3:18/G4:9"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 0.589139,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.014953,
+   "roofline": null
+  }
+ ]
+}

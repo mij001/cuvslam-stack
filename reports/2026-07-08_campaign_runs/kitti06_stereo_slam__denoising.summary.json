@@ -1,0 +1,710 @@
+{
+ "workload": "kitti06_stereo_slam__denoising",
+ "device": "dellworkstation_sm89",
+ "adapter": "cuvslam",
+ "source": "profiling/results/2026-07-08_012013_kitti06_ncu_dellworkstation_sm89",
+ "device_peaks": {
+  "dram_gbps": 205.0,
+  "peak_gflops": 5445.0,
+  "hw": "dellworkstation_sm89.toml",
+  "basis": "measured"
+ },
+ "qor": {
+  "plain_ape_m": 2.4534,
+  "nsys_ape_m": 2.4531,
+  "ncu_ape_m": 2.4642,
+  "nvbit_ape_m": 2.4534
+ },
+ "note": "campaign cell (ncu quick window)",
+ "stages": [],
+ "kernels": [
+  {
+   "name": "cuvslam::build_full_system_1_kernel",
+   "stage": "?",
+   "time_ms": 0.077,
+   "share_pct": 38.9,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-scatter",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "4",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 5.681582,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 1.229853,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::reduced_system_stage_2_kernel",
+   "stage": "?",
+   "time_ms": 0.02,
+   "share_pct": 9.86,
+   "limiter": "compute-leaning",
+   "substrate": "GPU-keep",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 3.9,
+     "spill_pct": 0.0,
+     "global_pct": 96.1,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "1",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 28.48623,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 33.377948,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::build_full_system_2_kernel",
+   "stage": "?",
+   "time_ms": 0.019,
+   "share_pct": 9.77,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-near-bank",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 26.3,
+     "spill_pct": 0.0,
+     "global_pct": 73.7,
+     "data_structure": "unmapped",
+     "tag_agreement_pct": 66.7
+    },
+    "taxonomy_stability": {
+     "modal_class": "G4",
+     "n_seq": "27",
+     "verdict": "\u00b1G4:19/G2:7/G6:1"
+    },
+    "kmeans": {
+     "cluster_k8": "4",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 5.078889,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 4.429561,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::reduced_system_stage_1_kernel",
+   "stage": "?",
+   "time_ms": 0.013,
+   "share_pct": 6.79,
+   "limiter": "memory-leaning",
+   "substrate": "CPU/host",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 72.2,
+     "global_pct": 27.8,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    },
+    "kmeans": {
+     "cluster_k8": "2",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 21.452441,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 6.514763,
+   "roofline": null
+  },
+  {
+   "name": "kernel",
+   "stage": "?",
+   "time_ms": 0.009,
+   "share_pct": 4.38,
+   "limiter": "memory-leaning",
+   "substrate": "?",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": null,
+   "evidence": {
+    "dram_sol_pct": 3.200384,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.742718,
+   "roofline": null
+  },
+  {
+   "name": "trsv_ln_exec",
+   "stage": "?",
+   "time_ms": 0.009,
+   "share_pct": 4.35,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-near-bank",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 76.6,
+     "spill_pct": 0.0,
+     "global_pct": 23.4,
+     "data_structure": "unmapped",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "0",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 1.211454,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.175403,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::calc_jacobians_kernel",
+   "stage": "?",
+   "time_ms": 0.007,
+   "share_pct": 3.67,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-scatter",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 3.8,
+     "spill_pct": 0.0,
+     "global_pct": 96.2,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "4",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 33.345868,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 2.678386,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::reduced_system_stage_12_kernel",
+   "stage": "?",
+   "time_ms": 0.007,
+   "share_pct": 3.57,
+   "limiter": "memory-leaning",
+   "substrate": "GPU-keep",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 44.1,
+     "spill_pct": 0.0,
+     "global_pct": 55.9,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G0",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "1",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 29.184521,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 19.526116,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::point_term_kernel",
+   "stage": "?",
+   "time_ms": 0.007,
+   "share_pct": 3.35,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-scatter",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 1.2,
+     "spill_pct": 0.0,
+     "global_pct": 98.8,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "7",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 4.1403775,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.7286135,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::clear_full_system_stage_1_kernel",
+   "stage": "?",
+   "time_ms": 0.006,
+   "share_pct": 3.23,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-scatter",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "27",
+     "verdict": "\u00b1G2:16/G0:11"
+    },
+    "kmeans": {
+     "cluster_k8": "2",
+     "sweep_best_k": "8"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 45.91042,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 5.654802,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::reduced_system_stage_3_kernel",
+   "stage": "?",
+   "time_ms": 0.006,
+   "share_pct": 2.81,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-near-bank",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 3.9,
+     "spill_pct": 0.0,
+     "global_pct": 96.1,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G4",
+     "n_seq": "27",
+     "verdict": "consistent"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 13.217905,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 4.900236,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::pose_scaling_term_kernel",
+   "stage": "?",
+   "time_ms": 0.003,
+   "share_pct": 1.65,
+   "limiter": "memory-leaning",
+   "substrate": "GPU-keep",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 34.0,
+     "spill_pct": 0.0,
+     "global_pct": 66.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 0.725446,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.214918,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::update_points_kernel",
+   "stage": "?",
+   "time_ms": 0.003,
+   "share_pct": 1.37,
+   "limiter": "memory-leaning",
+   "substrate": "PiM-scatter",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "18",
+     "verdict": "consistent"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 4.866071,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.393412,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::update_poses_kernel",
+   "stage": "?",
+   "time_ms": 0.002,
+   "share_pct": 1.23,
+   "limiter": "memory-leaning",
+   "substrate": "GPU-keep",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "18",
+     "verdict": "consistent"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 0.93246,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.124521,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::make_prediction",
+   "stage": "?",
+   "time_ms": 0.002,
+   "share_pct": 1.18,
+   "limiter": "memory-leaning",
+   "substrate": "CPU/host",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "27",
+     "verdict": "\u00b1G3:18/G4:9"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 0.625,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.01512,
+   "roofline": null
+  },
+  {
+   "name": "xxtrf4_set_info_ker",
+   "stage": "?",
+   "time_ms": 0.002,
+   "share_pct": 1.0,
+   "limiter": "memory-leaning",
+   "substrate": "CPU/host",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 0.59375,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.006613,
+   "roofline": null
+  },
+  {
+   "name": "cuvslam::clear_full_system_stage_2_kernel",
+   "stage": "?",
+   "time_ms": 0.002,
+   "share_pct": 0.97,
+   "limiter": "memory-leaning",
+   "substrate": "GPU-keep",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 0.669643,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.045566,
+   "roofline": null
+  },
+  {
+   "name": "copy_info_kernel",
+   "stage": "?",
+   "time_ms": 0.002,
+   "share_pct": 0.95,
+   "limiter": "memory-leaning",
+   "substrate": "CPU/host",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 0.60735,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.006675,
+   "roofline": null
+  },
+  {
+   "name": "dtrsv_init",
+   "stage": "?",
+   "time_ms": 0.002,
+   "share_pct": 0.95,
+   "limiter": "memory-leaning",
+   "substrate": "CPU/host",
+   "pim_affinity": "?",
+   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "untagged_driver",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
+   "evidence": {
+    "dram_sol_pct": 0.683594,
+    "sectors_per_req": null,
+    "lfmr": null,
+    "mpki": null,
+    "occupancy_pct": null,
+    "ai": null,
+    "dominant_stall": ""
+   },
+   "sm_sol_pct": 0.006249,
+   "roofline": null
+  }
+ ]
+}

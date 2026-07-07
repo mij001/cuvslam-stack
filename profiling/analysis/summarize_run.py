@@ -210,6 +210,15 @@ def summarize_regime(ledger_path, out_dir, repo_prefix=""):
         verd.setdefault(r["kernel"], []).append(r["substrate"])
     modal_verdict = {k: max(set(v), key=v.count) for k, v in verd.items()}
 
+    # campaign ncu names come demangled WITHOUT the namespace the study keys
+    # carry (photometric_kernel vs matcher::photometric_kernel) — index the
+    # study lookups by last name component too
+    by_suffix = {k.split("::")[-1]: k for k in modal_verdict}
+
+    def study_join(kname):
+        full = kname if kname in modal_verdict else by_suffix.get(kname.split("::")[-1])
+        return (modal_verdict.get(full, "?"), study(full) if full else None)
+
     os.makedirs(out_dir, exist_ok=True)
     n = 0
     DUR = "gpu__time_duration.sum"
@@ -226,11 +235,13 @@ def summarize_regime(ledger_path, out_dir, repo_prefix=""):
             continue
         agg = {}
         for r in met:
-            kname = shorten_kernel(r.get("Kernel Name", r.get("Name", "?")))
-            a = agg.setdefault(kname, {"dur": 0.0, "sm": [], "mem": []})
+            raw = r.get("Kernel Name", r.get("Name", ""))
             d = fnum(r.get(DUR))
-            if d:
-                a["dur"] += d
+            if not raw or d is None:      # header echo / units row / broken line
+                continue
+            kname = shorten_kernel(raw)
+            a = agg.setdefault(kname, {"dur": 0.0, "sm": [], "mem": []})
+            a["dur"] += d                  # gpu__time_duration.sum is in µs
             for key, dst in ((SM, "sm"), (MEM, "mem")):
                 v = fnum(r.get(key))
                 if v is not None:
@@ -242,15 +253,16 @@ def summarize_regime(ledger_path, out_dir, repo_prefix=""):
             mem = sum(a["mem"]) / len(a["mem"]) if a["mem"] else None
             limiter = ("memory-leaning" if (mem or 0) >= (sm or 0) else "compute-leaning") \
                 if (sm is not None or mem is not None) else "?"
+            verdict, ctx = study_join(kname)
             kernels.append({
                 "name": kname, "stage": "?",
-                "time_ms": round(a["dur"] / 1e6, 3),      # ns -> ms
+                "time_ms": round(a["dur"] / 1e3, 3),      # µs -> ms
                 "share_pct": round(100 * a["dur"] / total, 2),
                 "limiter": limiter,
-                "substrate": modal_verdict.get(kname, "?"),
+                "substrate": verdict,
                 "pim_affinity": "?", "rationale":
                     "quick ncu window: coarse SoL split; deep verdict joined from the studies",
-                "study": study(kname),
+                "study": ctx,
                 "evidence": {"dram_sol_pct": mem, "sectors_per_req": None,
                              "lfmr": None, "mpki": None, "occupancy_pct": None,
                              "ai": None, "dominant_stall": ""},
