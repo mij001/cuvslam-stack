@@ -3,6 +3,12 @@
  "device": "rtx2000ada",
  "adapter": "cuvslam",
  "source": "profiling/reports/2026-07-03_kitti06_rtx2000ada",
+ "device_peaks": {
+  "dram_gbps": 224.0,
+  "peak_gflops": 12000.0,
+  "hw": "rtx2000ada_sm89.toml",
+  "basis": "theoretical"
+ },
  "qor": null,
  "stages": [
   {
@@ -46,6 +52,24 @@
   {
    "name": "sba::build_full_system_1_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "4",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 34.122,
    "share_pct": 17.94,
    "limiter": "G2-coalescing",
@@ -69,6 +93,24 @@
   {
    "name": "cast_image_kernel_rgb",
    "stage": "preprocess",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "pyramid_levels",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G5",
+     "n_seq": "15",
+     "verdict": "unanimous"
+    },
+    "kmeans": {
+     "cluster_k8": "1",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 18.464,
    "share_pct": 9.71,
    "limiter": "G5-compute",
@@ -92,6 +134,24 @@
   {
    "name": "lk_track_kernel",
    "stage": "tracking",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "unmapped",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G4",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "5",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 17.744,
    "share_pct": 9.33,
    "limiter": "G4-latency",
@@ -115,6 +175,24 @@
   {
    "name": "gaussian_scaling_kernel",
    "stage": "preprocess",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "images_raw",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    },
+    "kmeans": {
+     "cluster_k8": "6",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 15.275,
    "share_pct": 8.03,
    "limiter": "G1-bandwidth",
@@ -138,6 +216,24 @@
   {
    "name": "sba::build_full_system_2_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 26.3,
+     "spill_pct": 0.0,
+     "global_pct": 73.7,
+     "data_structure": "unmapped",
+     "tag_agreement_pct": 66.7
+    },
+    "taxonomy_stability": {
+     "modal_class": "G4",
+     "n_seq": "27",
+     "verdict": "\u00b1G4:19/G2:7/G6:1"
+    },
+    "kmeans": {
+     "cluster_k8": "4",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 9.433,
    "share_pct": 4.96,
    "limiter": "G4-latency",
@@ -161,6 +257,24 @@
   {
    "name": "sba::reduced_system_stage_2_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 3.9,
+     "spill_pct": 0.0,
+     "global_pct": 96.1,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "1",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 8.628,
    "share_pct": 4.54,
    "limiter": "G3-l2-reuse",
@@ -184,6 +298,24 @@
   {
    "name": "conv_grad_x_kernel",
    "stage": "feature_detect",
+   "study": {
+    "attribution": {
+     "shared_pct": 92.2,
+     "spill_pct": 0.0,
+     "global_pct": 7.8,
+     "data_structure": "pyramid_levels",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    },
+    "kmeans": {
+     "cluster_k8": "5",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 8.136,
    "share_pct": 4.28,
    "limiter": "G1-bandwidth",
@@ -207,6 +339,24 @@
   {
    "name": "sba::reduced_system_stage_1_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 72.2,
+     "global_pct": 27.8,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    },
+    "kmeans": {
+     "cluster_k8": "2",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 8.136,
    "share_pct": 4.28,
    "limiter": "G7-dependency",
@@ -230,6 +380,24 @@
   {
    "name": "conv_grad_y_kernel",
    "stage": "feature_detect",
+   "study": {
+    "attribution": {
+     "shared_pct": 96.2,
+     "spill_pct": 0.0,
+     "global_pct": 3.8,
+     "data_structure": "pyramid_levels",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "27",
+     "verdict": "\u00b1G1:16/G6:11"
+    },
+    "kmeans": {
+     "cluster_k8": "5",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 6.698,
    "share_pct": 3.52,
    "limiter": "G6-onchip",
@@ -253,6 +421,24 @@
   {
    "name": "trsv_lt_exec",
    "stage": "ba_solver",
+   "study": {
+    "attribution": {
+     "shared_pct": 92.6,
+     "spill_pct": 0.0,
+     "global_pct": 7.4,
+     "data_structure": "unmapped",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "0",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 4.975,
    "share_pct": 2.62,
    "limiter": "G3-l2-reuse",
@@ -276,6 +462,24 @@
   {
    "name": "getrf_wo_pivot_params",
    "stage": "ba_solver",
+   "study": {
+    "attribution": {
+     "shared_pct": 79.6,
+     "spill_pct": 0.0,
+     "global_pct": 20.4,
+     "data_structure": "unmapped",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    },
+    "kmeans": {
+     "cluster_k8": "7",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 4.848,
    "share_pct": 2.55,
    "limiter": "G7-dependency",
@@ -299,6 +503,24 @@
   {
    "name": "sba::calc_jacobians_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 3.8,
+     "spill_pct": 0.0,
+     "global_pct": 96.2,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "4",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 3.986,
    "share_pct": 2.1,
    "limiter": "G2-coalescing",
@@ -322,6 +544,24 @@
   {
    "name": "sba::clear_full_system_stage_1_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "27",
+     "verdict": "\u00b1G2:16/G0:11"
+    },
+    "kmeans": {
+     "cluster_k8": "2",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 3.848,
    "share_pct": 2.02,
    "limiter": "G2-coalescing",
@@ -345,6 +585,24 @@
   {
    "name": "trsv_ln_exec",
    "stage": "ba_solver",
+   "study": {
+    "attribution": {
+     "shared_pct": 76.6,
+     "spill_pct": 0.0,
+     "global_pct": 23.4,
+     "data_structure": "unmapped",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "0",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 3.615,
    "share_pct": 1.9,
    "limiter": "G4-latency",
@@ -368,6 +626,24 @@
   {
    "name": "gftt_values_kernel",
    "stage": "feature_detect",
+   "study": {
+    "attribution": {
+     "shared_pct": 98.0,
+     "spill_pct": 0.0,
+     "global_pct": 2.0,
+     "data_structure": "feature_tracks",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "24",
+     "verdict": "\u00b1G3:12/G1:12"
+    },
+    "kmeans": {
+     "cluster_k8": "6",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 3.386,
    "share_pct": 1.78,
    "limiter": "G3-l2-reuse",
@@ -391,6 +667,24 @@
   {
    "name": "sba::v1T_x_M_T_x_v2_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 87.6,
+     "spill_pct": 0.0,
+     "global_pct": 12.4,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "5",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 3.272,
    "share_pct": 1.72,
    "limiter": "G1-bandwidth",
@@ -414,6 +708,24 @@
   {
    "name": "sba::reduced_system_stage_12_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 44.1,
+     "spill_pct": 0.0,
+     "global_pct": 55.9,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G0",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "1",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 3.203,
    "share_pct": 1.68,
    "limiter": "G0-nosignal",
@@ -437,6 +749,24 @@
   {
    "name": "sba::point_term_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 1.2,
+     "spill_pct": 0.0,
+     "global_pct": 98.8,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "7",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 3.057,
    "share_pct": 1.61,
    "limiter": "G2-coalescing",
@@ -460,6 +790,24 @@
   {
    "name": "sba::reduce_abs_max_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 14.8,
+     "spill_pct": 0.0,
+     "global_pct": 85.2,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G4",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "0",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 3.052,
    "share_pct": 1.6,
    "limiter": "G4-latency",
@@ -483,6 +831,24 @@
   {
    "name": "sba::evaluate_cost_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 4.2,
+     "spill_pct": 0.0,
+     "global_pct": 95.8,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G4",
+     "n_seq": "27",
+     "verdict": "consistent"
+    },
+    "kmeans": {
+     "cluster_k8": "7",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 2.742,
    "share_pct": 1.44,
    "limiter": "G2-coalescing",
@@ -506,6 +872,24 @@
   {
    "name": "lk_track_horizontal_kernel",
    "stage": "tracking",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "unmapped",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "11",
+     "verdict": "unanimous"
+    },
+    "kmeans": {
+     "cluster_k8": "5",
+     "sweep_best_k": "8"
+    }
+   },
    "time_ms": 2.725,
    "share_pct": 1.43,
    "limiter": "G1-bandwidth",
@@ -529,6 +913,20 @@
   {
    "name": "sba::reduced_system_stage_3_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 3.9,
+     "spill_pct": 0.0,
+     "global_pct": 96.1,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G4",
+     "n_seq": "27",
+     "verdict": "consistent"
+    }
+   },
    "time_ms": 2.118,
    "share_pct": 1.11,
    "limiter": "G4-latency",
@@ -552,6 +950,20 @@
   {
    "name": "sba::calc_point_update_kernel_xavier_special",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 87.6,
+     "spill_pct": 0.0,
+     "global_pct": 12.4,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "27",
+     "verdict": "consistent"
+    }
+   },
    "time_ms": 1.66,
    "share_pct": 0.87,
    "limiter": "G1-bandwidth",
@@ -575,6 +987,20 @@
   {
    "name": "sba::calc_pose_update_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 1.452,
    "share_pct": 0.76,
    "limiter": "G7-dependency",
@@ -598,6 +1024,20 @@
   {
    "name": "sba::v1T_x_M_x_v2_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 57.1,
+     "spill_pct": 0.0,
+     "global_pct": 42.9,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 1.446,
    "share_pct": 0.76,
    "limiter": "G7-dependency",
@@ -621,6 +1061,20 @@
   {
    "name": "sba::pose_scaling_term_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 34.0,
+     "spill_pct": 0.0,
+     "global_pct": 66.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 1.346,
    "share_pct": 0.71,
    "limiter": "G7-dependency",
@@ -644,6 +1098,20 @@
   {
    "name": "sba::update_points_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "18",
+     "verdict": "consistent"
+    }
+   },
    "time_ms": 1.103,
    "share_pct": 0.58,
    "limiter": "G2-coalescing",
@@ -667,6 +1135,20 @@
   {
    "name": "cub::DeviceMergeSortMergeKernel",
    "stage": "keypoint_sort",
+   "study": {
+    "attribution": {
+     "shared_pct": 83.1,
+     "spill_pct": 0.0,
+     "global_pct": 16.9,
+     "data_structure": "feature_tracks",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "26",
+     "verdict": "\u00b1G2:16/G7:10"
+    }
+   },
    "time_ms": 1.04,
    "share_pct": 0.55,
    "limiter": "G2-coalescing",
@@ -690,6 +1172,20 @@
   {
    "name": "non_max_suppression_kernel",
    "stage": "feature_detect",
+   "study": {
+    "attribution": {
+     "shared_pct": 89.5,
+     "spill_pct": 0.0,
+     "global_pct": 10.5,
+     "data_structure": "feature_tracks",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "25",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 1.036,
    "share_pct": 0.54,
    "limiter": "G1-bandwidth",
@@ -713,6 +1209,20 @@
   {
    "name": "cub::DeviceMergeSortPartitionKernel",
    "stage": "keypoint_sort",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "unmapped",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "26",
+     "verdict": "consistent"
+    }
+   },
    "time_ms": 0.977,
    "share_pct": 0.51,
    "limiter": "G3-l2-reuse",
@@ -736,6 +1246,20 @@
   {
    "name": "cub::DeviceMergeSortBlockSortKernel",
    "stage": "keypoint_sort",
+   "study": {
+    "attribution": {
+     "shared_pct": 97.1,
+     "spill_pct": 0.0,
+     "global_pct": 2.9,
+     "data_structure": "feature_tracks",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "25",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 0.955,
    "share_pct": 0.5,
    "limiter": "G7-dependency",
@@ -759,6 +1283,20 @@
   {
    "name": "sba::make_prediction",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "27",
+     "verdict": "\u00b1G3:18/G4:9"
+    }
+   },
    "time_ms": 0.936,
    "share_pct": 0.49,
    "limiter": "G3-l2-reuse",
@@ -782,6 +1320,20 @@
   {
    "name": "sba::update_poses_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "18",
+     "verdict": "consistent"
+    }
+   },
    "time_ms": 0.915,
    "share_pct": 0.48,
    "limiter": "G3-l2-reuse",
@@ -805,6 +1357,20 @@
   {
    "name": "sba::clear_full_system_stage_2_kernel",
    "stage": "bundle_adjust",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 0.836,
    "share_pct": 0.44,
    "limiter": "G7-dependency",
@@ -828,6 +1394,20 @@
   {
    "name": "copy_info_kernel",
    "stage": "ba_solver",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 0.777,
    "share_pct": 0.41,
    "limiter": "G7-dependency",
@@ -851,6 +1431,20 @@
   {
    "name": "dtrsv_init_up",
    "stage": "ba_solver",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "untagged_driver",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 0.776,
    "share_pct": 0.41,
    "limiter": "G7-dependency",
@@ -874,6 +1468,20 @@
   {
    "name": "dtrsv_init",
    "stage": "ba_solver",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "untagged_driver",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 0.776,
    "share_pct": 0.41,
    "limiter": "G7-dependency",
@@ -897,6 +1505,20 @@
   {
    "name": "xxtrf4_set_info_ker",
    "stage": "ba_solver",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "ba_linear_system",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G7",
+     "n_seq": "27",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 0.778,
    "share_pct": 0.41,
    "limiter": "G7-dependency",
@@ -920,6 +1542,20 @@
   {
    "name": "accumulateGFTT_kernel",
    "stage": "feature_detect",
+   "study": {
+    "attribution": {
+     "shared_pct": 88.9,
+     "spill_pct": 0.0,
+     "global_pct": 11.1,
+     "data_structure": "feature_selection_scratch",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "25",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 0.758,
    "share_pct": 0.4,
    "limiter": "G1-bandwidth",
@@ -943,6 +1579,20 @@
   {
    "name": "downsample_gftt_x8_kernel",
    "stage": "feature_detect",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "feature_tracks",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G1",
+     "n_seq": "25",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 0.717,
    "share_pct": 0.38,
    "limiter": "G1-bandwidth",
@@ -966,6 +1616,20 @@
   {
    "name": "select_features_kernel",
    "stage": "feature_detect",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "feature_tracks",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "25",
+     "verdict": "consistent"
+    }
+   },
    "time_ms": 0.315,
    "share_pct": 0.17,
    "limiter": "G2-coalescing",
@@ -989,6 +1653,20 @@
   {
    "name": "filter_maximums_kernel",
    "stage": "feature_detect",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "feature_tracks",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G3",
+     "n_seq": "25",
+     "verdict": "unanimous"
+    }
+   },
    "time_ms": 0.162,
    "share_pct": 0.08,
    "limiter": "G3-l2-reuse",
@@ -1012,6 +1690,20 @@
   {
    "name": "st_build_cache_kernel",
    "stage": "slam_loop",
+   "study": {
+    "attribution": {
+     "shared_pct": 0.0,
+     "spill_pct": 0.0,
+     "global_pct": 100.0,
+     "data_structure": "keyframe_descriptors",
+     "tag_agreement_pct": 100.0
+    },
+    "taxonomy_stability": {
+     "modal_class": "G2",
+     "n_seq": "24",
+     "verdict": "consistent"
+    }
+   },
    "time_ms": 8.67,
    "share_pct": 0.0,
    "limiter": "G2-coalescing",

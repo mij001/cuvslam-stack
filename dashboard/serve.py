@@ -343,11 +343,16 @@ def rebuild_site():
 
 # ─────────────────────────── the page ───────────────────────────
 def list_summaries():
-    """Every summary.json (the standard evidence schema) -> selector list."""
+    """Every summary.json (the standard evidence schema) -> selector list.
+
+    Studies (deep evidence: full metric sets, stages, roofline) come first,
+    then the campaign cells (quick ncu windows, one per config)."""
     out = []
-    for pat in ("profiling/reports/*/summary.json",
-                "profiling/results/*/summary.json",
-                "reports/*/summary.json"):
+    pats = [("study", "profiling/reports/*/summary.json"),
+            ("study", "profiling/results/*/summary.json"),
+            ("study", "reports/*/summary.json"),
+            ("campaign", "reports/*/*.summary.json")]
+    for group, pat in pats:
         for p in sorted(glob.glob(os.path.join(ROOT, pat))):
             try:
                 s = json.load(open(p))
@@ -356,13 +361,14 @@ def list_summaries():
             out.append({"source": os.path.relpath(p, ROOT),
                         "workload": s.get("workload", "?"),
                         "device": s.get("device", "?"),
-                        "adapter": s.get("adapter", "?")})
+                        "adapter": s.get("adapter", "?"),
+                        "group": group})
     return out
 
 
 def read_summary(src):
     full = os.path.realpath(os.path.join(ROOT, src))
-    if not full.startswith(os.path.realpath(ROOT)) or not full.endswith("summary.json"):
+    if not full.startswith(os.path.realpath(ROOT)) or not full.endswith(("summary.json",)):
         raise ValueError("src must be a summary.json inside the repo")
     return json.load(open(full))
 
@@ -502,6 +508,12 @@ h3 {{ font-size:14px; margin:18px 0 6px; }}
 .xp-rat {{ font-size:11.5px; color:#555; margin-top:8px; font-style:italic; }}
 .xp-verdict {{ margin-top:10px; padding:8px 12px; border-left:4px solid #2e7d32;
   background:#f0f7f1; font-size:13px; border-radius:0 6px 6px 0; }}
+.xp-stack {{ display:flex; height:20px; border-radius:5px; overflow:hidden; }}
+.xp-seg {{ height:100%; color:#fff; font-size:10px; line-height:20px; padding-left:4px;
+  white-space:nowrap; overflow:hidden; }}
+.xp-legend {{ margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }}
+.xp-note {{ font-size:12px; color:#777; }}
+.xp-qor {{ font-size:11.5px; color:#2e7d32; }}
 </style></head><body>
 <header><h1>cuvslam-stack profiler</h1>
 <p>controller: pick a target → pick a config → profile → findings (PiM/ISP candidacy, memory behaviour)</p></header>
@@ -582,8 +594,11 @@ still runs the full sequence). Logs stream back live from the target.</p>
 <b>who</b> dominates → <b>why</b> (metrics vs decision thresholds) → <b>verdict</b>
 (best substrate). Every number is from the run's <code>summary.json</code> — the same
 schema for every adapter.</p>
-<div class="row2">
-  <div><label>profiled run</label><select id="xp-run"></select></div>
+<div class="row">
+  <div><label>filter runs (★ = deep study; rest = campaign cells)</label>
+    <input type="text" id="xp-filter" placeholder="type to filter: kitti, tum, __denoising, _cpu …"></div>
+  <div><label>profiled run <span id="xp-count" class="note"></span></label>
+    <select id="xp-run"></select></div>
   <div><label>&nbsp;</label><span id="xp-meta" class="note"></span></div>
 </div>
 

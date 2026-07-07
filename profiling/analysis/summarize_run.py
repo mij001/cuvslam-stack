@@ -40,6 +40,7 @@ import csv
 import glob
 import json
 import os
+import re
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -58,6 +59,69 @@ def read_csv(path):
         return list(csv.DictReader(fh))
 
 
+# ── cross-study context, joined into every summary ──────────────────────────
+# These are the workload-independent per-kernel findings of the initial
+# studies: the two-pass attribution join (NVTX + TaggedAllocator -> memory
+# spaces + data-structure tag; "DRAM scratch" = register-spill traffic), the
+# taxonomy stability across 27 sequences, and the k-means validation.
+ATTR_CSV = "profiling/reports/2026-07-05_attribution_campaign/attribution_consistency.csv"
+AGREE_CSV = "profiling/reports/2026-07-04_campaign/class_agreement.csv"
+CLUST_CSV = "profiling/reports/2026-07-04_campaign/clusters.csv"
+SWEEP_CSV = "profiling/reports/2026-07-04_campaign/cluster_sweep.csv"
+
+
+def study_context():
+    attr = {r["kernel"]: {
+        "shared_pct": fnum(r.get("med_shared_pct")),
+        "spill_pct": fnum(r.get("med_local_spill_pct")),
+        "global_pct": fnum(r.get("med_global_pct")),
+        "data_structure": r.get("modal_top_global_tag", ""),
+        "tag_agreement_pct": fnum(r.get("agreement_pct")),
+    } for r in read_csv(os.path.join(REPO, ATTR_CSV))}
+    agree = {r["kernel"]: {
+        "modal_class": r.get("modal_class", ""),
+        "n_seq": r.get("n_seq", ""),
+        "verdict": r.get("agreement", ""),
+    } for r in read_csv(os.path.join(REPO, AGREE_CSV))}
+    clust = {r["kernel"]: r.get("kmeans_cluster_k8", "")
+             for r in read_csv(os.path.join(REPO, CLUST_CSV))}
+    sweep = read_csv(os.path.join(REPO, SWEEP_CSV))
+    best_k = max(sweep, key=lambda r: fnum(r.get("silhouette"), 0))["k"] if sweep else "?"
+
+    def for_kernel(name):
+        out = {}
+        if name in attr:
+            out["attribution"] = attr[name]
+        if name in agree:
+            out["taxonomy_stability"] = agree[name]
+        if name in clust:
+            out["kmeans"] = {"cluster_k8": clust[name], "sweep_best_k": best_k}
+        return out or None
+    return for_kernel
+
+
+def device_peaks(label):
+    """Roofline ceilings for the run's device, from its hw descriptor."""
+    hw_map = {"mx450": "mx450_sm75.toml", "rtx2000ada": "rtx2000ada_sm89.toml",
+              "dellworkstation": "dellworkstation_sm89.toml",
+              "sm89": "dellworkstation_sm89.toml", "orin": "jetson_orin_sm87.toml"}
+    hw = next((v for k, v in hw_map.items() if k in label.lower()), None)
+    if not hw:
+        return None
+    text = open(os.path.join(REPO, "profiling", "hw", hw)).read()
+
+    def g(key):
+        m = re.search(rf"(?m)^{key}\s*=\s*([0-9.]+)", text)
+        return float(m.group(1)) if m else None
+    dram = g("dram_gbps_measured") or g("dram_gbps_theoretical")
+    gflops = g("fp32_gflops_measured") or (
+        (g("fp32_tflops_theoretical") or 0) * 1000 or None)
+    if not (dram and gflops):
+        return None
+    return {"dram_gbps": dram, "peak_gflops": gflops, "hw": hw,
+            "basis": "measured" if g("dram_gbps_measured") else "theoretical"}
+
+
 def build_summary(data_dir, label_dir, adapter="cuvslam", qor=None):
     """Reshape classification/dag/dag_stages/roofline CSVs into the schema."""
     cls = read_csv(os.path.join(data_dir, "classification.csv"))
@@ -74,11 +138,13 @@ def build_summary(data_dir, label_dir, adapter="cuvslam", qor=None):
         row = dag.get(kernel)
         return fnum(row.get(field), fallback) if row else fallback
 
+    study = study_context()
     kernels = []
     for r in cls:
         rf = roof.get(r["kernel"])
         kernels.append({
             "name": r["kernel"], "stage": r.get("stage", "?"),
+            "study": study(r["kernel"]),
             "time_ms": round(timeline(r["kernel"], "total_ms", fnum(r["time_ms"], 0)), 3),
             "share_pct": round(timeline(r["kernel"], "pct_gpu_time", 0.0), 2),
             "limiter": r.get("class", "?"),
@@ -105,6 +171,7 @@ def build_summary(data_dir, label_dir, adapter="cuvslam", qor=None):
         "device": name.split("_")[-1] if "_" in name else "?",
         "adapter": adapter,
         "source": os.path.relpath(label_dir, REPO),
+        "device_peaks": device_peaks(name),
         "qor": qor,
         "stages": [{
             "name": s["stage"],
@@ -116,13 +183,110 @@ def build_summary(data_dir, label_dir, adapter="cuvslam", qor=None):
     }
 
 
+def shorten_kernel(demangled):
+    """ncu's demangled name -> the studies' short kernel key."""
+    s = demangled.split("(")[0].strip()
+    s = re.sub(r"^void\s+", "", s)
+    s = s.split("<")[0]
+    parts = s.split("::")
+    return "::".join(parts[-2:]) if len(parts) > 2 else s
+
+
+def summarize_regime(ledger_path, out_dir, repo_prefix=""):
+    """Every campaign ncu cell in the ledger -> one summary.json per config.
+
+    Evidence here is the quick ncu set (duration + compute/memory SoL inside
+    the capture window); the deep per-kernel verdicts/attribution are joined
+    from the studies by kernel name. QoR = the ledger's accuracy cells.
+    """
+    rows = read_csv(ledger_path) if ledger_path.endswith(".csv") else \
+        list(csv.DictReader(open(ledger_path), delimiter="\t"))
+    by_cfg = {}
+    for r in rows:
+        by_cfg.setdefault(r["config"], {})[r["mode"]] = r
+    study = study_context()
+    verd = {}
+    for r in read_csv(os.path.join(REPO, "reports/2026-07-07_substrate/substrate_verdicts.csv")):
+        verd.setdefault(r["kernel"], []).append(r["substrate"])
+    modal_verdict = {k: max(set(v), key=v.count) for k, v in verd.items()}
+
+    os.makedirs(out_dir, exist_ok=True)
+    n = 0
+    DUR = "gpu__time_duration.sum"
+    SM = "sm__throughput.avg.pct_of_peak_sustained_elapsed"
+    MEM = "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed"
+    for cfg, cells in sorted(by_cfg.items()):
+        ncu = cells.get("ncu", {})
+        rdir = ncu.get("results_dir", "-")
+        if rdir in ("-", ""):
+            continue
+        mpath = os.path.join(repo_prefix or REPO, rdir, "derived", "ncu_metrics.csv")
+        met = read_csv(mpath)
+        if not met:
+            continue
+        agg = {}
+        for r in met:
+            kname = shorten_kernel(r.get("Kernel Name", r.get("Name", "?")))
+            a = agg.setdefault(kname, {"dur": 0.0, "sm": [], "mem": []})
+            d = fnum(r.get(DUR))
+            if d:
+                a["dur"] += d
+            for key, dst in ((SM, "sm"), (MEM, "mem")):
+                v = fnum(r.get(key))
+                if v is not None:
+                    a[dst].append(v)
+        total = sum(a["dur"] for a in agg.values()) or 1.0
+        kernels = []
+        for kname, a in sorted(agg.items(), key=lambda kv: -kv[1]["dur"]):
+            sm = sum(a["sm"]) / len(a["sm"]) if a["sm"] else None
+            mem = sum(a["mem"]) / len(a["mem"]) if a["mem"] else None
+            limiter = ("memory-leaning" if (mem or 0) >= (sm or 0) else "compute-leaning") \
+                if (sm is not None or mem is not None) else "?"
+            kernels.append({
+                "name": kname, "stage": "?",
+                "time_ms": round(a["dur"] / 1e6, 3),      # ns -> ms
+                "share_pct": round(100 * a["dur"] / total, 2),
+                "limiter": limiter,
+                "substrate": modal_verdict.get(kname, "?"),
+                "pim_affinity": "?", "rationale":
+                    "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+                "study": study(kname),
+                "evidence": {"dram_sol_pct": mem, "sectors_per_req": None,
+                             "lfmr": None, "mpki": None, "occupancy_pct": None,
+                             "ai": None, "dominant_stall": ""},
+                "sm_sol_pct": sm,
+                "roofline": None,
+            })
+        qor = {}
+        for mode in ("plain", "nsys", "ncu", "nvbit"):
+            c = cells.get(mode)
+            if c and c.get("mode_APE_m", "-") != "-":
+                qor[f"{mode}_ape_m"] = fnum(c["mode_APE_m"])
+        s = {"workload": cfg, "device": "dellworkstation_sm89", "adapter": "cuvslam",
+             "source": rdir, "device_peaks": device_peaks("dellworkstation"),
+             "qor": qor or None, "note": "campaign cell (ncu quick window)",
+             "stages": [], "kernels": kernels}
+        out = os.path.join(out_dir, f"{cfg}.summary.json")
+        json.dump(s, open(out, "w"), indent=1)
+        n += 1
+    print(f"[✓] {n} campaign summaries -> {out_dir}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--legacy", help="one device-report dir (uses its data/)")
     ap.add_argument("--results", help="one harness results dir (uses its derived/)")
     ap.add_argument("--all-legacy", action="store_true",
                     help="every profiling/reports/* with data/classification.csv")
+    ap.add_argument("--regime", help="validation-regime ledger (REGIME.tsv) -> "
+                                     "one summary per campaign config")
+    ap.add_argument("--regime-out", default="reports/2026-07-08_campaign_runs",
+                    help="output dir for --regime summaries")
     args = ap.parse_args()
+
+    if args.regime:
+        summarize_regime(args.regime, os.path.join(REPO, args.regime_out))
+        return
 
     todo = []
     if args.legacy:
