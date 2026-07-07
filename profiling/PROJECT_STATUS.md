@@ -198,6 +198,20 @@ data-structure-level motivation. +(3b)+(6) → MICRO/ASPLOS/ISCA/HPCA. See
 
 ## 8. Changelog
 
+- **2026-07-07 (sync)** — **Repo synced across remote/dev/workstation +
+  reproduce-from-clone verified.** All three checkouts (GitHub origin, laptop,
+  dell-workstation) fast-forwarded to one commit; the workstation was 21 behind
+  with a working tree byte-identical to origin (verified before reset).
+  Committed the last dev-box fixes (campaign `gen_configs.py` expanded to the
+  full TUM+ICL+toggle-rep set; `ws_accuracy_matrix.sh` uid=1000 mount +
+  `--tumvi-extracted`). `.gitignore` now excludes `.claude/`, `cuvslam_venv_*/`,
+  `tumvi_extracted/`, root PDFs. README gained a top-level clone→wheel→datasets
+  →run→profile→visualize workflow. **Nuke-and-reclone proven:** a fresh clone on
+  the workstation runs `run.py --check` to `OK: configuration is valid`
+  (2 cams / 1101 frames / GT found) once a dataset is pointed — only datasets +
+  the built wheel live outside git. Workstation-local Phase-4 Accel-Sim scratch
+  (`staging_tmp/`, 9 files) left untracked, not synced.
+
 - **2026-07-07 (evening)** — **Visualization + dashboard layer.** Every
   machine-readable output now has a visual counterpart (`viz/make_figures.py`,
   matplotlib): accuracy-matrix APE strips + SLAM-vs-odom scatter +
