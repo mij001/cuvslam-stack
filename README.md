@@ -33,7 +33,76 @@ let `make` fetch the submodule instead (or `GIT_LFS_SKIP_SMUDGE=1 git submodule 
 `make` targets: `wheel`, `verify`, `check`, `clean`, `unpatch`, `all`. The wheel
 lands in `cuvslam_src/dist/`; `verify` passes it to the runner's `setup_env.sh`.
 
-The rest of this README documents the runner itself.
+---
+
+## Full workflow — from a clean clone to results
+
+Everything needed to run lives in this repo (code, configs, harness, hardware
+descriptors, reports). The only things **not** in git are the large externals:
+the datasets, the built wheel, the Python venv, and raw profiler captures
+(`*.nsys-rep`/`*.ncu-rep`). So **nuke-and-reclone works**: delete the checkout,
+re-clone, rebuild the wheel, re-point the datasets, and every run/campaign below
+reproduces.
+
+```bash
+# 0 · prerequisites: NVIDIA GPU + driver, Podman (for the wheel build), python3.10
+git clone https://github.com/mij001/cuvslam-stack && cd cuvslam-stack
+
+# 1 · build the cuVSLAM wheel from the pinned submodule + patches, install into a venv
+make wheel                 # -> cuvslam_src/dist/cuvslam-*.whl   (Podman, CUDA 13, py3.10)
+./setup_env.sh             # -> ./cuvslam_venv with requirements + the newest wheel
+#   CUDA-mismatched host? build/install a matching wheel and pass WHEEL=... to setup_env.sh
+#   (e.g. the workstation runs a cu12 wheel on driver 575 — see docs/, Troubleshooting)
+
+# 2 · get the datasets (paper benchmark set) onto a data volume
+DATA=/mnt/data ./fetch_paper_datasets.sh        # aria2c: TUM fr3 + ICL-NUIM (see PAPER_DATASETS.md)
+#   KITTI / EuRoC / TUM-VI are large — fetch per PAPER_DATASETS.md and place under $DATA
+
+# 3 · run one config, a list, or everything
+./cuvslam_venv/bin/python run.py configs/euroc_v1_eval.toml     # run + evaluate vs ground truth
+./cuvslam_venv/bin/python run.py configs/kitti_stereo.toml --check   # validate only (no wheel needed)
+python run_list.py runlist.txt                                  # a batch, one TOML per line
+
+# 4 · profile a run (memory characterization) under Nsight Systems / Compute
+./cuvslam_venv/bin/python profiling/harness/profile.py \
+    --config configs/accuracy_matrix/kitti06_stereo_slam.toml \
+    --profiler nsys --hw profiling/hw/rtx2000ada_sm89.toml
+
+# 5 · visualize everything + browse the results site + open the dashboard
+./cuvslam_venv/bin/python viz/make_figures.py        # PNGs from every committed CSV/TSV
+./cuvslam_venv/bin/python viz/build_site.py         # -> site/index.html (static, browsable)
+./cuvslam_venv/bin/python dashboard/serve.py        # web UI on http://127.0.0.1:8642/
+```
+
+**Pointing configs at your datasets.** The bundled `configs/*.toml` and the
+committed `configs/accuracy_matrix/` + `configs/profiling_coverage/` matrices use
+absolute dataset paths (the workstation's `/mnt/data/...`). On a different host,
+either edit the `[input].path` / `[eval].ground_truth` fields, or **regenerate**
+the matrices against your own data root — the generators are the source of truth:
+
+```bash
+python gen_accuracy_configs.py  --root $DATA --out configs/accuracy_matrix     # 141 accuracy configs
+python gen_profiling_coverage.py --matrix configs/accuracy_matrix \
+                                 --out configs/profiling_coverage              # 192 toggle variants
+```
+
+Or skip the files entirely and use the **dashboard** (§ *Dashboard & results
+site* below): register a dataset from a preset template, and it writes correctly
+pointed TOML variants into `configs/custom/` for you.
+
+**Reproduce the campaigns** (workstation, GPU clocks locked; each streams a
+tailable log and is resumable). These are the committed results under `reports/`:
+
+```bash
+./ws_accuracy_matrix.sh        # 141-run accuracy matrix vs the paper  -> reports/2026-07-07_accuracy_full/
+./ws_profiling_campaign.sh     # 192 feature-toggle variants, plain vs nsys -> reports/2026-07-07_profiling_coverage/
+./ws_profiler_neutrality.sh    # nsys/ncu/NVBit accuracy-neutrality check   -> reports/2026-07-07_profiler_neutrality/
+./validate_accuracy_configs.sh # every config validates under runner + profiling flow
+```
+
+The rest of this README documents the runner itself; deeper profiling docs are in
+[`profiling/README.md`](profiling/README.md) and
+[`profiling/PROJECT_STATUS.md`](profiling/PROJECT_STATUS.md).
 
 ---
 
@@ -96,6 +165,7 @@ The first one that can `import cuvslam` wins; otherwise the first that exists
 - [Choosing a mode](#choosing-a-mode)
 - [Evaluation metrics explained](#evaluation-metrics-explained)
 - [Validated benchmark results](#validated-benchmark-results)
+- [Dashboard & results site](#dashboard--results-site)
 - [Bundled configs](#bundled-configs)
 - [Running all configs](#running-all-configs)
 - [Recipes](#recipes)
