@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
-"""dashboard/serve.py — one-page web dashboard for the cuvslam-stack.
+"""dashboard/serve.py — the profiler app (this machine = the CONTROLLER).
 
-Three things, no dependencies beyond the stdlib:
-  1. REGISTER a new dataset → generate TOML config variants for it
-     (preset templates are the validated accuracy-matrix configs; feature
-     variants reuse mutate_configs's transforms).
-  2. RUN any config — plain (run.py) or under a profiler
-     (profiling/harness/profile.py --profiler nsys|ncu) — with a live log tail.
-  3. VIEW all results: embeds the static results site (viz/build_site.py),
-     with a rebuild button that re-runs make_figures + build_site.
+One simple loop, stdlib only:
+
+  1 TARGET   pick a machine (local / ssh: workstation, gaming laptop, Jetson
+             Orin/Nano/AGX ...) and run the DOCTOR — every failed environment
+             check (driver/CUDA/ncu/NVBit/kernel) prints its one-line fix.
+  2 CONFIG   pick an existing validated config, or create one: a dataset
+             config (cuVSLAM adapter) or ANY GPU workload (command adapter);
+             edit files directly when needed.
+  3 PROFILE  run on the target (full pipeline by default: nsys → ncu → nvbit
+             → analyses; accuracy/QoR evaluated on EVERY run); logs stream
+             back live over ssh.
+  FINDINGS   the studies' results, cohesively: PiM/ISP substrate candidacy
+             per kernel + cross-workload dynamics, memory behaviour
+             (attribution, taxonomy, rooflines), recent pipeline runs;
+             accuracy/coverage validity is kept but secondary.
 
 Usage:
   python3 dashboard/serve.py [--port 8642] [--bind 127.0.0.1]
@@ -335,205 +342,261 @@ def rebuild_site():
 
 
 # ─────────────────────────── the page ───────────────────────────
+def regime_runs():
+    """Recent cohesive-pipeline runs (manifest.json) -> list for the UI."""
+    out = []
+    for d in sorted(glob.glob(os.path.join(ROOT, "profiling/results/*_regime_*")),
+                    reverse=True)[:12]:
+        mf = os.path.join(d, "manifest.json")
+        if not os.path.isfile(mf):
+            continue
+        try:
+            m = json.load(open(mf))
+        except json.JSONDecodeError:
+            continue
+        out.append({"dir": os.path.relpath(d, ROOT), "tag": m.get("tag", "?"),
+                    "created": m.get("created", "?"),
+                    "captures": list(m.get("captures", {})),
+                    "analyses": list(m.get("analyses", {}))})
+    return out
+
+
+def substrate_rows(limit=12):
+    """Headline substrate verdicts (kernel -> best substrate), if computed."""
+    path = os.path.join(ROOT, "reports/2026-07-07_substrate/substrate_verdicts.csv")
+    if not os.path.isfile(path):
+        return [], []
+    import csv as _csv
+    with open(path, newline="") as fh:
+        rows = list(_csv.DictReader(fh))
+    cols = [c for c in (rows[0] if rows else {})][:6]
+    return cols, [[r.get(c, "") for c in cols] for r in rows[:limit]]
+
+
+def _fig(path, cap):
+    if not os.path.isfile(os.path.join(ROOT, path)):
+        return ""
+    return (f'<a href="/{path}" target="_blank"><img loading="lazy" src="/{path}">'
+            f'<div class="figcap">{html.escape(cap)}</div></a>')
+
+
 def page():
-    presets = "".join(
-        f'<option value="{k}">{k} — {html.escape(d)}</option>'
-        for k, (_t, d) in PRESETS.items())
-    variants = "".join(
-        f'<label class="chk"><input type="checkbox" name="var_{k}" '
-        f'{"checked" if k == "slam" else ""}> {k} <span>({html.escape(d)})</span></label>'
-        for k, (d, _f) in VARIANTS.items())
-    cfg_opts = "".join(f"<option>{html.escape(c)}</option>" for c in list_configs())
+    targets = load_targets()
+    tgt_opts = "".join(f"<option>{html.escape(t)}</option>" for t in targets)
+    # existing, already-validated configs first (the original studies' set),
+    # customs next; the generated mutation matrix stays out of the primary list
+    prim = []
+    for pat in ("configs/custom/*.toml", "configs/base/*.toml",
+                "configs/profiling/*.toml", "configs/*.toml"):
+        prim += sorted(os.path.relpath(f, ROOT)
+                       for f in glob.glob(os.path.join(ROOT, pat)))
+    cfg_opts = "".join(f"<option>{html.escape(c)}</option>" for c in prim)
     hw_opts = "".join(f"<option>{html.escape(h)}</option>" for h in hw_files())
+    presets = "".join(f'<option value="{k}">{k} — {html.escape(d)}</option>'
+                      for k, (_t, d) in PRESETS.items())
+    runs = regime_runs()
+    runs_html = "".join(
+        f'<tr><td>{html.escape(r["tag"])}</td><td>{html.escape(r["created"])}</td>'
+        f'<td>{", ".join(r["captures"])}</td><td>{", ".join(r["analyses"])}</td>'
+        f'<td><a href="/{r["dir"]}/manifest.json" target="_blank">manifest</a></td></tr>'
+        for r in runs) or '<tr><td colspan="5">none yet — run one above</td></tr>'
+    scols, srows = substrate_rows()
+    subst_html = ""
+    if srows:
+        head = "".join(f"<th>{html.escape(c)}</th>" for c in scols)
+        body = "".join("<tr>" + "".join(f"<td>{html.escape(v)}</td>" for v in row) + "</tr>"
+                       for row in srows)
+        subst_html = (f'<div class="tablewrap"><table><tr>{head}</tr>{body}</table></div>'
+                      f'<p class="note">first {len(srows)} kernels — full table: '
+                      f'<a href="/reports/2026-07-07_substrate/substrate_verdicts.csv">CSV</a></p>')
+
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>cuvslam-stack dashboard</title>
+<title>cuvslam-stack profiler</title>
 <style>
 :root {{ --acc:#1565c0; --line:#e0e0e0; --ok:#2e7d32; --err:#c62828; }}
 * {{ box-sizing:border-box; }}
 body {{ margin:0; font:14.5px/1.5 system-ui,sans-serif; background:#f5f7fa; color:#222; }}
-header {{ background:linear-gradient(120deg,#0d47a1,#1976d2); color:#fff; padding:18px 30px; }}
+header {{ background:linear-gradient(120deg,#0d47a1,#1976d2); color:#fff; padding:16px 30px; }}
 header h1 {{ margin:0; font-size:20px; }} header p {{ margin:2px 0 0; opacity:.85; font-size:13px; }}
-main {{ max-width:1100px; margin:22px auto; padding:0 16px; }}
+main {{ max-width:1100px; margin:20px auto; padding:0 16px; }}
 .card {{ background:#fff; border:1px solid var(--line); border-radius:10px;
-        padding:18px 22px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,.06); }}
-.card h2 {{ margin:0 0 10px; font-size:16.5px; }}
+        padding:16px 20px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); }}
+.card h2 {{ margin:0 0 8px; font-size:16px; }}
+.step {{ display:inline-block; background:var(--acc); color:#fff; border-radius:50%;
+         width:24px; height:24px; text-align:center; line-height:24px; font-size:13px;
+         margin-right:8px; }}
 label {{ display:block; margin:8px 0 2px; font-size:12.5px; color:#555; }}
-input[type=text],select {{ width:100%; padding:7px 9px; border:1px solid #bbb;
+input[type=text],select,textarea {{ width:100%; padding:7px 9px; border:1px solid #bbb;
   border-radius:6px; font:inherit; }}
-.grid2 {{ display:grid; grid-template-columns:1fr 1fr; gap:0 18px; }}
-.grid3 {{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 18px; }}
-.chk {{ display:inline-block; margin:4px 14px 4px 0; font-size:13px; color:#333; }}
-.chk span {{ color:#888; font-size:11.5px; }}
+.row {{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 14px; }}
+.row2 {{ display:grid; grid-template-columns:2fr 1fr; gap:0 14px; }}
 button {{ background:var(--acc); color:#fff; border:0; border-radius:6px;
-  padding:9px 18px; font:inherit; cursor:pointer; margin-top:12px; }}
-button:hover {{ filter:brightness(1.1); }}
+  padding:9px 18px; font:inherit; cursor:pointer; margin-top:10px; }}
 button.sec {{ background:#607d8b; }}
 pre.log {{ background:#111; color:#8fd18f; padding:12px; border-radius:8px;
-  max-height:340px; overflow:auto; font-size:12px; white-space:pre-wrap; }}
-.status {{ font-size:13px; margin:8px 0; }}
+  max-height:300px; overflow:auto; font-size:12px; white-space:pre-wrap; }}
+.status {{ font-size:13px; margin:6px 0; }}
 .ok {{ color:var(--ok); }} .err {{ color:var(--err); }}
-iframe {{ width:100%; height:75vh; border:1px solid var(--line); border-radius:8px; background:#fff; }}
 .note {{ font-size:12px; color:#777; }}
+details {{ margin:8px 0; }} summary {{ cursor:pointer; color:var(--acc); font-size:13px; }}
+.figgrid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; }}
+.figgrid a {{ display:block; border:1px solid var(--line); border-radius:8px;
+  overflow:hidden; background:#fff; }}
+.figgrid img {{ width:100%; display:block; }}
+.figcap {{ font-size:11.5px; color:#666; padding:5px 9px; border-top:1px solid var(--line); }}
+table {{ border-collapse:collapse; font-size:12px; width:100%; }}
+th,td {{ border:1px solid var(--line); padding:4px 7px; text-align:left; }}
+th {{ background:#f5f5f5; }}
+.tablewrap {{ max-height:300px; overflow:auto; border:1px solid var(--line); border-radius:8px; }}
+h3 {{ font-size:14px; margin:18px 0 6px; }}
 </style></head><body>
-<header><h1>cuvslam-stack dashboard</h1>
-<p>register a dataset → generate TOML variants → run / profile → view results</p></header>
+<header><h1>cuvslam-stack profiler</h1>
+<p>controller: pick a target → pick a config → profile → findings (PiM/ISP candidacy, memory behaviour)</p></header>
 <main>
 
-<div class="card"><h2>0 · Profiling targets — this machine is the CONTROLLER</h2>
-<p class="note">register machines reachable over ssh (workstation, gaming laptop, Jetson Orin/Nano/AGX …);
-jobs run on the selected target and stream their logs back here. Set up keys first: <code>ssh-copy-id user@host</code>.</p>
-<div id="tglist" class="status">loading targets…</div>
-<form id="tgform">
-<div class="grid3">
-  <div><label>target name</label><input type="text" name="name" placeholder="jetson_orin"></div>
-  <div><label>ssh (user@host)</label><input type="text" name="ssh" placeholder="nvidia@192.168.1.42"></div>
-  <div><label>repo path on target</label><input type="text" name="repo" placeholder="~/Projects/cuvslam-stack"></div>
+<div class="card"><h2><span class="step">1</span>Target</h2>
+<div class="row">
+  <div><label>profile on</label><select id="runtarget">{tgt_opts}</select></div>
+  <div><label>&nbsp;</label><button type="button" class="sec" id="doctorbtn">doctor — is it ready?</button></div>
+  <div><label>&nbsp;</label><span id="tgout" class="status"></span></div>
 </div>
-<div class="grid2">
-  <div><label>hardware descriptor (profiling/hw/*.toml)</label><input type="text" name="hw" placeholder="profiling/hw/jetson_orin_sm87.toml"></div>
-  <div><label>dataset root on target</label><input type="text" name="data" placeholder="/mnt/data"></div>
-</div>
-<button type="submit">add target</button>
-<button type="button" class="sec" id="doctorbtn">run doctor on selected target</button>
-<select id="doctortg" style="width:auto;padding:6px"></select>
-<div id="tgout" class="status"></div>
 <pre class="log" id="doctorout" style="display:none"></pre>
-</form></div>
+<details><summary>add a target (workstation, gaming laptop, Jetson Orin/Nano/AGX …)</summary>
+<form id="tgform"><div class="row">
+  <div><label>name</label><input type="text" name="name" placeholder="jetson_orin"></div>
+  <div><label>ssh (user@host)</label><input type="text" name="ssh" placeholder="nvidia@jetson"></div>
+  <div><label>repo path on target</label><input type="text" name="repo" placeholder="~/cuvslam-stack"></div>
+</div><div class="row">
+  <div><label>hw descriptor</label><input type="text" name="hw" placeholder="profiling/hw/jetson_orin_sm87.toml"></div>
+  <div><label>data root</label><input type="text" name="data" placeholder="/data"></div>
+  <div><label>&nbsp;</label><button type="submit">add</button></div>
+</div></form>
+<p class="note">set up keys first: <code>ssh-copy-id user@host</code>; then run the doctor — every failed
+check prints its one-line fix (driver/CUDA/ncu/NVBit/kernel incompatibilities).</p></details></div>
 
-<div class="card"><h2>1 · New dataset → TOML configs</h2>
-<form id="mkform">
-<div class="grid2">
-  <div><label>dataset name (tag)</label>
-    <input type="text" name="name" placeholder="my_lab_corridor" required></div>
-  <div><label>preset (template = validated accuracy-matrix config)</label>
-    <select name="preset">{presets}</select></div>
+<div class="card"><h2><span class="step">2</span>Config</h2>
+<div class="row2">
+  <div><label>existing (validated studies + your own)</label><select id="runcfg">{cfg_opts}</select></div>
+  <div><label>hw descriptor (auto per target ok)</label><select id="runhw">{hw_opts}</select></div>
 </div>
-<div class="grid2">
-  <div><label>dataset path (on the machine that runs it)</label>
-    <input type="text" name="input_path" placeholder="/mnt/data/MyDataset/seq01"></div>
-  <div><label>ground-truth file (optional, for [eval])</label>
-    <input type="text" name="gt_path" placeholder="/mnt/data/MyDataset/seq01/groundtruth.txt"></div>
-</div>
-<div class="grid3">
-  <div><label>GT format</label>
-    <select name="gt_format"><option value="">(keep template)</option>
+<details><summary>create: dataset config (cuVSLAM adapter)</summary>
+<form id="mkform"><div class="row">
+  <div><label>name</label><input type="text" name="name" placeholder="my_lab_corridor" required></div>
+  <div><label>template preset</label><select name="preset">{presets}</select></div>
+  <div><label>dataset path (on the target)</label><input type="text" name="input_path" placeholder="/mnt/data/MySet/seq01"></div>
+</div><div class="row">
+  <div><label>ground truth (optional)</label><input type="text" name="gt_path"></div>
+  <div><label>GT format</label><select name="gt_format"><option value="">(template)</option>
     <option>tum</option><option>euroc</option><option>kitti</option></select></div>
-  <div><label>image size override, e.g. 640, 480 (optional)</label>
-    <input type="text" name="size" placeholder=""></div>
-  <div><label>focal fx, fy override (optional)</label>
-    <input type="text" name="focal" placeholder=""></div>
-</div>
-<label>principal cx, cy override (optional)</label>
-<input type="text" name="principal" placeholder="">
-<label style="margin-top:10px">cuVSLAM feature variants to emit</label>
-{variants}
-<br><button type="submit">generate configs</button>
-<div id="mkout" class="status"></div>
-</form></div>
-
-<div class="card"><h2>1b · New GPU workload — profile ANY codebase</h2>
-<form id="wlform">
-<div class="grid2">
-  <div><label>workload name</label>
-    <input type="text" name="name" placeholder="my_dnn_train" required></div>
-  <div><label>command (launched under the profilers)</label>
-    <input type="text" name="cmd" placeholder="python3 train.py --iters 100" required></div>
-</div>
-<div class="grid3">
-  <div><label>working directory (optional — your codebase)</label>
-    <input type="text" name="cwd" placeholder="/home/me/my_repo"></div>
-  <div><label>QoR regex over stdout (optional — proves neutrality)</label>
-    <input type="text" name="qor_regex" placeholder="loss=([0-9.eE+-]+)"></div>
-  <div><label style="margin-top:26px"><input type="checkbox" name="nvbit"> deep NVBit memory trace</label></div>
-</div>
-<label>environment (optional, KEY=VALUE per line)</label>
-<input type="text" name="env" placeholder="CUDA_VISIBLE_DEVICES=0">
-<br><button type="submit">register workload</button>
-<span class="note">&nbsp; annotate stages in your code with NVTX ranges and the DAG/stage analyses pick them up</span>
-<div id="wlout" class="status"></div>
-</form></div>
-
-<div class="card"><h2>2 · Run / profile a config</h2>
-<div class="grid3">
-  <div><label>config</label><select id="runcfg">{cfg_opts}</select></div>
-  <div><label>profiler</label><select id="runprof">
-    <option value="none">none — plain run (accuracy / QoR)</option>
-    <option value="nsys">nsys — Nsight Systems timeline</option>
-    <option value="ncu">ncu — Nsight Compute (windowed)</option>
-    <option value="nvbit">nvbit — memory trace (windowed)</option>
-    <option value="regime">regime — full pipeline (nsys→ncu→nvbit→analyses)</option></select></div>
-  <div><label>hardware descriptor (profiled runs)</label>
-    <select id="runhw">{hw_opts}</select></div>
-</div>
-<label>run on target</label>
-<select id="runtarget" style="width:auto;padding:6px"><option>local</option></select>
-<button id="runbtn">start run</button>
-<span class="note">&nbsp; jobs run detached (start_new_session) with logs under out/dashboard/logs/</span>
-<div id="runstat" class="status"></div>
-<pre class="log" id="runlog" style="display:none"></pre></div>
-
-<div class="card"><h2>2b · Edit config files directly</h2>
-<div class="grid2">
-  <div><label>file (configs/**.toml, profiling/hw/*.toml)</label>
-    <select id="edsel">{cfg_opts}</select></div>
-  <div><label>&nbsp;</label>
-    <button type="button" id="edload">load</button>
+  <div><label>&nbsp;</label><button type="submit">create config</button></div>
+</div><input type="hidden" name="var_slam" value="on"><div id="mkout" class="status"></div></form></details>
+<details><summary>create: ANY GPU workload (command adapter — torch, CUDA, image processing …)</summary>
+<form id="wlform"><div class="row">
+  <div><label>name</label><input type="text" name="name" placeholder="my_dnn" required></div>
+  <div><label>command</label><input type="text" name="cmd" placeholder="python3 train.py --iters 100" required></div>
+  <div><label>working dir (your codebase)</label><input type="text" name="cwd"></div>
+</div><div class="row">
+  <div><label>QoR regex (proves neutrality)</label><input type="text" name="qor_regex" placeholder="loss=([0-9.eE+-]+)"></div>
+  <div><label style="margin-top:24px"><input type="checkbox" name="nvbit"> deep NVBit trace</label></div>
+  <div><label>&nbsp;</label><button type="submit">register</button></div>
+</div><div id="wlout" class="status"></div></form></details>
+<details><summary>edit config files directly</summary>
+<div class="row2">
+  <div><label>file</label><select id="edsel">{cfg_opts}</select></div>
+  <div><label>&nbsp;</label><button type="button" id="edload">load</button>
     <button type="button" id="edsave" class="sec">save</button>
     <span id="edstat" class="status" style="display:inline"></span></div>
 </div>
-<textarea id="edtext" style="width:100%;height:260px;font:12.5px monospace;display:none;
-  border:1px solid #bbb;border-radius:8px;padding:10px"></textarea></div>
+<textarea id="edtext" style="height:220px;font:12px monospace;display:none"></textarea></details></div>
 
-<div class="card"><h2>3 · Results</h2>
-<button class="sec" id="rebuild">rebuild figures + site</button>
-<span class="note">&nbsp; runs viz/make_figures.py + viz/build_site.py</span>
-<div id="rebuildout" class="status"></div>
-<iframe src="/site/index.html" title="results site"></iframe></div>
+<div class="card"><h2><span class="step">3</span>Profile</h2>
+<div class="row">
+  <div><label>what to run</label><select id="runprof">
+    <option value="regime">full profile — nsys → ncu → nvbit → analyses (+ accuracy)</option>
+    <option value="nsys">nsys only (timeline + stages)</option>
+    <option value="ncu">ncu only (kernel metrics, windowed)</option>
+    <option value="nvbit">nvbit only (memory trace, windowed)</option>
+    <option value="none">plain run (accuracy / QoR only)</option></select></div>
+  <div><label>&nbsp;</label><button id="runbtn">start on target</button></div>
+  <div><label>&nbsp;</label><span id="runstat" class="status"></span></div>
+</div>
+<p class="note">every run evaluates accuracy/QoR; ncu+nvbit use bounded launch windows (the app
+still runs the full sequence). Logs stream back live from the target.</p>
+<pre class="log" id="runlog" style="display:none"></pre></div>
+
+<div class="card"><h2>Findings</h2>
+<p class="note">what the studies found — one place. Click any figure for full size.</p>
+
+<h3>PiM / ISP substrate candidacy (per kernel, with cross-workload dynamics)</h3>
+<div class="figgrid">
+{_fig("reports/2026-07-07_substrate/figs/verdict_heatmap.png", "substrate verdict per kernel x workload (GPU / CPU / PiM-bank / PiM-scatter / ISP)")}
+{_fig("reports/2026-07-07_substrate/figs/substrate_mix.png", "GPU-time share by best substrate — the offload opportunity")}
+{_fig("reports/2026-07-07_substrate/figs/flip_drivers.png", "kernels whose verdict FLIPS across workloads + the metric that drives it")}
+</div>
+{subst_html}
+
+<h3>Memory behaviour (why: attribution + roofline)</h3>
+<div class="figgrid">
+{_fig("profiling/reports/2026-07-05_attribution_campaign/figs/memory_space_composition.png", "per-kernel memory-space composition (shared / spill / DRAM) — 27 sequences")}
+{_fig("profiling/reports/2026-07-04_campaign/figs/taxonomy.png", "kernel taxonomy classes + cross-sequence stability (91%)")}
+{_fig("profiling/reports/2026-07-03_tum_office_rtx2000ada/figs/roofline.png", "DRAM roofline, TUM office (RTX 2000 Ada)")}
+{_fig("profiling/reports/2026-07-03_kitti06_rtx2000ada/figs/roofline.png", "DRAM roofline, KITTI 06 (RTX 2000 Ada)")}
+{_fig("profiling/reports/2026-07-03_tum_office_rtx2000ada/figs/pim_affinity.png", "PiM-affinity share of GPU time (61%)")}
+{_fig("profiling/reports/2026-07-05_attribution_campaign/figs/tag_agreement.png", "data-structure attribution: 48/49 kernels unanimous")}
+</div>
+
+<h3>Recent profiled runs (cohesive pipeline)</h3>
+<div class="tablewrap"><table>
+<tr><th>workload</th><th>when</th><th>captures</th><th>analyses</th><th></th></tr>
+{runs_html}</table></div>
+
+<details><summary>validity: accuracy vs the paper + profiler neutrality (checked on every run — not the headline)</summary>
+<div class="figgrid">
+{_fig("reports/2026-07-07_accuracy_full/figs/traj_kitti.png", "estimated vs ground-truth trajectories (KITTI)")}
+{_fig("reports/2026-07-07_accuracy_full/figs/ape_by_config.png", "APE across the 141-run accuracy matrix")}
+{_fig("reports/2026-07-07_profiling_coverage/figs/neutrality_scatter.png", "profiling neutrality: APE with vs without profilers")}
+{_fig("reports/2026-07-07_profiler_neutrality/figs/profiler_neutrality.png", "nsys / ncu / nvbit all accuracy-neutral")}
+</div>
+<p class="note"><a href="/site/index.html" target="_blank">full results site (all reports, tables, figures)</a>
+&nbsp;·&nbsp; <button class="sec" id="rebuild" style="margin:0;padding:4px 10px">rebuild figures + site</button>
+<span id="rebuildout"></span></p></details>
+</div>
 
 </main>
 <script>
 const $ = s => document.querySelector(s);
-$("#mkform").addEventListener("submit", async ev => {{
-  ev.preventDefault();
-  const data = Object.fromEntries(new FormData(ev.target).entries());
-  const r = await fetch("/api/create", {{method:"POST", body:JSON.stringify(data)}});
-  const j = await r.json();
-  $("#mkout").innerHTML = j.error
-    ? `<span class="err">✗ ${{j.error}}</span>`
-    : `<span class="ok">✓ wrote ${{j.written.length}} config(s):</span> ` +
-      j.written.map(w=>`<code>${{w}}</code>`).join(", ") +
-      ` — <a href="#" onclick="location.reload();return false">refresh run list</a>`;
-}});
-async function refreshTargets() {{
-  const t = await (await fetch("/api/targets")).json();
-  const names = Object.keys(t);
-  $("#tglist").innerHTML = "registered: " + names.map(n =>
-    `<code>${{n}}${{t[n].ssh ? " → " + t[n].ssh : " (this machine)"}}</code>`).join("  ");
-  for (const sel of ["#doctortg", "#runtarget"]) {{
-    document.querySelector(sel).innerHTML =
-      names.map(n => `<option>${{n}}</option>`).join("");
-  }}
-}}
-refreshTargets();
-$("#tgform").addEventListener("submit", async ev => {{
+$("#tgform") && $("#tgform").addEventListener("submit", async ev => {{
   ev.preventDefault();
   const data = Object.fromEntries(new FormData(ev.target).entries());
   const j = await (await fetch("/api/add_target", {{method:"POST", body:JSON.stringify(data)}})).json();
   $("#tgout").innerHTML = j.error ? `<span class="err">✗ ${{j.error}}</span>`
-                                  : `<span class="ok">✓ added ${{j.added}}</span>`;
-  refreshTargets();
+                                  : `<span class="ok">✓ added ${{j.added}} — reload to select</span>`;
 }});
 $("#doctorbtn").addEventListener("click", async () => {{
-  const t = $("#doctortg").value;
+  const t = $("#runtarget").value;
   $("#doctorout").style.display = "block";
   $("#doctorout").textContent = `running doctor on ${{t}} …`;
   const j = await (await fetch(`/api/doctor?target=${{encodeURIComponent(t)}}`)).json();
   $("#doctorout").textContent = j.output;
   $("#tgout").innerHTML = j.ready
-    ? `<span class="ok">✓ ${{t}} is READY to profile</span>`
-    : `<span class="err">✗ ${{t}} is NOT ready — every finding above has its fix</span>`;
+    ? `<span class="ok">✓ ${{t}} is READY</span>`
+    : `<span class="err">✗ ${{t}} not ready — each finding shows its fix</span>`;
+}});
+$("#mkform").addEventListener("submit", async ev => {{
+  ev.preventDefault();
+  const data = Object.fromEntries(new FormData(ev.target).entries());
+  const j = await (await fetch("/api/create", {{method:"POST", body:JSON.stringify(data)}})).json();
+  $("#mkout").innerHTML = j.error ? `<span class="err">✗ ${{j.error}}</span>`
+    : `<span class="ok">✓ ${{j.written.join(", ")}}</span> — reload to select`;
+}});
+$("#wlform").addEventListener("submit", async ev => {{
+  ev.preventDefault();
+  const data = Object.fromEntries(new FormData(ev.target).entries());
+  const j = await (await fetch("/api/create_workload", {{method:"POST", body:JSON.stringify(data)}})).json();
+  $("#wlout").innerHTML = j.error ? `<span class="err">✗ ${{j.error}}</span>`
+    : `<span class="ok">✓ ${{j.written[0]}}</span> — reload to select`;
 }});
 $("#edload").addEventListener("click", async () => {{
   const j = await (await fetch(`/api/file?path=${{encodeURIComponent($("#edsel").value)}}`)).json();
@@ -545,27 +608,16 @@ $("#edsave").addEventListener("click", async () => {{
   const j = await (await fetch("/api/savefile", {{method:"POST", body:JSON.stringify(
     {{path: $("#edsel").value, content: $("#edtext").value}})}})).json();
   $("#edstat").innerHTML = j.error ? `<span class="err">✗ ${{j.error}}</span>`
-                                   : `<span class="ok">✓ saved ${{j.saved}}</span>`;
-}});
-$("#wlform").addEventListener("submit", async ev => {{
-  ev.preventDefault();
-  const data = Object.fromEntries(new FormData(ev.target).entries());
-  const r = await fetch("/api/create_workload", {{method:"POST", body:JSON.stringify(data)}});
-  const j = await r.json();
-  $("#wlout").innerHTML = j.error
-    ? `<span class="err">✗ ${{j.error}}</span>`
-    : `<span class="ok">✓ registered:</span> <code>${{j.written[0]}}</code>` +
-      ` — <a href="#" onclick="location.reload();return false">refresh run list</a>`;
+                                   : `<span class="ok">✓ saved</span>`;
 }});
 let poll = null;
 $("#runbtn").addEventListener("click", async () => {{
-  const body = JSON.stringify({{config: $("#runcfg").value,
-    profiler: $("#runprof").value, hw: $("#runhw").value,
-    target: $("#runtarget").value}});
+  const body = JSON.stringify({{config: $("#runcfg").value, profiler: $("#runprof").value,
+    hw: $("#runhw").value, target: $("#runtarget").value}});
   const r = await fetch("/api/run", {{method:"POST", body}});
   const j = await r.json();
   if (j.error) {{ $("#runstat").innerHTML = `<span class="err">✗ ${{j.error}}</span>`; return; }}
-  $("#runstat").innerHTML = `<span class="ok">job ${{j.job}} started</span>`;
+  $("#runstat").innerHTML = `<span class="ok">job ${{j.job}}</span>`;
   $("#runlog").style.display = "block";
   if (poll) clearInterval(poll);
   poll = setInterval(async () => {{
@@ -574,17 +626,15 @@ $("#runbtn").addEventListener("click", async () => {{
     $("#runlog").textContent = s.log_tail || "(no output yet)";
     $("#runlog").scrollTop = $("#runlog").scrollHeight;
     $("#runstat").innerHTML = s.running
-      ? `<span>⏳ running — ${{s.elapsed_s}}s</span>`
-      : `<span class="${{s.returncode===0?"ok":"err"}}">
-         ${{s.returncode===0?"✓ finished":"✗ exit "+s.returncode}} in ${{s.elapsed_s}}s</span>`;
+      ? `<span>⏳ ${{s.elapsed_s}}s</span>`
+      : `<span class="${{s.returncode===0?"ok":"err"}}">${{s.returncode===0?"✓ done":"✗ exit "+s.returncode}} (${{s.elapsed_s}}s)</span>`;
     if (!s.running) clearInterval(poll);
   }}, 2000);
 }});
 $("#rebuild").addEventListener("click", async () => {{
-  $("#rebuildout").textContent = "rebuilding…";
-  const j = await (await fetch("/api/rebuild", {{method:"POST"}})).json();
-  $("#rebuildout").innerHTML = `<span class="ok">✓ rebuilt</span>`;
-  document.querySelector("iframe").src = "/site/index.html?" + Date.now();
+  $("#rebuildout").textContent = " rebuilding…";
+  await (await fetch("/api/rebuild", {{method:"POST"}})).json();
+  $("#rebuildout").innerHTML = ` <span class="ok">✓</span>`;
 }});
 </script></body></html>"""
 
