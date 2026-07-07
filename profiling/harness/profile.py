@@ -15,11 +15,11 @@ read with light regex; run.py does the real TOML parsing inside the venv.
 Examples
 --------
   # Nsight Systems timeline (for the DAG)
-  python profiling/harness/profile.py --config profiling/configs/kitti06_profile.toml \
+  python profiling/harness/profile.py --config configs/profiling/kitti06_profile.toml \
          --profiler nsys --hw profiling/hw/mx450_sm75.toml
 
   # Nsight Compute, targeted roofline/SoL/stall metrics
-  python profiling/harness/profile.py --config profiling/configs/kitti06_profile.toml \
+  python profiling/harness/profile.py --config configs/profiling/kitti06_profile.toml \
          --profiler ncu --hw profiling/hw/mx450_sm75.toml \
          --metrics roofline --launch-skip 100 --launch-count 12
 """

@@ -18,9 +18,9 @@
 # __base coverage configs are already redirected there), so the accuracy_out
 # baselines are never touched. Streams a tailable log; writes a summary table.
 #
-# Run:  setsid nohup ./ws_profiler_neutrality.sh > ~/profiler_neutrality.boot 2>&1 &
+# Run:  setsid nohup scripts/ws_profiler_neutrality.sh > ~/profiler_neutrality.boot 2>&1 &
 set -uo pipefail
-cd ~/Projects/cuvslam-stack
+. "$(dirname "${BASH_SOURCE[0]}")/lib.sh"      # cd's to the repo root
 export PATH=/opt/cuda/bin:$PATH
 # ncu 2025.2 (CUDA 12.9) — the system ncu (2026.2/2025.3) rejects driver 575
 export NCU_BIN="${NCU_BIN:-$HOME/ncu2025/nsight_compute-linux-x86_64-2025.2.1.3-archive/ncu}"
@@ -35,10 +35,7 @@ TOOL=external_repos/nvbit_release_x86_64/tools/mem_trace/mem_trace.so
 RUN_TIMEOUT=${RUN_TIMEOUT:-3000}
 LB=${LB:-1000}; LE=${LE:-1200}          # NVBit instrumentation launch window
 
-mkdir -p "$OUT"; : > "$LOG"
-log() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
-ape_of() { grep -oE "RMSE APE[^(]*\(([0-9.]+) m\)" "$1" 2>/dev/null | grep -oE "[0-9.]+ m" | head -1 | grep -oE "[0-9.]+"; }
-matched_of() { grep -oE "matched poses[^0-9]*([0-9]+)" "$1" 2>/dev/null | grep -oE "[0-9]+" | head -1; }
+mkdir -p "$OUT"; log_init "$LOG"
 
 # representative, deterministic (SLAM/loop-closure) configs — one per modality
 REPS="euroc_V1_01_easy_stereo_slam euroc_MH_01_easy_stereo_slam \
@@ -46,8 +43,8 @@ REPS="euroc_V1_01_easy_stereo_slam euroc_MH_01_easy_stereo_slam \
       icl_living_room_traj1_rgbd_slam kitti06_stereo_slam"
 
 log "freeing GPU + locking clocks"
-zsh ~/free_gpu.zsh >/dev/null 2>&1 || true
-for i in 1 2 3; do sudo -n nvidia-smi -pm 1 >/dev/null 2>&1; sudo -n nvidia-smi -lgc 1620,1620 >/dev/null 2>&1; sudo -n nvidia-smi -lmc 7001,7001 >/dev/null 2>&1; sleep 2; [ "$(nvidia-smi --query-gpu=clocks.current.graphics --format=csv,noheader,nounits)" = "1620" ] && break; done
+free_gpu
+lock_gpu_clocks 1620 7001
 [ -f "$TOOL" ] || { log "mem_trace.so missing — build it first"; exit 1; }
 
 log "profiler-neutrality check — $(echo $REPS | wc -w) sequences × {plain, nsys, ncu, nvbit}"
@@ -95,4 +92,4 @@ done
 
 log "DONE — $([ $overall_ok -eq 1 ] && echo 'ALL PROFILERS ACCURACY-NEUTRAL' || echo 'some CHECK — inspect (mono/km-odometry nondeterminism vs real perturbation)')"
 log "summary: $SUM"
-[ -f ~/restore_gui.zsh ] && zsh ~/restore_gui.zsh >/dev/null 2>&1 || true
+restore_gui

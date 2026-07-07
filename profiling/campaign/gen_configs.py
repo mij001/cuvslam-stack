@@ -3,7 +3,7 @@
 
 Scans the dataset volume (default /mnt/data — the workstation's sda2, mounted
 ro) and emits one odometry + one SLAM profiling config per sequence into
-profiling/configs/campaign/:
+configs/campaign/:
 
   KITTI odometry color  seq 00-10   image_2/3, per-sequence calib.txt (P2/P3)
   EuRoC MAV             MH_01..05, V1_01..03, V2_01..03   (euroc source, mav0)
@@ -19,38 +19,19 @@ from __future__ import annotations
 
 import argparse
 import os
-import struct
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEF_OUT = os.path.join(HERE, "..", "configs", "campaign")
+# campaign configs live in the unified config tree at the repo root
+DEF_OUT = os.path.join(HERE, "..", "..", "configs", "campaign")
+
+# sequence lists + intrinsics + calibration readers live in ONE place
+sys.path.insert(0, os.path.join(HERE, "..", "..", "scripts"))
+from dataset_catalog import (  # noqa: E402
+    EUROC, FR3, ICL, ICL_NUIM, KITTI_SEQS, TUM_RGBD, kitti_calib, png_size,
+)
 
 ODOM_FRAMES = 260          # 200 warm + steady window
-
-KITTI_SEQS = [f"{i:02d}" for i in range(11)]
-EUROC = [("MH/machine_hall", s) for s in
-         ["MH_01_easy", "MH_02_easy", "MH_03_medium", "MH_04_difficult", "MH_05_difficult"]] + \
-        [("VR1/vicon_room1", s) for s in ["V1_01_easy", "V1_02_medium", "V1_03_difficult"]] + \
-        [("VR2/vicon_room2", s) for s in ["V2_01_easy", "V2_02_medium", "V2_03_difficult"]]
-TUM_RGBD = ["rgbd_dataset_freiburg3_long_office_household",
-            "rgbd_dataset_freiburg3_nostructure_notexture_far",
-            "rgbd_dataset_freiburg3_nostructure_notexture_near_withloop",
-            "rgbd_dataset_freiburg3_nostructure_texture_far",
-            # expanded 2026-07-07 to the paper's full Table-4 set (+2 extras above)
-            "rgbd_dataset_freiburg3_cabinet",
-            "rgbd_dataset_freiburg3_nostructure_texture_near_withloop",
-            "rgbd_dataset_freiburg3_sitting_halfsphere",
-            "rgbd_dataset_freiburg3_sitting_xyz",
-            "rgbd_dataset_freiburg3_structure_texture_far",
-            "rgbd_dataset_freiburg3_structure_texture_near",
-            "rgbd_dataset_freiburg3_teddy"]
-FR3 = dict(focal=[535.4, 539.2], principal=[320.1, 247.6])
-
-# ICL-NUIM (Mono-Depth, synthetic RGB-D) — added 2026-07-07 for memory
-# characterization; was accuracy-only before. Same intrinsics as the
-# accuracy-matrix generator (fx=481.20 fy=480.00 cx=319.50 cy=239.50).
-ICL_NUIM = [f"living_room_traj{i}_frei_png" for i in range(4)] + \
-           [f"traj{i}_frei_png" for i in range(4)]
-ICL = dict(focal=[481.20, 480.00], principal=[319.50, 239.50])
 
 # Representative subset for feature-toggle profiling (sync/async, GPU/CPU SLAM,
 # EuRoC stereo/inertial/mono): profiling every toggle x all 27+ sequences would
@@ -61,25 +42,6 @@ ICL = dict(focal=[481.20, 480.00], principal=[319.50, 239.50])
 TOGGLE_REPS = {"kitti": "00", "euroc": ("MH/machine_hall", "MH_01_easy"),
                "tum": "rgbd_dataset_freiburg3_long_office_household"}
 EUROC_VARIANT_REPS = [("MH/machine_hall", "MH_01_easy"), ("VR1/vicon_room1", "V1_01_easy")]
-
-
-def png_size(path):
-    with open(path, "rb") as fh:
-        d = fh.read(26)
-    w, h = struct.unpack(">II", d[16:24])
-    return w, h
-
-
-def kitti_calib(path):
-    """(f, cx, cy, baseline_m) for the color pair from calib.txt P2/P3."""
-    P = {}
-    for line in open(path):
-        k, _, rest = line.partition(":")
-        vals = rest.split()
-        if len(vals) == 12:
-            P[k] = [float(v) for v in vals]
-    f = P["P2"][0]
-    return f, P["P2"][2], P["P2"][6], (P["P2"][3] - P["P3"][3]) / f
 
 
 def slam_block(kind):

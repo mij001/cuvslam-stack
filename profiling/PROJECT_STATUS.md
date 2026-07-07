@@ -198,6 +198,24 @@ data-structure-level motivation. +(3b)+(6) → MICRO/ASPLOS/ISCA/HPCA. See
 
 ## 8. Changelog
 
+- **2026-07-07 (refactor)** — **De-fragmentation overhaul**, verified
+  behavior-neutral by regeneration byte-diffs. (1) All loose root scripts →
+  `scripts/` with shared `scripts/lib.sh` (mount-rw, clock-lock, free-gpu/
+  restore-gui, ape_of/matched_of, logging — previously copy-pasted across 4+
+  campaign drivers; ws scripts now cd via BASH_SOURCE, no hardcoded ~paths).
+  (2) Single config tree: `profiling/configs/` → `configs/profiling/`,
+  campaign generator now emits `configs/campaign/`; `configs/README.md` maps
+  the tree. (3) `run_all.py` merged into `run_list.py` (one CLI: list file OR
+  --configs dir/glob; no-arg = every configs/*.toml; runner.sh `all` repointed).
+  (4) Dataset knowledge deduplicated into `scripts/dataset_catalog.py`
+  (sequence lists, FR3/ICL/TartanAir intrinsics, png_size/kitti_calib) —
+  imported by both generators; also fixed py<3.12 f-string backslash
+  syntax errors so generators run on the 3.10 venv. PROOF of neutrality:
+  refactored generators regenerate the committed matrices **byte-identically**
+  (141 accuracy configs on the ws, 192 coverage configs on the laptop); all
+  entrypoints compile; smoke tests pass; dashboard serves the unified tree
+  (365 configs listed).
+
 - **2026-07-07 (sync)** — **Repo synced across remote/dev/workstation +
   reproduce-from-clone verified.** All three checkouts (GitHub origin, laptop,
   dell-workstation) fast-forwarded to one commit; the workstation was 21 behind

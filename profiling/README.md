@@ -62,17 +62,17 @@ publishing numbers from that machine.
 
 ```bash
 # 1) Nsight Systems timeline → the DAG + kernels/frame
-python3 profiling/harness/profile.py --config profiling/configs/tum_office_profile.toml \
+python3 profiling/harness/profile.py --config configs/profiling/tum_office_profile.toml \
     --profiler nsys --hw profiling/hw/mx450_sm75.toml
 
 # 2) Steady-state Nsight Compute: warm 200 frames, then profile 300 launches,
 #    with the full characterization metric set (FLOPs, bytes, stalls, coalescing)
-python3 profiling/harness/profile.py --config profiling/configs/tum_office_profile.toml \
+python3 profiling/harness/profile.py --config configs/profiling/tum_office_profile.toml \
     --profiler ncu --hw profiling/hw/mx450_sm75.toml \
     --metrics characterize --auto-window profiling/results/<nsys_run>:200:300
 
 # 3) Loop-closure capture (the cold-persistent evidence)
-python3 profiling/harness/profile.py --config profiling/configs/tum_office_slam_profile.toml \
+python3 profiling/harness/profile.py --config configs/profiling/tum_office_slam_profile.toml \
     --profiler nsys --hw profiling/hw/mx450_sm75.toml
 
 # 4) Analysis (any machine, no GPU needed — reads derived CSVs only)

@@ -10,31 +10,25 @@
 #          metrics can be diffed.
 #
 # Resumable: a run is skipped when its eval.txt exists and is non-empty.
-# Run:   setsid nohup ./ws_accuracy_matrix.sh &
+# Run:   setsid nohup scripts/ws_accuracy_matrix.sh &
 # Watch: tail -f ~/accuracy_matrix.log ; cat /mnt/data/accuracy_out/PROGRESS
 set -uo pipefail
-cd ~/Projects/cuvslam-stack
+. "$(dirname "${BASH_SOURCE[0]}")/lib.sh"      # cd's to the repo root
 OUT=/mnt/data/accuracy_out
 LOG=~/accuracy_matrix.log
 PY=./cuvslam_venv/bin/python
 PY_TAGGED=./cuvslam_venv_tagged/bin/python
 RUN_TIMEOUT=${RUN_TIMEOUT:-2400}
 
-log() { echo "=== [$(date +%F_%H:%M:%S)] $*" | tee -a "$LOG"; }
+log_attach "$LOG"          # append across resumes
 progress() {
     echo "$(date +%F_%H:%M:%S) $*" > "$OUT/PROGRESS" 2>/dev/null || true
     cp "$LOG" "$OUT/matrix.log" 2>/dev/null || true
 }
 
-if ! touch "$OUT/.w" 2>/dev/null; then
-    sudo -n umount /mnt/data 2>/dev/null
-    # uid=1000 so writes into pre-existing (root-owned) dirs like accuracy_out succeed
-    sudo -n mount -t ntfs3 -o rw,force,uid=1000,gid=1000,umask=022 /dev/sda2 /mnt/data \
-        || { echo "FATAL: /mnt/data not writable" | tee -a "$LOG"; exit 1; }
-fi
-rm -f "$OUT/.w"; mkdir -p "$OUT"
+ensure_data_rw /mnt/data /dev/sda2 || exit 1
 
-python3 gen_accuracy_configs.py --root /mnt/data --tumvi-extracted "$HOME/tumvi_extracted" \
+python3 scripts/gen_accuracy_configs.py --root /mnt/data --tumvi-extracted "$HOME/tumvi_extracted" \
     --out configs/accuracy_matrix 2>&1 | tee -a "$LOG"
 
 CFGS=$(ls configs/accuracy_matrix/*.toml | sort)

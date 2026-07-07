@@ -17,8 +17,8 @@ REPO_ROOT="$(cd "$HERE/.." && pwd)"
 cd "$REPO_ROOT"
 
 HW=""
-CONFIG="profiling/configs/tum_office_profile.toml"
-SLAM_CONFIG="profiling/configs/tum_office_slam_profile.toml"
+CONFIG="configs/profiling/tum_office_profile.toml"
+SLAM_CONFIG="configs/profiling/tum_office_slam_profile.toml"
 WARM=200 LAUNCHES=300 SKIP_SLAM=0 TAG="char" REPEATS=5
 while [ $# -gt 0 ]; do
     case "$1" in

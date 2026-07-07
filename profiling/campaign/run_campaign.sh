@@ -5,7 +5,7 @@
 # ncu 2025.2 (the system ncu 2026.2 / 2025.3 are CUDA-13, driver-incompatible):
 export NCU_BIN="${NCU_BIN:-$HOME/ncu2025/nsight_compute-linux-x86_64-2025.2.1.3-archive/ncu}"
 #
-# For every profiling/configs/campaign/<name>_odom.toml (+ matching _slam.toml):
+# For every configs/campaign/<name>_odom.toml (+ matching _slam.toml):
 #   odom:  3x warmed nsys repeats + 1 ncu characterize (steady window 200:300)
 #   slam:  1 warmed nsys (full sequence) + 1 ncu on the st_* SLAM kernels
 # Failures are logged and skipped — one bad sequence never kills the campaign.
@@ -32,7 +32,7 @@ P=python3
 step() { echo "=== [$(date +%H:%M:%S)] $*"; }
 run() { "$@" >/dev/null 2>&1 || echo "    [!] FAILED: $*"; }
 
-configs=$(ls "$REPO_ROOT"/profiling/configs/campaign/*_odom.toml 2>/dev/null | grep -E "$ONLY" || true)
+configs=$(ls "$REPO_ROOT"/configs/campaign/*_odom.toml 2>/dev/null | grep -E "$ONLY" || true)
 n=$(echo "$configs" | grep -c . || true)
 step "campaign start: $n sequences, hw=$HW"
 i=0

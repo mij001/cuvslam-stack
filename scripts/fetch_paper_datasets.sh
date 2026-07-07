@@ -8,15 +8,12 @@
 #   ./fetch_paper_datasets.sh icl        # ICL-NUIM 8 trajectories (paper Mono-Depth)
 #   ./fetch_paper_datasets.sh all        # tum + icl  (TartanAir is separate — see prep_tartanair.py)
 set -uo pipefail
+. "$(dirname "${BASH_SOURCE[0]}")/lib.sh"      # cd's to the repo root
 ROOT="${CUVSLAM_DATA2:-/mnt/data}"
 
 # sda2 is fstab-ro and pre-existing dirs are root-owned; re-assert a uid-mapped
 # rw mount so downloads into existing dirs (e.g. TUM_RGBD/extracted) succeed.
-if ! touch "$ROOT/.wtest" 2>/dev/null; then
-    sudo -n umount "$ROOT" 2>/dev/null || true
-    sudo -n mount -t ntfs3 -o rw,force,uid=1000,gid=1000,umask=022 /dev/sda2 "$ROOT" 2>/dev/null || true
-fi
-rm -f "$ROOT/.wtest" 2>/dev/null || true
+ensure_data_rw "$ROOT" /dev/sda2 || true
 DL() { aria2c -x8 -s8 -c --auto-file-renaming=false -d "$1" "$2" || echo "[!] failed: $2"; }
 
 tum() {

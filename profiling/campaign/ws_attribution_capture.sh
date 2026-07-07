@@ -30,7 +30,7 @@ mkdir -p "$OUT"
 log() { echo "=== [$(date +%F_%H:%M:%S)] $*"; }
 
 sed -e "s|\${CUVSLAM_DATASETS}/tum|/mnt/data/TUM_RGBD/extracted|" \
-    profiling/configs/tum_office_slam_profile.toml > "$OUT/tum_office_slam_full.toml"
+    configs/profiling/tum_office_slam_profile.toml > "$OUT/tum_office_slam_full.toml"
 
 if [ ! -f "$OUT/pass1_launchmap.txt.zst" ]; then
     log "pass 1: launch map + journals (uninstrumented)"

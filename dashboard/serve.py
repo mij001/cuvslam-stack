@@ -29,7 +29,7 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
 from gen_profiling_coverage import remove_slam, set_key  # noqa: E402  (reuse, one source of truth)
 
 VENV_PY = os.path.join(ROOT, "cuvslam_venv", "bin", "python")
@@ -128,7 +128,7 @@ def make_configs(form):
 def list_configs():
     pats = ["configs/custom/*.toml", "configs/accuracy_matrix/*.toml",
             "configs/profiling_coverage/*.toml", "configs/*.toml",
-            "profiling/configs/*.toml"]
+            "configs/profiling/*.toml"]
     out = []
     for p in pats:
         out += sorted(os.path.relpath(f, ROOT) for f in glob.glob(os.path.join(ROOT, p)))

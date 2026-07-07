@@ -5,11 +5,20 @@ single-TOML **runner**. The main project is *not* the runner — it ties togethe
 
 ```
 cuvslam-stack/                 (this repo — the main project)
-├── cuvslam_runner/ run.py configs/ setup_env.sh ...   the TOML runner (at the root)
-├── cuvslam_src/               git submodule -> nvidia-isaac/cuVSLAM @ efdfbe56 (release 15.0)
-├── patches/                   our build tooling, applied onto the pristine submodule
+├── run.py evaluate.py run_list.py runner.sh setup_env.sh   the TOML runner entrypoints
+├── cuvslam_runner/            the runner package itself
+├── configs/                   THE config tree (see configs/README.md):
+│     *.toml                     hand-written examples · accuracy_matrix/ (141, generated)
+│     profiling_coverage/ (192)  profiling/ (harness workloads) · campaign/ + custom/ (generated)
+├── scripts/                   generators + dataset tooling + workstation campaign drivers
+│                              (shared shell helpers in scripts/lib.sh; dataset knowledge
+│                               in scripts/dataset_catalog.py — single source of truth)
 ├── profiling/                 memory characterization: nsys/ncu harness + headless analysis
 │                              (see profiling/README.md; one command: profiling/run_characterization.sh)
+├── viz/ · dashboard/ · site/  figures for every output · web UI · static results site
+├── reports/                   committed campaign results (accuracy, coverage, neutrality)
+├── cuvslam_src/               git submodule -> nvidia-isaac/cuVSLAM @ efdfbe56 (release 15.0)
+├── patches/                   our build tooling, applied onto the pristine submodule
 └── Makefile                   build the wheel + verify, reproducibly
 ```
 
@@ -55,7 +64,7 @@ make wheel                 # -> cuvslam_src/dist/cuvslam-*.whl   (Podman, CUDA 1
 #   (e.g. the workstation runs a cu12 wheel on driver 575 — see docs/, Troubleshooting)
 
 # 2 · get the datasets (paper benchmark set) onto a data volume
-DATA=/mnt/data ./fetch_paper_datasets.sh        # aria2c: TUM fr3 + ICL-NUIM (see PAPER_DATASETS.md)
+DATA=/mnt/data scripts/fetch_paper_datasets.sh  # aria2c: TUM fr3 + ICL-NUIM (see PAPER_DATASETS.md)
 #   KITTI / EuRoC / TUM-VI are large — fetch per PAPER_DATASETS.md and place under $DATA
 
 # 3 · run one config, a list, or everything
@@ -81,9 +90,9 @@ either edit the `[input].path` / `[eval].ground_truth` fields, or **regenerate**
 the matrices against your own data root — the generators are the source of truth:
 
 ```bash
-python gen_accuracy_configs.py  --root $DATA --out configs/accuracy_matrix     # 141 accuracy configs
-python gen_profiling_coverage.py --matrix configs/accuracy_matrix \
-                                 --out configs/profiling_coverage              # 192 toggle variants
+python scripts/gen_accuracy_configs.py  --root $DATA --out configs/accuracy_matrix   # 141 accuracy configs
+python scripts/gen_profiling_coverage.py --matrix configs/accuracy_matrix \
+                                         --out configs/profiling_coverage            # 192 toggle variants
 ```
 
 Or skip the files entirely and use the **dashboard** (§ *Dashboard & results
@@ -94,10 +103,10 @@ pointed TOML variants into `configs/custom/` for you.
 tailable log and is resumable). These are the committed results under `reports/`:
 
 ```bash
-./ws_accuracy_matrix.sh        # 141-run accuracy matrix vs the paper  -> reports/2026-07-07_accuracy_full/
-./ws_profiling_campaign.sh     # 192 feature-toggle variants, plain vs nsys -> reports/2026-07-07_profiling_coverage/
-./ws_profiler_neutrality.sh    # nsys/ncu/NVBit accuracy-neutrality check   -> reports/2026-07-07_profiler_neutrality/
-./validate_accuracy_configs.sh # every config validates under runner + profiling flow
+scripts/ws_accuracy_matrix.sh        # 141-run accuracy matrix vs the paper  -> reports/2026-07-07_accuracy_full/
+scripts/ws_profiling_campaign.sh     # 192 feature-toggle variants, plain vs nsys -> reports/2026-07-07_profiling_coverage/
+scripts/ws_profiler_neutrality.sh    # nsys/ncu/NVBit accuracy-neutrality check   -> reports/2026-07-07_profiler_neutrality/
+scripts/validate_accuracy_configs.sh # every config validates under runner + profiling flow
 ```
 
 The rest of this README documents the runner itself; deeper profiling docs are in
@@ -124,8 +133,8 @@ python run.py configs/euroc_v1_eval.toml            # run + evaluate vs ground t
 python run.py configs/kitti_stereo.toml --check     # validate config only (no cuvslam import)
 python -m cuvslam_runner configs/tum_rgbd.toml      # equivalent module form
 python evaluate.py est.txt gt.csv --gt-format euroc # evaluate an existing trajectory
-python run_all.py                                   # run every config + summary table
-python run_all.py --check                           # validate every config
+python run_list.py                                   # run every config + summary table
+python run_list.py --check                           # validate every config
 ```
 
 Or use the **`runner.sh`** launcher, which finds a Python that has `cuvslam`,
@@ -134,7 +143,7 @@ sets `PYTHONPATH`, and dispatches — no venv/PYTHONPATH juggling:
 ```bash
 ./runner.sh configs/euroc_v1_eval.toml      # run one config        (-> run.py)
 ./runner.sh check configs/kitti_stereo.toml  # validate one config   (-> run.py --check)
-./runner.sh all                              # run every config      (-> run_all.py)
+./runner.sh all                              # run every config      (-> run_list.py)
 ./runner.sh eval est.txt gt.csv --gt-format euroc   # evaluate         (-> evaluate.py)
 # Override the interpreter explicitly when needed:
 CUVSLAM_PYTHON=/path/to/venv/bin/python ./runner.sh configs/tum_rgbd.toml
@@ -226,7 +235,7 @@ python run_list.py runlist.txt --check    # validate each (no cuvslam needed)
 `runlist.txt` lists the configs to run (blank lines and `#`-comments ignored;
 relative paths resolve against the list file). Each config runs in its own
 subprocess, so one failure never stops the rest, and `run_list.py` prints the
-same summary table as `run_all.py` (status, frames, ATE, RTE%). If the wheel
+same summary table in both modes (status, frames, ATE, RTE%). If the wheel
 can't be imported (e.g. a CUDA mismatch), `setup_env.sh` says so and `--check`
 still works for validation.
 
@@ -715,20 +724,20 @@ published calibration to fill in for your specific download.
 
 ## Running all configs
 
-`run_all.py` executes (or validates) every `configs/*.toml` in turn. Each config
+`run_list.py` (no arguments) executes — or with `--check` validates — every `configs/*.toml` in turn; give it a list file or `--configs DIR` to select others. Each config
 runs in its **own subprocess**, so a missing dataset, an absent camera, or a
 crash in one never stops the rest. At the end it prints a summary table and
 writes a per-config log; the exit code is 0 only if every selected config
 succeeded.
 
 ```bash
-python run_all.py                          # run every config in ./configs
-python run_all.py --check                  # validate only (no cuvslam, no tracking)
-python run_all.py --configs configs        # explicit directory or glob
-python run_all.py --only euroc_v1_eval,kitti_stereo
-python run_all.py --skip realsense_stereo,webcam_mono
-python run_all.py --timeout 600            # per-config seconds (0 = no limit)
-python run_all.py --python /path/to/venv/bin/python   # interpreter for each run
+python run_list.py                          # run every config in ./configs
+python run_list.py --check                  # validate only (no cuvslam, no tracking)
+python run_list.py --configs configs/accuracy_matrix   # explicit directory or glob
+python run_list.py --only euroc_v1_eval,kitti_stereo
+python run_list.py --skip realsense_stereo,webcam_mono
+python run_list.py --timeout 600            # per-config seconds (0 = no limit)
+python run_list.py --python /path/to/venv/bin/python   # interpreter for each run
 ```
 
 It parses each run's `[runner] done: {…}` line, so the table includes the frame
@@ -748,7 +757,7 @@ euroc_v1_stereo              OK          2912    0.0778    5.23    121.4
 Each config's exact command is echoed (`$ python run.py …`) and its output —
 including any Python traceback — is **streamed live** (prefixed with `| `), so
 nothing is hidden. Pass `--quiet` to suppress the live stream (the full output
-is still printed on failure and always saved under `out/run_all/<name>.log`).
+is still printed on failure and always saved under `out/run_list/<name>.log`).
 `run_list.py` behaves identically and writes to `out/run_list/`.
 
 ## Recipes

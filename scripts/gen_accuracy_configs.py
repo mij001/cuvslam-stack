@@ -25,68 +25,23 @@ from __future__ import annotations
 import argparse
 import glob
 import os
-import struct
 
-KITTI_SEQS = [f"{i:02d}" for i in range(11)]
-EUROC = [("MH/machine_hall", s) for s in
-         ["MH_01_easy", "MH_02_easy", "MH_03_medium", "MH_04_difficult", "MH_05_difficult"]] + \
-        [("VR1/vicon_room1", s) for s in ["V1_01_easy", "V1_02_medium", "V1_03_difficult"]] + \
-        [("VR2/vicon_room2", s) for s in ["V2_01_easy", "V2_02_medium", "V2_03_difficult"]]
-# TUM fr3 — the paper's Table-4 set (10 sequences) UNION our earlier extras
-# (the two nostructure_notexture seqs we already characterized). Data-driven:
-# any absent sequence is skipped, so downloading the missing ones just activates
-# more configs on the next run.
-TUM_RGBD_PAPER = [
-    "rgbd_dataset_freiburg3_cabinet",                       # "large cabinet" (val variant below)
-    "rgbd_dataset_freiburg3_long_office_household",
-    "rgbd_dataset_freiburg3_nostructure_texture_far",
-    "rgbd_dataset_freiburg3_nostructure_texture_near_withloop",
-    "rgbd_dataset_freiburg3_sitting_halfsphere",
-    "rgbd_dataset_freiburg3_sitting_xyz",
-    "rgbd_dataset_freiburg3_structure_texture_far",
-    "rgbd_dataset_freiburg3_structure_texture_near",
-    "rgbd_dataset_freiburg3_teddy",
-]
-TUM_RGBD_EXTRA = [
-    "rgbd_dataset_freiburg3_nostructure_notexture_far",
-    "rgbd_dataset_freiburg3_nostructure_notexture_near_withloop",
-]
-TUM_RGBD = TUM_RGBD_PAPER + TUM_RGBD_EXTRA
-FR3 = dict(focal=[535.4, 539.2], principal=[320.1, 247.6])
-
-# ICL-NUIM (Handa et al.) — synthetic RGB-D, the paper's "Mono-Depth" benchmark.
-# The TUM-format ("_frei_png") release drops straight into the tum source +
-# tum gt_format. Camera: 640x480, fx=481.20 fy=480.00 cx=319.50 cy=239.50,
-# depth scale 5000 (TUM convention). 8 trajectories.
-ICL_NUIM = [f"living_room_traj{i}_frei_png" for i in range(4)] + \
-           [f"traj{i}_frei_png" for i in range(4)]     # office room "traj0..3"
-ICL = dict(focal=[481.20, 480.00], principal=[319.50, 239.50])
-
-# TartanAir — synthetic stereo, the paper's Table-2/Table-3 "Stereo" benchmark
-# (120 Hard sequences, 18 environments). Pinhole 640x480, fx=fy=320.0,
-# cx=320.0 cy=240.0, stereo baseline 0.25 m, poses in NED. Discovered by
-# scanning the download tree (env/Hard/P0xx) — not hardcoded, so a partial
-# download just yields fewer configs.
-TARTANAIR = dict(focal=[320.0, 320.0], principal=[320.0, 240.0], baseline=0.25)
+# sequence lists + intrinsics + calibration readers live in ONE place
+from dataset_catalog import (  # noqa: F401  (TARTANAIR used by the tartanair pass)
+    EUROC, FR3, ICL, ICL_NUIM, KITTI_SEQS, TARTANAIR, TUM_RGBD,
+    kitti_calib, png_size,
+)
 
 OUT_ROOT = "/mnt/data/accuracy_out"
 
-
-def png_size(path):
-    with open(path, "rb") as fh:
-        d = fh.read(26)
-    return struct.unpack(">II", d[16:24])
-
-
-def kitti_calib(path):
-    P = {}
-    for line in open(path):
-        k, _, rest = line.partition(":")
-        vals = rest.split()
-        if len(vals) == 12:
-            P[k] = [float(v) for v in vals]
-    f = P["P2"][0]
-    return f, P["P2"][2], P["P2"][6], (P["P2"][3] - P["P3"][3]) / f
+# [eval] extras per dataset family — hoisted so no f-string expression needs a
+# backslash (SyntaxError before Python 3.12; the venv is 3.10).
+EVAL_EXTRA_VI = ('apply_gt_extrinsic = "auto"\nrpe_distances = [8, 16, 32]\n'
+                 'rpe_delta = 1\nrpe_delta_unit = "s"')
+EVAL_EXTRA_TUM = ('gt_time_unit = "s"\nrpe_distances = [1, 2, 4]\n'
+                  'rpe_delta = 1\nrpe_delta_unit = "s"')
+EVAL_EXTRA_TARTAN = ('gt_time_unit = "s"\nrpe_distances = [8, 16, 32]\n'
+                     'rpe_delta = 1\nrpe_delta_unit = "s"')
 
 
 def slam_block(kind):
@@ -131,6 +86,7 @@ def kitti_cfg(root, seq, kind):
     slam, async_sba = slam_block(kind)
     out, d = out_paths(name)
     gt = f"{root}/KITTI/datasets/poses/{seq}.txt"
+    kitti_eval_extra = 'gt_fps = 10.0\nrpe_distances = "kitti"'   # no backslash in f-expr (py<3.12)
     return name, f"""# accuracy matrix: KITTI {seq} color stereo {kind}
 [run]
 verbosity = 0
@@ -172,8 +128,7 @@ principal = [{cx}, {cy}]
 {out}
 timestamp_unit = "s"
 
-{eval_block(gt, "kitti", f"{d}/eval.txt",
-            extra='gt_fps = 10.0\nrpe_distances = "kitti"')}
+{eval_block(gt, "kitti", f"{d}/eval.txt", extra=kitti_eval_extra)}
 """
 
 
@@ -205,7 +160,7 @@ timestamp_unit = "ns"
 
 {eval_block(f"{mav0}/state_groundtruth_estimate0/data.csv", "euroc",
             f"{d}/eval.txt", align=align,
-            extra='apply_gt_extrinsic = "auto"\nrpe_distances = [8, 16, 32]\nrpe_delta = 1\nrpe_delta_unit = "s"')}
+            extra=EVAL_EXTRA_VI)}
 """
 
 
@@ -247,7 +202,7 @@ border_right = 50
 timestamp_unit = "s"
 
 {eval_block(f"{path}/groundtruth.txt", "tum", f"{d}/eval.txt",
-            extra='gt_time_unit = "s"\nrpe_distances = [1, 2, 4]\nrpe_delta = 1\nrpe_delta_unit = "s"')}
+            extra=EVAL_EXTRA_TUM)}
 """
 
 
@@ -285,7 +240,7 @@ principal = {ICL['principal']}
 timestamp_unit = "s"
 
 {eval_block(f"{path}/groundtruth.txt", "tum", f"{d}/eval.txt",
-            extra='gt_time_unit = "s"\nrpe_distances = [1, 2, 4]\nrpe_delta = 1\nrpe_delta_unit = "s"')}
+            extra=EVAL_EXTRA_TUM)}
 """
 
 
@@ -342,7 +297,7 @@ principal = [{cx}, {cy}]
 timestamp_unit = "s"
 
 {eval_block(f"{sdir}/groundtruth_tum.txt", "tum", f"{d}/eval.txt",
-            align="se3", extra='gt_time_unit = "s"\nrpe_distances = [8, 16, 32]\nrpe_delta = 1\nrpe_delta_unit = "s"')}
+            align="se3", extra=EVAL_EXTRA_TARTAN)}
 """
 
 
@@ -369,7 +324,7 @@ async_sba = {async_sba or 'false'}
 timestamp_unit = "ns"
 
 {eval_block(f"{mav0}/mocap0/data.csv", "euroc", f"{d}/eval.txt",
-            extra='apply_gt_extrinsic = "auto"\nrpe_distances = [8, 16, 32]\nrpe_delta = 1\nrpe_delta_unit = "s"')}
+            extra=EVAL_EXTRA_VI)}
 """
 
 

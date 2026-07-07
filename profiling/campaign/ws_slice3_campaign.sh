@@ -83,7 +83,7 @@ locality() {  # name [extra locality args...]
 #     preprocess+feature+tracking scanning: KERNEL_FILTER="" would be huge, so
 #     trace a single frame's launches via a narrow LAUNCH window instead.
 if [ ! -s "$OUT/tum_frontend.zst" ]; then
-    expand profiling/configs/tum_office_profile.toml > /tmp/s3_fe.toml
+    expand configs/profiling/tum_office_profile.toml > /tmp/s3_fe.toml
     sed -i "s/^max_frames.*/max_frames = 205/" /tmp/s3_fe.toml
     log "trace tum_frontend (1 steady frame, launch window)"
     LAUNCH_BEGIN=14400 LAUNCH_END=14480 CUDA_INJECTION64_PATH=$TOOL \
@@ -93,15 +93,15 @@ fi
 locality tum_frontend
 
 # ── 2. loop-closure scan: st_track_with_cache across three map scales ────────
-trace_kernel tum_sttrack   profiling/configs/tum_office_slam_profile.toml       st_track_with_cache 400
-trace_kernel kitti00_sttrack profiling/configs/campaign/kitti00_slam.toml       st_track_with_cache 1200
-trace_kernel kitti06_sttrack profiling/configs/campaign/kitti06_slam.toml       st_track_with_cache 1200
+trace_kernel tum_sttrack   configs/profiling/tum_office_slam_profile.toml       st_track_with_cache 400
+trace_kernel kitti00_sttrack configs/campaign/kitti00_slam.toml       st_track_with_cache 1200
+trace_kernel kitti06_sttrack configs/campaign/kitti06_slam.toml       st_track_with_cache 1200
 locality tum_sttrack     --kernel st_track_with_cache
 locality kitti00_sttrack --kernel st_track_with_cache
 locality kitti06_sttrack --kernel st_track_with_cache
 
 # ── 3. bundle-adjust build kernel (hot-persistent, per-frame) ────────────────
-trace_kernel tum_ba profiling/configs/tum_office_profile.toml "build_full_system_1" 210
+trace_kernel tum_ba configs/profiling/tum_office_profile.toml "build_full_system_1" 210
 locality tum_ba --kernel build_full_system_1
 
 log "Slice-3 traces complete: $(ls "$OUT"/*.zst 2>/dev/null | wc -l) traces"

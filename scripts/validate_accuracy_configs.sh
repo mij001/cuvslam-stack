@@ -9,8 +9,7 @@
 # profiling smoke; --check is CPU-only. Prints a per-config PASS/FAIL table and
 # exits non-zero if any config fails.
 set -uo pipefail
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$HERE"
+. "$(dirname "${BASH_SOURCE[0]}")/lib.sh"      # cd's to the repo root
 CFGDIR="${1:-configs/accuracy_matrix}"
 PY="${CUVSLAM_PYTHON:-./cuvslam_venv/bin/python}"
 HW="${HW:-profiling/hw/dellworkstation_sm89.toml}"

@@ -13,9 +13,9 @@
 #
 # Progress is streamed to $LOG — `tail -f ~/profiling_coverage.log`.
 # Resumable: a variant with a non-empty results line in $DONE is skipped.
-# Run:  setsid nohup ./ws_profiling_campaign.sh > ~/profiling_coverage.boot 2>&1 &
+# Run:  setsid nohup scripts/ws_profiling_campaign.sh > ~/profiling_coverage.boot 2>&1 &
 set -uo pipefail
-cd ~/Projects/cuvslam-stack
+. "$(dirname "${BASH_SOURCE[0]}")/lib.sh"      # cd's to the repo root
 HW=profiling/hw/dellworkstation_sm89.toml
 PY=./cuvslam_venv/bin/python
 OUT=/mnt/data/profiling_coverage_out
@@ -25,27 +25,16 @@ export PATH=/opt/cuda/bin:$PATH
 RUN_TIMEOUT=${RUN_TIMEOUT:-2400}
 
 mkdir -p "$OUT"
-: > "$LOG"           # fresh log for tail -f
+log_init "$LOG"      # fresh log for tail -f
 [ -f "$DONE" ] || echo -e "variant\tmode\tplain_APE_m\tnsys_APE_m\tdelta_m\tmatched\tstatus" > "$DONE"
-
-log() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
-ape_of() { grep -oE "RMSE APE[^(]*\(([0-9.]+) m\)" "$1" 2>/dev/null | grep -oE "[0-9.]+ m" | head -1 | grep -oE "[0-9.]+"; }
-matched_of() { grep -oE "matched poses[^0-9]*([0-9]+)" "$1" 2>/dev/null | grep -oE "[0-9]+" | head -1; }
 
 # free the GPU and lock clocks once (KDE compositor perturbs captures)
 log "freeing GPU + locking clocks"
-zsh ~/free_gpu.zsh >/dev/null 2>&1 || true
-for i in 1 2 3; do
-    sudo -n nvidia-smi -pm 1 >/dev/null 2>&1
-    sudo -n nvidia-smi -lgc 1620,1620 >/dev/null 2>&1
-    sudo -n nvidia-smi -lmc 7001,7001 >/dev/null 2>&1
-    sleep 2
-    [ "$(nvidia-smi --query-gpu=clocks.current.graphics --format=csv,noheader,nounits)" = "1620" ] && break
-done
-log "clocks: $(nvidia-smi --query-gpu=clocks.current.graphics,clocks.current.memory --format=csv,noheader)"
+free_gpu
+lock_gpu_clocks 1620 7001
 
 log "generating feature-toggle configs"
-python3 gen_profiling_coverage.py --matrix configs/accuracy_matrix --out configs/profiling_coverage 2>&1 | tee -a "$LOG"
+python3 scripts/gen_profiling_coverage.py --matrix configs/accuracy_matrix --out configs/profiling_coverage 2>&1 | tee -a "$LOG"
 
 CFGS=$(ls configs/profiling_coverage/*.toml | sort)
 TOTAL=$(echo "$CFGS" | wc -l)
@@ -103,4 +92,4 @@ done
 
 log "DONE — $TOTAL variants profiled; $okc accuracy-neutral (OK), $checkc flagged (CHECK — inspect; may be km-scale odometry nondeterminism)"
 log "profiles: profiling/results/*_nsys_* ; per-variant evals: $OUT/<variant>/eval_plain.txt"
-[ -f ~/restore_gui.zsh ] && zsh ~/restore_gui.zsh >/dev/null 2>&1 || true
+restore_gui

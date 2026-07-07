@@ -26,7 +26,7 @@ cd ~/Projects/cuvslam-stack
 export PATH=/opt/cuda/bin:$PATH
 TOOL=$PWD/external_repos/nvbit_release_x86_64/tools/mem_trace/mem_trace.so
 PY=./cuvslam_venv_tagged/bin/python
-CFGDIR=$PWD/profiling/configs/campaign
+CFGDIR=$PWD/configs/campaign
 OUT=/mnt/data/attribution_out
 LOG=~/attribution_campaign.log
 STEP_TIMEOUT=${STEP_TIMEOUT:-10800}         # 3 h per capture step, then move on

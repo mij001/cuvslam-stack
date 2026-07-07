@@ -9,7 +9,7 @@
 # Usage:
 #   ./runner.sh <config.toml> [extra args]    run one config        (-> run.py)
 #   ./runner.sh check <config.toml>           validate one config   (-> run.py --check)
-#   ./runner.sh all [args...]                 run every config      (-> run_all.py)
+#   ./runner.sh all [args...]                 run every config      (-> run_list.py --configs)
 #   ./runner.sh eval <est> <gt> [args...]     evaluate a trajectory (-> evaluate.py)
 #   ./runner.sh python [args...]              the chosen interpreter (debug)
 #
@@ -70,7 +70,7 @@ runexec() { echo "+ $*" >&2; exec "$@"; }
 
 cmd="$1"; shift || true
 case "$cmd" in
-    all)    runexec "$PY" "$HERE/run_all.py"  "$@" ;;
+    all)    runexec "$PY" "$HERE/run_list.py"  "$@" ;;
     eval)   runexec "$PY" "$HERE/evaluate.py" "$@" ;;
     check)  runexec "$PY" "$HERE/run.py"      "$@" --check ;;
     python) runexec "$PY" "$@" ;;

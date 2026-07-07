@@ -641,7 +641,7 @@ cd ~/Projects/cuvslam-stack
 sudo nvidia-smi -pm 1; sudo nvidia-smi -lgc 1620,1620; sudo nvidia-smi -lmc 7001,7001
 # run the one-command pipeline (nsys + ncu + analysis):
 NCU_BIN=~/ncu2025/ncu setsid nohup \
-  profiling/run_characterization.sh profiling/configs/campaign/tum_fr3_long_office_household_slam.toml \
+  profiling/run_characterization.sh configs/campaign/tum_fr3_long_office_household_slam.toml \
   --hw profiling/hw/dellworkstation_sm89.toml > ~/char.log 2>&1 &
 tail -f ~/char.log
 ```
@@ -657,7 +657,7 @@ cd ~/Projects/cuvslam-stack
 export PATH=/opt/cuda/bin:$PATH        # nvdisasm for NVBit
 TOOL=$PWD/external_repos/nvbit_release_x86_64/tools/mem_trace/mem_trace.so
 PY=./cuvslam_venv_tagged/bin/python    # the INSTRUMENTED wheel
-CFG=profiling/configs/campaign/tum_fr3_long_office_household_slam.toml
+CFG=configs/campaign/tum_fr3_long_office_household_slam.toml
 
 # pass 1: launch map + journals, near-native (LAUNCH_END=0 = instrument nothing)
 LAUNCH_BEGIN=0 LAUNCH_END=0 CUDA_INJECTION64_PATH=$TOOL \
