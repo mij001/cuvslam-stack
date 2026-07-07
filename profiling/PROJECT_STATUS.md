@@ -198,6 +198,26 @@ data-structure-level motivation. +(3b)+(6) → MICRO/ASPLOS/ISCA/HPCA. See
 
 ## 8. Changelog
 
+- **2026-07-07 (night)** — **Regime v2 + generalized harness + full-scale
+  campaign launched.** Config regime simplified to the operator's model:
+  `configs/base` is human-owned (65 bases, each carrying the
+  `[profiling] nvbit = true` deep-trace knob); ONE flat `mutate_configs.py`
+  pass derives all 127 variants (kinds + toggles; important toggles keep the
+  marker → 97 nvbit-marked ≈ 30% of the matrix, embedded in the configs).
+  `validation_regime.sh` v2 runs the ENTIRE 192-config matrix ×
+  {plain, nsys, ncu} + nvbit where marked, from runtime-retargeted copies
+  (accuracy_out never clobbered); launch windows optional
+  (NCU_WINDOW/NVBIT_WINDOW), full sequences by default; `join_regime.py`
+  merges cells + per-kernel ncu metrics + trace index on a process pool.
+  Smoke: icl base × all 4 modes Δ=0. The runner now accepts the harness
+  tables ([profiling]/[workload]/[qor]). **Adapters**
+  (`profiling/adapters.py`): the harness now profiles ANY GPU codebase —
+  cuvslam adapter (default) or command adapter from a `[workload]` table
+  (torch/CUDA/image-processing; example: `configs/workload_torch_matmul.toml`);
+  dashboard gained a workload-registration card + nvbit/regime run modes.
+  **Full-scale campaign running** (~673 cells, ~1.5–2 days, resumable:
+  `/mnt/data/validation_regime_out/REGIME.tsv`).
+
 - **2026-07-07 (regime overhaul)** — **Base+mutate config regime, one capture
   entrypoint, one validation regime, cohesive profiling pipeline, substrate
   dynamics.** (1) Configs: 65 canonical bases in `configs/base/` (committed);
