@@ -106,9 +106,12 @@ VARIANTS = [
 
 
 def main():
+    import glob
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--matrix", default="configs/accuracy_matrix")
     ap.add_argument("--out", default="configs/profiling_coverage")
+    ap.add_argument("--no-breadth", action="store_true",
+                    help="skip the per-accuracy-config __base breadth pass")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     n = 0
@@ -119,15 +122,25 @@ def main():
             fh.write(retitle(text, tag))
         n += 1
 
+    # ── BREADTH: profile EVERY accuracy-matrix config (dataset × sensor-config
+    #    {mono/stereo/rgbd/inertial} × pipeline mode {odom/slam/async/cpu}).
+    #    Their plain-accuracy baselines already exist in accuracy_out, so the
+    #    campaign only needs the nsys pass for these.
+    if not args.no_breadth:
+        for bpath in sorted(glob.glob(os.path.join(args.matrix, "*.toml"))):
+            base = os.path.basename(bpath)[:-5]
+            emit(f"{base}__base", open(bpath).read())
+
+    # ── DEPTH: finer cuVSLAM feature toggles (async_sba, multicam Precision,
+    #    motion-model, denoising, landmark export, planar constraints,
+    #    unrectified, depth-stereo-tracking) on a representative per modality.
     for base in BASES:
         bpath = os.path.join(args.matrix, base + ".toml")
         if not os.path.isfile(bpath):
-            print(f"[skip] base absent: {base}")
+            print(f"[skip] representative absent: {base}")
             continue
         btext = open(bpath).read()
         mod = modality(base)
-        # the base itself (slam, default toggles) is variant #1
-        emit(f"{base}__base", btext)
         for suffix, mods, fn in VARIANTS:
             if mods is not None and mod not in mods:
                 continue

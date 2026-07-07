@@ -66,10 +66,17 @@ for CFG in $CFGS; do
         mode="$mode/odom"
     fi
 
-    # 1) PLAIN accuracy (reference)
-    timeout "$RUN_TIMEOUT" "$PY" run.py "$CFG" > "$D/plain.log" 2>&1 || true
-    P_APE=$(ape_of "$D/eval.txt"); P_MATCH=$(matched_of "$D/eval.txt")
-    cp -f "$D/eval.txt" "$D/eval_plain.txt" 2>/dev/null || true
+    # 1) PLAIN accuracy (reference). For a __base breadth variant the plain run
+    #    is exactly the accuracy-matrix run, whose eval already exists — reuse it
+    #    (no re-run). Only the finer-toggle variants (new configs) run plain here.
+    ACC_BASE=""; case "$TAG" in *__base) ACC_BASE="${TAG%__base}";; esac
+    if [ -n "$ACC_BASE" ] && [ -s "/mnt/data/accuracy_out/$ACC_BASE/eval.txt" ]; then
+        cp -f "/mnt/data/accuracy_out/$ACC_BASE/eval.txt" "$D/eval_plain.txt"
+    else
+        timeout "$RUN_TIMEOUT" "$PY" run.py "$CFG" > "$D/plain.log" 2>&1 || true
+        cp -f "$D/eval.txt" "$D/eval_plain.txt" 2>/dev/null || true
+    fi
+    P_APE=$(ape_of "$D/eval_plain.txt"); P_MATCH=$(matched_of "$D/eval_plain.txt")
 
     # 2) PROFILE under nsys (full sequence) — the same run re-writes eval.txt
     timeout "$RUN_TIMEOUT" "$PY" profiling/harness/profile.py --config "$CFG" \
