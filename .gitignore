@@ -2,7 +2,15 @@ __pycache__/
 *.pyc
 out/
 cuvslam_venv/
+cuvslam_venv_*/
 results/
+
+# Editor / tooling local state
+.claude/
+.venv/
+
+# Additional throwaway virtualenvs used on compute hosts (baseline vs instrumented)
+tumvi_extracted/
 
 # Large external clones / vendored deps — fetched, not tracked.
 # See profiling/PROFILING_PLAN.md §10 for provenance + how to obtain them.
@@ -14,5 +22,7 @@ external_repos/
 
 # Large reference PDFs — keep the .md guides under suggestions_and_summuries/, not the PDFs
 suggestions_and_summuries/*.pdf
+/*.pdf
+/Qs.txt
 profiling/results_ws_campaign/
 pim_placement_model.py

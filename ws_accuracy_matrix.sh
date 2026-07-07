@@ -28,13 +28,14 @@ progress() {
 
 if ! touch "$OUT/.w" 2>/dev/null; then
     sudo -n umount /mnt/data 2>/dev/null
-    sudo -n mount -t ntfs3 -o rw,force /dev/sda2 /mnt/data \
+    # uid=1000 so writes into pre-existing (root-owned) dirs like accuracy_out succeed
+    sudo -n mount -t ntfs3 -o rw,force,uid=1000,gid=1000,umask=022 /dev/sda2 /mnt/data \
         || { echo "FATAL: /mnt/data not writable" | tee -a "$LOG"; exit 1; }
 fi
 rm -f "$OUT/.w"; mkdir -p "$OUT"
 
-python3 gen_accuracy_configs.py --root /mnt/data --out configs/accuracy_matrix \
-    2>&1 | tee -a "$LOG"
+python3 gen_accuracy_configs.py --root /mnt/data --tumvi-extracted "$HOME/tumvi_extracted" \
+    --out configs/accuracy_matrix 2>&1 | tee -a "$LOG"
 
 CFGS=$(ls configs/accuracy_matrix/*.toml | sort)
 TOTAL=$(echo "$CFGS" | wc -l)
