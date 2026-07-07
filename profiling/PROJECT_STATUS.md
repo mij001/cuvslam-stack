@@ -198,6 +198,21 @@ data-structure-level motivation. +(3b)+(6) → MICRO/ASPLOS/ISCA/HPCA. See
 
 ## 8. Changelog
 
+- **2026-07-07 (evening)** — **Visualization + dashboard layer.** Every
+  machine-readable output now has a visual counterpart (`viz/make_figures.py`,
+  matplotlib): accuracy-matrix APE strips + SLAM-vs-odom scatter +
+  est-vs-GT trajectory grids per dataset family (drawn on the ws where run
+  dirs live), coverage neutrality scatter/CDF/verdict bars, feature-toggle
+  effect panels, three-profiler bars, attribution memory-space composition,
+  taxonomy, rooflines, PiM-affinity shares. `viz/build_site.py` assembles all
+  reports into a static browsable `site/index.html`. New `dashboard/serve.py`
+  (stdlib-only web UI): register a new dataset from a preset template
+  (validated accuracy-matrix configs), emit feature-variant TOMLs into
+  `configs/custom/` (reuses gen_profiling_coverage transforms), run any config
+  plain/nsys/ncu with live log tail, rebuild + view the results site. The
+  generated config matrices (141 accuracy + 192 coverage TOMLs) are now
+  committed under `configs/`.
+
 - **2026-07-07 (later)** — **Profiling proven accuracy-neutral, all three tools,
   full matrix.** (a) Focused check (`reports/2026-07-07_profiler_neutrality/`):
   6 deterministic sequences × {plain, nsys, ncu, NVBit} — nsys+ncu **bit-identical

@@ -589,6 +589,26 @@ example ships recalibrated yamls).
 
 ---
 
+## Dashboard & results site
+
+Everything the repo produces has a visual counterpart:
+
+```bash
+python3 viz/make_figures.py     # PNG figures from every committed CSV/TSV artifact
+python3 viz/build_site.py      # assembles them into site/index.html (static, browsable)
+python3 dashboard/serve.py     # web dashboard on http://127.0.0.1:8642/
+```
+
+The dashboard registers a **new dataset** (pick a preset — the template is a
+validated accuracy-matrix config — set paths, optionally override intrinsics),
+emits **TOML feature variants** (SLAM / odom-only / async / CPU / denoising / …,
+reusing `gen_profiling_coverage`'s transforms) into `configs/custom/`, **runs**
+any config plain or under nsys/ncu with a live log tail, and embeds the results
+site. `viz/make_figures.py --only trajectories --traj-root /mnt/data/accuracy_out`
+additionally draws estimated-vs-ground-truth trajectory grids where the run
+outputs live (the workstation). Requires `matplotlib` (dashboard itself is
+stdlib-only).
+
 ## Bundled configs
 
 | Config | Source | Mode | Notes |
