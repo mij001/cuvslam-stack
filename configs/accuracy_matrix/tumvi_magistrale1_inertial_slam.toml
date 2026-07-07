@@ -1,0 +1,37 @@
+# accuracy matrix: TUM-VI magistrale1 stereo-inertial slam
+[run]
+verbosity = 0
+max_frames = 0
+
+[input]
+type = "euroc"
+path = "/home/ndpvslam/tumvi_extracted/dataset-magistrale1_512_16/mav0"
+use_imu = true
+
+[odometry]
+odometry_mode = "Inertial"
+rectified_stereo_camera = false
+async_sba = false
+
+[slam]
+enabled = true
+use_gpu = true
+sync_mode = true
+enable_reading_internals = true
+
+[output]
+trajectory = "/mnt/data/accuracy_out/tumvi_magistrale1_inertial_slam/traj_tum.txt"
+pose_source = "slam"
+visualize = false
+print_every = 0
+timestamp_unit = "ns"
+
+[eval]
+ground_truth = "/home/ndpvslam/tumvi_extracted/dataset-magistrale1_512_16/mav0/mocap0/data.csv"
+gt_format = "euroc"
+align = "se3"
+report = "/mnt/data/accuracy_out/tumvi_magistrale1_inertial_slam/eval.txt"
+apply_gt_extrinsic = "auto"
+rpe_distances = [8, 16, 32]
+rpe_delta = 1
+rpe_delta_unit = "s"

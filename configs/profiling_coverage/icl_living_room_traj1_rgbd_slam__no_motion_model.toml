@@ -1,0 +1,47 @@
+# profiling-coverage variant: icl_living_room_traj1_rgbd_slam__no_motion_model
+[run]
+verbosity = 0
+max_frames = 0
+
+[input]
+type = "tum"
+path = "/mnt/data/ICL-NUIM/living_room_traj1_frei_png"
+max_time_diff = 0.5
+max_gap = 2.0                        # ICL timestamps are frame indices (dt=1.0)
+
+[odometry]
+use_motion_model = false
+odometry_mode = "RGBD"
+async_sba = false
+
+  [odometry.rgbd]
+  depth_scale_factor = 5000.0
+  depth_camera_id = 0
+
+[slam]
+enabled = true
+use_gpu = true
+sync_mode = true
+enable_reading_internals = true
+
+[[rig.cameras]]
+size = [640, 480]
+focal = [481.2, 480.0]
+principal = [319.5, 239.5]
+
+[output]
+trajectory = "/mnt/data/profiling_coverage_out/icl_living_room_traj1_rgbd_slam__no_motion_model/traj_tum.txt"
+pose_source = "slam"
+visualize = false
+print_every = 0
+timestamp_unit = "s"
+
+[eval]
+ground_truth = "/mnt/data/ICL-NUIM/living_room_traj1_frei_png/groundtruth.txt"
+gt_format = "tum"
+align = "se3"
+report = "/mnt/data/profiling_coverage_out/icl_living_room_traj1_rgbd_slam__no_motion_model/eval.txt"
+gt_time_unit = "s"
+rpe_distances = [1, 2, 4]
+rpe_delta = 1
+rpe_delta_unit = "s"

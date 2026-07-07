@@ -1,0 +1,40 @@
+# accuracy matrix: ICL-NUIM traj3_frei_png RGBD odom  (paper Mono-Depth)
+[run]
+verbosity = 0
+max_frames = 0
+
+[input]
+type = "tum"
+path = "/mnt/data/ICL-NUIM/traj3_frei_png"
+max_time_diff = 0.5
+max_gap = 2.0                        # ICL timestamps are frame indices (dt=1.0)
+
+[odometry]
+odometry_mode = "RGBD"
+async_sba = false
+
+  [odometry.rgbd]
+  depth_scale_factor = 5000.0
+  depth_camera_id = 0
+
+[[rig.cameras]]
+size = [640, 480]
+focal = [481.2, 480.0]
+principal = [319.5, 239.5]
+
+[output]
+trajectory = "/mnt/data/accuracy_out/icl_traj3_rgbd_odom/traj_tum.txt"
+pose_source = "odometry"
+visualize = false
+print_every = 0
+timestamp_unit = "s"
+
+[eval]
+ground_truth = "/mnt/data/ICL-NUIM/traj3_frei_png/groundtruth.txt"
+gt_format = "tum"
+align = "se3"
+report = "/mnt/data/accuracy_out/icl_traj3_rgbd_odom/eval.txt"
+gt_time_unit = "s"
+rpe_distances = [1, 2, 4]
+rpe_delta = 1
+rpe_delta_unit = "s"

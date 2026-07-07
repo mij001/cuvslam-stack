@@ -1,0 +1,37 @@
+# profiling-coverage variant: euroc_MH_01_easy_stereo_slam__base
+[run]
+verbosity = 0
+max_frames = 0
+
+[input]
+type = "euroc"
+path = "/mnt/data/EuRoC/MH/machine_hall/MH_01_easy/mav0"
+use_imu = false
+
+[odometry]
+odometry_mode = "Multicamera"
+rectified_stereo_camera = false
+async_sba = false
+
+[slam]
+enabled = true
+use_gpu = true
+sync_mode = true
+enable_reading_internals = true
+
+[output]
+trajectory = "/mnt/data/profiling_coverage_out/euroc_MH_01_easy_stereo_slam__base/traj_tum.txt"
+pose_source = "slam"
+visualize = false
+print_every = 0
+timestamp_unit = "ns"
+
+[eval]
+ground_truth = "/mnt/data/EuRoC/MH/machine_hall/MH_01_easy/mav0/state_groundtruth_estimate0/data.csv"
+gt_format = "euroc"
+align = "se3"
+report = "/mnt/data/profiling_coverage_out/euroc_MH_01_easy_stereo_slam__base/eval.txt"
+apply_gt_extrinsic = "auto"
+rpe_distances = [8, 16, 32]
+rpe_delta = 1
+rpe_delta_unit = "s"

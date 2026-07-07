@@ -1,0 +1,52 @@
+# accuracy matrix: KITTI 07 color stereo odom
+[run]
+verbosity = 0
+max_frames = 0
+
+[input]
+type = "image_folder"
+root = "/mnt/data/dataset/sequences/07"
+
+  [[input.cameras]]
+  images = "image_2/*.png"
+
+  [[input.cameras]]
+  images = "image_3/*.png"
+
+  [input.timestamps]
+  mode = "file"
+  path = "times.txt"
+  unit = "s"
+
+[odometry]
+odometry_mode = "Multicamera"
+multicam_mode = "Performance"
+rectified_stereo_camera = true
+async_sba = false
+
+[[rig.cameras]]
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+
+[[rig.cameras]]
+size = [1226, 370]
+focal = [707.0912, 707.0912]
+principal = [601.8873, 183.1104]
+  [rig.cameras.rig_from_camera]
+  translation = [0.537904, 0.0, 0.0]
+
+[output]
+trajectory = "/mnt/data/accuracy_out/kitti07_stereo_odom/traj_tum.txt"
+pose_source = "odometry"
+visualize = false
+print_every = 0
+timestamp_unit = "s"
+
+[eval]
+ground_truth = "/mnt/data/KITTI/datasets/poses/07.txt"
+gt_format = "kitti"
+align = "se3"
+report = "/mnt/data/accuracy_out/kitti07_stereo_odom/eval.txt"
+gt_fps = 10.0
+rpe_distances = "kitti"
