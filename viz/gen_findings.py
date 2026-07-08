@@ -158,6 +158,28 @@ def main():
                 673, f"campaign cells over {len(camp)} configs × 4 modes",
                 [{"type": "explore", "label": "filter the run selector to any config"}])
 
+    # ── energy (measured this cycle; PUB open-6 / THESIS G2) ────────────────
+    import glob as _glob
+    ejoules, esrc = None, None
+    for p in sorted(_glob.glob(os.path.join(REPO, "profiling/reports/*/summary.json"))
+                    + _glob.glob(os.path.join(REPO, "reports/2026-07-08_campaign_runs/*.summary.json"))):
+        try:
+            e = json.load(open(p)).get("energy")
+        except (json.JSONDecodeError, OSError):
+            continue
+        if e and e.get("available"):
+            ejoules, esrc = e["joules"], os.path.relpath(p, REPO)
+            break
+    if ejoules is not None:
+        finding("ENERGY", "validate", "The offload's headline win is measured, not assumed",
+                "Whole-run GPU energy is now sampled (NVML board power integrated over "
+                "wall-time) on every profiled run — the joule the PiM story is ultimately "
+                "about. The placement model's energy-ratio then reports the modeled "
+                "offload delta against this MEASURED baseline, not an absolute guess.",
+                ejoules, "J whole-run (measured baseline)",
+                [{"type": "run", "run": esrc,
+                  "label": "open the run in the explorer (energy in the meta line)"}])
+
     # ── measurement rigor (capture step) ────────────────────────────────────
     finding("RIGOR", "capture", "Locked-clock measurement floor",
             "All numbers are taken at locked GPU clocks (1620/7001 MHz, persistence on): "
@@ -169,35 +191,200 @@ def main():
               "label": "open a locked-clock study in the explorer"}])
 
     out = os.path.join(REPO, "reports", "findings.json")
-    json.dump({"findings": F,
-               "methodology": [
-                   {"step": "capture", "name": "1 · Capture",
-                    "what": "nsys timeline (stages, full run) + ncu curated metric sets "
-                            "(windowed kernel replay) + NVBit mem_trace (windowed binary "
-                            "instrumentation) on locked clocks; every run's QoR recorded."},
-                   {"step": "screen", "name": "2 · Screen",
-                    "what": "per-kernel time shares from the timeline; SoL pair, occupancy, "
-                            "stall taxonomy, coalescing fingerprint from the counters — the "
-                            "feature row every later step consumes."},
-                   {"step": "classify", "name": "3 · Classify",
-                    "what": "GPU-adapted DAMOV decision tree (G0–G7) over stated thresholds, "
-                            "±25% sensitivity-stressed; independently validated by k-means "
-                            "on the pooled feature cloud."},
-                   {"step": "attribute", "name": "4 · Attribute",
-                    "what": "two-pass join: TaggedAllocator source journal × NVBit trace → "
-                            "memory-space split (shared / spill / global) + the named data "
-                            "structure behind every global byte."},
-                   {"step": "validate", "name": "5 · Validate",
-                    "what": "accuracy/QoR vs ground truth under every profiler (neutrality), "
-                            "cross-sequence class stability, threshold sensitivity — the "
-                            "checks that make the numbers defensible."},
-                   {"step": "verdict", "name": "6 · Verdict",
-                    "what": "class × persistence × affinity rules → the substrate call per "
-                            "kernel (GPU-keep / GPU+layout-fix / PiM-near-bank / PiM-scatter "
-                            "/ ISP / CPU), with the driving reason recorded; flips across "
-                            "workloads flag placement that must be dynamic."}]},
+    json.dump({"findings": F, "methodology": methodology()},
               open(out, "w"), indent=1)
     print(f"[✓] {len(F)} findings -> {os.path.relpath(out, REPO)}")
+
+
+def methodology():
+    """The pipeline, in full detail. Every formula/counter/rule below mirrors
+    the implementing code (file cited per section) so the docs cannot drift."""
+    return [
+      {"step": "capture", "name": "1 · Capture",
+       "what": "Three instruments, one entrypoint (profiling/harness/profile.py), on "
+               "locked clocks; every run's accuracy/QoR recorded.",
+       "details": [
+         {"title": "The three instruments and what each one sees",
+          "table": {"cols": ["instrument", "sees", "granularity", "cost / bounding"],
+                    "rows": [
+            ["Nsight Systems (nsys)", "the whole-run timeline: every kernel launch, NVTX range, memcpy, with start/duration", "per launch, ~ns timestamps", "observational, low overhead — full sequence, no windowing"],
+            ["Nsight Compute (ncu)", "hardware counters per kernel via kernel REPLAY (curated sets below — never --set full)", "per launch, counter-exact", "replay is expensive → bounded launch window (--launch-skip/--launch-count); the app still runs the whole trajectory"],
+            ["NVBit mem_trace", "every memory instruction of every warp: (launch id, opcode class, the 32-byte sectors touched)", "per warp-access", "100–1000× slowdown inside the window → LAUNCH_BEGIN/END window (our patch); outside it kernels run NATIVE, so the run completes and QoR is comparable"]]},
+          "body": "profile.py wraps all three behind one CLI and emits one results dir "
+                  "(metadata.json + raw/ + derived/) per capture. NCU_BIN/NSYS_BIN "
+                  "overrides let a driver-matched Nsight be used (the doctor explains when)."},
+         {"title": "How annotation happens (stages + allocation tags)",
+          "body": "STAGES: cuVSLAM is built with USE_NVTX=ON (patch 0002), so the library "
+                  "itself pushes NVTX ranges around its pipeline stages; nsys records them "
+                  "and analysis/build_dag.py assigns each kernel launch to the innermost "
+                  "enclosing range by time-interval containment → the stage DAG and the "
+                  "per-stage time shares. Your own codebase gets the identical treatment "
+                  "from torch.cuda.nvtx.range_push/pop (Python) or nvtx3 (C++). No ranges? "
+                  "Everything lands in one stage — every other step still works.\n"
+                  "ALLOCATIONS: the same patch adds the TaggedAllocator — a wrapper around "
+                  "every device allocation that journals (tag, size, pointer, host "
+                  "backtrace) to CUVSLAM_ALLOC_LOG. That journal is the WHO side of the "
+                  "attribution join in step 4."},
+         {"title": "Locked-clock discipline (why the numbers repeat)",
+          "body": "nvidia-smi -pm 1; -lgc 1620,1620; -lmc 7001,7001 before every campaign; "
+                  "compositor freed on the workstation. Result: 5-repeat CoV 0.14% median "
+                  "(vs 49.6% on an unlocked laptop). Ceilings are MEASURED at the lock "
+                  "(D2D memcpy → 205 GB/s; cublasSgemm → 5445 GFLOP/s) and become the "
+                  "roofline segments the explorer draws."}]},
+
+      {"step": "screen", "name": "2 · Screen",
+       "what": "Turn raw counters into the per-kernel feature row every later step "
+               "consumes (analysis/screen.py; counters from profile.py METRIC_SETS).",
+       "details": [
+         {"title": "Every metric: exact counter / formula and what it means",
+          "table": {"cols": ["metric", "source (ncu counter or formula)", "meaning / calibration"],
+                    "rows": [
+            ["MemSoL %", "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed", "how hard the whole memory pipeline (L1→L2→DRAM) is driven; ≥40% = memory-limited"],
+            ["CompSoL %", "sm__throughput.avg.pct_of_peak_sustained_elapsed", "how hard the SMs compute; ≥40% and ≥1.5× MemSoL ⇒ compute-bound"],
+            ["DRAM-SoL %", "dram__throughput.avg.pct_of_peak_sustained_elapsed", "DRAM bandwidth actually used; ≥50% = the DRAM wall itself"],
+            ["L1 / L2 hit %", "l1tex__t_sector_hit_rate.pct / lts__t_sector_hit_rate.pct", "cache effectiveness per level"],
+            ["LFMR_gpu", "1 − L2_hit/100", "last-level filter miss ratio: the fraction of traffic the L2 fails to filter → DRAM-visible. ≥0.4 ⇒ the L2 is not helping (DAMOV's LFMR, GPU-adapted)"],
+            ["MPKI_gpu", "(DRAM bytes / 32) ÷ (warp instructions / 1000)", "DRAM 32-byte sectors per kilo-warp-instruction — DAMOV's memory-intensity axis on GPU units; ≥30 = memory-intensive"],
+            ["sectors/request", "l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_ld/st (max of the two)", "coalescing fingerprint: 4 = a warp's 128 B ideally coalesced; ≥8 scattered; 32 = every lane its own line"],
+            ["occupancy %", "sm__warps_active.avg.pct_of_peak_sustained_active", "latency-hiding capacity; <25% ⇒ stalls go unhidden"],
+            ["stall taxonomy", "smsp__average_warps_issue_stalled_<reason>_per_issue_active.ratio", "warps stalled per issue: long_scoreboard = waiting on L2/DRAM loads; wait = fixed-latency dependency chains; barrier; mio/tex_throttle = on-chip pipes; the DOMINANT one is a rule input"],
+            ["AI (FLOP/byte)", "(fadd + fmul + 2×ffma sass counts) ÷ DRAM bytes", "arithmetic intensity for the roofline (Yang20 hierarchical method)"],
+            ["working set / launch", "dram_bytes_read+write per launch", "compared against the L2 (25 MB on Ada): set ≫ L2 means caching cannot work"]]},
+          "body": "Time SHARES come from the nsys timeline (whole-run truth), never from "
+                  "summed ncu windows — windows differ per kernel and would skew shares."}]},
+
+      {"step": "classify", "name": "3 · Classify",
+       "what": "The GPU-adapted DAMOV decision tree (analysis/classify.py) — first "
+               "matching rule fires; thresholds are stated once and stress-tested.",
+       "details": [
+         {"title": "Why DAMOV needed adapting for GPUs",
+          "body": "DAMOV's CPU classes assume latency shows up as stalled cycles and one "
+                  "last-level cache. GPUs hide latency with occupancy, cache in two "
+                  "levels, and live or die on COALESCING — so the taxonomy is re-derived: "
+                  "bandwidth (G1) splits from coalescing (G2); cache-friendliness gets its "
+                  "own class (G3, where the L2 is earning its keep); latency-bound needs "
+                  "an occupancy qualifier (G4); and the data itself forced G7 "
+                  "(dependency/ILP-bound at low occupancy with memory NOT the wall) — the "
+                  "RGBD matcher kernels stall on 'wait' at 11% occupancy with the DRAM bus "
+                  "idle. Classes fall out of the data, as the adaptation doc prescribes."},
+         {"title": "THE DECISION TREE (checked in this order; first match fires)",
+          "tree": [
+            ["G5-compute", "CompSoL ≥ 40% AND CompSoL ≥ 1.5 × MemSoL", "compute-bound → stays on GPU"],
+            ["G6-onchip", "dominant stall ∈ {mio_throttle, short_scoreboard} AND DRAM-SoL < 40%", "shared-mem/MIO pipe bound — an on-chip problem"],
+            ["G1-bandwidth", "DRAM-SoL ≥ 50% (confidence ↑ if LFMR ≥ 0.4: the L2 is not filtering)", "the DRAM wall itself"],
+            ["G2-coalescing", "memory-limited AND sectors/request ≥ 8 (4 = coalesced)", "scatter defeats the coalescer, wasting bus bytes"],
+            ["G3-l2-reuse", "memory-limited AND LFMR < 0.35", "the L2 is earning its keep — deeper cache wins"],
+            ["G4-latency", "long_scoreboard dominant AND occupancy < 25% AND DRAM unsaturated (confidence ↑ if working set ≫ L2)", "latency exposed because occupancy can't hide it"],
+            ["G7-dependency", "stall ∈ {wait, short_scoreboard, barrier, not_selected} AND occupancy < 30% AND neither SoL ≥ 40%", "dependency/ILP chains — memory is NOT the wall"],
+            ["G0-nosignal", "nothing dominant", "tiny kernels / launch tax"]],
+          "body": "'memory-limited' means MemSoL ≥ 40% OR a memory-class stall "
+                  "(long_scoreboard / lg / mio / tex throttle) dominates ≥1.0 warps per "
+                  "issue. Every kernel's trace through this exact chain — with its own "
+                  "numbers substituted — is rendered in the explorer's 'decision process' "
+                  "panel."},
+         {"title": "Threshold calibration + the two independent checks",
+          "body": "Thresholds (40 / 1.5× / 50 / 0.4 / 0.35 / 8 / 25 / 30) are stated once "
+                  "in classify.py. Each kernel is RE-classified at ×0.75 and ×1.25 of "
+                  "every threshold — kernels whose class flips are marked 'borderline' in "
+                  "the output (DAMOV's analog: calibrating its 30% cutoff). Independently, "
+                  "k-means over the pooled 27-sequence feature cloud prefers k=7–8 — the "
+                  "same count as the hand-built classes (silhouette-best; purity 0.68 vs "
+                  "the tree): the tree is the labeling, clustering is the validation."}]},
+
+      {"step": "attribute", "name": "4 · Attribute",
+       "what": "The two-pass join (analysis/attribution.py): every byte of traffic gets "
+               "a memory space AND a data-structure name.",
+       "details": [
+         {"title": "What NVBit's mem_trace actually does",
+          "body": "NVBit rewrites the kernel binaries AT LOAD TIME (no source, no "
+                  "recompile): an instrumentation callback is injected before every "
+                  "memory instruction, recording (launch id, opcode class, the unique "
+                  "32-byte sectors the warp touches). Opcode class is the key that later "
+                  "splits memory SPACES: LDG/STG/ATOM = global, LDL/STL = local (the "
+                  "register-spill window), LDS/STS = shared. Our launch-window patch "
+                  "(LAUNCH_BEGIN/END) instruments only a bounded slice — traces stay GB "
+                  "not TB — while the rest of the run executes native, so accuracy/QoR "
+                  "is still comparable. A second patch (alloc sidecar) logs every "
+                  "driver-level allocation with the launch id it precedes — the trace's "
+                  "own clock."},
+         {"title": "The join, pass by pass",
+          "body": "WHO — resolve: the TaggedAllocator journal rows (tag, size, pointer, "
+                  "host backtrace) are symbolized with addr2line, PCs rebased via the "
+                  "journal's embedded /proc/self/maps; the owner is the innermost frame "
+                  "that isn't wrapper/allocator plumbing. 274/274 allocations resolved, "
+                  "0 unknown.\n"
+                  "WHEN — the sidecar orders allocation lifetimes in launch-id time, so "
+                  "the live allocation set is known between any two launches.\n"
+                  "WHAT — join: stream the trace in launch order, keep the live set (non-"
+                  "overlapping → containment is a binary search), and aggregate sector "
+                  "counts per (kernel × data-structure tag).\n"
+                  "THE CORRECTION THAT MADE IT WORK: bucket by memory space FIRST. "
+                  "LDL/STL spill traffic ('DRAM scratch') and LDS/STS shared-tile traffic "
+                  "must not be matched against heap allocations — without the buckets, "
+                  "88–98% of accesses look 'unmapped'; with them, the tables close."},
+         {"title": "Stated blind spot",
+          "body": "Texture-path fetches (GPUImage reads through texture objects) do not "
+                  "appear in mem_trace (it hooks global LD/ST) — reported as such, and "
+                  "part of the bounded 'unmapped' residual, not silently absorbed."}]},
+
+      {"step": "validate", "name": "5 · Validate",
+       "what": "The checks that make every number defensible (scripts/validation_regime.sh "
+               "+ the neutrality/coverage reports).",
+       "details": [
+         {"title": "Profiling neutrality — the harness cannot change the answer",
+          "body": "Every config runs plain AND under each profiler; the full-trajectory "
+                  "accuracy (or the adapter's QoR scalar) is compared. Deterministic modes "
+                  "are BIT-IDENTICAL under nsys/ncu; NVBit is neutral to ≤2 mm. Every "
+                  "flagged CHECK in 192 variants was classified benign with evidence "
+                  "(mono scale ambiguity, km-scale nondeterminism reproduced WITHOUT "
+                  "profilers by plain re-runs, stale baselines the profiled run corrects)."},
+         {"title": "Stability, sensitivity, and honesty about limits",
+          "body": "Class stability across 27 sequences (91% modal consistency) separates "
+                  "kernel properties from run accidents; the residual flips are the "
+                  "physically real L2-capacity crossover. Threshold ±25% stress marks "
+                  "borderline kernels. Single-point profiling limits are stated in the "
+                  "emitted tables: no LFMR-vs-#SM trend, no divergence, no true reuse "
+                  "distance without the NVBit/simulator track — refinements, not "
+                  "replacements."}]},
+
+      {"step": "verdict", "name": "6 · Verdict",
+       "what": "class × persistence × affinity → the substrate call per kernel "
+               "(analysis/classify.py pim_affinity + analysis/substrate.py verdict).",
+       "details": [
+         {"title": "The substrate mapping (how a heterogeneous architecture falls out)",
+          "table": {"cols": ["evidence signature", "PiM affinity", "substrate verdict", "why"],
+                    "rows": [
+            ["G1 + streaming persistence", "strong", "near-sensor SRAM", "compulsory-miss streams (flat reuse CDF 64 KiB→48 MiB): no cache helps; consume before DRAM"],
+            ["G1 + hot-persistent", "strong", "DRAM-PiM (bank-level bandwidth)", "bandwidth-bound over resident data — move the op to the banks"],
+            ["G2 (scatter ≥8 sect/req on DATA accesses)", "conditional", "PiM-scatter — or a data-layout fix first", "the SIMT coalescer is the wrong tool for this access shape; try layout first, scatter-capable PiM if inherent"],
+            ["G3 (LFMR < 0.35)", "weak", "GPU — bigger/persisted L2 wins", "the cache already works; PiM would forfeit the reuse"],
+            ["G4 + (LFMR ≥ 0.4 or set ≫ L2)", "strong", "near-memory compute", "latency-bound over an uncacheable set — proximity beats hierarchy"],
+            ["G4 otherwise", "conditional", "raise occupancy first", "the latency may be hideable in software"],
+            ["cold-persistent + big set (any of G1/G2/G4)", "strong", "ISP / near-storage scan engine", "database-scan shape; and F8 shows the session DB grows HOST-side — the scan target is storage"],
+            ["G5 / G6", "none", "host GPU", "compute or on-chip bound — memory proximity buys nothing"],
+            ["G7", "none", "host GPU — fix occupancy/ILP, then RE-SCREEN", "memory is not the wall; a placement change cannot remove a dependency stall"],
+            ["occupancy <8% and <1 ms total", "—", "CPU/host", "launch-tax territory — not worth a GPU launch at all"]]},
+          "body": "The time-weighted mix of these verdicts per workload (substrate_mix) is "
+                  "the SIZING input for a heterogeneous design: how many GPU-seconds move "
+                  "to each substrate. Kernels whose verdict FLIPS across workloads "
+                  "(substrate_flips, with the most-moved metric named) are the ones that "
+                  "need dynamic or per-product placement — the architecture must either "
+                  "provision both paths or pick per SKU."},
+         {"title": "The same evidence read as CURRENT-architecture faults",
+          "table": {"cols": ["signature (measured here)", "the fault, today", "fix layer"],
+                    "rows": [
+            ["94% of the top SLAM kernel's DRAM traffic is register spill", "compiler register allocation — DRAM used as scratch", "compiler/source (maxrregcount, kernel split) — NOT new silicon; only the residual gather is an architecture question"],
+            ["'wait' stall at 11% occupancy, DRAM idle (G7 matchers)", "launch configuration / ILP — latency nothing can hide", "software: bigger grids, shorter dependency chains; re-screen after"],
+            ["23–30 sectors/warp on data accesses (loop-closure gather)", "SIMT coalescer mismatch with the access pattern", "data layout first; else scatter-capable memory engine"],
+            ["flat reuse-distance CDF on the front-end", "cache hierarchy spends area on streams it cannot filter", "near-sensor consumption; no cache size helps (measured 64 KiB–48 MiB)"],
+            ["41% of kernel time in explicit H2D/D2H; 1.68 MB/frame sensor upload", "the PCIe system edge", "near-sensor / integrated memory path"],
+            ["footprint grows room→street and migrates (Jaccard 0.67→0.90)", "fixed cache capacity vs a session-growing working set", "capacity scaling loses; proximity (PiM/ISP) or algorithmic windowing"]]},
+          "body": "This is the decision-making endpoint: the SAME measured evidence either "
+                  "sizes a specific heterogeneous substrate (left table) or names the "
+                  "fault in the current architecture and the cheapest layer that fixes it "
+                  "(this table). The explorer's per-kernel decision trace shows which row "
+                  "of these tables each kernel earned, with its numbers."}]},
+    ]
 
 
 if __name__ == "__main__":

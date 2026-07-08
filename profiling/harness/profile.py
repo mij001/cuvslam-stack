@@ -410,6 +410,14 @@ def main(argv=None):
         else:
             print("[✗] no .ncu-rep produced — see console above", file=sys.stderr)
 
+    # whole-run energy (measured during run_profiler) → into metadata.json
+    if LAST_ENERGY is not None:
+        meta["energy"] = LAST_ENERGY
+        json.dump(meta, open(os.path.join(run_dir, "metadata.json"), "w"), indent=2)
+        if LAST_ENERGY.get("available"):
+            print(f"[energy] {LAST_ENERGY['joules']} J  "
+                  f"(mean {LAST_ENERGY['mean_w']} W, peak {LAST_ENERGY['peak_w']} W)")
+
     print(f"\nResults: {os.path.relpath(run_dir, REPO_ROOT)}")
     return 0 if (rc == 0 or os.path.isfile(rep)) else rc
 
@@ -424,11 +432,31 @@ def resolve_metrics(spec):
     raise SystemExit(f"unknown metric set '{spec}' (have: {', '.join(METRIC_SETS)}, or 'full', or a literal list)")
 
 
+LAST_ENERGY = None   # {joules, mean_w, peak_w, ...} — whole-run NVML sampling
+
+
 def run_profiler(cmd, timeout, cwd):
+    """Run the profiled workload; sample GPU board power over its lifetime so the
+    run's whole-run energy (joules) is recorded next to its metadata."""
+    global LAST_ENERGY
     print(f"  $ {' '.join(cmd)}", flush=True)
     try:
-        return subprocess.run(cmd, cwd=cwd, timeout=timeout)
+        sys.path.insert(0, REPO_ROOT)
+        from profiling.env.energy import EnergySampler
+        sampler = EnergySampler()
+    except Exception:  # noqa: BLE001 — energy is best-effort, never blocks a run
+        sampler = None
+    try:
+        if sampler is not None:
+            with sampler:
+                r = subprocess.run(cmd, cwd=cwd, timeout=timeout)
+            LAST_ENERGY = sampler.result()
+        else:
+            r = subprocess.run(cmd, cwd=cwd, timeout=timeout)
+        return r
     except subprocess.TimeoutExpired:
+        if sampler is not None:
+            LAST_ENERGY = sampler.result()
         print(f"[✗] profiler exceeded {timeout}s — aborted", file=sys.stderr)
         class _R:  # noqa
             returncode = 124

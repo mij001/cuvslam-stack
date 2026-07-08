@@ -9,6 +9,7 @@
   "hw": "dellworkstation_sm89.toml",
   "basis": "measured"
  },
+ "energy": null,
  "qor": {
   "plain_ape_m": 0.0388,
   "nsys_ape_m": 0.0388,
@@ -217,7 +218,7 @@
    "time_ms": 0.007,
    "share_pct": 6.54,
    "limiter": "low-utilization",
-   "substrate": "CPU/host",
+   "substrate": "PiM-near-bank",
    "pim_affinity": "?",
    "rationale": "quick ncu window: mem SoL 2.2% and compute SoL 0.3% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {

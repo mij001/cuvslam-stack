@@ -335,7 +335,8 @@ def rebuild_site():
     log = os.path.join(LOG_DIR, "rebuild_site.log")
     os.makedirs(LOG_DIR, exist_ok=True)
     with open(log, "w") as lf:
-        for script in ("viz/make_figures.py", "viz/build_site.py"):
+        for script in ("viz/gen_findings.py", "viz/gen_methodology.py",
+                       "viz/make_figures.py", "viz/build_site.py"):
             subprocess.run([VENV_PY, os.path.join(ROOT, script)], cwd=ROOT,
                            stdout=lf, stderr=subprocess.STDOUT, check=False)
     return open(log).read()[-4000:]
@@ -500,8 +501,30 @@ th {{ background:#f1f4f9; }}
 .mnode {{ background:var(--card); border:2px solid var(--acc); color:var(--acc2);
   border-radius:10px; padding:8px 14px; font-weight:600; font-size:13px; }}
 .marrow {{ color:var(--sub); font-size:18px; }}
-.mstep {{ border-left:4px solid var(--acc); }}
-.mstep h2 {{ color:var(--acc2); }}
+.mnode {{ transition:transform .1s; }} .mnode:hover {{ transform:translateY(-1px); }}
+details.mstep {{ border-left:4px solid var(--acc); padding:0; }}
+details.mstep > summary {{ list-style:none; padding:16px 20px; }}
+details.mstep > summary::-webkit-details-marker {{ display:none; }}
+details.mstep > summary::before {{ content:"▸"; color:var(--sub); margin-right:8px; font-size:12px; }}
+details.mstep[open] > summary::before {{ content:"▾"; }}
+.msectitle {{ font-size:15px; font-weight:600; color:var(--acc2); }}
+.mbody {{ padding:0 20px 16px; }}
+.mprose {{ font-size:13px; color:#33424f; margin:8px 0; }}
+.formula {{ background:#f7f9fc; border-left:3px solid var(--acc); border-radius:0 8px 8px 0;
+  padding:10px 14px; margin:10px 0; }}
+.formula .fname {{ font-size:12.5px; font-weight:600; }}
+.formula .fexpr {{ font-family:ui-monospace,monospace; font-size:13px; color:#0d47a1;
+  background:#eef3fb; padding:6px 10px; border-radius:6px; margin:6px 0; overflow-x:auto; }}
+.formula .fcounters {{ margin:4px 0; }}
+.ccode {{ font-family:ui-monospace,monospace; font-size:11px; background:#e8eef7;
+  border-radius:5px; padding:1px 6px; margin:2px 4px 2px 0; display:inline-block; }}
+.formula .fnote {{ font-size:11.5px; color:var(--sub); margin-top:4px; white-space:pre-line; }}
+.mtabtitle {{ font-size:12px; font-weight:600; color:var(--sub); margin:10px 0 4px;
+  text-transform:uppercase; letter-spacing:.4px; }}
+.mlink {{ display:inline-block; font-size:12.5px; color:var(--acc); text-decoration:none;
+  border:1px solid var(--acc); border-radius:14px; padding:3px 12px; margin:6px 4px 0 0; }}
+.mlink:hover {{ background:var(--acc); color:#fff; }}
+.dt-template {{ background:#f6f8fb; }}
 .mrel a {{ font-size:12px; color:var(--acc); margin-right:10px; }}
 /* explorer bits (unchanged classes) */
 .step {{ display:inline-block; background:var(--acc); color:#fff; border-radius:50%;
@@ -832,6 +855,11 @@ class Handler(BaseHTTPRequestHandler):
             fp = os.path.join(ROOT, "reports", "findings.json")
             if not os.path.isfile(fp):
                 return self._json({"findings": [], "methodology": []})
+            return self._json(json.load(open(fp)))
+        if path == "api/methodology":
+            fp = os.path.join(ROOT, "reports", "methodology.json")
+            if not os.path.isfile(fp):
+                return self._json({"sections": [], "roadmap": []})
             return self._json(json.load(open(fp)))
         if path == "api/csv":
             q = urllib.parse.parse_qs(url.query)

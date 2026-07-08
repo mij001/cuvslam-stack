@@ -65,7 +65,14 @@ analyze:
 figures:
 	$(PY) viz/make_figures.py
 
-site: figures
+# The dashboard's data layer: findings.json (project-scope conclusions, numbers
+# computed from the committed CSVs) + methodology.json (formulas/thresholds
+# stamped live from the analysis modules so the UI can't drift from the code).
+dashboard-data:
+	$(PY) viz/gen_findings.py
+	$(PY) viz/gen_methodology.py
+
+site: figures dashboard-data
 	$(PY) viz/build_site.py
 
 # Fetch the pinned cuVSLAM source. Skip LFS smudge -- the build needs only the

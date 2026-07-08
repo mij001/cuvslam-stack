@@ -270,7 +270,7 @@
   // checked-and-failed, later ones as never-reached.
   const TH = { sol_hi: 40, ratio: 1.5, dram_sat: 50, lfmr_hi: 0.4, lfmr_lo: 0.35,
                sect: 8, occ_low: 25, occ_dep: 30 };
-  const fmt = v => (v == null ? "n/a" : (Math.round(v * 100) / 100));
+  const fmt = v => (v == null ? "‹measured›" : (Math.round(v * 100) / 100));
   const RULES = [
     ["G5-compute", e =>
       `CompSoL ${fmt(e.comp_sol_pct)}% ≥ ${TH.sol_hi}%  AND  ≥ ${TH.ratio}× MemSoL ${fmt(e.mem_sol_pct)}%`],
@@ -299,14 +299,50 @@
     "G4-latency": "G4 + (LFMR ≥ 0.4 or set ≫ L2) → STRONG near-memory compute; else → fix occupancy first",
   };
 
+  // SHARED renderer — used by the explorer (fired for a kernel) AND the
+  // Methodology tab (template: no kernel, every branch shown as its condition).
+  // opts: {evidence, firedClass, header, affinityClass, verdictHtml, note}
+  function renderDecisionTree(host, opts) {
+    if (!host) return;
+    host.innerHTML = "";
+    opts = opts || {};
+    const e = opts.evidence || {};       // {} → template mode (no substitution)
+    const fmtE = e && Object.keys(e).length;
+    if (opts.header) host.appendChild(el("div", { class: "xp-evsub" }, opts.header));
+    let fired = false;
+    for (const [rule, cond] of RULES) {
+      const isFired = opts.firedClass && rule === opts.firedClass;
+      const state = !opts.firedClass ? "template"
+        : (isFired ? "fired" : (fired ? "skipped" : "failed"));
+      const badge = { template: "IF", fired: "FIRED", skipped: "not reached", failed: "checked, no" }[state];
+      const bg = { template: "#607d8b", fired: "#2e7d32", skipped: "#c2cbd4", failed: "#8a97a5" }[state];
+      const row = el("div", { class: `dt-rule dt-${state}` });
+      row.appendChild(el("span", { class: "dt-badge", style: `background:${bg}` }, badge));
+      row.appendChild(el("span", { class: "dt-vals" }, `${rule}:  ${cond(e)}`));
+      host.appendChild(row);
+      if (isFired) fired = true;
+    }
+    const affCls = opts.affinityClass || opts.firedClass;
+    if (affCls && AFFINITY[affCls]) host.appendChild(el("div", { class: "xp-rat" },
+      "then the affinity rule: " + AFFINITY[affCls] + (opts.persistence ? `  ·  persistence: ${opts.persistence}` : "")));
+    else if (!opts.firedClass) host.appendChild(el("div", { class: "xp-rat" },
+      "→ then classify.pim_affinity(class, persistence, features) picks the substrate (see the Verdict section)."));
+    if (opts.verdictHtml) {
+      const v = el("div", { class: "xp-verdict" });
+      v.innerHTML = opts.verdictHtml;
+      if (opts.note) v.appendChild(el("div", { class: "xp-mnote" }, opts.note));
+      host.appendChild(v);
+    }
+  }
+  window.renderDecisionTree = renderDecisionTree;   // Methodology tab uses it
+
   function drawDecision() {
     const host = $("#xp-decision"); if (!host) return;
-    host.innerHTML = "";
     const k = DATA.kernels.find(x => x.name === selKernel);
-    if (!k) { host.textContent = "select a kernel"; return; }
-    const e = k.evidence || {};
+    if (!k) { host.innerHTML = ""; host.textContent = "select a kernel"; return; }
     const cls = (k.limiter || "").split("-")[0].startsWith("G") ? k.limiter : null;
     if (!cls) {
+      host.innerHTML = "";
       host.appendChild(el("div", { class: "xp-note" },
         "this is a quick campaign cell — the full decision tree needs the deep metric set; " +
         "the substrate verdict shown is joined from the deep studies. Open a ★ study run for the complete trace."));
@@ -314,29 +350,14 @@
         `study-joined verdict: ${k.substrate}`));
       return;
     }
-    host.appendChild(el("div", { class: "xp-evsub" },
-      `classifier: profiling/analysis/classify.py decision tree (thresholds stress-tested ±25% — ` +
-      `this kernel is ${k.stability || "?"}; confidence ${k.confidence || "?"})`));
-    let fired = false;
-    for (const [rule, cond] of RULES) {
-      const isFired = rule === cls;
-      const state = isFired ? "fired" : (fired ? "skipped" : "failed");
-      const row = el("div", { class: `dt-rule dt-${state}` });
-      row.appendChild(el("span", { class: "dt-badge",
-        style: `background:${isFired ? "#2e7d32" : fired ? "#c2cbd4" : "#8a97a5"}` },
-        isFired ? "FIRED" : fired ? "not reached" : "checked, no"));
-      row.appendChild(el("span", { class: "dt-vals" }, `${rule}:  ${cond(e)}`));
-      host.appendChild(row);
-      if (isFired) fired = true;
-    }
-    host.appendChild(el("div", { class: "xp-rat" },
-      "then the affinity rule: " + (AFFINITY[cls] || "?") +
-      (k.persistence ? `  ·  persistence hypothesis: ${k.persistence}` : "")));
-    const v = el("div", { class: "xp-verdict" });
-    v.innerHTML = `<b>⇒ ${cls}</b> → PiM affinity <b>${k.pim_affinity}</b> → substrate <b>${k.substrate}</b>`;
-    v.appendChild(el("div", { class: "xp-mnote" },
-      `classifier's own words: ${k.rationale || "—"}`));
-    host.appendChild(v);
+    renderDecisionTree(host, {
+      evidence: k.evidence || {}, firedClass: cls, affinityClass: cls,
+      persistence: k.persistence,
+      header: `classifier: profiling/analysis/classify.py decision tree (thresholds stress-tested ` +
+        `±25% — this kernel is ${k.stability || "?"}; confidence ${k.confidence || "?"})`,
+      verdictHtml: `<b>⇒ ${cls}</b> → PiM affinity <b>${k.pim_affinity}</b> → substrate <b>${k.substrate}</b>`,
+      note: `classifier's own words: ${k.rationale || "—"}`,
+    });
   }
 
   function render() { drawStages(); drawKernels(); drawEvidence(); drawDecision(); drawRoofline(); }
@@ -345,9 +366,12 @@
     DATA = await (await fetch(`/api/summary?src=${encodeURIComponent(src)}`)).json();
     selStage = null; selKernel = null;
     const q = DATA.qor ? Object.entries(DATA.qor).map(([k, v]) => `${k}=${v}`).join(" ") : "";
+    const en = DATA.energy && DATA.energy.available
+      ? `⚡ ${DATA.energy.joules} J whole-run (${DATA.energy.mean_w} W mean, ${DATA.energy.peak_w} W peak)` : "";
     $("#xp-meta").innerHTML =
       `<b>${DATA.workload}</b> · ${DATA.kernels.length} kernels · adapter ${DATA.adapter}` +
       (DATA.note ? ` · ${DATA.note}` : "") +
+      (en ? `<br><span class="xp-qor">${en}</span>` : "") +
       (q ? `<br><span class="xp-qor">QoR: ${q}</span>` : "");
     render();
   }

@@ -9,6 +9,7 @@
   "hw": "dellworkstation_sm89.toml",
   "basis": "measured"
  },
+ "energy": null,
  "qor": {
   "plain_ape_m": 0.4009,
   "nsys_ape_m": 0.3092,

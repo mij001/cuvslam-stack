@@ -181,6 +181,7 @@ def build_summary(data_dir, label_dir, adapter="cuvslam", qor=None):
         "adapter": adapter,
         "source": os.path.relpath(label_dir, REPO),
         "device_peaks": device_peaks(name),
+        "energy": read_energy(label_dir),
         "qor": qor,
         "stages": [{
             "name": s["stage"],
@@ -190,6 +191,20 @@ def build_summary(data_dir, label_dir, adapter="cuvslam", qor=None):
         } for s in stages],
         "kernels": kernels,
     }
+
+
+def read_energy(run_dir):
+    """Whole-run energy from a run's metadata.json (or its results parent). None
+    if the run predates energy sampling or the GPU has no power.draw."""
+    for cand in (os.path.join(REPO, run_dir, "metadata.json"),
+                 os.path.join(run_dir, "metadata.json")):
+        if os.path.isfile(cand):
+            try:
+                e = json.load(open(cand)).get("energy")
+                return e if (e and e.get("available")) else None
+            except (json.JSONDecodeError, AttributeError):
+                return None
+    return None
 
 
 def shorten_kernel(demangled):
@@ -308,6 +323,7 @@ def summarize_regime(ledger_path, out_dir, repo_prefix=""):
                 qor[f"{mode}_ape_m"] = fnum(c["mode_APE_m"])
         s = {"workload": cfg, "device": "dellworkstation_sm89", "adapter": "cuvslam",
              "source": rdir, "device_peaks": device_peaks("dellworkstation"),
+             "energy": read_energy(rdir),
              "qor": qor or None, "note": "campaign cell (ncu quick window)",
              "stages": [], "kernels": kernels}
         out = os.path.join(out_dir, f"{cfg}.summary.json")

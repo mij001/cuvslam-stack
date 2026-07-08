@@ -1,0 +1,472 @@
+{
+ "sections": [
+  {
+   "id": "overview",
+   "title": "The pipeline: profile \u2192 place",
+   "summary": "cuVSLAM (or any adapted GPU workload) is reduced to a per-kernel placement decision through six steps. This is GPU-DAMOV: DAMOV's CPU data-movement-bottleneck method [Oliveira '21], re-derived for GPUs (two-level cache, occupancy-hidden latency, coalescing) and extended from 'is this memory-bound' to 'WHICH substrate \u2014 GPU, CPU, PiM, ISP \u2014 and if it stays on the GPU, what's the fault to fix'.",
+   "blocks": [
+    {
+     "type": "prose",
+     "text": "Every number the harness reports is defined below by the exact ncu counter it comes from and the exact threshold it is compared against \u2014 all imported live from the analysis code, so this page is the code."
+    }
+   ]
+  },
+  {
+   "id": "capture",
+   "title": "1 \u00b7 Capture",
+   "summary": "Three profilers, one bounded run, locked clocks.",
+   "blocks": [
+    {
+     "type": "prose",
+     "text": "Nsight Systems captures the whole-run TIMELINE (kernel time shares, H2D/D2H transfers, and cuVSLAM's own NVTX stage ranges). Nsight Compute replays a bounded window of launches with a CURATED metric set (not `--set full`, which is killed on a small GPU before it writes a report) \u2014 the counters listed in \u00a73. NVBit binary-instruments a bounded launch window for exact per-warp addresses (\u00a75). Clocks are locked (graphics 1620 MHz / memory 7001 MHz, persistence on); ceilings are MEASURED not quoted (205 GB/s DRAM, 5445 GFLOP/s FP32); 5-repeat CoV is 0.14%."
+    },
+    {
+     "type": "table",
+     "title": "the three curated ncu metric sets (profile.py METRIC_SETS)",
+     "head": [
+      "set",
+      "purpose"
+     ],
+     "rows": [
+      [
+       "quick",
+       "3 counters \u2014 duration + memory/compute SoL; a 'did it run' smoke"
+      ],
+      [
+       "roofline",
+       "~15 counters \u2014 SoL, roofline, L1/L2 hit, key stalls, occupancy"
+      ],
+      [
+       "characterize",
+       "~30 counters \u2014 + FLOP + byte traffic + sectors/request + full stall taxonomy"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "screen",
+   "title": "2 \u00b7 Screen \u2014 the decision features",
+   "summary": "Each raw ncu counter is reduced to one interpretable feature. Extensive quantities (time, bytes, instructions) are SUMMED across a kernel's launches, then ratios are formed once \u2014 never average ratios.",
+   "blocks": [
+    {
+     "type": "formula",
+     "name": "LFMR_gpu  (L2-first-miss ratio)",
+     "expr": "LFMR = 1 \u2212 l2_hit%/100",
+     "counters": [
+      "lts__t_sector_hit_rate.pct"
+     ],
+     "note": "\u22481 \u21d2 the L2 is not helping (NDP-favorable); \u22640.35 \u21d2 the L2 absorbs the reuse (keep on GPU). It is the GPU analog of DAMOV's LFMR (last-level-miss/first-level-miss), one hierarchy level down.  \u00b7 st_track_with_cache_kernel: LFMR = 0.087"
+    },
+    {
+     "type": "formula",
+     "name": "MPKI_gpu  (DRAM sectors per kilo warp-instruction)",
+     "expr": "MPKI = (dram_bytes / 32) / (inst / 1000)",
+     "counters": [
+      "dram__bytes_read.sum",
+      "dram__bytes_write.sum",
+      "smsp__inst_executed.sum"
+     ],
+     "note": "32 = sector bytes; `inst` is WARP-instructions (32\u00d7 fewer than thread-instructions \u2014 the common trap). Memory-intensity, DAMOV-style.  \u00b7 st_track_with_cache_kernel: MPKI = 31.4"
+    },
+    {
+     "type": "formula",
+     "name": "Speed-of-Light: memory / compute / DRAM",
+     "expr": "mem_sol, comp_sol, dram_sol  =  each counter, directly (% of peak)",
+     "counters": [
+      "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "dram__throughput.avg.pct_of_peak_sustained_elapsed"
+     ],
+     "note": "bound-ness: a resource is 'high' at \u226540.0%; DRAM is 'saturated' at \u226550.0%. The mem-vs-compute ratio (\u22651.5\u00d7) decides compute- vs memory-leaning.  \u00b7 st_track_with_cache_kernel: DRAM-SoL = 0.3%"
+    },
+    {
+     "type": "formula",
+     "name": "Arithmetic intensity (roofline x-axis)",
+     "expr": "AI_dram = (fadd + fmul + 2\u00b7ffma) / (dram_read + dram_write)",
+     "counters": [
+      "smsp__sass_thread_inst_executed_op_fadd_pred_on.sum",
+      "smsp__sass_thread_inst_executed_op_fmul_pred_on.sum",
+      "smsp__sass_thread_inst_executed_op_ffma_pred_on.sum",
+      "dram__bytes_read.sum",
+      "dram__bytes_write.sum"
+     ],
+     "note": "FP32 FLOPs the standard way (FMA = 2 ops) [Yang '20]. A second roofline AI_l2 = FLOP / L2-bytes is reported too (why AI differs per level). For non-FP32 adapter workloads the numerator op-type is the one knob to change."
+    },
+    {
+     "type": "formula",
+     "name": "Coalescing fingerprint",
+     "expr": "sectors/request = max(sect_ld, sect_st)",
+     "counters": [
+      "l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_ld.ratio",
+      "l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_st.ratio"
+     ],
+     "note": "1 = perfect, 4 = fully coalesced, \u22658.0 = a scattered gather (the G2 signature).  \u00b7 st_track_with_cache_kernel: sectors/req = 19.1"
+    },
+    {
+     "type": "formula",
+     "name": "Occupancy",
+     "expr": "occupancy% = warps_active (% of peak sustained active)",
+     "counters": [
+      "sm__warps_active.avg.pct_of_peak_sustained_active"
+     ],
+     "note": "the GPU's primary latency-hiding knob; below 25.0% latency can't be hidden (G4/G7 territory).  \u00b7 st_track_with_cache_kernel: occupancy = 2.1%"
+    },
+    {
+     "type": "table",
+     "title": "warp-stall taxonomy (which counter \u2192 which stall)",
+     "head": [
+      "stall",
+      "ncu counter (\u2026per_issue_active.ratio)",
+      "meaning"
+     ],
+     "rows": [
+      [
+       "long_scoreboard",
+       "\u2026long_scoreboard",
+       "memory (DRAM/L2 latency) \u00b7 MEMORY"
+      ],
+      [
+       "short_scoreboard",
+       "\u2026short_scoreboard",
+       "shared-mem latency"
+      ],
+      [
+       "lg_throttle",
+       "\u2026lg_throttle",
+       "LSU queue full \u00b7 MEMORY"
+      ],
+      [
+       "mio_throttle",
+       "\u2026mio_throttle",
+       "MIO queue full \u00b7 MEMORY"
+      ],
+      [
+       "tex_throttle",
+       "\u2026tex_throttle",
+       "TEX queue full \u00b7 MEMORY"
+      ],
+      [
+       "math_throttle",
+       "\u2026math_pipe_throttle",
+       "math pipe busy"
+      ],
+      [
+       "barrier",
+       "\u2026barrier",
+       "__syncthreads"
+      ],
+      [
+       "wait",
+       "\u2026wait",
+       "fixed-latency dep"
+      ],
+      [
+       "not_selected",
+       "\u2026not_selected",
+       "eligible, not picked"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "classify",
+   "title": "3 \u00b7 Classify \u2014 the GPU-DAMOV decision tree",
+   "summary": "The features feed an ORDERED decision tree (first match wins) into one of eight classes G0\u2013G7. Thresholds are stated once (below, imported live) and stress-tested \u00b125%: a kernel whose class flips under the perturbation is flagged 'borderline' and cannot carry 'high' confidence. k-means over the pooled 27-sequence feature cloud independently prefers k=7\u20138 \u2014 the classes fall out of the data; the tree is only the labeling.",
+   "blocks": [
+    {
+     "type": "table",
+     "title": "thresholds (imported from classify.THRESHOLDS)",
+     "head": [
+      "name",
+      "value",
+      "gate"
+     ],
+     "rows": [
+      [
+       "sol_hi",
+       40.0,
+       "SoL% considered 'high'"
+      ],
+      [
+       "sol_ratio",
+       1.5,
+       "mem-vs-compute dominance"
+      ],
+      [
+       "dram_sat",
+       50.0,
+       "DRAM-SoL% = saturated (G1)"
+      ],
+      [
+       "lfmr_hi / lfmr_lo",
+       "0.4 / 0.35",
+       "L2 not-helping / earning-keep"
+      ],
+      [
+       "sect_scatter",
+       8.0,
+       "sectors/req = scattered (G2)"
+      ],
+      [
+       "occ_low / occ_low_dep",
+       "25.0 / 30.0",
+       "latency (G4) / dependency (G7)"
+      ]
+     ]
+    },
+    {
+     "type": "decision_tree",
+     "note": "The interactive tree \u2014 hover a branch for what it tests. In the Explore tab the same tree fires for a selected kernel with its real numbers substituted (one shared renderer)."
+    },
+    {
+     "type": "link",
+     "run": "profiling/reports/2026-07-03_tum_office_rtx2000ada/summary.json",
+     "kernel": "st_track_with_cache_kernel",
+     "label": "see the tree FIRE on st_track (Explore \u2192)"
+    }
+   ]
+  },
+  {
+   "id": "annotate",
+   "title": "4 \u00b7 Annotate \u2014 NVTX stages & data-structure tags",
+   "summary": "Kernels are placed in pipeline STAGES and their DRAM traffic is named by DATA STRUCTURE \u2014 both measured, not guessed.",
+   "blocks": [
+    {
+     "type": "prose",
+     "text": "Stages: patch 0002 compiles cuVSLAM with USE_NVTX, enabling its own profiler domains; nsys `nvtx_kern_sum` then gives the MEASURED kernel\u2192stage table (e.g. st_track_with_cache sits under SLAM loop-closure). stages.py carries the persistence HYPOTHESIS per stage that the measurements test:"
+    },
+    {
+     "type": "table",
+     "title": "stage \u2192 persistence hypothesis (stages.py)",
+     "head": [
+      "stage",
+      "persistence",
+      "what it is"
+     ],
+     "rows": [
+      [
+       "preprocess",
+       "streaming",
+       "image cast + Gaussian pyramid construction"
+      ],
+      [
+       "feature_detect",
+       "streaming",
+       "GFTT/Harris gradients, response, NMS, selection"
+      ],
+      [
+       "keypoint_sort",
+       "streaming",
+       "cub::DeviceMergeSort of detected keypoints"
+      ],
+      [
+       "tracking",
+       "streaming+hot",
+       "Lucas\u2013Kanade pyramidal optical-flow tracking"
+      ],
+      [
+       "bundle_adjust",
+       "hot-persistent",
+       "sparse bundle adjustment: system build + reduce + update"
+      ],
+      [
+       "ba_solver",
+       "hot-persistent",
+       "dense linear solve (cuSOLVER getrf/trsv) for BA"
+      ],
+      [
+       "slam_loop",
+       "cold-persistent",
+       "loop closure / localization / pose-graph (SLAM layer)"
+      ],
+      [
+       "other",
+       "unclassified",
+       "unmatched kernels \u2014 inspect and extend stages.py"
+      ]
+     ]
+    },
+    {
+     "type": "prose",
+     "text": "Data structures: the TaggedAllocator (patch 0002) journals every allocation as CSV \u2014 `A,<t_us>,<ptr>,<bytes>,<kind>,<pc\u2026>` with up to 12 host backtrace PCs, plus `M` maps lines (to undo ASLR) and `F` frees. attribution.py rebases the PCs, batch-runs addr2line, walks to the innermost cuVSLAM frame = the owner, and applies TAG_RULES regexes \u2192 a data-structure tag (ba_linear_system, keyframe_descriptors, pyramid_levels, images_raw, \u2026)."
+    }
+   ]
+  },
+  {
+   "id": "trace",
+   "title": "5 \u00b7 Trace \u2014 what NVBit measures",
+   "summary": "NVBit binary-instruments SASS to record exact per-warp memory addresses \u2014 the ground truth behind the ncu counters.",
+   "blocks": [
+    {
+     "type": "prose",
+     "text": "mem_trace instruments LDG / STG / global atomics ONLY \u2014 it excludes LDS/STS (shared, on-chip), LDL/STL (local = register spill), and the texture path \u2014 so 'locality' is about DRAM-visible DATA, not scratch. Each record carries the grid launch id, opcode, and the 32 lane addresses. Two patches bound it: LAUNCH_BEGIN/END windows the launches and KERNEL_FILTER=<substr> restricts to one kernel (ANDed \u2192 sparse kernels traced without a full-window blow-up); an alloc-events sidecar logs driver cuMemAlloc/Free lifetimes keyed by launch id."
+    },
+    {
+     "type": "prose",
+     "text": "locality.py consumes the trace: a Fenwick-tree reuse-distance pass (O(log n)/access) \u2192 a hit-rate-vs-cache-capacity CDF across 64 KiB\u219248 MiB (a flat CDF = the cache is structurally useless, compulsory misses); plus footprint (unique 32 B sectors), coalescing (sectors/warp), and divergence (active lanes). `--spaces {global,shared,local,all}` (default global) is what separated st_track's real scattered gather from its register-spill stream."
+    },
+    {
+     "type": "prose",
+     "text": "attribution.py joins trace \u22c8 allocations: a bisect-based LiveSet maps each address to the allocation live at that launch id \u2192 its space and data-structure tag, streaming and O(1) in memory. This is how '92.6% of st_track's DRAM traffic is register spill, the rest keyframe_descriptors' is a MEASURED statement."
+    },
+    {
+     "type": "link",
+     "chart": "attribution",
+     "src": "profiling/reports/2026-07-05_attribution_campaign/attribution_consistency.csv",
+     "label": "the attribution composition (Findings \u2192)"
+    }
+   ]
+  },
+  {
+   "id": "verdict",
+   "title": "6 \u00b7 Verdict \u2014 from evidence to architecture",
+   "summary": "The class \u00d7 persistence \u00d7 features map to a SUBSTRATE, and the same evidence names the CURRENT-architecture fault when a kernel stays on the GPU. This is the deliverable the whole pipeline exists for.",
+   "blocks": [
+    {
+     "type": "table",
+     "title": "heterogeneous placement (classify.pim_affinity)",
+     "head": [
+      "class + condition",
+      "affinity",
+      "substrate"
+     ],
+     "rows": [
+      [
+       "G1 + streaming persistence",
+       "strong",
+       "near-sensor SRAM (consume before DRAM)"
+      ],
+      [
+       "G1 + else",
+       "strong",
+       "DRAM-PiM (bank-level bandwidth)"
+      ],
+      [
+       "G2 (scatter)",
+       "conditional",
+       "scatter-capable PiM \u2014 or a data-layout fix first"
+      ],
+      [
+       "G4 + (LFMR\u22650.4 or set\u226bL2)",
+       "strong",
+       "near-memory compute (uncacheable set)"
+      ],
+      [
+       "cold-persistent + big set",
+       "strong",
+       "ISP / near-storage scan engine"
+      ],
+      [
+       "G3 (L2 earning keep)",
+       "weak",
+       "a bigger/persisted L2 wins; PiM forfeits reuse"
+      ],
+      [
+       "G5 / G6 / G7",
+       "none",
+       "host GPU (compute / on-chip / dependency bound)"
+      ],
+      [
+       "tiny (occ<8%, <1 ms)",
+       "\u2014",
+       "CPU/host (launch-overhead territory)"
+      ]
+     ]
+    },
+    {
+     "type": "formula",
+     "name": "PiM placement model (pim_placement_model.py)",
+     "expr": "t_pim = t\u00b7(1\u2212m)/c + t\u00b7m/k        offload iff affinity\u2208scenario and t_pim < t",
+     "counters": [
+      "m = dram_sol/100",
+      "k = PiM internal-BW \u00d7 (4 conservative / 8 moderate)",
+      "c = PiM compute ratio (0.5 / 0.75)"
+     ],
+     "note": "energy ratio = ((bytes \u2212 offloaded) + offloaded/r) / bytes. Reports DELTAS vs the GPU baseline, never absolutes \u2014 and now against a MEASURED baseline joule count (\u00a7 energy)."
+    },
+    {
+     "type": "table",
+     "title": "current-architecture faults (same evidence, on-GPU fixes)",
+     "head": [
+      "signature in the evidence",
+      "the fault",
+      "fix before offloading"
+     ],
+     "rows": [
+      [
+       "DRAM traffic dominated by register spill (attribution)",
+       "register-pressure / codegen fault",
+       "cut register pressure / raise occupancy \u2014 it's scratch, not data"
+      ],
+      [
+       "high sectors/request (\u22658) on global data",
+       "data-layout fault",
+       "AoS\u2192SoA / re-tile so warps coalesce"
+      ],
+      [
+       "low occupancy + wait/dependency stalls (G7)",
+       "launch-config / ILP fault",
+       "more blocks/ILP; re-screen \u2014 memory isn't the wall"
+      ],
+      [
+       "flat reuse CDF 64 KiB\u219248 MiB (locality)",
+       "structurally cache-immune streaming",
+       "no cache size helps \u2192 near-sensor consumption, not a bigger L2"
+      ]
+     ]
+    },
+    {
+     "type": "link",
+     "run": "profiling/reports/2026-07-03_tum_office_rtx2000ada/summary.json",
+     "kernel": "st_track_with_cache_kernel",
+     "label": "trace one kernel end-to-end (Explore \u2192)"
+    }
+   ]
+  }
+ ],
+ "roadmap": [
+  {
+   "item": "Whole-run energy (joules)",
+   "status": "DONE",
+   "note": "NVML sampling, this cycle"
+  },
+  {
+   "item": "Host-side LMDB / ISP I/O",
+   "status": "DEFER",
+   "note": "strace/iostat \u2014 arms the ISP claim (G3)"
+  },
+  {
+   "item": "Jetson Orin re-run",
+   "status": "READY",
+   "note": "app targets Orin; needs the device"
+  },
+  {
+   "item": "Layer-3 kernel-arg correlation",
+   "status": "DEFER",
+   "note": "names the static residuals (G5)"
+  },
+  {
+   "item": "Occupancy sweep",
+   "status": "DEFER",
+   "note": "a mutate_configs variant"
+  },
+  {
+   "item": "Accel-Sim NDP + AccelWattch",
+   "status": "DEFER",
+   "note": "Phase-4 architecture paper"
+  }
+ ],
+ "thresholds": {
+  "sol_hi": 40.0,
+  "sol_ratio": 1.5,
+  "dram_sat": 50.0,
+  "lfmr_hi": 0.4,
+  "lfmr_lo": 0.35,
+  "sect_scatter": 8.0,
+  "occ_low": 25.0,
+  "occ_low_dep": 30.0,
+  "stall_dom": 1.0
+ }
+}

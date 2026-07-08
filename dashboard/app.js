@@ -300,29 +300,102 @@
     }
   }
 
-  // ── methodology tab ──────────────────────────────────────────────────────
-  function renderMethod(data) {
+  // ── methodology tab (deep, expandable, stamped from source) ──────────────
+  const SEC_COLOR = { overview: "#0d47a1", capture: "#455a64", screen: "#00838f",
+                      classify: "#6a1b9a", annotate: "#ef6c00", trace: "#5d4037",
+                      verdict: "#c62828" };
+
+  function renderBlock(host, b) {
+    if (b.type === "prose") {
+      host.appendChild(el("p", { class: "mprose" }, b.text));
+    } else if (b.type === "formula") {
+      const box = el("div", { class: "formula" });
+      box.appendChild(el("div", { class: "fname" }, b.name));
+      box.appendChild(el("div", { class: "fexpr" }, b.expr));
+      if (b.counters && b.counters.length) {
+        const cc = el("div", { class: "fcounters" });
+        cc.appendChild(el("span", { class: "note" }, "from: "));
+        for (const c of b.counters) cc.appendChild(el("code", { class: "ccode" }, c));
+        box.appendChild(cc);
+      }
+      if (b.note) box.appendChild(el("div", { class: "fnote" }, b.note));
+      host.appendChild(box);
+    } else if (b.type === "table") {
+      if (b.title) host.appendChild(el("div", { class: "mtabtitle" }, b.title));
+      const wrap = el("div", { class: "tablewrap" }), t = el("table");
+      const hr = el("tr");
+      for (const h of b.head) hr.appendChild(el("th", {}, h));
+      t.appendChild(hr);
+      for (const row of b.rows) {
+        const tr = el("tr");
+        for (const cell of row) tr.appendChild(el("td", {}, String(cell)));
+        t.appendChild(tr);
+      }
+      wrap.appendChild(t); host.appendChild(wrap);
+    } else if (b.type === "decision_tree") {
+      const box = el("div", { class: "xp-evbox" });
+      if (window.renderDecisionTree) window.renderDecisionTree(box, {});   // template mode
+      else box.textContent = "(decision tree renderer unavailable)";
+      host.appendChild(box);
+      if (b.note) host.appendChild(el("p", { class: "note" }, b.note));
+    } else if (b.type === "link") {
+      const a = el("a", { href: "#", class: "mlink" }, b.label);
+      a.addEventListener("click", async ev => {
+        ev.preventDefault();
+        if (b.chart) await openChart(b.chart, b.src, b.label);
+        else openInExplorer(b.run, b.kernel);
+      });
+      host.appendChild(a);
+    }
+  }
+
+  async function renderMethod() {
+    const m = await (await fetch("/api/methodology")).json();
     const flow = $("#mflow"), steps = $("#msteps");
-    data.methodology.forEach((m, i) => {
+    flow.innerHTML = ""; steps.innerHTML = "";
+    m.sections.forEach((s, i) => {
       if (i) flow.appendChild(el("span", { class: "marrow" }, "→"));
-      const n = el("span", { class: "mnode", style: `border-color:${STEP_COLORS[m.step]};color:${STEP_COLORS[m.step]}` },
-        m.name.replace(/^\d+ · /, ""));
+      const n = el("span", { class: "mnode",
+        style: `border-color:${SEC_COLOR[s.id] || "#607d8b"};color:${SEC_COLOR[s.id] || "#607d8b"}` },
+        s.title.replace(/^\d+ · /, ""));
+      n.style.cursor = "pointer";
+      n.addEventListener("click", () => {
+        const d = document.getElementById(`msec-${s.id}`); if (d) { d.open = true; d.scrollIntoView({ behavior: "smooth", block: "start" }); }
+      });
       flow.appendChild(n);
     });
-    for (const m of data.methodology) {
-      const card = el("div", { class: "card mstep", style: `border-left-color:${STEP_COLORS[m.step]}` });
-      card.appendChild(el("h2", {}, m.name));
-      card.appendChild(el("p", { style: "font-size:13px;margin:4px 0" }, m.what));
-      const rel = el("div", { class: "mrel" });
-      const related = (window.__FINDINGS || []).filter(f => f.step === m.step);
-      if (related.length) {
-        rel.appendChild(el("span", { class: "note" }, "findings from this step: "));
-        for (const f of related) {
-          const a = el("a", { href: "#findings" }, `${f.number} ${f.unit.split("(")[0].trim().slice(0, 30)}`);
-          rel.appendChild(a);
-        }
+    m.sections.forEach((s, i) => {
+      const det = el("details", { class: "card mstep", id: `msec-${s.id}`,
+        style: `border-left-color:${SEC_COLOR[s.id] || "#607d8b"}` });
+      if (i < 2) det.open = true;
+      const sum = el("summary");
+      sum.appendChild(el("span", { class: "msectitle" }, s.title));
+      sum.appendChild(el("span", { class: "note", style: "margin-left:8px" }, s.summary));
+      det.appendChild(sum);
+      const body = el("div", { class: "mbody" });
+      for (const b of s.blocks) renderBlock(body, b);
+      det.appendChild(body);
+      steps.appendChild(det);
+    });
+    if (m.roadmap && m.roadmap.length) {
+      const card = el("div", { class: "card" });
+      card.appendChild(el("h2", {}, "Roadmap — what's built, ready, and deferred"));
+      card.appendChild(el("p", { class: "note" },
+        "the honest backlog (full triage in docs/BACKLOG.md): what this cycle built, " +
+        "what's supported and waiting on a run/device, and what's deferred to the architecture phase."));
+      const wrap = el("div", { class: "tablewrap" }), t = el("table");
+      t.appendChild(el("tr")).innerHTML = "<th>item</th><th>status</th><th>note</th>";
+      const badge = { DONE: "#2e7d32", READY: "#1565c0", DEFER: "#8a97a5", DROP: "#c2cbd4" };
+      for (const r of m.roadmap) {
+        const tr = el("tr");
+        tr.appendChild(el("td", {}, r.item));
+        const st = el("td");
+        st.appendChild(el("span", { class: "xp-chip", style: `background:${badge[r.status] || "#607d8b"}` }, r.status));
+        tr.appendChild(st);
+        tr.appendChild(el("td", {}, r.note));
+        t.appendChild(tr);
       }
-      card.appendChild(rel);
+      wrap.appendChild(t); card.appendChild(wrap);
       steps.appendChild(card);
     }
   }
@@ -333,6 +406,6 @@
     const data = await (await fetch("/api/findings")).json();
     window.__FINDINGS = data.findings;
     await renderFindings(data);
-    renderMethod(data);
+    await renderMethod();
   });
 })();
