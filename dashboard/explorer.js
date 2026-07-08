@@ -25,6 +25,7 @@
     "G4-latency": "#00838f", "G5-compute": "#2e7d32", "G6-atomics": "#ad1457",
     "G7-dependency": "#455a64", "G8-transfer": "#5d4037",
     "memory-leaning": "#ef6c00", "compute-leaning": "#2e7d32",
+    "low-utilization": "#9e9e9e",   // neither SoL >40% — quick-window "leaning" tags don't apply
   };
   const THRESH = [
     ["dram_sol_pct", "DRAM utilisation", "%", 60, "≥60% ⇒ DRAM-bandwidth-bound", 100],

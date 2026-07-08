@@ -23,10 +23,10 @@
    "stage": "?",
    "time_ms": 0.069,
    "share_pct": 29.16,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "GPU-keep",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 37.8% and compute SoL 30.4% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 3.9,
@@ -65,7 +65,7 @@
    "limiter": "memory-leaning",
    "substrate": "GPU-keep",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 42.4% \u2265 compute SoL 26.0% \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 44.1,
@@ -101,10 +101,10 @@
    "stage": "?",
    "time_ms": 0.022,
    "share_pct": 9.43,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "PiM-near-bank",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 20.1% and compute SoL 19.9% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 87.6,
@@ -143,7 +143,7 @@
    "limiter": "memory-leaning",
    "substrate": "CPU/host",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 58.0% \u2265 compute SoL 28.6% \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 0.0,
@@ -179,10 +179,10 @@
    "stage": "?",
    "time_ms": 0.017,
    "share_pct": 7.22,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "PiM-near-bank",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 25.3% and compute SoL 5.2% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 3.9,
@@ -214,10 +214,10 @@
    "stage": "?",
    "time_ms": 0.012,
    "share_pct": 4.97,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "PiM-near-bank",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 38.3% and compute SoL 38.3% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 87.6,
@@ -249,10 +249,10 @@
    "stage": "?",
    "time_ms": 0.012,
    "share_pct": 4.89,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "CPU/host",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 1.4% and compute SoL 0.3% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 92.6,
@@ -288,10 +288,10 @@
    "stage": "?",
    "time_ms": 0.009,
    "share_pct": 3.88,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "PiM-near-bank",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 1.1% and compute SoL 0.2% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 76.6,
@@ -327,10 +327,10 @@
    "stage": "?",
    "time_ms": 0.008,
    "share_pct": 3.31,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "?",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 3.5% and compute SoL 0.8% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": null,
    "evidence": {
     "dram_sol_pct": 3.52506,
@@ -349,10 +349,10 @@
    "stage": "?",
    "time_ms": 0.007,
    "share_pct": 3.16,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "PiM-scatter",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 19.2% and compute SoL 3.0% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 1.2,
@@ -388,10 +388,10 @@
    "stage": "?",
    "time_ms": 0.005,
    "share_pct": 2.28,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "GPU+layout-fix",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 21.1% and compute SoL 5.1% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 4.2,
@@ -427,10 +427,10 @@
    "stage": "?",
    "time_ms": 0.005,
    "share_pct": 1.95,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "CPU/host",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 1.2% and compute SoL 0.1% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 0.0,
@@ -462,10 +462,10 @@
    "stage": "?",
    "time_ms": 0.003,
    "share_pct": 1.4,
-   "limiter": "compute-leaning",
+   "limiter": "low-utilization",
    "substrate": "GPU-keep",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 3.0% and compute SoL 4.8% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 57.1,
@@ -497,10 +497,10 @@
    "stage": "?",
    "time_ms": 0.003,
    "share_pct": 1.36,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "GPU-keep",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 0.7% and compute SoL 0.2% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 34.0,
@@ -532,10 +532,10 @@
    "stage": "?",
    "time_ms": 0.003,
    "share_pct": 1.36,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "CPU/host",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 0.8% and compute SoL 0.0% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 0.0,
@@ -567,10 +567,10 @@
    "stage": "?",
    "time_ms": 0.002,
    "share_pct": 0.81,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "CPU/host",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 0.6% and compute SoL 0.0% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 0.0,
@@ -602,10 +602,10 @@
    "stage": "?",
    "time_ms": 0.002,
    "share_pct": 0.79,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "CPU/host",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 0.6% and compute SoL 0.0% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 0.0,
@@ -637,10 +637,10 @@
    "stage": "?",
    "time_ms": 0.002,
    "share_pct": 0.79,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "CPU/host",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 0.7% and compute SoL 0.0% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 0.0,
@@ -672,10 +672,10 @@
    "stage": "?",
    "time_ms": 0.002,
    "share_pct": 0.79,
-   "limiter": "memory-leaning",
+   "limiter": "low-utilization",
    "substrate": "CPU/host",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+   "rationale": "quick ncu window: mem SoL 3.0% and compute SoL 0.0% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 0.0,

@@ -251,8 +251,27 @@ def summarize_regime(ledger_path, out_dir, repo_prefix=""):
         for kname, a in sorted(agg.items(), key=lambda kv: -kv[1]["dur"]):
             sm = sum(a["sm"]) / len(a["sm"]) if a["sm"] else None
             mem = sum(a["mem"]) / len(a["mem"]) if a["mem"] else None
-            limiter = ("memory-leaning" if (mem or 0) >= (sm or 0) else "compute-leaning") \
-                if (sm is not None or mem is not None) else "?"
+            # A bare mem>=sm comparison mislabels near-idle kernels: 1.5% mem
+            # vs 1.1% compute is not "memory-bound", it's neither-bound (the
+            # wall is elsewhere — occupancy/dependencies, invisible to this
+            # quick 3-metric window). Require BOTH throughputs to clear the
+            # same "high" floor classify.py uses (sol_hi=40%) before calling
+            # a direction at all; below that, say so explicitly.
+            SOL_HI = 40.0
+            if sm is None and mem is None:
+                limiter, why = "?", "quick ncu window: no SoL data captured"
+            elif (mem or 0) < SOL_HI and (sm or 0) < SOL_HI:
+                limiter = "low-utilization"
+                why = (f"quick ncu window: mem SoL {mem:.1f}% and compute SoL {sm:.1f}% "
+                       "are both under 40% — neither is 'bound'; the wall is likely "
+                       "occupancy/dependency (invisible to this quick metric set) — "
+                       "see the deep verdict below, not this tag")
+            elif (mem or 0) >= (sm or 0):
+                limiter = "memory-leaning"
+                why = f"quick ncu window: mem SoL {mem:.1f}% ≥ compute SoL {sm:.1f}%"
+            else:
+                limiter = "compute-leaning"
+                why = f"quick ncu window: compute SoL {sm:.1f}% > mem SoL {mem:.1f}%"
             verdict, ctx = study_join(kname)
             kernels.append({
                 "name": kname, "stage": "?",
@@ -260,8 +279,8 @@ def summarize_regime(ledger_path, out_dir, repo_prefix=""):
                 "share_pct": round(100 * a["dur"] / total, 2),
                 "limiter": limiter,
                 "substrate": verdict,
-                "pim_affinity": "?", "rationale":
-                    "quick ncu window: coarse SoL split; deep verdict joined from the studies",
+                "pim_affinity": "?",
+                "rationale": why + " — deep verdict joined from the studies by kernel name",
                 "study": ctx,
                 "evidence": {"dram_sol_pct": mem, "sectors_per_req": None,
                              "lfmr": None, "mpki": None, "occupancy_pct": None,
