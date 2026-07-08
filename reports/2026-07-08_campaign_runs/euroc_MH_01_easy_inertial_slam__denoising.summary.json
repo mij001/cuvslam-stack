@@ -46,12 +46,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 36.712936,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 36.712936,
+    "comp_sol_pct": 30.716139,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 30.716139,
@@ -85,12 +88,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 43.358522,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 43.358522,
+    "comp_sol_pct": 18.712005,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 18.712005,
@@ -124,12 +130,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 41.049755,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 41.049755,
+    "comp_sol_pct": 25.140636,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 25.140636,
@@ -163,12 +172,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 18.802559,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 18.802559,
+    "comp_sol_pct": 18.679649,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 18.679649,
@@ -198,12 +210,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 23.51235,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 23.51235,
+    "comp_sol_pct": 5.119681,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 5.119681,
@@ -237,12 +252,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 1.169355,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 1.169355,
+    "comp_sol_pct": 0.186953,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.186953,
@@ -276,12 +294,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 1.454564,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 1.454564,
+    "comp_sol_pct": 0.262944,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.262944,
@@ -315,12 +336,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 1.139323,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 1.139323,
+    "comp_sol_pct": 0.165279,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.165279,
@@ -350,12 +374,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 36.029656,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 36.029656,
+    "comp_sol_pct": 36.029656,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 36.029656,
@@ -372,12 +399,15 @@
    "rationale": "quick ncu window: mem SoL 3.5% and compute SoL 0.8% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": null,
    "evidence": {
-    "dram_sol_pct": 3.542172,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 3.542172,
+    "comp_sol_pct": 0.813904,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.813904,
@@ -411,12 +441,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 13.8608185,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 13.8608185,
+    "comp_sol_pct": 2.2360485,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 2.2360485,
@@ -446,12 +479,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 1.244703,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 1.244703,
+    "comp_sol_pct": 0.061264,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.061264,
@@ -481,12 +517,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 3.044521,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 3.044521,
+    "comp_sol_pct": 4.785302,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 4.785302,
@@ -516,12 +555,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 0.698529,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 0.698529,
+    "comp_sol_pct": 0.215188,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.215188,
@@ -551,12 +593,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 13.952206,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 13.952206,
+    "comp_sol_pct": 0.015932,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.015932,
@@ -586,12 +631,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 0.651042,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 0.651042,
+    "comp_sol_pct": 0.006272,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.006272,
@@ -621,12 +669,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 0.683594,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 0.683594,
+    "comp_sol_pct": 0.006646,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.006646,
@@ -656,12 +707,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 0.683594,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 0.683594,
+    "comp_sol_pct": 0.007784,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.007784,
@@ -691,12 +745,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 0.651042,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 0.651042,
+    "comp_sol_pct": 0.006628,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.006628,

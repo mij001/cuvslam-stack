@@ -133,6 +133,8 @@ def build_summary(data_dir, label_dir, adapter="cuvslam", qor=None):
     # classification.csv times are per-capture-window (ncu) and NOT comparable
     # across kernels captured in different windows.
     dag = {r["kernel"]: r for r in read_csv(os.path.join(data_dir, "dag.csv"))}
+    # screen.csv carries the raw SoL pair + working set the decision tree used
+    scr = {r["kernel"]: r for r in read_csv(os.path.join(data_dir, "screen.csv"))}
 
     def timeline(kernel, field, fallback):
         row = dag.get(kernel)
@@ -142,6 +144,7 @@ def build_summary(data_dir, label_dir, adapter="cuvslam", qor=None):
     kernels = []
     for r in cls:
         rf = roof.get(r["kernel"])
+        sc = scr.get(r["kernel"], {})
         kernels.append({
             "name": r["kernel"], "stage": r.get("stage", "?"),
             "study": study(r["kernel"]),
@@ -151,13 +154,19 @@ def build_summary(data_dir, label_dir, adapter="cuvslam", qor=None):
             "substrate": r.get("substrate", "?"),
             "pim_affinity": r.get("pim_affinity", "?"),
             "rationale": r.get("rationale", ""),
+            "confidence": r.get("confidence", ""),
+            "stability": r.get("stability", ""),
+            "persistence": r.get("persistence", ""),
             "evidence": {
                 "dram_sol_pct": fnum(r.get("dram_sol_pct")),
+                "mem_sol_pct": fnum(sc.get("mem_sol_pct")),
+                "comp_sol_pct": fnum(sc.get("comp_sol_pct")),
                 "sectors_per_req": fnum(r.get("sectors_per_req")),
                 "lfmr": fnum(r.get("lfmr_gpu")),
                 "mpki": fnum(r.get("mpki_gpu")),
                 "occupancy_pct": fnum(r.get("occupancy_pct")),
                 "ai": fnum(r.get("ai_flop_per_byte")),
+                "wset_bytes_per_launch": fnum(r.get("dram_bytes_per_launch")),
                 "dominant_stall": r.get("dominant_stall", ""),
             },
             "roofline": ({"ai": fnum(rf.get("ai_dram")), "gflops": fnum(rf.get("gflops"))}
@@ -282,9 +291,13 @@ def summarize_regime(ledger_path, out_dir, repo_prefix=""):
                 "pim_affinity": "?",
                 "rationale": why + " — deep verdict joined from the studies by kernel name",
                 "study": ctx,
-                "evidence": {"dram_sol_pct": mem, "sectors_per_req": None,
+                # the quick set measures the MEMORY-PIPELINE SoL, not DRAM BW
+                # (dram__throughput is only in the deep sets) — label honestly
+                "evidence": {"dram_sol_pct": None, "mem_sol_pct": mem,
+                             "comp_sol_pct": sm, "sectors_per_req": None,
                              "lfmr": None, "mpki": None, "occupancy_pct": None,
-                             "ai": None, "dominant_stall": ""},
+                             "ai": None, "wset_bytes_per_launch": None,
+                             "dominant_stall": ""},
                 "sm_sol_pct": sm,
                 "roofline": None,
             })

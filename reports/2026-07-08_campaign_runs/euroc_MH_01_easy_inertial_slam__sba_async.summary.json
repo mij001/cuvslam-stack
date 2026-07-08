@@ -45,12 +45,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 17.7262815,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 17.7262815,
+    "comp_sol_pct": 11.653465,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 11.653465,
@@ -84,12 +87,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 65.272976,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 65.272976,
+    "comp_sol_pct": 65.272976,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 65.272976,
@@ -123,12 +129,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 18.859615,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 18.859615,
+    "comp_sol_pct": 18.77537,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 18.77537,
@@ -158,12 +167,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 52.914484,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 52.914484,
+    "comp_sol_pct": 51.501904,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 51.501904,
@@ -193,12 +205,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 8.536437,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 8.536437,
+    "comp_sol_pct": 8.536437,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 8.536437,
@@ -228,12 +243,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 59.755068,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 59.755068,
+    "comp_sol_pct": 42.396966,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 42.396966,
@@ -263,12 +281,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 67.998798,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 67.998798,
+    "comp_sol_pct": 49.156073,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 49.156073,
@@ -302,12 +323,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 14.3817205,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 14.3817205,
+    "comp_sol_pct": 2.294652,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 2.294652,
@@ -341,12 +365,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 1.3783615,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 1.3783615,
+    "comp_sol_pct": 0.439337,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.439337,
@@ -380,12 +407,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 2.370483,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 2.370483,
+    "comp_sol_pct": 1.489014,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 1.489014,
@@ -415,12 +445,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 42.082698,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 42.082698,
+    "comp_sol_pct": 2.966611,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 2.966611,
@@ -450,12 +483,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 0.493952,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 0.493952,
+    "comp_sol_pct": 0.059424,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.059424,
@@ -485,12 +521,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 3.014297,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 3.014297,
+    "comp_sol_pct": 4.737797,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 4.737797,
@@ -520,12 +559,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 0.715361,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 0.715361,
+    "comp_sol_pct": 0.207395,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.207395,
@@ -555,12 +597,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 0.800781,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 0.800781,
+    "comp_sol_pct": 0.015309,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.015309,
@@ -590,12 +635,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 10.343693,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 10.343693,
+    "comp_sol_pct": 2.99491,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 2.99491,

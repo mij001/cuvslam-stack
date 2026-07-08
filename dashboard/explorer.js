@@ -28,10 +28,12 @@
     "low-utilization": "#9e9e9e",   // neither SoL >40% — quick-window "leaning" tags don't apply
   };
   const THRESH = [
-    ["dram_sol_pct", "DRAM utilisation", "%", 60, "≥60% ⇒ DRAM-bandwidth-bound", 100],
-    ["sectors_per_req", "sectors / request", "", 8, "≤8 coalesced · ≥16 scattered gather", 32],
-    ["occupancy_pct", "occupancy", "%", 25, "<25% ⇒ latency/dependency limited", 100],
-    ["lfmr", "L2 miss ratio (LFMR)", "", 0.5, "≥0.5 ⇒ cache-defeating, DRAM-visible", 1],
+    ["mem_sol_pct", "memory-pipeline utilisation", "%", 40, "≥40% ⇒ memory-limited (screen)", 100],
+    ["comp_sol_pct", "compute (SM) utilisation", "%", 40, "≥40% ⇒ compute-limited (screen)", 100],
+    ["dram_sol_pct", "DRAM bandwidth utilisation", "%", 50, "≥50% ⇒ DRAM-bandwidth-bound (G1)", 100],
+    ["sectors_per_req", "sectors / request", "", 8, "≤8 coalesced · ≥16 scattered gather (G2)", 32],
+    ["occupancy_pct", "occupancy", "%", 25, "<25% ⇒ latency/dependency limited (G4/G7)", 100],
+    ["lfmr", "L2 miss ratio (LFMR)", "", 0.4, "≥0.4 ⇒ cache-defeating, DRAM-visible", 1],
     ["mpki", "misses / kilo-instr", "", 30, "≥30 ⇒ memory-intensive (DAMOV)", 130],
   ];
 
@@ -261,7 +263,83 @@
     host.appendChild(svg);
   }
 
-  function render() { drawStages(); drawKernels(); drawEvidence(); drawRoofline(); }
+  // ── the decision process: classify.py's rule chain with THIS kernel's ────
+  // numbers substituted. MIRRORS profiling/analysis/classify.py (THRESHOLDS +
+  // the if/elif order) — the fired branch is known from the emitted class, so
+  // the path shown is exactly the path taken; earlier rules are shown as
+  // checked-and-failed, later ones as never-reached.
+  const TH = { sol_hi: 40, ratio: 1.5, dram_sat: 50, lfmr_hi: 0.4, lfmr_lo: 0.35,
+               sect: 8, occ_low: 25, occ_dep: 30 };
+  const fmt = v => (v == null ? "n/a" : (Math.round(v * 100) / 100));
+  const RULES = [
+    ["G5-compute", e =>
+      `CompSoL ${fmt(e.comp_sol_pct)}% ≥ ${TH.sol_hi}%  AND  ≥ ${TH.ratio}× MemSoL ${fmt(e.mem_sol_pct)}%`],
+    ["G6-onchip", e =>
+      `dominant stall ∈ {mio_throttle, short_scoreboard} (is: ${e.dominant_stall || "n/a"})  AND  DRAM-SoL ${fmt(e.dram_sol_pct)}% < ${TH.sol_hi}%`],
+    ["G1-bandwidth", e =>
+      `DRAM-SoL ${fmt(e.dram_sol_pct)}% ≥ ${TH.dram_sat}%  (LFMR ${fmt(e.lfmr)} ${e.lfmr != null && e.lfmr >= TH.lfmr_hi ? "≥" : "<"} ${TH.lfmr_hi} ⇒ L2 ${e.lfmr != null && e.lfmr >= TH.lfmr_hi ? "not helping" : "absorbing reuse"})`],
+    ["G2-coalescing", e =>
+      `memory-limited  AND  sectors/request ${fmt(e.sectors_per_req)} ≥ ${TH.sect}  (4 = coalesced)`],
+    ["G3-l2-reuse", e =>
+      `memory-limited  AND  LFMR ${fmt(e.lfmr)} < ${TH.lfmr_lo}  (the L2 is earning its keep)`],
+    ["G4-latency", e =>
+      `long_scoreboard dominant (is: ${e.dominant_stall || "n/a"})  AND  occupancy ${fmt(e.occupancy_pct)}% < ${TH.occ_low}%  AND  DRAM unsaturated (${fmt(e.dram_sol_pct)}%)`],
+    ["G7-dependency", e =>
+      `stall ∈ {wait, short_scoreboard, barrier, not_selected} (is: ${e.dominant_stall || "n/a"})  AND  occupancy ${fmt(e.occupancy_pct)}% < ${TH.occ_dep}%  AND  neither SoL ≥ ${TH.sol_hi}% (mem ${fmt(e.mem_sol_pct)}%, comp ${fmt(e.comp_sol_pct)}%)`],
+    ["G0-nosignal", () => "no dominant bottleneck signal (short / launch-tax kernels)"],
+  ];
+  const AFFINITY = {
+    "G5-compute": "class G5/G6 → affinity NONE → host GPU",
+    "G6-onchip": "class G5/G6 → affinity NONE → host GPU (an on-chip problem)",
+    "G7-dependency": "class G7 → affinity NONE → host GPU — raise occupancy/ILP first, then re-screen",
+    "G0-nosignal": "class G0 → n/a",
+    "G1-bandwidth": "G1 + streaming persistence → near-sensor SRAM; else → DRAM-PiM (bank-level bandwidth); cold-persistent + big set → ISP",
+    "G2-coalescing": "G2 → CONDITIONAL → scatter-capable PiM, or a data-layout fix first",
+    "G3-l2-reuse": "G3 → WEAK → a bigger/persisted L2 wins; PiM would forfeit the reuse",
+    "G4-latency": "G4 + (LFMR ≥ 0.4 or set ≫ L2) → STRONG near-memory compute; else → fix occupancy first",
+  };
+
+  function drawDecision() {
+    const host = $("#xp-decision"); if (!host) return;
+    host.innerHTML = "";
+    const k = DATA.kernels.find(x => x.name === selKernel);
+    if (!k) { host.textContent = "select a kernel"; return; }
+    const e = k.evidence || {};
+    const cls = (k.limiter || "").split("-")[0].startsWith("G") ? k.limiter : null;
+    if (!cls) {
+      host.appendChild(el("div", { class: "xp-note" },
+        "this is a quick campaign cell — the full decision tree needs the deep metric set; " +
+        "the substrate verdict shown is joined from the deep studies. Open a ★ study run for the complete trace."));
+      if (k.substrate && k.substrate !== "?") host.appendChild(el("div", { class: "xp-verdict" },
+        `study-joined verdict: ${k.substrate}`));
+      return;
+    }
+    host.appendChild(el("div", { class: "xp-evsub" },
+      `classifier: profiling/analysis/classify.py decision tree (thresholds stress-tested ±25% — ` +
+      `this kernel is ${k.stability || "?"}; confidence ${k.confidence || "?"})`));
+    let fired = false;
+    for (const [rule, cond] of RULES) {
+      const isFired = rule === cls;
+      const state = isFired ? "fired" : (fired ? "skipped" : "failed");
+      const row = el("div", { class: `dt-rule dt-${state}` });
+      row.appendChild(el("span", { class: "dt-badge",
+        style: `background:${isFired ? "#2e7d32" : fired ? "#c2cbd4" : "#8a97a5"}` },
+        isFired ? "FIRED" : fired ? "not reached" : "checked, no"));
+      row.appendChild(el("span", { class: "dt-vals" }, `${rule}:  ${cond(e)}`));
+      host.appendChild(row);
+      if (isFired) fired = true;
+    }
+    host.appendChild(el("div", { class: "xp-rat" },
+      "then the affinity rule: " + (AFFINITY[cls] || "?") +
+      (k.persistence ? `  ·  persistence hypothesis: ${k.persistence}` : "")));
+    const v = el("div", { class: "xp-verdict" });
+    v.innerHTML = `<b>⇒ ${cls}</b> → PiM affinity <b>${k.pim_affinity}</b> → substrate <b>${k.substrate}</b>`;
+    v.appendChild(el("div", { class: "xp-mnote" },
+      `classifier's own words: ${k.rationale || "—"}`));
+    host.appendChild(v);
+  }
+
+  function render() { drawStages(); drawKernels(); drawEvidence(); drawDecision(); drawRoofline(); }
 
   async function loadRun(src) {
     DATA = await (await fetch(`/api/summary?src=${encodeURIComponent(src)}`)).json();
@@ -294,5 +372,25 @@
     if (first.length) loadRun(first[0].source);
     else $("#xp-meta").textContent = "no profiled runs yet — run one above (step 3)";
   }
+  // public API: findings-tab deep links (open a run, optionally select a kernel)
+  window.Explorer = {
+    open: async function (runSrc, kernel) {
+      if (runSrc) {
+        const sel = $("#xp-run");
+        if (sel && ![...sel.options].some(o => o.value === runSrc)) {
+          const s = LIST.find(x => x.source === runSrc);
+          sel.add(new Option(s ? s.workload : runSrc, runSrc));
+        }
+        if (sel) sel.value = runSrc;
+        await loadRun(runSrc);
+      }
+      if (kernel && DATA) {
+        const hit = DATA.kernels.find(k => k.name === kernel || k.name.endsWith("::" + kernel));
+        if (hit) { selKernel = hit.name; render(); }
+        const evb = $("#xp-evidence");
+        if (evb) evb.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    },
+  };
   window.addEventListener("DOMContentLoaded", init);
 })();

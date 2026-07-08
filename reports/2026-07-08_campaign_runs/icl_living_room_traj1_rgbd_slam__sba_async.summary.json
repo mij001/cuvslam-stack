@@ -45,12 +45,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 2.7857697,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 2.7857697,
+    "comp_sol_pct": 1.0645859,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 1.0645859,
@@ -84,12 +87,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 1.4481832,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 1.4481832,
+    "comp_sol_pct": 1.1153759,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 1.1153759,

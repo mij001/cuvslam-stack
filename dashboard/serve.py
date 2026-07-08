@@ -414,8 +414,6 @@ def _fig(path, cap):
 def page():
     targets = load_targets()
     tgt_opts = "".join(f"<option>{html.escape(t)}</option>" for t in targets)
-    # existing, already-validated configs first (the original studies' set),
-    # customs next; the generated mutation matrix stays out of the primary list
     prim = []
     for pat in ("configs/custom/*.toml", "configs/base/*.toml",
                 "configs/profiling/*.toml", "configs/*.toml"):
@@ -430,98 +428,221 @@ def page():
         f'<tr><td>{html.escape(r["tag"])}</td><td>{html.escape(r["created"])}</td>'
         f'<td>{", ".join(r["captures"])}</td><td>{", ".join(r["analyses"])}</td>'
         f'<td><a href="/{r["dir"]}/manifest.json" target="_blank">manifest</a></td></tr>'
-        for r in runs) or '<tr><td colspan="5">none yet — run one above</td></tr>'
-    scols, srows = substrate_rows()
-    subst_html = ""
-    if srows:
-        head = "".join(f"<th>{html.escape(c)}</th>" for c in scols)
-        body = "".join("<tr>" + "".join(f"<td>{html.escape(v)}</td>" for v in row) + "</tr>"
-                       for row in srows)
-        subst_html = (f'<div class="tablewrap"><table><tr>{head}</tr>{body}</table></div>'
-                      f'<p class="note">first {len(srows)} kernels — full table: '
-                      f'<a href="/reports/2026-07-07_substrate/substrate_verdicts.csv">CSV</a></p>')
+        for r in runs) or '<tr><td colspan="5">none yet</td></tr>'
 
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>cuvslam-stack profiler</title>
+<title>GPU workload characterizer — PiM/ISP placement evidence</title>
 <style>
-:root {{ --acc:#1565c0; --line:#e0e0e0; --ok:#2e7d32; --err:#c62828; }}
+:root {{ --acc:#1565c0; --acc2:#0d47a1; --line:#e3e7ee; --ok:#2e7d32; --err:#c62828;
+        --ink:#1c2733; --sub:#5a6b7c; --bg:#f4f6fa; --card:#fff; }}
 * {{ box-sizing:border-box; }}
-body {{ margin:0; font:14.5px/1.5 system-ui,sans-serif; background:#f5f7fa; color:#222; }}
-header {{ background:linear-gradient(120deg,#0d47a1,#1976d2); color:#fff; padding:16px 30px; }}
-header h1 {{ margin:0; font-size:20px; }} header p {{ margin:2px 0 0; opacity:.85; font-size:13px; }}
-main {{ max-width:1100px; margin:20px auto; padding:0 16px; }}
-.card {{ background:#fff; border:1px solid var(--line); border-radius:10px;
-        padding:16px 20px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); }}
+html {{ scroll-behavior:smooth; }}
+body {{ margin:0; font:14.5px/1.55 "Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+       background:var(--bg); color:var(--ink); }}
+header {{ background:linear-gradient(115deg,#0b3d91 0%,#1565c0 70%,#1e88e5 100%);
+         color:#fff; padding:20px 34px 0; }}
+header h1 {{ margin:0; font-size:21px; letter-spacing:.2px; }}
+header p {{ margin:4px 0 14px; opacity:.85; font-size:13px; }}
+nav.tabs {{ display:flex; gap:4px; }}
+nav.tabs a {{ color:#dce8f7; text-decoration:none; padding:9px 18px; font-size:13.5px;
+  border-radius:9px 9px 0 0; background:rgba(255,255,255,.08); }}
+nav.tabs a.on {{ background:var(--bg); color:var(--acc2); font-weight:600; }}
+main {{ max-width:1180px; margin:22px auto 60px; padding:0 18px; }}
+.tab {{ display:none; }} .tab.on {{ display:block; animation:fade .18s ease; }}
+@keyframes fade {{ from {{ opacity:.4; transform:translateY(3px); }} to {{ opacity:1; }} }}
+.card {{ background:var(--card); border:1px solid var(--line); border-radius:12px;
+        padding:18px 22px; margin-bottom:18px; box-shadow:0 1px 3px rgba(15,40,80,.06); }}
 .card h2 {{ margin:0 0 8px; font-size:16px; }}
-.step {{ display:inline-block; background:var(--acc); color:#fff; border-radius:50%;
-         width:24px; height:24px; text-align:center; line-height:24px; font-size:13px;
-         margin-right:8px; }}
-label {{ display:block; margin:8px 0 2px; font-size:12.5px; color:#555; }}
-input[type=text],select,textarea {{ width:100%; padding:7px 9px; border:1px solid #bbb;
-  border-radius:6px; font:inherit; }}
+h3 {{ font-size:13.5px; margin:20px 0 8px; text-transform:uppercase; letter-spacing:.6px;
+     color:var(--sub); }}
+label {{ display:block; margin:8px 0 2px; font-size:12.5px; color:var(--sub); }}
+input[type=text],select,textarea {{ width:100%; padding:7px 10px; border:1px solid #c3ccd8;
+  border-radius:7px; font:inherit; background:#fff; }}
 .row {{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 14px; }}
 .row2 {{ display:grid; grid-template-columns:2fr 1fr; gap:0 14px; }}
-button {{ background:var(--acc); color:#fff; border:0; border-radius:6px;
+button {{ background:var(--acc); color:#fff; border:0; border-radius:7px;
   padding:9px 18px; font:inherit; cursor:pointer; margin-top:10px; }}
-button.sec {{ background:#607d8b; }}
-pre.log {{ background:#111; color:#8fd18f; padding:12px; border-radius:8px;
+button:hover {{ filter:brightness(1.08); }}
+button.sec {{ background:#5a6b7c; }}
+pre.log {{ background:#101418; color:#8fd18f; padding:12px; border-radius:9px;
   max-height:300px; overflow:auto; font-size:12px; white-space:pre-wrap; }}
 .status {{ font-size:13px; margin:6px 0; }}
 .ok {{ color:var(--ok); }} .err {{ color:var(--err); }}
-.note {{ font-size:12px; color:#777; }}
+.note {{ font-size:12px; color:var(--sub); }}
 details {{ margin:8px 0; }} summary {{ cursor:pointer; color:var(--acc); font-size:13px; }}
-.figgrid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; }}
-.figgrid a {{ display:block; border:1px solid var(--line); border-radius:8px;
-  overflow:hidden; background:#fff; }}
-.figgrid img {{ width:100%; display:block; }}
-.figcap {{ font-size:11.5px; color:#666; padding:5px 9px; border-top:1px solid var(--line); }}
 table {{ border-collapse:collapse; font-size:12px; width:100%; }}
-th,td {{ border:1px solid var(--line); padding:4px 7px; text-align:left; }}
-th {{ background:#f5f5f5; }}
-.tablewrap {{ max-height:300px; overflow:auto; border:1px solid var(--line); border-radius:8px; }}
-h3 {{ font-size:14px; margin:18px 0 6px; }}
-/* evidence explorer */
+th,td {{ border:1px solid var(--line); padding:4px 8px; text-align:left; }}
+th {{ background:#f1f4f9; }}
+.tablewrap {{ max-height:320px; overflow:auto; border:1px solid var(--line); border-radius:9px; }}
+/* findings */
+.fgrid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px; }}
+.fcard {{ background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:16px 18px; box-shadow:0 1px 3px rgba(15,40,80,.06); display:flex;
+  flex-direction:column; }}
+.fstep {{ align-self:flex-start; font-size:10.5px; text-transform:uppercase;
+  letter-spacing:.8px; color:#fff; border-radius:10px; padding:2px 10px; }}
+.fnum {{ font-size:30px; font-weight:700; margin:8px 0 0; color:var(--acc2);
+  font-variant-numeric:tabular-nums; }}
+.funit {{ font-size:12px; color:var(--sub); margin-bottom:6px; }}
+.ftitle {{ font-size:14px; font-weight:600; margin:4px 0; }}
+.fstmt {{ font-size:12.5px; color:#33424f; flex:1; }}
+.fev {{ margin-top:10px; }}
+.fev a {{ display:inline-block; font-size:12px; color:var(--acc); text-decoration:none;
+  border:1px solid var(--acc); border-radius:14px; padding:3px 12px; margin:2px 4px 2px 0; }}
+.fev a:hover {{ background:var(--acc); color:#fff; }}
+#chartpanel {{ display:none; }}
+#chartpanel.on {{ display:block; }}
+.charthost {{ min-height:220px; }}
+/* methodology stepper */
+.mflow {{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:10px 0 18px; }}
+.mnode {{ background:var(--card); border:2px solid var(--acc); color:var(--acc2);
+  border-radius:10px; padding:8px 14px; font-weight:600; font-size:13px; }}
+.marrow {{ color:var(--sub); font-size:18px; }}
+.mstep {{ border-left:4px solid var(--acc); }}
+.mstep h2 {{ color:var(--acc2); }}
+.mrel a {{ font-size:12px; color:var(--acc); margin-right:10px; }}
+/* explorer bits (unchanged classes) */
+.step {{ display:inline-block; background:var(--acc); color:#fff; border-radius:50%;
+  width:24px; height:24px; text-align:center; line-height:24px; font-size:13px;
+  margin-right:8px; }}
 .xp-cols {{ display:grid; grid-template-columns:1fr 1fr; gap:0 18px; }}
-@media (max-width:900px) {{ .xp-cols {{ grid-template-columns:1fr; }} }}
-.xp-row {{ display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:6px;
+@media (max-width:900px) {{ .xp-cols {{ grid-template-columns:1fr; }} .row,.row2 {{ grid-template-columns:1fr; }} }}
+.xp-row {{ display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:7px;
   cursor:pointer; font-size:12.5px; }}
-.xp-row:hover {{ background:#eef3fa; }}
-.xp-sel {{ background:#e3ecf7; outline:1px solid var(--acc); }}
-.xp-tail {{ color:#888; cursor:default; }}
+.xp-row:hover {{ background:#eaf1fa; }}
+.xp-sel {{ background:#e2edf9; outline:1px solid var(--acc); }}
+.xp-tail {{ color:#8896a5; cursor:default; }}
 .xp-pct {{ width:46px; text-align:right; font-variant-numeric:tabular-nums; }}
-.xp-bar {{ width:90px; height:9px; background:#eee; border-radius:5px; overflow:hidden; flex:none; }}
+.xp-bar {{ width:90px; height:9px; background:#e8ecf2; border-radius:5px; overflow:hidden; flex:none; }}
 .xp-fill {{ height:100%; background:var(--acc); }}
-.xp-name {{ flex:1; font-family:monospace; font-size:12px; overflow:hidden; white-space:nowrap; }}
-.xp-chip {{ color:#fff; border-radius:9px; padding:1px 8px; font-size:10.5px; flex:none; }}
+.xp-name {{ flex:1; font-family:ui-monospace,monospace; font-size:12px; overflow:hidden; white-space:nowrap; }}
+.xp-chip {{ color:#fff; border-radius:10px; padding:1px 9px; font-size:10.5px; flex:none; }}
 .xp-sub {{ background:#37474f; }}
-.xp-evbox {{ border:1px solid var(--line); border-radius:8px; padding:10px 14px; background:#fcfdff; }}
-.xp-evtitle {{ font-family:monospace; font-size:13px; font-weight:600; word-break:break-all; }}
-.xp-evsub {{ font-size:12px; color:#555; margin:2px 0 10px; }}
+.xp-evbox {{ border:1px solid var(--line); border-radius:10px; padding:12px 16px; background:#fbfdff; }}
+.xp-evtitle {{ font-family:ui-monospace,monospace; font-size:13px; font-weight:600; word-break:break-all; }}
+.xp-evsub {{ font-size:12px; color:var(--sub); margin:2px 0 10px; }}
 .xp-metric {{ margin:7px 0; }}
 .xp-mlabel {{ font-size:12px; }}
-.xp-mbar {{ position:relative; height:10px; background:#eee; border-radius:5px; }}
-.xp-mfill {{ height:100%; background:#1565c0; border-radius:5px; }}
-.xp-mcut {{ position:absolute; top:-3px; width:2px; height:16px; background:#c62828; }}
-.xp-mnote {{ font-size:10.5px; color:#888; }}
-.xp-rat {{ font-size:11.5px; color:#555; margin-top:8px; font-style:italic; }}
-.xp-verdict {{ margin-top:10px; padding:8px 12px; border-left:4px solid #2e7d32;
-  background:#f0f7f1; font-size:13px; border-radius:0 6px 6px 0; }}
-.xp-stack {{ display:flex; height:20px; border-radius:5px; overflow:hidden; }}
+.xp-mbar {{ position:relative; height:10px; background:#e8ecf2; border-radius:5px; }}
+.xp-mfill {{ height:100%; background:var(--acc); border-radius:5px; }}
+.xp-mcut {{ position:absolute; top:-3px; width:2px; height:16px; background:var(--err); }}
+.xp-mnote {{ font-size:10.5px; color:#8896a5; }}
+.xp-rat {{ font-size:11.5px; color:var(--sub); margin-top:8px; font-style:italic; }}
+.xp-verdict {{ margin-top:10px; padding:9px 13px; border-left:4px solid var(--ok);
+  background:#f0f7f1; font-size:13px; border-radius:0 8px 8px 0; }}
+.xp-stack {{ display:flex; height:20px; border-radius:6px; overflow:hidden; }}
 .xp-seg {{ height:100%; color:#fff; font-size:10px; line-height:20px; padding-left:4px;
   white-space:nowrap; overflow:hidden; }}
 .xp-legend {{ margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }}
-.xp-note {{ font-size:12px; color:#777; }}
-.xp-qor {{ font-size:11.5px; color:#2e7d32; }}
+.xp-note {{ font-size:12px; color:var(--sub); }}
+.xp-qor {{ font-size:11.5px; color:var(--ok); }}
+/* decision trace */
+.dt-rule {{ display:flex; gap:8px; align-items:baseline; font-size:12px; padding:5px 8px;
+  border-radius:6px; margin:2px 0; font-family:ui-monospace,monospace; }}
+.dt-fired {{ background:#e8f5e9; outline:1px solid #a5d6a7; }}
+.dt-failed {{ background:#fff; color:#8a97a5; }}
+.dt-skipped {{ background:#fff; color:#c2cbd4; }}
+.dt-badge {{ font-size:10px; border-radius:8px; padding:1px 8px; color:#fff; flex:none;
+  font-family:system-ui; }}
+.dt-vals {{ color:#33424f; }}
+/* shared tooltip */
+#tip {{ position:fixed; display:none; background:#101418; color:#eef3f8; font-size:11.5px;
+  padding:7px 10px; border-radius:7px; pointer-events:none; z-index:99; max-width:340px;
+  white-space:pre-line; box-shadow:0 3px 12px rgba(0,0,0,.3); }}
+footer {{ text-align:center; color:var(--sub); font-size:12px; padding:20px; }}
 </style></head><body>
-<header><h1>cuvslam-stack profiler</h1>
-<p>controller: pick a target → pick a config → profile → findings (PiM/ISP candidacy, memory behaviour)</p></header>
+<header>
+<h1>GPU workload characterizer</h1>
+<p>the full methodology, every number, and the decision behind every PiM / ISP / GPU placement verdict — for cuVSLAM and any adapted codebase</p>
+<nav class="tabs">
+<a href="#findings" data-tab="findings">Findings</a>
+<a href="#explore" data-tab="explore">Explore a run</a>
+<a href="#method" data-tab="method">Methodology</a>
+<a href="#profile" data-tab="profile">Profile</a>
+<a href="#setup" data-tab="setup">Setup</a>
+</nav>
+</header>
 <main>
 
-<div class="card"><h2><span class="step">1</span>Target</h2>
+<!-- ═══════════ FINDINGS ═══════════ -->
+<section class="tab" id="tab-findings">
+<div class="card" id="chartpanel"><h2 id="chartttl"></h2>
+<div class="charthost" id="charthost"></div>
+<button class="sec" id="chartclose">close</button></div>
+<p class="note" style="margin:4px 2px 12px">every number below is computed from the committed
+measurement artifacts (never hand-typed); each card links to its interactive evidence.
+Grouped by methodology step — see the <a href="#method">Methodology</a> tab for the pipeline itself.</p>
+<div class="fgrid" id="findings"></div>
+</section>
+
+<!-- ═══════════ EXPLORE ═══════════ -->
+<section class="tab" id="tab-explore">
+<div class="card"><h2>Evidence explorer — one profiled run, the whole reasoning chain</h2>
+<p class="note"><b>where</b> time goes → <b>who</b> dominates → <b>why</b> (every metric vs its
+decision threshold, the attribution join, taxonomy stability) → <b>the decision process</b>
+(the exact classifier rules with this kernel's numbers) → <b>verdict</b>.</p>
 <div class="row">
-  <div><label>profile on</label><select id="runtarget">{tgt_opts}</select></div>
+  <div><label>filter runs (★ = deep study; rest = campaign cells)</label>
+    <input type="text" id="xp-filter" placeholder="kitti, tum, __denoising, _cpu …"></div>
+  <div><label>profiled run <span id="xp-count" class="note"></span></label>
+    <select id="xp-run"></select></div>
+  <div><label>&nbsp;</label><span id="xp-meta" class="note"></span></div>
+</div>
+<h3>1 · where the GPU time goes</h3>
+<div id="xp-stages"></div>
+<div class="xp-cols">
+<div><h3>2 · who dominates (click a kernel)</h3><div id="xp-kernels"></div></div>
+<div><h3>3 · why — evidence vs thresholds</h3><div id="xp-evidence" class="xp-evbox"></div></div>
+</div>
+<h3>4 · the decision process — classifier rules with this kernel's numbers</h3>
+<div id="xp-decision" class="xp-evbox"></div>
+<h3>5 · roofline position (hover; size = time share)</h3>
+<div id="xp-roofline"></div>
+<details><summary>recent full-pipeline runs</summary>
+<div class="tablewrap"><table>
+<tr><th>workload</th><th>when</th><th>captures</th><th>analyses</th><th></th></tr>
+{runs_html}</table></div></details>
+</div>
+</section>
+
+<!-- ═══════════ METHODOLOGY ═══════════ -->
+<section class="tab" id="tab-method">
+<div class="card"><h2>The pipeline — how a workload becomes placement decisions</h2>
+<div class="mflow" id="mflow"></div>
+<div id="msteps"></div>
+</div>
+</section>
+
+<!-- ═══════════ PROFILE ═══════════ -->
+<section class="tab" id="tab-profile">
+<div class="card"><h2><span class="step">▶</span>Run / profile on a target</h2>
+<div class="row">
+  <div><label>config</label><select id="runcfg">{cfg_opts}</select></div>
+  <div><label>what to run</label><select id="runprof">
+    <option value="regime">full profile — nsys → ncu → nvbit → analyses (+ accuracy)</option>
+    <option value="nsys">nsys only (timeline + stages)</option>
+    <option value="ncu">ncu only (kernel metrics, windowed)</option>
+    <option value="nvbit">nvbit only (memory trace, windowed)</option>
+    <option value="none">plain run (accuracy / QoR only)</option></select></div>
+  <div><label>hardware descriptor</label><select id="runhw">{hw_opts}</select></div>
+</div>
+<div class="row">
+  <div><label>target</label><select id="runtarget">{tgt_opts}</select></div>
+  <div><label>&nbsp;</label><button id="runbtn">start on target</button></div>
+  <div><label>&nbsp;</label><span id="runstat" class="status"></span></div>
+</div>
+<p class="note">every run evaluates accuracy/QoR; ncu+nvbit use bounded launch windows (the app
+still runs the full sequence); logs stream back live over ssh.</p>
+<pre class="log" id="runlog" style="display:none"></pre></div>
+</section>
+
+<!-- ═══════════ SETUP ═══════════ -->
+<section class="tab" id="tab-setup">
+<div class="card"><h2>Targets — this machine is the controller</h2>
+<div class="row">
+  <div><label>doctor a target</label><select id="doctortg">{tgt_opts}</select></div>
   <div><label>&nbsp;</label><button type="button" class="sec" id="doctorbtn">doctor — is it ready?</button></div>
   <div><label>&nbsp;</label><span id="tgout" class="status"></span></div>
 </div>
@@ -536,14 +657,10 @@ h3 {{ font-size:14px; margin:18px 0 6px; }}
   <div><label>data root</label><input type="text" name="data" placeholder="/data"></div>
   <div><label>&nbsp;</label><button type="submit">add</button></div>
 </div></form>
-<p class="note">set up keys first: <code>ssh-copy-id user@host</code>; then run the doctor — every failed
-check prints its one-line fix (driver/CUDA/ncu/NVBit/kernel incompatibilities).</p></details></div>
+<p class="note">keys first: <code>ssh-copy-id user@host</code>. The doctor prints a one-line fix for
+every failed layer (driver/CUDA/ncu/NVBit/kernel traps).</p></details></div>
 
-<div class="card"><h2><span class="step">2</span>Config</h2>
-<div class="row2">
-  <div><label>existing (validated studies + your own)</label><select id="runcfg">{cfg_opts}</select></div>
-  <div><label>hw descriptor (auto per target ok)</label><select id="runhw">{hw_opts}</select></div>
-</div>
+<div class="card"><h2>Configs & workloads</h2>
 <details><summary>create: dataset config (cuVSLAM adapter)</summary>
 <form id="mkform"><div class="row">
   <div><label>name</label><input type="text" name="name" placeholder="my_lab_corridor" required></div>
@@ -572,79 +689,17 @@ check prints its one-line fix (driver/CUDA/ncu/NVBit/kernel incompatibilities).<
     <button type="button" id="edsave" class="sec">save</button>
     <span id="edstat" class="status" style="display:inline"></span></div>
 </div>
-<textarea id="edtext" style="height:220px;font:12px monospace;display:none"></textarea></details></div>
-
-<div class="card"><h2><span class="step">3</span>Profile</h2>
-<div class="row">
-  <div><label>what to run</label><select id="runprof">
-    <option value="regime">full profile — nsys → ncu → nvbit → analyses (+ accuracy)</option>
-    <option value="nsys">nsys only (timeline + stages)</option>
-    <option value="ncu">ncu only (kernel metrics, windowed)</option>
-    <option value="nvbit">nvbit only (memory trace, windowed)</option>
-    <option value="none">plain run (accuracy / QoR only)</option></select></div>
-  <div><label>&nbsp;</label><button id="runbtn">start on target</button></div>
-  <div><label>&nbsp;</label><span id="runstat" class="status"></span></div>
-</div>
-<p class="note">every run evaluates accuracy/QoR; ncu+nvbit use bounded launch windows (the app
-still runs the full sequence). Logs stream back live from the target.</p>
-<pre class="log" id="runlog" style="display:none"></pre></div>
-
-<div class="card"><h2>Findings — the evidence explorer</h2>
-<p class="note">the automated bottleneck→improvement chain: <b>where</b> time goes →
-<b>who</b> dominates → <b>why</b> (metrics vs decision thresholds) → <b>verdict</b>
-(best substrate). Every number is from the run's <code>summary.json</code> — the same
-schema for every adapter.</p>
-<div class="row">
-  <div><label>filter runs (★ = deep study; rest = campaign cells)</label>
-    <input type="text" id="xp-filter" placeholder="type to filter: kitti, tum, __denoising, _cpu …"></div>
-  <div><label>profiled run <span id="xp-count" class="note"></span></label>
-    <select id="xp-run"></select></div>
-  <div><label>&nbsp;</label><span id="xp-meta" class="note"></span></div>
-</div>
-
-<h3>1 · where the GPU time goes</h3>
-<div id="xp-stages"></div>
-
-<div class="xp-cols">
-<div>
-<h3>2 · who dominates (click a kernel)</h3>
-<div id="xp-kernels"></div>
-</div>
-<div>
-<h3>3 · why — evidence vs thresholds → verdict</h3>
-<div id="xp-evidence" class="xp-evbox"></div>
-</div>
-</div>
-
-<h3>4 · roofline position (hover a point; size = time share)</h3>
-<div id="xp-roofline"></div>
-
-<details><summary>cross-workload dynamics: verdicts that flip between workloads + kernel-level table</summary>
-<div class="figgrid">
-{_fig("reports/2026-07-07_substrate/figs/substrate_mix.png", "GPU-time share by best substrate, per workload")}
-{_fig("reports/2026-07-07_substrate/figs/flip_drivers.png", "25/49 kernels flip verdict across workloads — the driving metric per flip")}
-</div>
-{subst_html}</details>
-
-<details><summary>recent pipeline runs</summary>
-<div class="tablewrap"><table>
-<tr><th>workload</th><th>when</th><th>captures</th><th>analyses</th><th></th></tr>
-{runs_html}</table></div></details>
-
-<details><summary>validity: accuracy vs the paper + profiler neutrality (checked on every run — not the headline)</summary>
-<div class="figgrid">
-{_fig("reports/2026-07-07_accuracy_full/figs/traj_kitti.png", "estimated vs ground-truth trajectories (KITTI)")}
-{_fig("reports/2026-07-07_accuracy_full/figs/ape_by_config.png", "APE across the 141-run accuracy matrix")}
-{_fig("reports/2026-07-07_profiling_coverage/figs/neutrality_scatter.png", "profiling neutrality: APE with vs without profilers")}
-{_fig("reports/2026-07-07_profiler_neutrality/figs/profiler_neutrality.png", "nsys / ncu / nvbit all accuracy-neutral")}
-</div>
-<p class="note"><a href="/site/index.html" target="_blank">full results site (all reports, tables, figures)</a>
-&nbsp;·&nbsp; <button class="sec" id="rebuild" style="margin:0;padding:4px 10px">rebuild figures + site</button>
-<span id="rebuildout"></span></p></details>
-</div>
+<textarea id="edtext" style="height:220px;font:12px ui-monospace,monospace;display:none"></textarea></details>
+<p class="note"><a href="/site/index.html" target="_blank">full static results site</a> ·
+<button class="sec" id="rebuild" style="margin:0;padding:4px 10px">rebuild figures + site</button>
+<span id="rebuildout"></span></p></div>
+</section>
 
 </main>
+<div id="tip"></div>
+<footer>every chart is drawn from the same CSV/JSON artifacts the reports cite — hover for numbers, click to drill</footer>
 <script src="/explorer.js"></script>
+<script src="/app.js"></script>
 <script>
 const $ = s => document.querySelector(s);
 $("#tgform") && $("#tgform").addEventListener("submit", async ev => {{
@@ -655,7 +710,7 @@ $("#tgform") && $("#tgform").addEventListener("submit", async ev => {{
                                   : `<span class="ok">✓ added ${{j.added}} — reload to select</span>`;
 }});
 $("#doctorbtn").addEventListener("click", async () => {{
-  const t = $("#runtarget").value;
+  const t = $("#doctortg").value;
   $("#doctorout").style.display = "block";
   $("#doctorout").textContent = `running doctor on ${{t}} …`;
   const j = await (await fetch(`/api/doctor?target=${{encodeURIComponent(t)}}`)).json();
@@ -769,10 +824,29 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(read_summary(q.get("src", [""])[0]))
             except Exception as e:  # noqa: BLE001
                 return self._json({"error": str(e)}, 400)
-        if path == "explorer.js":
+        if path in ("explorer.js", "app.js"):
             with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                   "explorer.js"), "rb") as fh:
+                                   path), "rb") as fh:
                 return self._send(200, fh.read(), "text/javascript")
+        if path == "api/findings":
+            fp = os.path.join(ROOT, "reports", "findings.json")
+            if not os.path.isfile(fp):
+                return self._json({"findings": [], "methodology": []})
+            return self._json(json.load(open(fp)))
+        if path == "api/csv":
+            q = urllib.parse.parse_qs(url.query)
+            src = q.get("src", [""])[0]
+            full = os.path.realpath(os.path.join(ROOT, src))
+            ok_roots = (os.path.realpath(os.path.join(ROOT, "reports")),
+                        os.path.realpath(os.path.join(ROOT, "profiling", "reports")))
+            if not (full.startswith(ok_roots) and full.endswith((".csv", ".tsv"))
+                    and os.path.isfile(full)):
+                return self._json({"error": "src must be a csv/tsv under reports/"}, 400)
+            import csv as _csv
+            delim = "\t" if full.endswith(".tsv") else ","
+            with open(full, newline="") as fh:
+                rows = list(_csv.DictReader(fh, delimiter=delim))
+            return self._json({"src": src, "rows": rows})
         if path == "api/doctor":
             q = urllib.parse.parse_qs(url.query)
             name = q.get("target", ["local"])[0]

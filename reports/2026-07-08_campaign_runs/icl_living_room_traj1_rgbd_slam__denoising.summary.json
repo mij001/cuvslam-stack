@@ -46,12 +46,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 1.6170445,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 1.6170445,
+    "comp_sol_pct": 1.0528858749999999,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 1.0528858749999999,
@@ -85,12 +88,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 1.331276625,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 1.331276625,
+    "comp_sol_pct": 1.11518875,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 1.11518875,
@@ -124,12 +130,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 11.590413,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 11.590413,
+    "comp_sol_pct": 81.938354,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 81.938354,
@@ -146,12 +155,15 @@
    "rationale": "quick ncu window: mem SoL 50.9% \u2265 compute SoL 27.0% \u2014 deep verdict joined from the studies by kernel name",
    "study": null,
    "evidence": {
-    "dram_sol_pct": 50.918747,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 50.918747,
+    "comp_sol_pct": 27.002424,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 27.002424,
@@ -168,12 +180,15 @@
    "rationale": "quick ncu window: mem SoL 61.8% \u2265 compute SoL 34.4% \u2014 deep verdict joined from the studies by kernel name",
    "study": null,
    "evidence": {
-    "dram_sol_pct": 61.750768,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 61.750768,
+    "comp_sol_pct": 34.420715,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 34.420715,
@@ -190,12 +205,15 @@
    "rationale": "quick ncu window: mem SoL 21.7% and compute SoL 38.8% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": null,
    "evidence": {
-    "dram_sol_pct": 21.70202,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 21.70202,
+    "comp_sol_pct": 38.835779,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 38.835779,

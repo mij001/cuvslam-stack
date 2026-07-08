@@ -45,12 +45,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 2.0268432,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 2.0268432,
+    "comp_sol_pct": 0.5562891999999999,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.5562891999999999,
@@ -84,12 +87,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 1.7220954,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 1.7220954,
+    "comp_sol_pct": 0.5837977999999999,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.5837977999999999,
@@ -123,12 +129,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 27.638276400000002,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 27.638276400000002,
+    "comp_sol_pct": 30.6845642,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 30.6845642,
@@ -162,12 +171,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 11.543009,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 11.543009,
+    "comp_sol_pct": 82.029372,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 82.029372,
@@ -201,12 +213,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 45.133266,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 45.133266,
+    "comp_sol_pct": 23.950691,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 23.950691,
@@ -240,12 +255,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 38.922397000000004,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 38.922397000000004,
+    "comp_sol_pct": 36.783507,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 36.783507,

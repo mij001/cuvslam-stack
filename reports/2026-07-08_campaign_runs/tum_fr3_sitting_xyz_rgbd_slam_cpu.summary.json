@@ -45,12 +45,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 0.9146624999999999,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 0.9146624999999999,
+    "comp_sol_pct": 0.5440706666666667,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.5440706666666667,
@@ -84,12 +87,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 3.766739,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 3.766739,
+    "comp_sol_pct": 83.120077,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 83.120077,
@@ -123,12 +129,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 0.9089784,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 0.9089784,
+    "comp_sol_pct": 0.5569580000000001,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.5569580000000001,
@@ -162,12 +171,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 21.3451755,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 21.3451755,
+    "comp_sol_pct": 20.1508045,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 20.1508045,
@@ -201,12 +213,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 27.5817642,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 27.5817642,
+    "comp_sol_pct": 30.618572399999998,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 30.618572399999998,
@@ -240,12 +255,15 @@
     }
    },
    "evidence": {
-    "dram_sol_pct": 1.154119,
+    "dram_sol_pct": null,
+    "mem_sol_pct": 1.154119,
+    "comp_sol_pct": 0.347684,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
     "occupancy_pct": null,
     "ai": null,
+    "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
    "sm_sol_pct": 0.347684,

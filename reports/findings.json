@@ -1,0 +1,177 @@
+{
+ "findings": [
+  {
+   "id": "PIM-SHARE",
+   "step": "verdict",
+   "title": "How much GPU time could move off the GPU",
+   "statement": "Time-weighted substrate verdicts over every profiled kernel: this share of the GPU second lands on a PiM/ISP substrate rather than GPU-keep \u2014 the measured size of the offload opportunity, per workload.",
+   "number": 72.3,
+   "unit": "% of GPU time (avg across workloads)",
+   "evidence": [
+    {
+     "type": "chart",
+     "chart": "substrate_mix",
+     "src": "reports/2026-07-07_substrate/substrate_mix.csv",
+     "label": "substrate mix per workload (interactive)"
+    }
+   ]
+  },
+  {
+   "id": "FLIPS",
+   "step": "verdict",
+   "title": "Verdicts that flip between workloads",
+   "statement": "The same kernel can deserve a different substrate under a different dataset/feature toggle \u2014 the dynamic metrics (DRAM SoL, sectors/request, footprint) move enough to change the decision. These kernels need runtime or per-product placement; each flip is recorded with the metric that moved most.",
+   "number": 25,
+   "unit": "of 49 kernels flip",
+   "evidence": [
+    {
+     "type": "chart",
+     "chart": "flips",
+     "src": "reports/2026-07-07_substrate/substrate_flips.csv",
+     "label": "every flip + its driving metric (interactive)"
+    }
+   ]
+  },
+  {
+   "id": "ATTR",
+   "step": "attribute",
+   "title": "Every byte of DRAM traffic has a name",
+   "statement": "The two-pass join (TaggedAllocator source journal \u00d7 NVBit trace) resolves each kernel's memory accesses into shared-tile / register-spill / global space and names the data structure behind the global traffic. The top tag is unanimous across all 27 sequences for nearly every kernel.",
+   "number": "48/49",
+   "unit": "kernels with a unanimous data-structure tag",
+   "evidence": [
+    {
+     "type": "chart",
+     "chart": "attribution",
+     "src": "profiling/reports/2026-07-05_attribution_campaign/attribution_consistency.csv",
+     "label": "per-kernel memory-space composition (interactive)"
+    }
+   ]
+  },
+  {
+   "id": "SPILL",
+   "step": "attribute",
+   "title": "The loop-closure scan's DRAM traffic is mostly scratch",
+   "statement": "The dominant SLAM kernel's DRAM traffic is register SPILL (compiler scratch), not data: the 'coalesced' signal earlier traces showed was the spill stream. Space-filtered, the actual data accesses are a scattered gather (23\u201330 sectors/warp) \u2014 counters and traces agree. Implication: a register-pressure fix attacks most of this kernel's traffic; the remaining gather is the PiM-scatter candidate.",
+   "number": 92.6,
+   "unit": "% of accesses are register spill",
+   "evidence": [
+    {
+     "type": "kernel",
+     "run": "profiling/reports/2026-07-03_tum_office_rtx2000ada/summary.json",
+     "kernel": "st_track_with_cache_kernel",
+     "label": "open st_track in the explorer (evidence panel)"
+    }
+   ]
+  },
+  {
+   "id": "STABLE",
+   "step": "classify",
+   "title": "The bottleneck classes are properties of kernels, not runs",
+   "statement": "Across 27 sequences \u00d7 4 datasets the modal bottleneck class per kernel is highly stable; the residual flips are the physically meaningful L2-capacity crossover (room-scale fits, street-scale doesn't), not noise.",
+   "number": "24/49",
+   "unit": "kernels unanimous across sequences",
+   "evidence": [
+    {
+     "type": "chart",
+     "chart": "taxonomy",
+     "src": "profiling/reports/2026-07-04_campaign/class_agreement.csv",
+     "label": "class distribution + stability (interactive)"
+    }
+   ]
+  },
+  {
+   "id": "KMEANS",
+   "step": "classify",
+   "title": "The taxonomy is discovered, not asserted",
+   "statement": "Unsupervised k-means over the pooled 27-sequence feature cloud prefers the same cluster count as the hand-built G-classes \u2014 the decision tree is the labeling, clustering is the independent validation.",
+   "number": "k=8",
+   "unit": "silhouette-best (sil 0.35, purity 0.68 vs tree)",
+   "evidence": [
+    {
+     "type": "chart",
+     "chart": "ksweep",
+     "src": "profiling/reports/2026-07-04_campaign/cluster_sweep.csv",
+     "label": "k-means sweep (interactive)"
+    }
+   ]
+  },
+  {
+   "id": "NEUTRAL",
+   "step": "validate",
+   "title": "Profiling does not change the answer",
+   "statement": "Every profiled run re-computes trajectory accuracy vs ground truth; the delta against the un-profiled run is the neutrality check. Deterministic modes are bit-identical under the profilers; every flagged CHECK was classified benign (mono scale ambiguity, known nondeterminism, stale baselines) \u2014 none is instrumentation.",
+   "number": "121/192",
+   "unit": "variants bit-identical (\u0394=0); 166 within tolerance",
+   "evidence": [
+    {
+     "type": "chart",
+     "chart": "neutrality",
+     "src": "reports/2026-07-07_profiling_coverage/coverage_results.tsv",
+     "label": "plain vs profiled APE, every variant (interactive)"
+    }
+   ]
+  },
+  {
+   "id": "SCALE",
+   "step": "capture",
+   "title": "Full-matrix coverage",
+   "statement": "The complete config matrix \u2014 every base \u00d7 pipeline kind \u00d7 feature toggle \u2014 ran accuracy + nsys + ncu (+ NVBit where marked) on locked clocks. Every cell is resumable, ledgered, and lands in the evidence explorer.",
+   "number": 673,
+   "unit": "campaign cells over 192 configs \u00d7 4 modes",
+   "evidence": [
+    {
+     "type": "explore",
+     "label": "filter the run selector to any config"
+    }
+   ]
+  },
+  {
+   "id": "RIGOR",
+   "step": "capture",
+   "title": "Locked-clock measurement floor",
+   "statement": "All numbers are taken at locked GPU clocks (1620/7001 MHz, persistence on): 5-repeat coefficient of variation 0.14% median vs 49.6% unlocked. Ceilings are measured, not quoted: 205 GB/s DRAM, 5445 GFLOP/s FP32 \u2014 these are the roof lines drawn in the explorer.",
+   "number": 0.14,
+   "unit": "% CoV (5-repeat median, locked clocks)",
+   "evidence": [
+    {
+     "type": "run",
+     "run": "profiling/reports/2026-07-03_tum_office_rtx2000ada/summary.json",
+     "label": "open a locked-clock study in the explorer"
+    }
+   ]
+  }
+ ],
+ "methodology": [
+  {
+   "step": "capture",
+   "name": "1 \u00b7 Capture",
+   "what": "nsys timeline (stages, full run) + ncu curated metric sets (windowed kernel replay) + NVBit mem_trace (windowed binary instrumentation) on locked clocks; every run's QoR recorded."
+  },
+  {
+   "step": "screen",
+   "name": "2 \u00b7 Screen",
+   "what": "per-kernel time shares from the timeline; SoL pair, occupancy, stall taxonomy, coalescing fingerprint from the counters \u2014 the feature row every later step consumes."
+  },
+  {
+   "step": "classify",
+   "name": "3 \u00b7 Classify",
+   "what": "GPU-adapted DAMOV decision tree (G0\u2013G7) over stated thresholds, \u00b125% sensitivity-stressed; independently validated by k-means on the pooled feature cloud."
+  },
+  {
+   "step": "attribute",
+   "name": "4 \u00b7 Attribute",
+   "what": "two-pass join: TaggedAllocator source journal \u00d7 NVBit trace \u2192 memory-space split (shared / spill / global) + the named data structure behind every global byte."
+  },
+  {
+   "step": "validate",
+   "name": "5 \u00b7 Validate",
+   "what": "accuracy/QoR vs ground truth under every profiler (neutrality), cross-sequence class stability, threshold sensitivity \u2014 the checks that make the numbers defensible."
+  },
+  {
+   "step": "verdict",
+   "name": "6 \u00b7 Verdict",
+   "what": "class \u00d7 persistence \u00d7 affinity rules \u2192 the substrate call per kernel (GPU-keep / GPU+layout-fix / PiM-near-bank / PiM-scatter / ISP / CPU), with the driving reason recorded; flips across workloads flag placement that must be dynamic."
+  }
+ ]
+}

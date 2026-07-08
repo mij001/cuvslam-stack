@@ -76,13 +76,19 @@
    "substrate": "near-memory compute (latency, uncacheable set)",
    "pim_affinity": "strong",
    "rationale": "long-scoreboard dominant at 22% occupancy, DRAM-SoL 17%; only n=3 profiled launches \u2014 small sample",
+   "confidence": "low",
+   "stability": "borderline:G1-bandwidth\u2194G4-latency",
+   "persistence": "streaming+hot",
    "evidence": {
     "dram_sol_pct": 17.1,
+    "mem_sol_pct": 25.95,
+    "comp_sol_pct": 25.95,
     "sectors_per_req": 2.3,
     "lfmr": 0.445,
     "mpki": 42.76,
     "occupancy_pct": 22.4,
     "ai": 14.125,
+    "wset_bytes_per_launch": 2179710.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -117,13 +123,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.5,
+    "mem_sol_pct": 1.11,
+    "comp_sol_pct": 0.51,
     "sectors_per_req": 6.0,
     "lfmr": 0.258,
     "mpki": 111.94,
     "occupancy_pct": 2.1,
     "ai": 1.047,
+    "wset_bytes_per_launch": 13644.8,
     "dominant_stall": "wait"
    },
    "roofline": {
@@ -158,13 +170,19 @@
    "substrate": "near-sensor SRAM (consume before DRAM)",
    "pim_affinity": "strong",
    "rationale": "memory-limited (MemSoL 40%) without a sharper signature",
+   "confidence": "low",
+   "stability": "stable",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 17.0,
+    "mem_sol_pct": 39.83,
+    "comp_sol_pct": 44.43,
     "sectors_per_req": 4.0,
     "lfmr": 0.512,
     "mpki": 26.73,
     "occupancy_pct": 42.6,
     "ai": 2.988,
+    "wset_bytes_per_launch": 292109.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -199,13 +217,19 @@
    "substrate": "host GPU",
    "pim_affinity": "none",
    "rationale": "CompSoL 40% dominant, AI 22.4 FLOP/B",
+   "confidence": "medium",
+   "stability": "borderline:G0-nosignal\u2194G5-compute",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 1.9,
+    "mem_sol_pct": 25.77,
+    "comp_sol_pct": 40.09,
     "sectors_per_req": 2.3,
     "lfmr": 0.186,
     "mpki": 2.38,
     "occupancy_pct": 67.4,
     "ai": 22.448,
+    "wset_bytes_per_launch": 38054.4,
     "dominant_stall": "barrier"
    },
    "roofline": {
@@ -240,13 +264,19 @@
    "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.34 \u2014 the L2 is earning its keep",
+   "confidence": "medium",
+   "stability": "borderline:G3-l2-reuse\u2194G4-latency",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 1.5,
+    "mem_sol_pct": 1.5,
+    "comp_sol_pct": 0.27,
     "sectors_per_req": 2.0,
     "lfmr": 0.343,
     "mpki": 409.6,
     "occupancy_pct": 7.1,
     "ai": 0.059,
+    "wset_bytes_per_launch": 36083.2,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -281,13 +311,19 @@
    "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.18 \u2014 the L2 is earning its keep",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.2,
+    "mem_sol_pct": 0.61,
+    "comp_sol_pct": 0.18,
     "sectors_per_req": 2.8,
     "lfmr": 0.185,
     "mpki": 162.96,
     "occupancy_pct": 2.4,
     "ai": 0.468,
+    "wset_bytes_per_launch": 13257.1,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -322,13 +358,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'wait' stall dominant at 8% occupancy; memory is not the wall (MemSoL 3%, DRAM-SoL 3%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 3.0,
+    "mem_sol_pct": 2.99,
+    "comp_sol_pct": 0.71,
     "sectors_per_req": 5.8,
     "lfmr": 0.341,
     "mpki": 282.62,
     "occupancy_pct": 8.1,
     "ai": 1.256,
+    "wset_bytes_per_launch": 57971.2,
     "dominant_stall": "wait"
    },
    "roofline": {
@@ -363,13 +405,19 @@
    "substrate": "raise occupancy first; PiM if the set defeats caches",
    "pim_affinity": "conditional",
    "rationale": "long-scoreboard dominant at 7% occupancy, DRAM-SoL 1%",
+   "confidence": "medium",
+   "stability": "borderline:G3-l2-reuse\u2194G4-latency",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 1.2,
+    "mem_sol_pct": 1.19,
+    "comp_sol_pct": 0.17,
     "sectors_per_req": 2.0,
     "lfmr": 0.365,
     "mpki": 406.9,
     "occupancy_pct": 7.0,
     "ai": 0.065,
+    "wset_bytes_per_launch": 22502.4,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -404,13 +452,19 @@
    "substrate": "near-sensor SRAM (consume before DRAM)",
    "pim_affinity": "strong",
    "rationale": "memory-limited (MemSoL 22%) without a sharper signature",
+   "confidence": "low",
+   "stability": "borderline:G1-bandwidth\u2194G3-l2-reuse",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 22.3,
+    "mem_sol_pct": 22.39,
+    "comp_sol_pct": 20.37,
     "sectors_per_req": 4.0,
     "lfmr": 0.417,
     "mpki": 109.46,
     "occupancy_pct": 32.1,
     "ai": 3.465,
+    "wset_bytes_per_launch": 240800.0,
     "dominant_stall": "tex_throttle"
    },
    "roofline": {
@@ -445,13 +499,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'barrier' stall dominant at 13% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.7,
+    "mem_sol_pct": 0.7,
+    "comp_sol_pct": 0.21,
     "sectors_per_req": 5.5,
     "lfmr": 0.277,
     "mpki": 179.88,
     "occupancy_pct": 12.6,
     "ai": 0.316,
+    "wset_bytes_per_launch": 4864.0,
     "dominant_stall": "barrier"
    },
    "roofline": {
@@ -486,13 +546,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'barrier' stall dominant at 15% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.7,
+    "mem_sol_pct": 1.22,
+    "comp_sol_pct": 0.23,
     "sectors_per_req": 3.0,
     "lfmr": 0.265,
     "mpki": 166.46,
     "occupancy_pct": 14.6,
     "ai": 0.0,
+    "wset_bytes_per_launch": 4330.67,
     "dominant_stall": "barrier"
    },
    "roofline": {
@@ -527,13 +593,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'barrier' stall dominant at 14% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.9,
+    "mem_sol_pct": 1.4,
+    "comp_sol_pct": 0.22,
     "sectors_per_req": 5.6,
     "lfmr": 0.323,
     "mpki": 267.82,
     "occupancy_pct": 14.0,
     "ai": 0.425,
+    "wset_bytes_per_launch": 10265.6,
     "dominant_stall": "barrier"
    },
    "roofline": {
@@ -568,13 +640,19 @@
    "substrate": "host GPU",
    "pim_affinity": "none",
    "rationale": "dominant stall mio_throttle (3.2 warps) with DRAM unsaturated",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 1.5,
+    "mem_sol_pct": 7.22,
+    "comp_sol_pct": 7.22,
     "sectors_per_req": 6.4,
     "lfmr": 0.322,
     "mpki": 35.98,
     "occupancy_pct": 13.4,
     "ai": 9.094,
+    "wset_bytes_per_launch": 27318.9,
     "dominant_stall": "mio_throttle"
    },
    "roofline": {
@@ -609,13 +687,19 @@
    "substrate": "near-sensor SRAM (consume before DRAM)",
    "pim_affinity": "strong",
    "rationale": "memory-limited (MemSoL 60%) without a sharper signature",
+   "confidence": "low",
+   "stability": "borderline:G1-bandwidth\u2194G3-l2-reuse",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 38.6,
+    "mem_sol_pct": 59.51,
+    "comp_sol_pct": 59.51,
     "sectors_per_req": 4.0,
     "lfmr": 0.354,
     "mpki": 39.14,
     "occupancy_pct": 86.0,
     "ai": 15.952,
+    "wset_bytes_per_launch": 2103420.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -650,13 +734,19 @@
    "substrate": "near-sensor SRAM (consume before DRAM)",
    "pim_affinity": "strong",
    "rationale": "memory-limited (MemSoL 28%) without a sharper signature",
+   "confidence": "low",
+   "stability": "stable",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 24.0,
+    "mem_sol_pct": 28.4,
+    "comp_sol_pct": 13.41,
     "sectors_per_req": 4.0,
     "lfmr": 0.496,
     "mpki": 145.94,
     "occupancy_pct": 31.7,
     "ai": 2.929,
+    "wset_bytes_per_launch": 278485.0,
     "dominant_stall": "tex_throttle"
    },
    "roofline": {
@@ -687,13 +777,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'wait' stall dominant at 6% occupancy; memory is not the wall (MemSoL 2%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 1.3,
+    "mem_sol_pct": 1.73,
+    "comp_sol_pct": 0.07,
     "sectors_per_req": 4.0,
     "lfmr": 0.315,
     "mpki": 1084.55,
     "occupancy_pct": 6.4,
     "ai": 0.06,
+    "wset_bytes_per_launch": 9486.22,
     "dominant_stall": "wait"
    },
    "roofline": {
@@ -724,13 +820,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'barrier' stall dominant at 14% occupancy; memory is not the wall (MemSoL 3%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 1.0,
+    "mem_sol_pct": 2.94,
+    "comp_sol_pct": 4.62,
     "sectors_per_req": 2.3,
     "lfmr": 0.282,
     "mpki": 11.23,
     "occupancy_pct": 13.9,
     "ai": 4.917,
+    "wset_bytes_per_launch": 7267.56,
     "dominant_stall": "barrier"
    },
    "roofline": {
@@ -761,13 +863,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'barrier' stall dominant at 14% occupancy; memory is not the wall (MemSoL 3%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.9,
+    "mem_sol_pct": 3.07,
+    "comp_sol_pct": 5.14,
     "sectors_per_req": 2.3,
     "lfmr": 0.264,
     "mpki": 10.25,
     "occupancy_pct": 13.8,
     "ai": 5.389,
+    "wset_bytes_per_launch": 6604.8,
     "dominant_stall": "barrier"
    },
    "roofline": {
@@ -798,13 +906,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'barrier' stall dominant at 12% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%); note: scattered access (14 sect/req) \u2014 re-screen for PiM once occupancy is fixed",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.7,
+    "mem_sol_pct": 0.7,
+    "comp_sol_pct": 0.21,
     "sectors_per_req": 13.5,
     "lfmr": 0.282,
     "mpki": 170.17,
     "occupancy_pct": 12.3,
     "ai": 0.308,
+    "wset_bytes_per_launch": 4835.56,
     "dominant_stall": "barrier"
    },
    "roofline": {
@@ -839,13 +953,19 @@
    "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.30 \u2014 the L2 is earning its keep",
+   "confidence": "medium",
+   "stability": "borderline:G3-l2-reuse\u2194G4-latency",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 1.1,
+    "mem_sol_pct": 1.58,
+    "comp_sol_pct": 0.36,
     "sectors_per_req": 2.4,
     "lfmr": 0.305,
     "mpki": 287.55,
     "occupancy_pct": 7.9,
     "ai": 0.138,
+    "wset_bytes_per_launch": 7480.89,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -880,13 +1000,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'barrier' stall dominant at 16% occupancy; memory is not the wall (MemSoL 2%, DRAM-SoL 1%); note: scattered access (11 sect/req) \u2014 re-screen for PiM once occupancy is fixed",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 1.0,
+    "mem_sol_pct": 1.68,
+    "comp_sol_pct": 0.65,
     "sectors_per_req": 10.9,
     "lfmr": 0.186,
     "mpki": 94.72,
     "occupancy_pct": 15.8,
     "ai": 0.488,
+    "wset_bytes_per_launch": 6195.2,
     "dominant_stall": "barrier"
    },
    "roofline": {
@@ -917,13 +1043,19 @@
    "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.32 \u2014 the L2 is earning its keep",
+   "confidence": "medium",
+   "stability": "borderline:G3-l2-reuse\u2194G4-latency",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 1.2,
+    "mem_sol_pct": 1.19,
+    "comp_sol_pct": 0.4,
     "sectors_per_req": 2.4,
     "lfmr": 0.316,
     "mpki": 262.59,
     "occupancy_pct": 9.2,
     "ai": 0.136,
+    "wset_bytes_per_launch": 7411.2,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -958,13 +1090,19 @@
    "substrate": "weak, cache-friendly",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.17 \u2014 the L2 is earning its keep; only n=2 profiled launches \u2014 small sample",
+   "confidence": "low",
+   "stability": "stable",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 17.2,
+    "mem_sol_pct": 33.44,
+    "comp_sol_pct": 26.41,
     "sectors_per_req": 4.0,
     "lfmr": 0.172,
     "mpki": 36.12,
     "occupancy_pct": 74.6,
     "ai": 0.0,
+    "wset_bytes_per_launch": 265088.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -995,13 +1133,19 @@
    "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.34 \u2014 the L2 is earning its keep",
+   "confidence": "medium",
+   "stability": "borderline:G3-l2-reuse\u2194G4-latency",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 2.0,
+    "mem_sol_pct": 2.04,
+    "comp_sol_pct": 0.02,
     "sectors_per_req": 1.0,
     "lfmr": 0.345,
     "mpki": 8373.33,
     "occupancy_pct": 2.1,
     "ai": 0.001,
+    "wset_bytes_per_launch": 11164.4,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -1032,13 +1176,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'wait' stall dominant at 17% occupancy; memory is not the wall (MemSoL 8%, DRAM-SoL 3%); note: scattered access (11 sect/req) \u2014 re-screen for PiM once occupancy is fixed; only n=1 profiled launches \u2014 small sample",
+   "confidence": "low",
+   "stability": "stable",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 2.7,
+    "mem_sol_pct": 8.38,
+    "comp_sol_pct": 8.38,
     "sectors_per_req": 11.3,
     "lfmr": 0.351,
     "mpki": 34.27,
     "occupancy_pct": 16.6,
     "ai": 0.0,
+    "wset_bytes_per_launch": 65664.0,
     "dominant_stall": "wait"
    },
    "roofline": {
@@ -1073,13 +1223,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'barrier' stall dominant at 11% occupancy; memory is not the wall (MemSoL 2%, DRAM-SoL 1%); note: scattered access (23 sect/req) \u2014 re-screen for PiM once occupancy is fixed",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 1.2,
+    "mem_sol_pct": 1.79,
+    "comp_sol_pct": 0.12,
     "sectors_per_req": 23.4,
     "lfmr": 0.289,
     "mpki": 669.52,
     "occupancy_pct": 11.0,
     "ai": 0.932,
+    "wset_bytes_per_launch": 10733.7,
     "dominant_stall": "barrier"
    },
    "roofline": {
@@ -1114,13 +1270,19 @@
    "substrate": "\u2014",
    "pim_affinity": "n/a",
    "rationale": "no dominant bottleneck signal (short/latency-tax kernels)",
+   "confidence": "low",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.4,
+    "mem_sol_pct": 2.29,
+    "comp_sol_pct": 0.31,
     "sectors_per_req": 24.0,
     "lfmr": 0.106,
     "mpki": 93.2,
     "occupancy_pct": 48.6,
     "ai": 0.0,
+    "wset_bytes_per_launch": 2925.71,
     "dominant_stall": "wait"
    },
    "roofline": {
@@ -1151,13 +1313,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.7,
+    "mem_sol_pct": 1.17,
+    "comp_sol_pct": 0.01,
     "sectors_per_req": 1.0,
     "lfmr": 0.261,
     "mpki": 10088.89,
     "occupancy_pct": 2.1,
     "ai": 0.0,
+    "wset_bytes_per_launch": 2905.6,
     "dominant_stall": "wait"
    },
    "roofline": {
@@ -1188,13 +1356,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.7,
+    "mem_sol_pct": 0.68,
+    "comp_sol_pct": 0.01,
     "sectors_per_req": 1.0,
     "lfmr": 0.236,
     "mpki": 10750.0,
     "occupancy_pct": 2.1,
     "ai": 0.0,
+    "wset_bytes_per_launch": 2752.0,
     "dominant_stall": "wait"
    },
    "roofline": {
@@ -1225,13 +1399,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.6,
+    "mem_sol_pct": 0.85,
+    "comp_sol_pct": 0.01,
     "sectors_per_req": 1.0,
     "lfmr": 0.235,
     "mpki": 10971.43,
     "occupancy_pct": 2.1,
     "ai": 0.0,
+    "wset_bytes_per_launch": 2457.6,
     "dominant_stall": "wait"
    },
    "roofline": {
@@ -1262,13 +1442,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.6,
+    "mem_sol_pct": 1.09,
+    "comp_sol_pct": 0.01,
     "sectors_per_req": 1.0,
     "lfmr": 0.235,
     "mpki": 11085.71,
     "occupancy_pct": 2.1,
     "ai": 0.0,
+    "wset_bytes_per_launch": 2483.2,
     "dominant_stall": "wait"
    },
    "roofline": {
@@ -1299,13 +1485,19 @@
    "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
    "pim_affinity": "conditional",
    "rationale": "11 sectors/request (4 = coalesced); only n=2 profiled launches \u2014 small sample",
+   "confidence": "low",
+   "stability": "stable",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 6.1,
+    "mem_sol_pct": 6.06,
+    "comp_sol_pct": 4.69,
     "sectors_per_req": 11.2,
     "lfmr": 0.345,
     "mpki": 144.09,
     "occupancy_pct": 16.5,
     "ai": 0.0,
+    "wset_bytes_per_launch": 66176.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -1336,13 +1528,19 @@
    "substrate": "near-sensor SRAM (consume before DRAM)",
    "pim_affinity": "strong",
    "rationale": "memory-limited (MemSoL 49%) without a sharper signature",
+   "confidence": "low",
+   "stability": "borderline:G1-bandwidth\u2194G3-l2-reuse",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 49.0,
+    "mem_sol_pct": 49.04,
+    "comp_sol_pct": 45.58,
     "sectors_per_req": 4.0,
     "lfmr": 0.391,
     "mpki": 80.3,
     "occupancy_pct": 86.2,
     "ai": 0.0,
+    "wset_bytes_per_launch": 1052540.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -1373,13 +1571,19 @@
    "substrate": "weak, cache-friendly",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.29 \u2014 the L2 is earning its keep; only n=2 profiled launches \u2014 small sample",
+   "confidence": "low",
+   "stability": "borderline:G3-l2-reuse\u2194G4-latency",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 0.5,
+    "mem_sol_pct": 0.49,
+    "comp_sol_pct": 0.06,
     "sectors_per_req": 2.2,
     "lfmr": 0.287,
     "mpki": 406.5,
     "occupancy_pct": 3.9,
     "ai": 0.0,
+    "wset_bytes_per_launch": 6400.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -1410,13 +1614,19 @@
    "substrate": "near-sensor SRAM (consume before DRAM)",
    "pim_affinity": "strong",
    "rationale": "DRAM-SoL 59%; LFMR 0.81 (L2 not helping); only n=1 profiled launches \u2014 small sample",
+   "confidence": "low",
+   "stability": "stable",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 59.0,
+    "mem_sol_pct": 58.97,
+    "comp_sol_pct": 42.57,
     "sectors_per_req": 4.0,
     "lfmr": 0.808,
     "mpki": 122.66,
     "occupancy_pct": 80.1,
     "ai": 0.0,
+    "wset_bytes_per_launch": 1053060.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -1447,13 +1657,19 @@
    "substrate": "near-sensor SRAM (consume before DRAM)",
    "pim_affinity": "strong",
    "rationale": "DRAM-SoL 53%; LFMR 0.95 (L2 not helping); only n=1 profiled launches \u2014 small sample",
+   "confidence": "low",
+   "stability": "stable",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 52.9,
+    "mem_sol_pct": 52.94,
+    "comp_sol_pct": 36.45,
     "sectors_per_req": 0.0,
     "lfmr": 0.951,
     "mpki": 128.14,
     "occupancy_pct": 80.9,
     "ai": 1.307,
+    "wset_bytes_per_launch": 1053950.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -1484,13 +1700,19 @@
    "substrate": "host GPU \u2014 raise occupancy/ILP first, then re-screen",
    "pim_affinity": "none",
    "rationale": "'wait' stall dominant at 15% occupancy; memory is not the wall (MemSoL 1%, DRAM-SoL 1%)",
+   "confidence": "medium",
+   "stability": "stable",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.7,
+    "mem_sol_pct": 1.33,
+    "comp_sol_pct": 0.05,
     "sectors_per_req": 3.0,
     "lfmr": 0.233,
     "mpki": 1217.39,
     "occupancy_pct": 15.1,
     "ai": 0.0,
+    "wset_bytes_per_launch": 2688.0,
     "dominant_stall": "wait"
    },
    "roofline": {
@@ -1521,13 +1743,19 @@
    "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.27 \u2014 the L2 is earning its keep",
+   "confidence": "medium",
+   "stability": "borderline:G3-l2-reuse\u2194G4-latency",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 0.9,
+    "mem_sol_pct": 0.92,
+    "comp_sol_pct": 0.12,
     "sectors_per_req": 4.0,
     "lfmr": 0.275,
     "mpki": 1024.66,
     "occupancy_pct": 9.1,
     "ai": 0.08,
+    "wset_bytes_per_launch": 4787.2,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -1558,13 +1786,19 @@
    "substrate": "raise occupancy first; PiM if the set defeats caches",
    "pim_affinity": "conditional",
    "rationale": "long-scoreboard dominant at 10% occupancy, DRAM-SoL 3%",
+   "confidence": "medium",
+   "stability": "borderline:G2-coalescing\u2194G3-l2-reuse\u2194G4-latency",
+   "persistence": "hot-persistent",
    "evidence": {
     "dram_sol_pct": 3.4,
+    "mem_sol_pct": 3.4,
+    "comp_sol_pct": 0.04,
     "sectors_per_req": 7.0,
     "lfmr": 0.395,
     "mpki": 7903.03,
     "occupancy_pct": 10.5,
     "ai": 0.001,
+    "wset_bytes_per_launch": 16691.2,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -1595,13 +1829,19 @@
    "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
    "pim_affinity": "conditional",
    "rationale": "24 sectors/request (4 = coalesced); only n=1 profiled launches \u2014 small sample",
+   "confidence": "low",
+   "stability": "borderline:G1-bandwidth\u2194G2-coalescing",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 38.3,
+    "mem_sol_pct": 38.27,
+    "comp_sol_pct": 2.24,
     "sectors_per_req": 24.1,
     "lfmr": 0.849,
     "mpki": 932.51,
     "occupancy_pct": 15.2,
     "ai": 0.115,
+    "wset_bytes_per_launch": 454528.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -1632,13 +1872,19 @@
    "substrate": "weak, cache-friendly",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.20 \u2014 the L2 is earning its keep; only n=1 profiled launches \u2014 small sample",
+   "confidence": "low",
+   "stability": "borderline:G2-coalescing\u2194G3-l2-reuse",
+   "persistence": "streaming",
    "evidence": {
     "dram_sol_pct": 0.7,
+    "mem_sol_pct": 0.94,
+    "comp_sol_pct": 0.11,
     "sectors_per_req": 6.7,
     "lfmr": 0.199,
     "mpki": 337.5,
     "occupancy_pct": 2.1,
     "ai": 0.0,
+    "wset_bytes_per_launch": 3456.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": {
@@ -1669,13 +1915,19 @@
    "substrate": "weak, cache-friendly",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.20 \u2014 the L2 is earning its keep",
+   "confidence": "medium",
+   "stability": "borderline:G2-coalescing\u2194G3-l2-reuse",
+   "persistence": "cold-persistent",
    "evidence": {
     "dram_sol_pct": 0.3,
+    "mem_sol_pct": null,
+    "comp_sol_pct": null,
     "sectors_per_req": 7.4,
     "lfmr": 0.203,
     "mpki": 83.11,
     "occupancy_pct": 2.1,
     "ai": 0.923,
+    "wset_bytes_per_launch": 2694260.0,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": null
@@ -1703,13 +1955,19 @@
    "substrate": "weak, cache-friendly",
    "pim_affinity": "weak",
    "rationale": "memory-limited but LFMR 0.32 \u2014 the L2 is earning its keep",
+   "confidence": "medium",
+   "stability": "borderline:G3-l2-reuse\u2194G4-latency",
+   "persistence": "cold-persistent",
    "evidence": {
     "dram_sol_pct": 1.0,
+    "mem_sol_pct": null,
+    "comp_sol_pct": null,
     "sectors_per_req": 2.8,
     "lfmr": 0.316,
     "mpki": 214.14,
     "occupancy_pct": 2.1,
     "ai": 0.047,
+    "wset_bytes_per_launch": 33712.4,
     "dominant_stall": "long_scoreboard"
    },
    "roofline": null
