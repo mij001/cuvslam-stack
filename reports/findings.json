@@ -131,13 +131,28 @@
    "step": "validate",
    "title": "The offload's headline win is measured, not assumed",
    "statement": "Whole-run GPU energy is now sampled (NVML board power integrated over wall-time) on every profiled run \u2014 the joule the PiM story is ultimately about. The placement model's energy-ratio then reports the modeled offload delta against this MEASURED baseline, not an absolute guess.",
-   "number": 34.67,
+   "number": 68.98,
    "unit": "J whole-run (measured baseline)",
    "evidence": [
     {
      "type": "run",
      "run": "reports/2026-07-08_campaign_runs/icl_living_room_traj1_rgbd_slam.summary.json",
      "label": "open the run in the explorer (energy in the meta line)"
+    }
+   ]
+  },
+  {
+   "id": "HOSTIO",
+   "step": "screen",
+   "title": "The host-side dimension is now measured too",
+   "statement": "The characterization was GPU-only; a run's host storage I/O and peak host memory are now sampled from /proc over the whole process tree. This is the read traffic that FEEDS the H2D sensor upload (the near-sensor argument) and the peak host RSS where the session-scale keyframe database lives \u2014 while the GPU allocation stays static (F8). storage read / mmap page-in / peak host RSS.",
+   "number": 66.15,
+   "unit": "MB storage read (+ 0.75 MB mmap page-in, 708.22 MB peak host RSS)",
+   "evidence": [
+    {
+     "type": "run",
+     "run": "reports/2026-07-08_campaign_runs/icl_living_room_traj1_rgbd_slam.summary.json",
+     "label": "open the run in the explorer (host I/O in the meta line)"
     }
    ]
   },

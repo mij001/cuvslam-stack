@@ -180,6 +180,29 @@ def main():
                 [{"type": "run", "run": esrc,
                   "label": "open the run in the explorer (energy in the meta line)"}])
 
+    # ── host-side I/O (measured this cycle; THESIS G3) ──────────────────────
+    hio, hsrc = None, None
+    for p in sorted(_glob.glob(os.path.join(REPO, "profiling/reports/*/summary.json"))
+                    + _glob.glob(os.path.join(REPO, "reports/2026-07-08_campaign_runs/*.summary.json"))):
+        try:
+            h = json.load(open(p)).get("host_io")
+        except (json.JSONDecodeError, OSError):
+            continue
+        if h and h.get("available"):
+            hio, hsrc = h, os.path.relpath(p, REPO)
+            break
+    if hio is not None:
+        finding("HOSTIO", "screen", "The host-side dimension is now measured too",
+                "The characterization was GPU-only; a run's host storage I/O and peak host "
+                "memory are now sampled from /proc over the whole process tree. This is the "
+                "read traffic that FEEDS the H2D sensor upload (the near-sensor argument) and "
+                "the peak host RSS where the session-scale keyframe database lives — while the "
+                "GPU allocation stays static (F8). storage read / mmap page-in / peak host RSS.",
+                hio["storage_read_mb"], f"MB storage read (+ {hio['mmap_pagein_mb']} MB mmap "
+                f"page-in, {hio['peak_host_rss_mb']} MB peak host RSS)",
+                [{"type": "run", "run": hsrc,
+                  "label": "open the run in the explorer (host I/O in the meta line)"}])
+
     # ── measurement rigor (capture step) ────────────────────────────────────
     finding("RIGOR", "capture", "Locked-clock measurement floor",
             "All numbers are taken at locked GPU clocks (1620/7001 MHz, persistence on): "

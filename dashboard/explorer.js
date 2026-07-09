@@ -368,10 +368,13 @@
     const q = DATA.qor ? Object.entries(DATA.qor).map(([k, v]) => `${k}=${v}`).join(" ") : "";
     const en = DATA.energy && DATA.energy.available
       ? `⚡ ${DATA.energy.joules} J whole-run (${DATA.energy.mean_w} W mean, ${DATA.energy.peak_w} W peak)` : "";
+    const hio = DATA.host_io && DATA.host_io.available
+      ? `💾 host: ${DATA.host_io.storage_read_mb} MB storage read · ${DATA.host_io.mmap_pagein_mb} MB mmap page-in · ${DATA.host_io.peak_host_rss_mb} MB peak host RSS` : "";
     $("#xp-meta").innerHTML =
       `<b>${DATA.workload}</b> · ${DATA.kernels.length} kernels · adapter ${DATA.adapter}` +
       (DATA.note ? ` · ${DATA.note}` : "") +
       (en ? `<br><span class="xp-qor">${en}</span>` : "") +
+      (hio ? `<br><span class="xp-qor">${hio}</span>` : "") +
       (q ? `<br><span class="xp-qor">QoR: ${q}</span>` : "");
     render();
   }

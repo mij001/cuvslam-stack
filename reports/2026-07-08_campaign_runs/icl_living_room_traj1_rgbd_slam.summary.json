@@ -2,7 +2,7 @@
  "workload": "icl_living_room_traj1_rgbd_slam",
  "device": "dellworkstation_sm89",
  "adapter": "cuvslam",
- "source": "profiling/results/2026-07-09_013749_livingroomtraj1freipng_ncu_dellworkstation_sm89",
+ "source": "profiling/results/2026-07-09_134550_livingroomtraj1freipng_ncu_dellworkstation_sm89",
  "device_peaks": {
   "dram_gbps": 205.0,
   "peak_gflops": 5445.0,
@@ -11,11 +11,21 @@
  },
  "energy": {
   "available": true,
-  "joules": 34.67,
-  "mean_w": 12.54,
-  "peak_w": 25.08,
-  "samples": 23,
-  "seconds": 2.76
+  "joules": 68.98,
+  "mean_w": 17.53,
+  "peak_w": 20.29,
+  "samples": 33,
+  "seconds": 3.93
+ },
+ "host_io": {
+  "available": true,
+  "storage_read_mb": 66.15,
+  "storage_write_mb": 1.06,
+  "syscall_read_mb": 44.99,
+  "syscall_write_mb": 1.05,
+  "mmap_pagein_mb": 0.75,
+  "peak_host_rss_mb": 708.22,
+  "procs": 4
  },
  "qor": {
   "plain_ape_m": 0.0386,
@@ -29,12 +39,12 @@
   {
    "name": "matcher::photometric_kernel",
    "stage": "?",
-   "time_ms": 0.04,
-   "share_pct": 34.71,
+   "time_ms": 0.054,
+   "share_pct": 33.51,
    "limiter": "low-utilization",
    "substrate": "GPU-keep",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: mem SoL 2.6% and compute SoL 1.0% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
+   "rationale": "quick ncu window: mem SoL 2.0% and compute SoL 1.0% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 71.8,
@@ -55,8 +65,8 @@
    },
    "evidence": {
     "dram_sol_pct": null,
-    "mem_sol_pct": 2.6390526666666667,
-    "comp_sol_pct": 1.0265986666666667,
+    "mem_sol_pct": 1.9718106666666666,
+    "comp_sol_pct": 1.0491913333333331,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
@@ -65,18 +75,18 @@
     "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
-   "sm_sol_pct": 1.0265986666666667,
+   "sm_sol_pct": 1.0491913333333331,
    "roofline": null
   },
   {
    "name": "matcher::point_to_point_kernel",
    "stage": "?",
-   "time_ms": 0.036,
-   "share_pct": 31.16,
+   "time_ms": 0.05,
+   "share_pct": 31.12,
    "limiter": "low-utilization",
    "substrate": "GPU-keep",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: mem SoL 2.0% and compute SoL 1.1% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
+   "rationale": "quick ncu window: mem SoL 6.0% and compute SoL 1.1% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 64.6,
@@ -97,8 +107,8 @@
    },
    "evidence": {
     "dram_sol_pct": null,
-    "mem_sol_pct": 2.031727666666667,
-    "comp_sol_pct": 1.0821213333333335,
+    "mem_sol_pct": 6.033533333333334,
+    "comp_sol_pct": 1.118129,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
@@ -107,18 +117,18 @@
     "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
-   "sm_sol_pct": 1.0821213333333335,
+   "sm_sol_pct": 1.118129,
    "roofline": null
   },
   {
    "name": "cast_image_kernel_rgb",
    "stage": "?",
-   "time_ms": 0.025,
-   "share_pct": 21.62,
+   "time_ms": 0.037,
+   "share_pct": 23.03,
    "limiter": "compute-leaning",
    "substrate": "GPU-keep",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: compute SoL 81.3% > mem SoL 17.1% \u2014 deep verdict joined from the studies by kernel name",
+   "rationale": "quick ncu window: compute SoL 82.2% > mem SoL 11.5% \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 0.0,
@@ -139,8 +149,8 @@
    },
    "evidence": {
     "dram_sol_pct": null,
-    "mem_sol_pct": 17.052965,
-    "comp_sol_pct": 81.253627,
+    "mem_sol_pct": 11.519452,
+    "comp_sol_pct": 82.154477,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
@@ -149,18 +159,18 @@
     "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
-   "sm_sol_pct": 81.253627,
+   "sm_sol_pct": 82.154477,
    "roofline": null
   },
   {
    "name": "gaussian_scaling_kernel",
    "stage": "?",
-   "time_ms": 0.014,
-   "share_pct": 12.5,
+   "time_ms": 0.02,
+   "share_pct": 12.35,
    "limiter": "compute-leaning",
    "substrate": "PiM-near-bank",
    "pim_affinity": "?",
-   "rationale": "quick ncu window: compute SoL 70.0% > mem SoL 63.4% \u2014 deep verdict joined from the studies by kernel name",
+   "rationale": "quick ncu window: compute SoL 77.7% > mem SoL 70.4% \u2014 deep verdict joined from the studies by kernel name",
    "study": {
     "attribution": {
      "shared_pct": 0.0,
@@ -181,8 +191,8 @@
    },
    "evidence": {
     "dram_sol_pct": null,
-    "mem_sol_pct": 63.37358,
-    "comp_sol_pct": 69.989312,
+    "mem_sol_pct": 70.366702,
+    "comp_sol_pct": 77.712464,
     "sectors_per_req": null,
     "lfmr": null,
     "mpki": null,
@@ -191,7 +201,7 @@
     "wset_bytes_per_launch": null,
     "dominant_stall": ""
    },
-   "sm_sol_pct": 69.989312,
+   "sm_sol_pct": 77.712464,
    "roofline": null
   }
  ]

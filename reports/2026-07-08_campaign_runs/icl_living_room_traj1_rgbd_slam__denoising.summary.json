@@ -10,6 +10,7 @@
   "basis": "measured"
  },
  "energy": null,
+ "host_io": null,
  "qor": {
   "plain_ape_m": 0.0346,
   "nsys_ape_m": 0.0346,

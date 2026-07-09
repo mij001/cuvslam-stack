@@ -83,6 +83,13 @@ def main():
              "(§5). Clocks are locked (graphics 1620 MHz / memory 7001 MHz, "
              "persistence on); ceilings are MEASURED not quoted (205 GB/s DRAM, "
              "5445 GFLOP/s FP32); 5-repeat CoV is 0.14%."},
+            {"type": "prose", "text":
+             "Every run also records two whole-run telemetry blocks next to its metadata: "
+             "GPU ENERGY (NVML board power integrated over wall-time -> joules; the number "
+             "the PiM story is ultimately about) and HOST-SIDE I/O + memory (/proc "
+             "process-tree: storage read_bytes, mmap page-ins via majflt, peak host RSS) -- "
+             "the sensor-data ingestion that feeds the H2D upload and the host RAM where the "
+             "keyframe database lives while the GPU allocation stays static (F8)."},
             {"type": "table", "title": "the three curated ncu metric sets (profile.py METRIC_SETS)",
              "head": ["set", "purpose"],
              "rows": [["quick", "3 counters — duration + memory/compute SoL; a 'did it run' smoke"],
@@ -284,7 +291,7 @@ def main():
         {"item": "Whole-run energy (joules)", "status": "DONE", "note": "NVML sampling — 34.67 J measured"},
         {"item": "Op-type AI numerator (fp16/int/fp64, auto)", "status": "DONE", "note": "roofline retargets per workload for the adapter story"},
         {"item": "Occupancy sweep", "status": "DROP", "note": "already answered by single-point occupancy + G4/G7; a true sweep needs source launch-bound changes (Phase 4)"},
-        {"item": "Host-side LMDB / ISP I/O", "status": "DEFER", "note": "the honest version needs cold-cache + majflt (mmap); naive /proc-io under-reports"},
+        {"item": "Host-side I/O + memory (storage read, mmap page-in, peak host RSS)", "status": "DONE", "note": "/proc process-tree sampling — icl: 66 MB read, 708 MB peak RSS"},
         {"item": "Layer-3 kernel-arg correlation", "status": "DEFER", "note": "needs NVBit kernel-arg capture; names the static residuals (G5)"},
         {"item": "Jetson Orin re-run", "status": "READY", "note": "app targets Orin; needs the device on the bench"},
         {"item": "Accel-Sim NDP + AccelWattch", "status": "DEFER", "note": "Phase-4 architecture paper (weeks)"},

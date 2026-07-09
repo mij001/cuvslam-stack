@@ -21,6 +21,10 @@
      "text": "Nsight Systems captures the whole-run TIMELINE (kernel time shares, H2D/D2H transfers, and cuVSLAM's own NVTX stage ranges). Nsight Compute replays a bounded window of launches with a CURATED metric set (not `--set full`, which is killed on a small GPU before it writes a report) \u2014 the counters listed in \u00a73. NVBit binary-instruments a bounded launch window for exact per-warp addresses (\u00a75). Clocks are locked (graphics 1620 MHz / memory 7001 MHz, persistence on); ceilings are MEASURED not quoted (205 GB/s DRAM, 5445 GFLOP/s FP32); 5-repeat CoV is 0.14%."
     },
     {
+     "type": "prose",
+     "text": "Every run also records two whole-run telemetry blocks next to its metadata: GPU ENERGY (NVML board power integrated over wall-time -> joules; the number the PiM story is ultimately about) and HOST-SIDE I/O + memory (/proc process-tree: storage read_bytes, mmap page-ins via majflt, peak host RSS) -- the sensor-data ingestion that feeds the H2D upload and the host RAM where the keyframe database lives while the GPU allocation stays static (F8)."
+    },
+    {
      "type": "table",
      "title": "the three curated ncu metric sets (profile.py METRIC_SETS)",
      "head": [
@@ -443,9 +447,9 @@
    "note": "already answered by single-point occupancy + G4/G7; a true sweep needs source launch-bound changes (Phase 4)"
   },
   {
-   "item": "Host-side LMDB / ISP I/O",
-   "status": "DEFER",
-   "note": "the honest version needs cold-cache + majflt (mmap); naive /proc-io under-reports"
+   "item": "Host-side I/O + memory (storage read, mmap page-in, peak host RSS)",
+   "status": "DONE",
+   "note": "/proc process-tree sampling \u2014 icl: 66 MB read, 708 MB peak RSS"
   },
   {
    "item": "Layer-3 kernel-arg correlation",

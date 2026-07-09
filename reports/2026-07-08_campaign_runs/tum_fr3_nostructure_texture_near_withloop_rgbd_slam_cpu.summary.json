@@ -10,6 +10,7 @@
   "basis": "measured"
  },
  "energy": null,
+ "host_io": null,
  "qor": {
   "plain_ape_m": 0.0836,
   "nsys_ape_m": 0.0836,
@@ -234,7 +235,7 @@
    "time_ms": 0.008,
    "share_pct": 5.36,
    "limiter": "low-utilization",
-   "substrate": "PiM-near-bank",
+   "substrate": "CPU/host",
    "pim_affinity": "?",
    "rationale": "quick ncu window: mem SoL 2.0% and compute SoL 0.3% are both under 40% \u2014 neither is 'bound'; the wall is likely occupancy/dependency (invisible to this quick metric set) \u2014 see the deep verdict below, not this tag \u2014 deep verdict joined from the studies by kernel name",
    "study": {
