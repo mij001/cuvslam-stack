@@ -29,3 +29,6 @@ suggestions_and_summuries/*.pdf
 /Qs.txt
 profiling/results_ws_campaign/
 pim_placement_model.py
+
+# generated NDP sim configs (regenerate: profiling/sim/gen_ndp_config.py)
+profiling/sim/configs/

@@ -292,9 +292,10 @@ def main():
         {"item": "Op-type AI numerator (fp16/int/fp64, auto)", "status": "DONE", "note": "roofline retargets per workload for the adapter story"},
         {"item": "Occupancy sweep", "status": "DROP", "note": "already answered by single-point occupancy + G4/G7; a true sweep needs source launch-bound changes (Phase 4)"},
         {"item": "Host-side I/O + memory (storage read, mmap page-in, peak host RSS)", "status": "DONE", "note": "/proc process-tree sampling — icl: 66 MB read, 708 MB peak RSS"},
-        {"item": "Layer-3 kernel-arg correlation", "status": "DEFER", "note": "needs NVBit kernel-arg capture; names the static residuals (G5)"},
+        {"item": "Layer-3 kernel-arg correlation", "status": "GROUNDWORK", "note": "analysis/residuals.py names the targets (sba::build_full_system, lk_track = 83% of unmapped traffic); NVBit arg-capture next (G5)"},
+        {"item": "Accel-Sim NDP + AccelWattch", "status": "GROUNDWORK", "note": "sim/gen_ndp_config.py emits the NDP overlays + manifests from the verdicts; Accel-Sim run gated (Path B)"},
         {"item": "Jetson Orin re-run", "status": "READY", "note": "app targets Orin; needs the device on the bench"},
-        {"item": "Accel-Sim NDP + AccelWattch", "status": "DEFER", "note": "Phase-4 architecture paper (weeks)"},
+        {"item": "Characterization paper (ISPASS/IISWC)", "status": "READY", "note": "evidence complete — a writing task"},
     ]
 
     out = os.path.join(REPO, "reports", "methodology.json")

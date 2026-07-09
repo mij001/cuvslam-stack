@@ -9,6 +9,7 @@
   "hw": "rtx2000ada_sm89.toml",
   "basis": "theoretical"
  },
+ "energy": null,
  "qor": null,
  "stages": [
   {

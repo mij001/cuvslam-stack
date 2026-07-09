@@ -9,6 +9,7 @@
   "hw": "mx450_sm75.toml",
   "basis": "measured"
  },
+ "energy": null,
  "qor": null,
  "stages": [
   {

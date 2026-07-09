@@ -453,8 +453,13 @@
   },
   {
    "item": "Layer-3 kernel-arg correlation",
-   "status": "DEFER",
-   "note": "needs NVBit kernel-arg capture; names the static residuals (G5)"
+   "status": "GROUNDWORK",
+   "note": "analysis/residuals.py names the targets (sba::build_full_system, lk_track = 83% of unmapped traffic); NVBit arg-capture next (G5)"
+  },
+  {
+   "item": "Accel-Sim NDP + AccelWattch",
+   "status": "GROUNDWORK",
+   "note": "sim/gen_ndp_config.py emits the NDP overlays + manifests from the verdicts; Accel-Sim run gated (Path B)"
   },
   {
    "item": "Jetson Orin re-run",
@@ -462,9 +467,9 @@
    "note": "app targets Orin; needs the device on the bench"
   },
   {
-   "item": "Accel-Sim NDP + AccelWattch",
-   "status": "DEFER",
-   "note": "Phase-4 architecture paper (weeks)"
+   "item": "Characterization paper (ISPASS/IISWC)",
+   "status": "READY",
+   "note": "evidence complete \u2014 a writing task"
   }
  ],
  "thresholds": {

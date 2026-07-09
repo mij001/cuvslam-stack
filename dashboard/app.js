@@ -385,7 +385,8 @@
         "what's supported and waiting on a run/device, and what's deferred to the architecture phase."));
       const wrap = el("div", { class: "tablewrap" }), t = el("table");
       t.appendChild(el("tr")).innerHTML = "<th>item</th><th>status</th><th>note</th>";
-      const badge = { DONE: "#2e7d32", READY: "#1565c0", DEFER: "#8a97a5", DROP: "#c2cbd4" };
+      const badge = { DONE: "#2e7d32", GROUNDWORK: "#ef6c00", READY: "#1565c0",
+                      DEFER: "#8a97a5", DROP: "#c2cbd4" };
       for (const r of m.roadmap) {
         const tr = el("tr");
         tr.appendChild(el("td", {}, r.item));
