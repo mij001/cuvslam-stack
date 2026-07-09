@@ -1,5 +1,10 @@
 # cuVSLAM stack
 
+> **New to the project?** Read **[docs/PRIMER.md](docs/PRIMER.md)** — one
+> self-contained document that teaches the whole thing from zero (theory,
+> implementation, findings, and how to defend it), with every term defined
+> before use. No external reading required.
+
 Umbrella project that builds **NVIDIA cuVSLAM** from source and runs it through a
 single-TOML **runner**. The main project is *not* the runner — it ties together:
 
