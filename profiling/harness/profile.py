@@ -87,6 +87,12 @@ METRIC_SETS["characterize"] = METRIC_SETS["roofline"] + [
     "smsp__sass_thread_inst_executed_op_fadd_pred_on.sum",
     "smsp__sass_thread_inst_executed_op_fmul_pred_on.sum",
     "smsp__sass_thread_inst_executed_op_ffma_pred_on.sum",
+    # op-type FLOPs for non-FP32 workloads (the roofline retargets automatically;
+    # analysis/roofline.py OPTYPE_FLOPS) — fp16 + integer are the common cases
+    "smsp__sass_thread_inst_executed_op_hadd_pred_on.sum",
+    "smsp__sass_thread_inst_executed_op_hmul_pred_on.sum",
+    "smsp__sass_thread_inst_executed_op_hfma_pred_on.sum",
+    "smsp__sass_thread_inst_executed_op_integer_pred_on.sum",
     "l1tex__t_bytes.sum",
     "lts__t_bytes.sum",
     "l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_ld.ratio",

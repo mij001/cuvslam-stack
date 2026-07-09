@@ -169,7 +169,8 @@ def build_summary(data_dir, label_dir, adapter="cuvslam", qor=None):
                 "wset_bytes_per_launch": fnum(r.get("dram_bytes_per_launch")),
                 "dominant_stall": r.get("dominant_stall", ""),
             },
-            "roofline": ({"ai": fnum(rf.get("ai_dram")), "gflops": fnum(rf.get("gflops"))}
+            "roofline": ({"ai": fnum(rf.get("ai_dram")), "gflops": fnum(rf.get("gflops")),
+                          "optype": rf.get("ai_optype") or "fp32"}
                          if rf else None),
         })
     kernels.sort(key=lambda k: -k["share_pct"])

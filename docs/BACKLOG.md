@@ -18,8 +18,9 @@ This file is the source for the dashboard's Methodology → Roadmap strip.
 
 | # | Suggestion (source) | Decision | Where |
 |---|---|---|---|
-| 1 | Detailed, expandable methodology in the UI (this request) | **BUILD** | `viz/gen_methodology.py` → `reports/methodology.json`; `dashboard/app.js` accordion; decision tree shared with `explorer.js` |
-| 2 | Whole-run energy / joules — "PiM's main win is energy; you never measure a joule" (PUB open-6, THESIS G2) | **BUILD** | `profiling/env/energy.py` (NVML/`nvidia-smi` power sampling) → `metadata.json`/`summary.json` → ENERGY finding + explorer field |
+| 1 | Detailed, expandable methodology in the UI (this request) | **DONE** | `viz/gen_methodology.py` → `reports/methodology.json`; `dashboard/app.js` accordion; decision tree shared with `explorer.js` |
+| 2 | Whole-run energy / joules — "PiM's main win is energy; you never measure a joule" (PUB open-6, THESIS G2) | **DONE** — 34.67 J measured on the RTX 2000 Ada | `profiling/env/energy.py` power sampling → `metadata.json`/`summary.json` → ENERGY finding + explorer field |
+| 2b | Multi-op-type AI numerator (fp16 / int / fp64), for the "profile any GPU codebase" adapter story (Doc2-5/6, Doc6-4) | **DONE** — `auto` picks the dominant op-type per workload (unit-tested); cuVSLAM stays fp32 | `roofline.py OPTYPE_FLOPS` + `profile.py` characterize set + `--ai-optype` |
 
 ## Done (surfaced in the Methodology tab)
 
@@ -47,11 +48,11 @@ This file is the source for the dashboard's Methodology → Roadmap strip.
 
 | # | Suggestion (source) | Decision + why | Effort |
 |---|---|---|---|
-| 20 | Host-side **LMDB/ISP I/O** characterization — LMDB traffic, keyframe-DB growth, descriptor-match I/O during loop closure (THESIS G3 / Path C1) | **DEFER (next cycle)** — cheap (strace/iostat/LMDB stats), directly arms the ISP claim we currently only *infer* from the allocator (F8) | 2–4 d |
-| 21 | Layer-3 **kernel-arg correlation** — name the ~40% static-memory residuals (`__device__` globals, texture reads) (THESIS G5 / Path C3) | **DEFER** — closes the last unmapped traffic; medium | 3–5 d |
-| 22 | **Occupancy sweep** — vary occupancy/CTA count to see latency-hiding reliance (Doc1-5) | **DEFER** — fits as a `mutate_configs` variant + a sweep driver; medium value (mostly confirms G4/G7) | 2–3 d |
-| 23 | Multi-op-type **AI numerator** (INT / FP16 / tensor) for non-FP32 workloads (Doc2-5/6, Doc6-4) | **DEFER** — verified **FP32-only** today; correct for cuVSLAM, but the "profile any codebase" adapter story wants a per-workload op-type knob for DNN/tensor | 1–2 d |
-| 24 | **Accel-Sim NDP configs + AccelWattch** energy — substrate-side speedup/energy *deltas* (Doc1-1/6/8, PUB open-5, THESIS G1/Path B) | **DEFER (Phase 4)** — this is the architecture-paper (MICRO/ASPLOS) scope; the characterization paper stands without it. Large | weeks |
+| 20 | Host-side **LMDB/ISP I/O** characterization — LMDB traffic, keyframe-DB growth during loop closure (THESIS G3 / Path C1) | **DEFER** — reassessed as NOT the cheap win it looked: LMDB is **mmap-backed**, so `/proc/pid/io` read()/write() counters miss the page-in traffic; the honest measurement needs major-fault counting (`majflt`×page) on a **cold-cache, long** loop-closure run. A naive number would read ~0 (warm cache, buffered writes) and *undercut* the ISP claim. Do it right next cycle, not fast-and-wrong | 3–4 d |
+| 21 | Layer-3 **kernel-arg correlation** — name the ~40% static-memory residuals (`__device__` globals, texture reads) (THESIS G5 / Path C3) | **DEFER** — needs NVBit kernel-argument capture (new instrumentation), not just analysis; incremental value (last 40% of a few kernels) | 3–5 d |
+| 22 | **Occupancy sweep** — vary occupancy/CTA count to see latency-hiding reliance (Doc1-5) | **DROP → replaced** — the *question* ("does this kernel lean on occupancy to hide latency") is already answered per-kernel by the single-point occupancy% + the G4/G7 classification and stall taxonomy. A real sweep can't be done via config (cuVSLAM's launch bounds are compiled in); it needs source recompiles — Phase-4 sim territory. No separate deliverable |
+| 23 | Multi-op-type **AI numerator** (INT / FP16 / fp64) for non-FP32 workloads (Doc2-5/6, Doc6-4) | **DONE this cycle** — see row 2b. (Tensor-core FLOPs deliberately excluded — need arch-specific ops-path counters) | — |
+| 24 | **Accel-Sim NDP configs + AccelWattch** energy — substrate-side speedup/energy *deltas* (Doc1-1/6/8, PUB open-5, THESIS G1/Path B) | **DEFER (Phase 4)** — the architecture-paper (MICRO/ASPLOS) scope; the characterization paper stands without it. Large | weeks |
 
 ## Ready — supported, needs a run or device (no code)
 
@@ -71,6 +72,11 @@ This file is the source for the dashboard's Methodology → Roadmap strip.
 
 ---
 
-**Summary:** 17 done, 2 building now, 4 deferred (with a clear next-cycle order:
-LMDB/ISP → Orin run → op-type knob → Layer-3 → occupancy sweep → Accel-Sim),
-2 ready (paper + Orin), 4 dropped with rationale. Nothing open is a silent gap.
+**Summary (updated — acted on the backlog):** 17 previously done + **3 done this
+cycle** (methodology tab, energy, op-type AI) · **3 deferred with sharpened,
+honest rationale** (LMDB/ISP needs cold-cache+majflt not naive /proc-io; Layer-3
+needs new NVBit capture; Accel-Sim is Phase-4) · **1 ready** (Orin — needs the
+device) + paper (writing) · **5 dropped** (Accel-Sim-as-primary, DAMOV-CPU
+pipeline, MIG/MPS, second-SLAM, **occupancy-sweep** — replaced by the existing
+single-point occupancy + G4/G7 classification). Nothing open is a silent gap;
+each deferral now states *why the fast version would be wrong*.

@@ -124,7 +124,11 @@ def main():
              "counters": [roofline.FADD, roofline.FMUL, roofline.FFMA, roofline.DR, roofline.DW],
              "note": "FP32 FLOPs the standard way (FMA = 2 ops) [Yang '20]. A second "
              "roofline AI_l2 = FLOP / L2-bytes is reported too (why AI differs per level). "
-             "For non-FP32 adapter workloads the numerator op-type is the one knob to change."
+             "The numerator OP-TYPE is selectable (roofline.py OPTYPE_FLOPS: fp32/fp16/"
+             "fp64/int) and defaults to AUTO — the op-type with the most measured FLOPs — "
+             "so a DNN in fp16 or an integer kernel gets the correct AI with zero config; "
+             "cuVSLAM is FP32 so it picks fp32. (Tensor-core FLOPs need dedicated ops-path "
+             "counters and are left out rather than approximated wrongly.)"
              + (f"  · {K['name']}: AI_dram = {K['roofline']['ai']} FLOP/B" if K and K.get("roofline") else "")},
             {"type": "formula", "name": "Coalescing fingerprint",
              "expr": "sectors/request = max(sect_ld, sect_st)",
@@ -277,12 +281,13 @@ def main():
 
     # roadmap strip (the DEFER/READY backlog — see docs/BACKLOG.md)
     roadmap = [
-        {"item": "Whole-run energy (joules)", "status": "DONE", "note": "NVML sampling, this cycle"},
-        {"item": "Host-side LMDB / ISP I/O", "status": "DEFER", "note": "strace/iostat — arms the ISP claim (G3)"},
-        {"item": "Jetson Orin re-run", "status": "READY", "note": "app targets Orin; needs the device"},
-        {"item": "Layer-3 kernel-arg correlation", "status": "DEFER", "note": "names the static residuals (G5)"},
-        {"item": "Occupancy sweep", "status": "DEFER", "note": "a mutate_configs variant"},
-        {"item": "Accel-Sim NDP + AccelWattch", "status": "DEFER", "note": "Phase-4 architecture paper"},
+        {"item": "Whole-run energy (joules)", "status": "DONE", "note": "NVML sampling — 34.67 J measured"},
+        {"item": "Op-type AI numerator (fp16/int/fp64, auto)", "status": "DONE", "note": "roofline retargets per workload for the adapter story"},
+        {"item": "Occupancy sweep", "status": "DROP", "note": "already answered by single-point occupancy + G4/G7; a true sweep needs source launch-bound changes (Phase 4)"},
+        {"item": "Host-side LMDB / ISP I/O", "status": "DEFER", "note": "the honest version needs cold-cache + majflt (mmap); naive /proc-io under-reports"},
+        {"item": "Layer-3 kernel-arg correlation", "status": "DEFER", "note": "needs NVBit kernel-arg capture; names the static residuals (G5)"},
+        {"item": "Jetson Orin re-run", "status": "READY", "note": "app targets Orin; needs the device on the bench"},
+        {"item": "Accel-Sim NDP + AccelWattch", "status": "DEFER", "note": "Phase-4 architecture paper (weeks)"},
     ]
 
     out = os.path.join(REPO, "reports", "methodology.json")

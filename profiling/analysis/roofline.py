@@ -33,8 +33,29 @@ FFMA = "smsp__sass_thread_inst_executed_op_ffma_pred_on.sum"
 DR, DW = "dram__bytes_read.sum", "dram__bytes_write.sum"
 L1B, L2B = "l1tex__t_bytes.sum", "lts__t_bytes.sum"
 
+# Op-type FLOP numerators — the one knob for retargeting the roofline to
+# NON-FP32 workloads (the "profile any GPU codebase" goal): a DNN in fp16, a
+# solver in fp64, an integer-heavy kernel. Each entry is (counters, weights);
+# FMA counts as 2. `auto` picks the op-type with the most measured FLOPs, so a
+# workload's AI numerator is correct with zero config (cuVSLAM → fp32; an fp16
+# matmul → fp16). Tensor-core FLOPs need dedicated ops-path counters (arch-
+# specific) and are intentionally left out rather than approximated wrongly.
+OPTYPE_FLOPS = {
+    "fp32": ([FADD, FMUL, FFMA], [1.0, 1.0, 2.0]),
+    "fp16": (["smsp__sass_thread_inst_executed_op_hadd_pred_on.sum",
+              "smsp__sass_thread_inst_executed_op_hmul_pred_on.sum",
+              "smsp__sass_thread_inst_executed_op_hfma_pred_on.sum"], [1.0, 1.0, 2.0]),
+    "fp64": (["smsp__sass_thread_inst_executed_op_dadd_pred_on.sum",
+              "smsp__sass_thread_inst_executed_op_dmul_pred_on.sum",
+              "smsp__sass_thread_inst_executed_op_dfma_pred_on.sum"], [1.0, 1.0, 2.0]),
+    "int":  (["smsp__sass_thread_inst_executed_op_integer_pred_on.sum"], [1.0]),
+}
 
-def aggregate(launches):
+
+def aggregate(launches, optype="auto"):
+    """optype: which FLOP numerator drives AI ('auto' = the op-type with the
+    most measured FLOPs, so the roofline is correct per workload with no config;
+    or fp32/fp16/fp64/int to force one)."""
     by = {}
     for lk in launches:
         by.setdefault(lk.kernel, []).append(lk)
@@ -43,22 +64,33 @@ def aggregate(launches):
         def tot(metric):
             vals = [l.m(metric) for l in lks if l.m(metric) == l.m(metric)]
             return sum(vals) if vals else float("nan")
+
+        # FLOPs per op-type from whatever counters are present
+        flops_by = {}
+        for ot, (counters, weights) in OPTYPE_FLOPS.items():
+            vals = [(tot(c), w) for c, w in zip(counters, weights)]
+            present = [v * w for v, w in vals if v == v]
+            if present:
+                flops_by[ot] = sum(present)
+        chosen = (optype if optype != "auto" and optype in flops_by
+                  else (max(flops_by, key=flops_by.get) if flops_by else None))
+        flops = flops_by.get(chosen, float("nan"))
+
         t = tot(TIME)
-        fadd, fmul, ffma = tot(FADD), tot(FMUL), tot(FFMA)
-        flops = float("nan")
-        if fadd == fadd or fmul == fmul or ffma == ffma:
-            flops = (fadd if fadd == fadd else 0.0) + (fmul if fmul == fmul else 0.0) \
-                + 2.0 * (ffma if ffma == ffma else 0.0)
         dram = tot(DR) + tot(DW)
-        rows.append({
+        row = {
             "kernel": kernel, "stage": stages.stage_of(kernel),
             "launches": len(lks), "time_s": t, "flops": flops,
+            "ai_optype": chosen or "",
             "dram_bytes": dram, "l1_bytes": tot(L1B), "l2_bytes": tot(L2B),
             "ai_dram": flops / dram if flops == flops and dram and dram == dram else float("nan"),
             "ai_l2": flops / tot(L2B) if flops == flops and tot(L2B) == tot(L2B) and tot(L2B) else float("nan"),
             "gflops": flops / t / 1e9 if flops == flops and t and t == t else float("nan"),
             "dram_gbps": dram / t / 1e9 if dram == dram and t and t == t else float("nan"),
-        })
+        }
+        for ot in OPTYPE_FLOPS:                       # keep per-op-type FLOPs
+            row[f"flops_{ot}"] = flops_by.get(ot, float("nan"))
+        rows.append(row)
     rows.sort(key=lambda r: -(r["time_s"] if r["time_s"] == r["time_s"] else 0))
     return rows
 
@@ -67,11 +99,12 @@ def emit(rows, hw, out_dir):
     os.makedirs(out_dir, exist_ok=True)
     written = []
     p = os.path.join(out_dir, "roofline.csv")
-    common.write_csv(p, ["kernel", "stage", "launches", "time_ms", "flops",
+    common.write_csv(p, ["kernel", "stage", "launches", "time_ms", "ai_optype", "flops",
                          "dram_bytes", "l1_bytes", "l2_bytes", "ai_dram",
                          "ai_l2", "gflops", "dram_gbps"],
                      [[r["kernel"], r["stage"], r["launches"],
                        round(r["time_s"] * 1e3, 4) if r["time_s"] == r["time_s"] else "",
+                       r.get("ai_optype", ""),
                        *[f"{r[k]:.6g}" if r[k] == r[k] else "" for k in
                          ("flops", "dram_bytes", "l1_bytes", "l2_bytes", "ai_dram",
                           "ai_l2", "gflops", "dram_gbps")]] for r in rows])
@@ -112,11 +145,14 @@ def main(argv=None):
     ap.add_argument("run_dir")
     ap.add_argument("--hw", required=True)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--ai-optype", default="auto",
+                    choices=["auto", *OPTYPE_FLOPS.keys()],
+                    help="FLOP numerator for AI (default auto = dominant op-type)")
     args = ap.parse_args(argv)
     csv_path = common.find_derived(args.run_dir, "ncu_metrics.csv")
     if not csv_path:
         raise SystemExit(f"no ncu_metrics.csv under {args.run_dir}/derived")
-    rows = aggregate(common.load_ncu_csv(csv_path))
+    rows = aggregate(common.load_ncu_csv(csv_path), optype=args.ai_optype)
     out = args.out or os.path.join(args.run_dir, "derived")
     written, warn = emit(rows, common.load_hw(args.hw), out)
     for p in written:
