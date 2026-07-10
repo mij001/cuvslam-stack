@@ -73,7 +73,10 @@ def validation_blocks():
              ["cross-microarchitecture: same workload on sm_75 vs sm_89 (§3.5.2)",
               f"{xd_ok}/{len(xd_sig)} signal kernels keep their class"],
              ["independent algorithms: k-means AND Ward hierarchical vs the tree (§4.1)",
-              "purity 0.68 / 0.675 — same structure, two unrelated algorithms"]]},
+              "purity 0.68 / 0.675 — same structure, two unrelated algorithms"],
+             ["thresholds re-derived DAMOV-style (midpoint of class means, §3.5 phase-1)",
+              "lfmr 0.38 vs stated 0.375 · occ 25.9 vs 27.5 · comp-SoL 38.7 vs 40 — "
+              "data-supported (dram_sat=50 is deliberately the strict saturation gate)"]]},
     ]
 
 

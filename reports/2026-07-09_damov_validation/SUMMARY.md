@@ -1,5 +1,19 @@
 # GPU-DAMOV validation — the DAMOV robustness checks, on our data
 
+Protocol parity (from the paper itself, §3.5): DAMOV's phase-1 DERIVES its thresholds as midpoints between low-side and high-side class means (their result: TL 0.48, LFMR 0.56, MPKI 11.0, AI 8.5); phase-2 counts a held-out function correct **iff** it (1) fits the threshold fingerprint AND (2) shows the class's expected host-vs-NDP response trend (97/100; the 3 misses were MPKI just under the 1a threshold). Our two conditions are the same two, run as separate falsifiable experiments: the CALIBRATION suite tests (1) and the CLOCK-DOMAIN sweep tests (2).
+
+## §3.5 phase-1 analog — thresholds re-derived from the measured cloud
+Midpoint-of-class-means (DAMOV's derivation) vs our stated `classify.THRESHOLDS`:
+
+| threshold | derived | stated | low-side mean | high-side mean |
+|---|---|---|---|---|
+| dram_sat | 27.31 | 50.0 | 7.37 | 47.24 |
+| sect_scatter | 11.8 | 8.0 | 3.78 | 19.82 |
+| occ_low(_dep) | 25.92 | 27.5 | 10.28 | 41.57 |
+| lfmr band | 0.38 | 0.375 | 0.23 | 0.54 |
+| sol_hi (comp) | 38.71 | 40.0 | 2.52 | 74.91 |
+-> `reports/2026-07-09_damov_validation/derived_thresholds.csv`
+
 ## §8.3 analog — cross-microarchitecture agreement
 Same workload (TUM office), two GPUs (sm_75 laptop vs sm_89 workstation): **36/47 kernels same class (76.6%)**; excluding launch-tax G0 kernels **36/45 (80.0%)**. The class is a property of the kernel's data movement, not the microarchitecture. -> `reports/2026-07-09_damov_validation/cross_device_agreement.csv`
 

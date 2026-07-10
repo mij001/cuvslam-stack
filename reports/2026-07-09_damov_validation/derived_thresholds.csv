@@ -1,0 +1,6 @@
+threshold,derived (midpoint of class means),stated (classify.THRESHOLDS),low-side mean,high-side mean
+dram_sat,27.31,50.0,7.37,47.24
+sect_scatter,11.8,8.0,3.78,19.82
+occ_low(_dep),25.92,27.5,10.28,41.57
+lfmr band,0.38,0.375,0.23,0.54
+sol_hi (comp),38.71,40.0,2.52,74.91
