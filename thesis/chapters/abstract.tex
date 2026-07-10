@@ -1,0 +1,58 @@
+Physical AI systems---robots, drones, and autonomous vehicles---run their
+perception stacks on GPUs, and their dominant cost is increasingly not
+arithmetic but \emph{data movement}: the time and energy spent shuttling bytes
+between memory and compute. Memory-centric hardware---processing-in-memory
+(PiM), in/near-storage processing, and near-sensor computation---promises to
+attack this cost, but hardware cannot be designed for a workload that has not
+been measured. This thesis presents the first per-kernel,
+per-data-structure memory characterization of a \emph{production} visual-SLAM
+system: cuVSLAM, the CUDA-accelerated simultaneous localization and mapping
+library deployed in NVIDIA's Isaac robotics stack.
+
+The thesis makes three contributions. First, a \emph{method}: GPU-DAMOV, a
+re-derivation of the DAMOV data-movement methodology for GPUs, in which the
+last-to-first miss ratio is redefined for a two-level cache hierarchy,
+latency-boundedness is conditioned on occupancy, and memory-divergence
+(coalescing) is introduced as a first-class axis with no CPU analogue. The
+method extends DAMOV's question---\emph{is this code memory-bound?}---to the
+question an architect needs answered: \emph{which substrate should run it, and
+if it stays on the GPU, which specific fault should be fixed?} Second, an
+\emph{empirical} contribution: applying the method to cuVSLAM across 27
+sequences from four public datasets (KITTI, EuRoC, TUM RGB-D, TUM-VI), with
+0 failed runs, yields an eight-class bottleneck taxonomy (G0--G7) that is
+stable across inputs (91\% cross-sequence class consistency), independently
+recovered by two unsupervised clustering algorithms (k-means and Ward
+hierarchical, purity $\approx$0.68), and 80\% reproducible across two GPU
+microarchitectures. A novel allocation-journaling instrumentation
+(TaggedAllocator) joined against binary-instrumentation address traces
+attributes every byte of DRAM traffic to a named data structure: 274/274
+allocations resolve, and 48 of 49 kernels carry a unanimous data-structure tag
+across all sequences. Third, a \emph{trust} contribution: the profiled
+system's trajectory accuracy reproduces NVIDIA's published results across a
+141-configuration matrix, and profiling itself is shown to be
+accuracy-neutral---on deterministic modes the profiled trajectories are
+bit-identical to unprofiled runs across a 192-configuration campaign.
+
+The characterization resolves cuVSLAM's memory behaviour into a three-way
+split with direct architectural consequences. The image front-end is
+\emph{cache-immune streaming}: its measured reuse-distance profile is flat
+from 64\,KiB to 48\,MiB, so no realizable cache helps, and the measured
+1.68\,MB-per-frame sensor upload argues for near-sensor consumption. The
+bundle-adjustment solver is hot-persistent and largely compute-efficient: its
+DRAM traffic is 97\% one named, pre-sized linear-system structure. The
+loop-closure back-end is a scattered gather (23--30 sectors per warp access)
+over a keyframe database whose GPU-resident state is a fixed 6.7\,MB buffer
+while the session-scale store grows host-side---the in-storage-processing
+case---and 92.6\% of the scan kernel's DRAM volume is register-spill traffic,
+a compiler artifact invisible to counter-only studies. In total, 60--72\% of
+GPU time carries PiM affinity under a sensitivity-tested classification. A
+measured whole-run energy baseline (34.7\,J) and host-side I/O
+characterization (66\,MB storage ingestion; 708\,MB peak host memory) complete
+the evidence base for the follow-on architecture study, for which
+simulator-configuration groundwork is laid.
+
+Beyond its findings, the thesis documents two self-corrections in which
+independent measurement methods initially disagreed and were reconciled---one
+reversing a published-in-project claim---and argues that this
+disagree-then-agree arc, with all artifacts on record, is precisely what
+distinguishes measurement science from advocacy.

@@ -1,0 +1,6 @@
+[✓] ../reports/2026-07-09_damov_validation/g6_shared_cls/classification.csv
+[✓] ../reports/2026-07-09_damov_validation/g6_shared_cls/fig_classification.svg
+
+| stage | persistence | dominant class | share | PiM affinity | substrate |
+|---|---|---|---|---|---|
+| other | unclassified | G6-onchip | 100% of stage time | none | host GPU |

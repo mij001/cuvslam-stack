@@ -1,0 +1,5 @@
+# calibration archetype: g6_shared (designed ground truth: G6-onchip)
+[workload]
+cmd = "profiling/calibration/archetypes g6_shared 8"
+[qor]
+stdout_regex = "checksum=([0-9.eE+-]+)"

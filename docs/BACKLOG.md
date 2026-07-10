@@ -21,6 +21,7 @@ This file is the source for the dashboard's Methodology → Roadmap strip.
 | 1 | Detailed, expandable methodology in the UI (this request) | **DONE** | `viz/gen_methodology.py` → `reports/methodology.json`; `dashboard/app.js` accordion; decision tree shared with `explorer.js` |
 | 2 | Whole-run energy / joules — "PiM's main win is energy; you never measure a joule" (PUB open-6, THESIS G2) | **DONE** — 34.67 J measured on the RTX 2000 Ada | `profiling/env/energy.py` power sampling → `metadata.json`/`summary.json` → ENERGY finding + explorer field |
 | 2b | Multi-op-type AI numerator (fp16 / int / fp64), for the "profile any GPU codebase" adapter story (Doc2-5/6, Doc6-4) | **DONE** — `auto` picks the dominant op-type per workload (unit-tested); cuVSLAM stays fp32 | `roofline.py OPTYPE_FLOPS` + `profile.py` characterize set + `--ai-optype` |
+| 2c | **DAMOV-style validation of the classification itself** (Doc4-6, the paper's §3.5/§4.1 robustness checks — "finish GPU-DAMOV at DAMOV's granularity") | **DONE** — 8/8 designed archetype kernels recovered blind (held-out §3.5); 7/7 classes match their clock-domain intervention signature (Step-3 analog, 5/7 naive → 2 refinements are architecture facts); 80% cross-µarch agreement (§3.5.2); k-means + Ward hierarchical both reproduce the structure (§4.1) | `profiling/calibration/`, `profiling/validation/clock_sweep.sh`, `analysis/damov_parity.py`, `docs/GPU_DAMOV_PARITY.md`, `reports/2026-07-09_damov_validation/` |
 
 ## Done (surfaced in the Methodology tab)
 

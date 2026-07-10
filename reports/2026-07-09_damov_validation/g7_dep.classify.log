@@ -1,0 +1,6 @@
+[✓] ../reports/2026-07-09_damov_validation/g7_dep_cls/classification.csv
+[✓] ../reports/2026-07-09_damov_validation/g7_dep_cls/fig_classification.svg
+
+| stage | persistence | dominant class | share | PiM affinity | substrate |
+|---|---|---|---|---|---|
+| other | unclassified | G7-dependency | 100% of stage time | none | host GPU — raise occupancy/ILP first, then re-screen |

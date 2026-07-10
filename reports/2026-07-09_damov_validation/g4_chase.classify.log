@@ -1,0 +1,6 @@
+[✓] ../reports/2026-07-09_damov_validation/g4_chase_cls/classification.csv
+[✓] ../reports/2026-07-09_damov_validation/g4_chase_cls/fig_classification.svg
+
+| stage | persistence | dominant class | share | PiM affinity | substrate |
+|---|---|---|---|---|---|
+| other | unclassified | G4-latency | 100% of stage time | strong | near-memory compute (latency, uncacheable set) |

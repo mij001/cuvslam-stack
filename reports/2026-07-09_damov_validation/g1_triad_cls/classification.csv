@@ -1,0 +1,2 @@
+kernel,stage,persistence,class,confidence,stability,pim_affinity,substrate,time_ms,lfmr_gpu,mpki_gpu,dram_sol_pct,sectors_per_req,occupancy_pct,ai_flop_per_byte,dram_bytes_per_launch,dominant_stall,rationale,source
+g1_triad,other,unclassified,G1-bandwidth,low,stable,strong,DRAM-PiM (bank-level bandwidth),17.821,0.667,701.47,93.0,4.0,94.5,1.006,1.20094e+09,long_scoreboard,DRAM-SoL 93%; LFMR 0.67 (L2 not helping); only n=3 profiled launches — small sample,2026-07-10_191042_seq_ncu_dellworkstation_sm89

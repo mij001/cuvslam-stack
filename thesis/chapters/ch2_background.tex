@@ -1,0 +1,225 @@
+\chapter{Background}
+\label{ch:background}
+
+This chapter builds every concept the thesis depends on, in dependency
+order: the GPU execution model (\S\ref{sec:bg-gpu}), the memory hierarchy and
+its address spaces (\S\ref{sec:bg-mem}), why data movement dominates cost
+(\S\ref{sec:bg-wall}), visual SLAM and cuVSLAM (\S\ref{sec:bg-slam}), the
+candidate hardware substrates (\S\ref{sec:bg-substrates}), and the
+measurement instruments (\S\ref{sec:bg-tools}).
+
+\section{The GPU execution model}
+\label{sec:bg-gpu}
+
+A CPU optimizes the latency of one instruction stream; a GPU optimizes the
+throughput of tens of thousands of them. NVIDIA GPUs are programmed through
+CUDA: the programmer writes a \emph{kernel}---one function---and launches it
+over a grid of thousands to millions of \emph{threads}, each processing a
+different data element. Threads are grouped in fixed bundles of 32 called
+\emph{warps}; the 32 \emph{lanes} of a warp execute the same instruction in
+lockstep on different data. Warps are grouped into thread blocks, and blocks
+are scheduled onto \emph{streaming multiprocessors} (SMs)---the GPU's core
+unit. The primary instrument of this thesis, an NVIDIA RTX~2000 Ada
+generation GPU (compute capability \code{sm\_89}), has 22~SMs, a 25\,MB
+shared L2 cache, and 16\,GB of GDDR6 DRAM.
+
+Two warp-level behaviours matter throughout this thesis:
+
+\textbf{Divergence.} If a branch disables some lanes of a warp, the disabled
+lanes do no useful work. The counter \code{mean\_active\_lanes} measures
+this; 32.0 means fully converged. Every cuVSLAM kernel measured in this
+thesis runs at 32.0 active lanes---divergence is \emph{not} cuVSLAM's
+problem, which immediately focuses attention on memory behaviour.
+
+\textbf{Coalescing.} When a warp issues a load, the hardware merges the 32
+lane addresses into fetches of 32-byte \emph{sectors} (four sectors form a
+128-byte cache line). If the lanes address 32 consecutive words, a few
+sectors satisfy the whole warp---a \emph{coalesced} access. If the lanes
+scatter, the hardware may fetch up to 32 sectors and discard most of each
+one---a \emph{scattered gather} that wastes up to 8$\times$ the useful
+bandwidth. The metric \emph{sectors per request} quantifies this ($\approx$4
+= perfectly coalesced for 4-byte accesses; $\rightarrow$32 = fully
+scattered). Coalescing has no CPU analogue and is one of the three reasons
+DAMOV cannot be applied to GPUs unchanged (Chapter~\ref{ch:method}).
+
+\emph{Occupancy} is the fraction of an SM's maximum concurrent warps that are
+resident. It is the GPU's latency-hiding mechanism: while one warp waits for
+memory, the scheduler issues another. High occupancy can hide DRAM
+\emph{latency} entirely; nothing hides a \emph{bandwidth} shortfall. This
+asymmetry---latency hidable, bandwidth not---shapes the entire bottleneck
+taxonomy of Chapter~\ref{ch:method}.
+
+\section{The memory hierarchy and the five address spaces}
+\label{sec:bg-mem}
+
+GPU storage forms the usual pyramid: per-thread \emph{registers} (fastest,
+smallest); per-SM on-chip storage of 100\,KB serving as L1 cache and
+programmer-managed \emph{shared memory}; the chip-wide L2 cache (25\,MB); the
+GPU's DRAM (16\,GB, reachable at a measured 205\,GB/s on the locked
+instrument, roughly 100$\times$ the latency of a register); host RAM across
+the PCIe bus; and persistent storage. Each level downward costs roughly an
+order of magnitude more energy per byte.
+
+Independent of this physical pyramid, every memory \emph{instruction}
+addresses one of several logical \emph{spaces}, and confusing them invalidates
+analyses (as Chapter~\ref{ch:locality} demonstrates on this very project):
+
+\begin{description}
+\item[Global] the program's real data in DRAM---everything allocated with
+\code{cudaMalloc}. Instructions: \code{LDG}/\code{STG}. All DRAM-traffic and
+locality claims in this thesis are about global space.
+\item[Shared] the on-chip per-SM scratchpad (\code{LDS}/\code{STS}). Used
+for convolution tiles, sort staging, reduction trees. \emph{Not DRAM}:
+traffic here says nothing about the memory wall.
+\item[Local] a per-thread region that is physically \emph{in DRAM} but
+logically compiler scratch: when a kernel needs more temporaries than its
+register budget, the compiler \emph{spills} them here
+(\code{LDL}/\code{STL}). Local addresses are interleaved across threads, so
+spill traffic is \emph{perfectly coalesced by construction}---a fact that
+produced this project's most instructive measurement artifact
+(\S\ref{sec:loc-correction}).
+\item[Constant, texture] small read-only parameter storage, and image reads
+through dedicated texture units. Texture fetches do not appear in the
+address-trace instrument used here; the implications are bounded in
+\S\ref{sec:attr-residuals}.
+\end{description}
+
+\section{The memory wall}
+\label{sec:bg-wall}
+
+Since the mid-1990s, processor arithmetic throughput has grown far faster
+than memory bandwidth or latency has improved---the \emph{memory
+wall}~\cite{wulf1995memorywall}. On contemporary hardware, a double-precision
+multiply costs picojoules while a DRAM fetch of its operands costs hundreds
+of picojoules to nanojoules; crossing PCIe to host memory or storage costs
+more still. For low-arithmetic-intensity codes---image pipelines are the
+canonical case---the processor mostly waits. The roofline
+model~\cite{williams2009roofline} makes this quantitative
+(\S\ref{sec:met-roofline}): performance is bounded by
+$\min(\text{peak compute},\ \text{AI}\times\text{peak bandwidth})$, where
+arithmetic intensity AI is FLOPs per DRAM byte. A kernel under the sloped
+part of that roof cannot be helped by more arithmetic units---only by moving
+fewer bytes, or moving them a shorter distance. The latter option is the
+premise of memory-centric architecture.
+
+\section{Visual SLAM and cuVSLAM}
+\label{sec:bg-slam}
+
+Visual SLAM estimates a camera's trajectory while building a map of the
+environment~\cite{cadena2016slam,durrant2006slam}. The canonical pipeline has
+four stages:
+
+\begin{enumerate}
+\item \textbf{Front-end.} Each incoming frame is converted to grayscale;
+an \emph{image pyramid} (the frame at successively halved resolutions) and
+gradient images are built; distinctive corners are detected (Good Features
+To Track, the Shi--Tomasi criterion) and tracked frame-to-frame with
+Lucas--Kanade optical flow. This stage runs on every frame at camera rate.
+\item \textbf{Visual odometry.} From tracked features, the camera's motion
+is estimated by solving a nonlinear least-squares problem.
+\item \textbf{Bundle adjustment (BA).} Poses and 3-D landmark positions over
+a window are refined jointly. Numerically, each iteration builds and solves
+a linear system (a Hessian reduced by the Schur complement to eliminate
+landmark variables); this thesis names that structure
+\code{ba\_linear\_system} and measures precisely which kernels stream it.
+\item \textbf{SLAM layer.} Selected frames become \emph{keyframes}; their
+feature descriptors enter a \emph{keyframe database}. When the camera
+revisits a mapped place, a database scan detects the \emph{loop closure} and
+the accumulated drift of the whole trajectory is corrected. Loop closure is
+rare (it fires on revisits) but is what makes long-session maps consistent
+---and its database is the only data structure that \emph{grows} with
+session length, a fact of central architectural consequence
+(\S\ref{sec:attr-static}).
+\end{enumerate}
+
+cuVSLAM~\cite{cuvslam2025} is NVIDIA's production implementation: GPU-resident
+front-end and solvers, a host-side keyframe/landmark store backed by LMDB (a
+memory-mapped embedded database), and support for stereo, RGB-D (color plus
+depth), monocular, and inertial (IMU-fused) camera configurations, in
+odometry-only or full-SLAM modes, with synchronous and asynchronous SLAM
+variants. This thesis treats cuVSLAM strictly as a measured artifact: its
+algorithms are never modified; instrumentation is additive and switchable,
+and Chapter~\ref{ch:validity} proves it output-neutral.
+
+Accuracy of a SLAM system is scored against \emph{ground truth} (the true
+trajectory from motion capture, GPS/INS, or an external tracker) using two
+standard metrics~\cite{sturm2012tum,zhang2018tutorial}: \emph{absolute
+pose/trajectory error} (APE/ATE)---the RMS position difference after optimal
+alignment (SE(3) for metric-scale systems; Sim(3) when monocular scale is
+free~\cite{umeyama1991}), and \emph{relative pose/trajectory error}
+(RPE/RTE)---drift over fixed-length segments, expressed as a percentage,
+which is scale-independent and therefore comparable across
+kilometre-scale (KITTI) and room-scale (EuRoC, TUM) trajectories.
+
+\section{Candidate substrates for memory-centric execution}
+\label{sec:bg-substrates}
+
+The thesis evaluates each kernel's fit against five homes:
+
+\textbf{GPU (status quo).} Best when there is real arithmetic per byte or
+reuse the caches can capture.
+
+\textbf{CPU/host.} Best for tiny, launch-overhead-dominated kernels whose GPU
+occupancy is negligible.
+
+\textbf{DRAM-PiM (near-bank).} Compute placed at DRAM banks exposes internal
+bandwidth several times the external interface and removes the
+interconnect-energy toll per byte. Commercially realized in UPMEM's
+DPUs~\cite{gomezluna2021upmem}, Samsung's HBM-PIM (function-in-memory
+DRAM)~\cite{kwon2021hbmpim}, and SK~hynix's GDDR6-AiM~\cite{lee2022aim}.
+The natural tenant is \emph{streaming, bandwidth-bound} work: much data,
+little arithmetic, no reuse.
+
+\textbf{Scatter-capable PiM.} Irregular gather/scatter defeats both caches
+and coalescing; near-memory engines that issue fine-grained random accesses
+(in the lineage of Tesseract and PIM-enabled
+instructions~\cite{ahn2015tesseract,ahn2015pei}) are the architectural answer
+when the access pattern cannot be fixed in software.
+
+\textbf{Near-sensor SRAM / ISP.} Per-frame pixel processing can execute
+adjacent to the image sensor, consuming the stream before it is ever written
+to DRAM. The measured 1.68\,MB-per-frame host-to-device upload
+(\S\ref{sec:char-transfers}) is exactly the traffic such placement removes.
+
+\textbf{In/near-storage processing.} When a growing database is scanned
+episodically, the scan can execute inside the storage
+device~\cite{do2013smartssd,gu2016biscuit}, returning matches rather than
+streaming the store through host memory, PCIe, and DRAM.
+
+\section{The measurement instruments}
+\label{sec:bg-tools}
+
+No single tool sees everything; the methodology composes four views.
+
+\textbf{Nsight Systems (nsys)} records the timeline: every kernel launch,
+its duration, every PCIe copy, with near-zero overhead. It provides the
+screening signal (which kernels matter) and, through NVTX ranges, the
+kernel-to-pipeline-stage mapping.
+
+\textbf{Nsight Compute (ncu)} reads hardware performance counters per kernel
+by \emph{replaying} each kernel multiple times. It is precise about
+\emph{how much} (bytes, hit rates, stall cycles) but blind to \emph{which
+addresses}. Replay makes it expensive, so captures are bounded to windows
+and to a curated metric set of $\sim$15--30 counters; requesting the full
+set is infeasible on small-memory GPUs.
+
+\textbf{NVBit}~\cite{villa2019nvbit} rewrites GPU machine code at load time
+to invoke a callback on every memory instruction, yielding the exact
+per-warp address stream---ground truth beneath ncu's aggregates---at
+100--1000$\times$ slowdown. The tool used here (\code{mem\_trace}, extended
+with launch-window and kernel-name gating, and with an allocation-event
+sidecar) makes gigabyte-scale traces feasible and, joined with the
+allocation journal of Chapter~\ref{ch:attribution}, attributable.
+
+\textbf{NVTX + TaggedAllocator} name things. cuVSLAM ships with NVTX stage
+annotations that are compiled out by default at two independent gates; this
+project's instrumentation patch enables them, making the kernel-to-stage
+table a \emph{measured} artifact rather than a guess from kernel names. The
+TaggedAllocator (Chapter~\ref{ch:attribution}) journals every GPU allocation
+with its call stack, giving each buffer a durable data-structure name.
+
+A standing epistemic ladder orders these instruments: \emph{counters say how
+much; traces say which addresses; the allocation journal says which data
+structure; NVTX says which pipeline stage.} Every claim in this thesis cites
+the highest rung available, and the two places where rungs disagreed became
+findings (\S\ref{sec:loc-correction}, \S\ref{sec:attr-spaces}).

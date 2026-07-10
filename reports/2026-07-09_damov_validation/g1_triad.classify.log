@@ -1,0 +1,6 @@
+[✓] ../reports/2026-07-09_damov_validation/g1_triad_cls/classification.csv
+[✓] ../reports/2026-07-09_damov_validation/g1_triad_cls/fig_classification.svg
+
+| stage | persistence | dominant class | share | PiM affinity | substrate |
+|---|---|---|---|---|---|
+| other | unclassified | G1-bandwidth | 100% of stage time | strong | DRAM-PiM (bank-level bandwidth) |

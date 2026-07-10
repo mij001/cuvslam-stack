@@ -1,0 +1,5 @@
+# calibration archetype: g2_gather (designed ground truth: G2-coalescing)
+[workload]
+cmd = "profiling/calibration/archetypes g2_gather 8"
+[qor]
+stdout_regex = "checksum=([0-9.eE+-]+)"

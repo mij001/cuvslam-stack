@@ -1,0 +1,109 @@
+\chapter{Related Work}
+\label{ch:related}
+
+\section{Data-movement characterization methodologies}
+
+The direct ancestor of this thesis is DAMOV~\cite{oliveira2021damov}, which
+systematized the question ``which functions of a workload are
+data-movement-bound, and would near-data processing help?'' for CPUs. Its
+three-step recipe---screen the functions that matter; characterize them with
+hardware counters plus an architecture-independent locality analysis;
+classify them into bottleneck families \emph{derived from the data by
+clustering}---is adopted here wholesale, and its central metric, the
+last-to-first miss ratio (LFMR: of the requests that miss the first cache,
+the fraction that also miss the last and reach DRAM), is retained in
+redefined form. DAMOV's validation discipline is also adopted: frozen
+thresholds stress-tested on held-out inputs, an independent clustering
+algorithm reproducing the classes, and cache-size sweeps confirming class
+behaviour. Chapter~\ref{ch:method} enumerates, component by component, the
+GPU analogue of each DAMOV element and the three places where the GPU forced
+a redesign rather than a translation. Where DAMOV's third step is a
+simulator-based intervention experiment (host vs.\ host-with-prefetcher vs.\
+NDP across a core-count sweep in ZSim/Ramulator), this thesis substitutes
+two \emph{measured} interventions on silicon---independent core- and
+memory-clock scaling, and the reuse-distance cache-capacity curve---and
+defers the simulated axis to generated configuration
+(\S\ref{sec:met-parity}).
+
+On the GPU side, the counter-metric curation used here follows the
+NCU-based roofline methodology of Cao et
+al.~\cite{cao2023gpudb}, who demonstrated a disciplined path from Nsight
+Compute counters to roofline placement for GPU database kernels; this thesis
+reuses their metric taxonomy (extended with stall-reason and occupancy axes)
+and their practice of measuring, rather than quoting, the roofline ceilings.
+The roofline model itself is due to Williams et
+al.~\cite{williams2009roofline}. Reuse-distance (stack-distance) analysis
+originates with Mattson et al.~\cite{mattson1970stack}; its use here as a
+\emph{measured} hit-rate-versus-capacity curve from binary-instrumentation
+traces (\S\ref{sec:loc-cdf}) is the GPU translation of DAMOV's
+architecture-independent locality step, with one addition the CPU literature
+does not need: filtering by memory space, without which register-spill and
+scratchpad traffic corrupt the locality signal
+(\S\ref{sec:loc-correction}).
+
+\section{Processing-in-memory and near-data systems}
+
+The PiM literature spans three decades; the modern wave is surveyed by Mutlu
+et al.~\cite{mutlu2019pim} and Ghose et al.~\cite{ghose2019pim}.
+Architectures with direct bearing on this thesis's verdicts include
+Tesseract~\cite{ahn2015tesseract} (near-memory graph processing---the
+lineage for scatter-capable PiM), PIM-enabled
+instructions~\cite{ahn2015pei} (fine-grained offload of cache-defeating
+operations), TOM~\cite{hsieh2016tom} (transparent offload of GPU code blocks
+to 3D-stacked memory, selected by a compiler bandwidth-benefit analysis---
+methodologically the closest GPU-offload ancestor), and the workload-driven
+placement study of Boroumand et al.~\cite{boroumand2018google} for consumer
+workloads. Commercial near-bank silicon---UPMEM
+DPUs~\cite{gomezluna2021upmem}, Samsung HBM-PIM~\cite{kwon2021hbmpim},
+SK~hynix GDDR6-AiM~\cite{lee2022aim}---establishes that the substrates this
+thesis assigns work to are realizable, not hypothetical. In-storage
+processing is grounded in Smart-SSD query offload~\cite{do2013smartssd} and
+Biscuit~\cite{gu2016biscuit}. What none of these provide is the
+\emph{workload side} for Physical AI: a measured statement of which SLAM
+computations and which SLAM data structures want which substrate. That is
+the gap this thesis fills.
+
+\section{SLAM systems and their evaluation}
+
+The SLAM algorithmic literature is mature; Cadena et
+al.~\cite{cadena2016slam} survey it. The systems measured against in this
+thesis's accuracy validation are cuVSLAM itself, as documented in NVIDIA's
+technical report~\cite{cuvslam2025}, with ORB-SLAM2/3 as the standard
+open-source references~\cite{murartal2017orbslam2,campos2021orbslam3}.
+Benchmarking SLAM \emph{as a computational workload} (rather than for
+accuracy) was pioneered by SLAMBench~\cite{nardi2015slambench}, which
+profiled dense SLAM across CPU/GPU platforms at whole-pipeline granularity.
+This thesis differs in three ways: it measures a \emph{production} sparse
+V-SLAM stack rather than a research kernel; it descends to per-kernel and
+per-data-structure granularity; and its output is a substrate placement, not
+a platform comparison. Trajectory-accuracy methodology follows the TUM
+benchmark conventions~\cite{sturm2012tum} and the evaluation tutorial of
+Zhang and Scaramuzza~\cite{zhang2018tutorial}, with Umeyama
+alignment~\cite{umeyama1991}. The datasets used---KITTI~\cite{geiger2013kitti},
+EuRoC~\cite{burri2016euroc}, TUM RGB-D~\cite{sturm2012tum},
+TUM-VI~\cite{schubert2018tumvi}, and ICL-NUIM~\cite{handa2014iclnuim}---are
+the community's standard ground-truth corpora.
+
+\section{GPU instrumentation}
+
+Binary instrumentation of GPU machine code is provided by
+NVBit~\cite{villa2019nvbit}, on which this thesis's address tracing is
+built (with two extensions: launch-window/kernel-name gating to bound
+trace volume, and an allocation-event sidecar that timestamps allocator
+activity in the trace's own launch-id clock). GPU simulation and power
+modelling---Accel-Sim~\cite{khairy2020accelsim} and
+AccelWattch~\cite{kandiah2021accelwattch}---appear in this thesis only as
+the target of generated configuration for the follow-on study
+(\S\ref{sec:roadmap}); consistent with a standing project rule, no simulated
+number is reported in the results chapters.
+
+\section{Positioning}
+
+In one sentence per axis: relative to DAMOV, this thesis is the GPU
+re-derivation plus the extension from bottleneck class to substrate verdict;
+relative to GPU profiling practice, it adds machine-independent locality and
+named-data-structure attribution on top of counters; relative to the PiM
+systems literature, it supplies the missing measured workload analysis for a
+deployed Physical-AI perception stack; relative to SLAM benchmarking, it is
+the first study at the granularity where architectural decisions are
+actually made---the kernel and the allocation.

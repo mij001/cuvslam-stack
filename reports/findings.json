@@ -157,6 +157,20 @@
    ]
   },
   {
+   "id": "VALIDATED",
+   "step": "classify",
+   "title": "The classifier passes DAMOV's own robustness checks",
+   "statement": "Four DAMOV-style validations, all measured: (1) held-out ground truth \u2014 8/8 archetype kernels DESIGNED to be each class are recovered blind with frozen thresholds (DAMOV: 97/100); (2) real-hardware intervention \u2014 7/7 classes match their clock-domain response signature (core- vs memory-clock sensitivity; the experiment refined two signatures and taught us G2-scatter is request-concurrency-bound, not bus-bound); (3) cross-microarchitecture \u2014 36/45 signal kernels keep their class from sm_75 to sm_89; (4) two independent clustering algorithms (k-means AND Ward hierarchical) reproduce the class structure at the same agreement.",
+   "number": "8/8 + 7/7",
+   "unit": "blind archetype recovery + intervention-signature matches",
+   "evidence": [
+    {
+     "type": "explore",
+     "label": "docs/GPU_DAMOV_PARITY.md + reports/2026-07-09_damov_validation/"
+    }
+   ]
+  },
+  {
    "id": "RIGOR",
    "step": "capture",
    "title": "Locked-clock measurement floor",

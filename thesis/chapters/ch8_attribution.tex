@@ -1,0 +1,178 @@
+\chapter{Data-Structure Attribution: Naming Every Byte}
+\label{ch:attribution}
+
+A kernel-level claim (``this kernel is memory-bound'') is not yet an
+architect's claim (``the keyframe database belongs near storage''). Closing
+that gap requires knowing, for each byte of DRAM traffic, \emph{which named
+data structure it belongs to}. This chapter presents the TaggedAllocator
+attribution: the instrument (\S\ref{sec:attr-design}), the coverage
+discipline (\S\ref{sec:attr-coverage}), the static-budget finding
+(\S\ref{sec:attr-static}), the per-kernel attribution results
+(\S\ref{sec:attr-results}), the register-spill finding
+(\S\ref{sec:attr-spill}), and the bounded residuals
+(\S\ref{sec:attr-residuals}).
+
+\section{The three-layer instrument}
+\label{sec:attr-design}
+
+Attribution is a chain of fragile assumptions (address $\rightarrow$
+allocation $\rightarrow$ owning code $\rightarrow$ data-structure name), so
+the design uses three independent layers that cross-check:
+
+\textbf{Layer 1 --- source-side journal (the semantic layer).} Every GPU
+allocation in cuVSLAM flows through a handful of allocation wrappers; an
+injected journal records, for each allocation and free, the pointer, size,
+wrapper kind, and a host \emph{call stack}. Resolved offline against debug
+symbols, the innermost non-plumbing frame names the owning data structure
+(e.g.\ the Schur-complement solver's constructor $\Rightarrow$
+\code{ba\_linear\_system}); a fixed tag vocabulary
+(\code{images\_raw}, \code{pyramid\_levels}, \code{feature\_tracks},
+\code{ba\_linear\_system}, \code{keyframe\_descriptors}, \ldots) keeps names
+stable across runs and sequences. The journal is gated by an environment
+variable; disabled, the instrumented binary is behaviourally identical to
+the shipping one, and its \emph{output} equivalence is proven in
+\S\ref{sec:val-neutrality}. Pinned host buffers (device-visible under
+unified addressing) are journaled with a distinguishing suffix, since their
+traffic crosses PCIe rather than the DRAM bus.
+
+\textbf{Layer 2 --- driver-side sidecar (the temporal layer).} The NVBit
+tool independently logs every driver-level allocation and free, stamped
+with the current kernel-launch counter---the same clock the address trace
+uses. This provides allocation \emph{lifetimes} in trace time (essential
+when an address is freed and reused by a different structure, which the
+test suite exercises) and catches allocations that bypass the wrappers
+(linked math libraries' internal scratch), which are tagged as
+driver-internal rather than silently mislabeled.
+
+\textbf{Layer 3 --- the join.} A streaming pass over the address trace
+maintains the live-allocation set in launch order and resolves each
+global-space access to its containing allocation's tag; shared-space and
+local-space records are bucketed as on-chip and spill respectively
+(\S\ref{sec:loc-correction}); anything unresolved lands in an explicit
+\code{unmapped} bucket---the join's own error bar, reported, bounded, and
+investigated rather than hidden.
+
+\section{Coverage: auditing the windows}
+\label{sec:attr-coverage}
+
+Traces are captured in windows, and sparse kernels can drift out of a
+planned window between runs (launch indices shift with keyframe timing). The
+pipeline therefore treats coverage as a proof obligation: after each
+campaign, an audit diffs every sequence's \emph{full} launch map (from a
+cheap uninstrumented pass) against the union of attributed kernels, and a
+planner captures gap-fill windows anchored on \emph{dense clusters} of the
+missing kernels' launches (isolated occurrences drift; clusters do not).
+Across the 27-sequence attribution campaign this loop converged to
+\textbf{zero missing kernels}, with the audit artifacts committed. Without
+this discipline, three sequences would have silently lacked the loop-closure
+scan and one the keyframe-refresh cluster---precisely the
+architecturally interesting kernels.
+
+\section{The GPU memory budget is static}
+\label{sec:attr-static}
+
+The journal's first result is structural. Over a full 2{,}500-frame
+loop-closing session, cuVSLAM performs \textbf{240 device allocations
+totalling 108.65\,MB---all at initialization, none freed mid-run---and the
+identical 240 in a 30-frame run}. The budget by tag
+(Table~\ref{tab:budget}): images and pyramids $\sim$71\,MB, the BA linear
+system 24.3\,MB (with a 15.4\,MB pinned-host mirror), and---the
+architecturally decisive row---\textbf{a fixed 6.7\,MB keyframe-descriptor
+buffer}. The keyframe \emph{database}, the only data structure that grows
+with session length, does not grow on the GPU at all: its growing store
+lives host-side in the memory-mapped database, confirmed by direct host
+measurement (708\,MB peak host memory against the static GPU budget;
+\S\ref{sec:syn-host}). The in-storage verdict of
+Chapter~\ref{ch:synthesis} rests on this measured division of labour, not
+on inference from kernel behaviour.
+
+\begin{table}[t]
+\centering
+\caption{The static GPU allocation budget (full session; peak = total,
+nothing freed mid-run).}
+\label{tab:budget}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+tag & allocations & peak live (MB) \\
+\midrule
+\code{images\_raw} & 92 & 39.97 \\
+\code{pyramid\_levels} & 99 & 31.15 \\
+\code{ba\_linear\_system} & 31 & 24.26 \\
+\code{keyframe\_descriptors} & 2 & \textbf{6.73 (fixed)} \\
+\code{feature\_tracks} & 8 & 4.27 \\
+\code{depth\_pyramid} & 3 & 2.21 \\
+\code{icp\_state} & 4 & 0.07 \\
+\midrule
+device total & 240 & 108.65 \\
+pinned host (device-visible) & 34 & 17.14 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Attribution results}
+\label{sec:attr-results}
+
+The join resolves \textbf{274 of 274} journaled allocations (240 device +
+34 pinned-host) with zero unknowns, and across the full 27-sequence
+campaign, \textbf{48 of 49 kernels receive a unanimous top data-structure
+tag in every sequence they appear in}---the attribution analogue of the 91\%
+class consistency of \S\ref{sec:char-stability}, and the license to make
+per-kernel data-structure claims input-independently. Selected rows
+(steady-state window; shares are sector-weighted):
+
+\begin{itemize}
+\item \stTrack{} (loop-closure scan): \textbf{92.6\% register spill}, with
+the global remainder on \code{keyframe\_descriptors}; unmapped $<$1\%.
+\item \stBuild{} (keyframe ingest): 93\% \code{keyframe\_descriptors}.
+\item \code{sba::reduced\_system\_stage\_2} (solver core): \textbf{96.9\%
+\code{ba\_linear\_system}}---one named, pre-sized, contiguous structure
+carrying essentially all of the solver's DRAM traffic.
+\item Front-end compute kernels (convolutions, feature selection, sorting):
+83--98\% of accesses are shared-memory tiles (on-chip; no DRAM claim), with
+the global residue falling exactly on the pyramid, image, and track
+structures the pipeline stage implies.
+\end{itemize}
+
+Mode differences surface exactly where they should: stereo configurations
+journal no depth or ICP structures; the loop-free KITTI sequences show
+\stTrack{} launches only where their trajectories genuinely close no
+loops---the attribution reproduces the workload's semantics, which is
+itself a correctness check.
+
+\section{The register-spill finding}
+\label{sec:attr-spill}
+
+The single most consequential attribution row is \stTrack{}'s: the kernel
+that motivates the near-data discussion spends \textbf{92.6\% of its DRAM
+volume on register spill}---compiler-generated scratch traffic, invisible
+as such to every counter-only methodology, which would (and initially did)
+book it as data traffic. The finding cuts twice. For \emph{this} workload:
+the loop-closure scan's bandwidth bill is mostly a register-pressure
+artifact (its per-thread descriptor state exceeds the register budget), so
+a register-file/occupancy trade or spill-aware compilation attacks the
+volume, while the residual---the true database gather
+(\S\ref{sec:loc-correction})---is the scatter-PiM candidate. For the
+\emph{methodology}: spill is a first-class DRAM citizen that per-space
+attribution alone can expose; a scope caveat accompanies it (register
+allocation is a codegen decision of this compiler for this target; the
+taxonomy transfers, the spill \emph{quantity} must be re-derived per
+target, and its cross-target validation is scheduled work).
+
+\section{Bounded residuals}
+\label{sec:attr-residuals}
+
+The join's honesty budget: for most kernels the unmapped share is below
+1--7\%. Two systematic residuals remain, both bounded and explained. First,
+one solver-assembly kernel carries $\sim$40\% unmapped traffic
+\emph{identically across all 27 sequences}---the signature of static module
+memory (device-side globals allocated by the module loader, invisible to
+both journal layers by construction), not of a lurking data structure; a
+committed analysis names the two kernels
+(\code{sba::build\_full\_system}, \code{lk\_track}) that carry 83\% of all
+unmapped traffic, turning the residual into a prioritized target list for
+the planned kernel-argument correlation layer. Second, texture-path reads
+(the LK tracker samples pyramids through texture units) never appear in the
+address trace, so image-structure traffic is a stated lower bound, with
+counter-side texture totals corroborating the affected kernels. Neither
+residual moves any verdict: the affected kernels' classes rest on counters
+and stage evidence that do not depend on the unmapped share.

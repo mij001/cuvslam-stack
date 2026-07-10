@@ -1,0 +1,153 @@
+\chapter{Measurement Validity: Accuracy, Neutrality, and Noise}
+\label{ch:validity}
+
+A characterization inherits the validity of its measurements. This chapter
+establishes, in order: that the system under measurement was computing
+\emph{correct} trajectories (\S\ref{sec:val-accuracy}); that observing it did
+not change its behaviour (\S\ref{sec:val-neutrality}); and that residual
+run-to-run variation is understood and bounded
+(\S\ref{sec:val-nondeterminism}). Together these answer RQ5 and constitute
+finding \textbf{F13} of the evidence chain.
+
+\section{Accuracy validation: the 141-configuration matrix}
+\label{sec:val-accuracy}
+
+Every combination of dataset, sensor modality, and pipeline mode that the
+on-disk corpora support was materialized into a configuration---141 in
+total---and each was run to completion and scored against ground truth with
+the vendor's own metrics (RMSE APE after alignment; segment-relative RTE;
+rotational RE). A convergence gate (segment-relative translational drift
+below 5\%, a scale-independent criterion valid from room-scale to
+kilometre-scale trajectories) separates runs that track from runs that
+diverge; every excluded run is itemized with a stated cause rather than
+silently dropped.
+
+Table~\ref{tab:accuracy} compares the converged mode averages against the
+cuVSLAM technical report~\cite{cuvslam2025}. Two facts carry the chapter.
+First, \emph{the modes used for the entire memory characterization---stereo
+and RGB-D SLAM---reproduce the published accuracy}: EuRoC stereo to within
+millimetres, TUM RGB-D better than published, and KITTI matching on the
+definition-stable per-segment drift metric (0.82\% at the 500\,m segment
+versus the 0.85\% leaderboard figure; absolute APE over kilometre paths is
+scale-sensitive and reported as directional only). Second, every
+discrepancy in the remaining modes has a named, verified cause, none of
+which touches the characterized configurations.
+
+\begin{table}[t]
+\centering
+\caption{Converged mode-average accuracy vs.\ the cuVSLAM technical report
+(RMSE APE in metres, odometry/SLAM). The characterization uses the stereo
+and RGB-D modes.}
+\label{tab:accuracy}
+\begin{tabular}{@{}lccl@{}}
+\toprule
+mode & ours & published & verdict \\
+\midrule
+EuRoC stereo & 0.114 / 0.051 & 0.13 / 0.054 & millimetre-level match \\
+TUM RGB-D & 0.060 / 0.047 & 0.11 / 0.065 & better than published \\
+ICL-NUIM (mono-depth) & 0.099 / 0.136 & 0.026 & same order (cm) \\
+KITTI stereo & 4.01 / 3.63 & 3.00 / 1.98 & segment drift matches
+(0.82\% vs 0.85\%) \\
+EuRoC stereo-inertial & 0.401 / 0.328 & 0.19 / 0.13 & under-tuned IMU
+(disclosed) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Discrepancies and their causes}
+\label{sec:val-discrepancies}
+
+\textbf{Inertial mode is under-tuned---by configuration, not by cuVSLAM.}
+Only a minority of EuRoC inertial runs converge, and---diagnostically---
+enabling the IMU makes accuracy \emph{worse} than pure stereo on the same
+sequences. That inversion is the classic signature of mis-scaled IMU noise
+densities or camera--IMU extrinsics: the estimator over-trusts a mis-modelled
+sensor. The vendor calibrates these per dataset; the matrix used a generic
+inertial configuration. The defect is confined to a mode the memory
+characterization never uses, and the remedy (populating per-sequence IMU
+parameters from the datasets' calibration files) is configuration work,
+tracked in the roadmap.
+
+\textbf{The hardest EuRoC sequence diverges in every mode.} V2\_03 combines
+aggressive motion with heavy motion blur; the vendor's own report publishes
+it only under stereo-inertial and excludes it from stereo averages. The same
+exclusion is applied here, with the sequence retained in per-sequence
+tables.
+
+\textbf{TUM-VI raw fisheye is invalid input, not a tracking failure.}
+TUM-VI's $\sim$195$^\circ$ fisheye exceeds the pinhole-undistortion field of
+view the library supports ($<$180$^\circ$); feeding raw fisheye produces
+kilometre-scale divergence deterministically. The documented preparation
+(undistort to pinhole with edge masks) was identified in the dataset notes;
+runs without it are classified invalid-input and excluded.
+
+\textbf{Monocular needs scale-free alignment.} Monocular SLAM recovers shape
+but not metric scale; scoring it with SE(3) alignment conflates scale error
+with drift. Monocular rows are therefore excluded from SE(3) comparisons
+pending Sim(3) evaluation~\cite{umeyama1991}---an evaluator-metric choice,
+not a tracking result.
+
+\section{Profiling is accuracy-neutral}
+\label{sec:val-neutrality}
+
+The deepest reflexivity threat is that instrumentation changes the system it
+observes. Three experiments close it.
+
+\textbf{Instrumented build equals baseline build (QoR).} The TaggedAllocator
+instrumentation (Chapter~\ref{ch:attribution}) lives in a rebuilt cuVSLAM
+binary. Re-running representative configurations on both wheels shows the
+instrumented build's trajectories equal the baseline's---bit-identical on
+EuRoC configurations, and within run-to-run nondeterminism elsewhere
+(largest observed difference 0.24\,m over a kilometre-scale KITTI path,
+within the sequence's own re-run scatter; see
+\S\ref{sec:val-nondeterminism}). The journaling itself is gated by an
+environment variable and touches only allocation paths, which execute at
+initialization, not per frame.
+
+\textbf{Each profiler is trajectory-neutral.} Running the same configuration
+plain and under each instrument shows: nsys and ncu produce
+\emph{bit-identical} trajectories on deterministic (synchronous) modes, and
+NVBit-traced runs agree within $\sim$2\,mm APE---the instrumentation slows
+execution greatly but does not alter the computation.
+
+\textbf{Neutrality holds across the full feature matrix.} A 192-variant
+campaign (every accuracy configuration profiled as-is, plus finer feature
+toggles---sync/async/CPU SLAM, motion-model and denoising toggles,
+landmark export, multi-camera precision, unrectified input, depth-stereo
+tracking---on representative sequences per modality) compares profiled
+against plain APE with tolerance $\max(5\,\text{cm},\,5\%)$: \textbf{166/192
+pass outright}, with 121 bit-identical. Every one of the 26 flagged variants
+was investigated and traced to a benign cause---dominated by the
+nondeterministic scatter of long loop-closing sequences
+(\S\ref{sec:val-nondeterminism}) and by toggles that legitimately change the
+computation (e.g.\ CPU-SLAM changes the back-end, hence the trajectory,
+independent of profiling); a re-check against plain re-runs disproved the
+one suspected genuine interference case.
+
+\section{Nondeterminism, characterized}
+\label{sec:val-nondeterminism}
+
+GPU SLAM is not perfectly repeatable: floating-point reductions reorder
+across runs, and asynchronous modes add scheduling freedom. Rather than
+averaging this away, the campaign measured it. On short and mid-length
+sequences, repeated runs are bit-identical in synchronous modes. On long
+loop-closing sequences (kitti00 is the canonical case) the final trajectory
+is \emph{bimodal}: loop-closure acceptance is threshold-sensitive, and a
+borderline loop either fires or does not, moving whole-path APE by tenths
+of a metre. The decisive control: \emph{plain, uninstrumented re-runs
+scatter by the same amount and between the same modes}. The scatter is a
+property of the workload, not of the profilers---which is itself a
+characterization result a hardware study must respect (single-run accuracy
+comparisons on such sequences are meaningless at sub-scatter resolution).
+
+\section{Summary of the trust chain}
+
+The system under measurement reproduces its vendor's published accuracy in
+the characterized modes (141-run matrix); the instrumentation is
+output-neutral (bit-identical where the workload is deterministic, and
+within measured workload scatter elsewhere, across 192 variants); the noise
+floor of all timing quantities is CoV 0.14\% at locked clocks
+(\S\ref{sec:met-clocks}); and every classification threshold is
+sensitivity-stressed (\S\ref{sec:met-sensitivity}). Every number in
+Chapters~\ref{ch:characterization}--\ref{ch:synthesis} rests on this
+chain.

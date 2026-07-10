@@ -1,0 +1,98 @@
+\contentsline {chapter}{Abstract}{i}{chapter*.1}%
+\contentsline {chapter}{List of Tables}{vii}{chapter*.3}%
+\contentsline {chapter}{List of Abbreviations}{viii}{chapter*.4}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Motivation: Physical AI meets the memory wall}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problem statement}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Research questions}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Contributions}{3}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Scope and non-goals}{4}{section.1.5}%
+\contentsline {section}{\numberline {1.6}Thesis organization}{4}{section.1.6}%
+\contentsline {chapter}{\numberline {2}Background}{6}{chapter.2}%
+\contentsline {section}{\numberline {2.1}The GPU execution model}{6}{section.2.1}%
+\contentsline {section}{\numberline {2.2}The memory hierarchy and the five address spaces}{7}{section.2.2}%
+\contentsline {section}{\numberline {2.3}The memory wall}{7}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Visual SLAM and cuVSLAM}{8}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Candidate substrates for memory-centric execution}{9}{section.2.5}%
+\contentsline {section}{\numberline {2.6}The measurement instruments}{9}{section.2.6}%
+\contentsline {chapter}{\numberline {3}Related Work}{11}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Data-movement characterization methodologies}{11}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Processing-in-memory and near-data systems}{12}{section.3.2}%
+\contentsline {section}{\numberline {3.3}SLAM systems and their evaluation}{12}{section.3.3}%
+\contentsline {section}{\numberline {3.4}GPU instrumentation}{12}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Positioning}{13}{section.3.5}%
+\contentsline {chapter}{\numberline {4}GPU-DAMOV: Methodology and Experimental Setup}{14}{chapter.4}%
+\contentsline {section}{\numberline {4.1}The six-step pipeline}{14}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Experimental setup}{15}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Hardware}{15}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Locked clocks and measured ceilings}{15}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Workloads and datasets}{15}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Capture discipline}{16}{subsection.4.2.4}%
+\contentsline {section}{\numberline {4.3}Metrics}{16}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Speed-of-light utilizations}{16}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}LFMR (GPU form)}{16}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Memory intensity (MPKI)}{16}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Arithmetic intensity and the roofline}{17}{subsection.4.3.4}%
+\contentsline {subsection}{\numberline {4.3.5}Occupancy and the stall taxonomy}{17}{subsection.4.3.5}%
+\contentsline {subsection}{\numberline {4.3.6}Coalescing}{17}{subsection.4.3.6}%
+\contentsline {subsection}{\numberline {4.3.7}Locality (trace-side)}{17}{subsection.4.3.7}%
+\contentsline {section}{\numberline {4.4}The classifier and taxonomy}{18}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Thresholds}{18}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}The ordered rules}{18}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}Sensitivity analysis}{19}{subsection.4.4.3}%
+\contentsline {section}{\numberline {4.5}From class to verdict: substrate and fault mapping}{19}{section.4.5}%
+\contentsline {section}{\numberline {4.6}The placement model}{20}{section.4.6}%
+\contentsline {section}{\numberline {4.7}DAMOV parity: the completeness argument}{20}{section.4.7}%
+\contentsline {chapter}{\numberline {5}Measurement Validity: Accuracy, Neutrality, and Noise}{22}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Accuracy validation: the 141-configuration matrix}{22}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Discrepancies and their causes}{23}{subsection.5.1.1}%
+\contentsline {section}{\numberline {5.2}Profiling is accuracy-neutral}{23}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Nondeterminism, characterized}{24}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Summary of the trust chain}{24}{section.5.4}%
+\contentsline {chapter}{\numberline {6}Kernel-Level Characterization}{26}{chapter.6}%
+\contentsline {section}{\numberline {6.1}What the screen reveals}{26}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Class stability across inputs}{26}{section.6.2}%
+\contentsline {section}{\numberline {6.3}The taxonomy is discovered, not asserted}{27}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Cross-microarchitecture agreement}{27}{section.6.4}%
+\contentsline {section}{\numberline {6.5}The calibration suite: classifying known truth}{27}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Near-data affinity of the workload}{28}{section.6.6}%
+\contentsline {section}{\numberline {6.7}The system edge: host--device transfers}{28}{section.6.7}%
+\contentsline {chapter}{\numberline {7}Machine-Independent Locality Analysis}{29}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Trace-side metrics}{29}{section.7.1}%
+\contentsline {section}{\numberline {7.2}The front-end is cache-immune streaming}{30}{section.7.2}%
+\contentsline {section}{\numberline {7.3}The loop-closure scan: a self-correction on record}{30}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Session-scale growth and migration}{31}{section.7.4}%
+\contentsline {chapter}{\numberline {8}Data-Structure Attribution: Naming Every Byte}{32}{chapter.8}%
+\contentsline {section}{\numberline {8.1}The three-layer instrument}{32}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Coverage: auditing the windows}{33}{section.8.2}%
+\contentsline {section}{\numberline {8.3}The GPU memory budget is static}{33}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Attribution results}{33}{section.8.4}%
+\contentsline {section}{\numberline {8.5}The register-spill finding}{34}{section.8.5}%
+\contentsline {section}{\numberline {8.6}Bounded residuals}{35}{section.8.6}%
+\contentsline {chapter}{\numberline {9}Synthesis: Substrate Verdicts and Measured Baselines}{36}{chapter.9}%
+\contentsline {section}{\numberline {9.1}The three-way split}{36}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Verdict dynamics across workloads}{36}{section.9.2}%
+\contentsline {section}{\numberline {9.3}The analytical placement bound}{37}{section.9.3}%
+\contentsline {section}{\numberline {9.4}The measured energy baseline}{37}{section.9.4}%
+\contentsline {section}{\numberline {9.5}The host-side boundary}{38}{section.9.5}%
+\contentsline {section}{\numberline {9.6}Faults named for the kernels that stay}{38}{section.9.6}%
+\contentsline {chapter}{\numberline {10}Threats to Validity and Limitations}{39}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Internal validity}{39}{section.10.1}%
+\contentsline {section}{\numberline {10.2}External validity}{40}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Construct validity}{40}{section.10.3}%
+\contentsline {section}{\numberline {10.4}What is out of scope, and why}{40}{section.10.4}%
+\contentsline {chapter}{\numberline {11}Conclusion and Future Work}{42}{chapter.11}%
+\contentsline {section}{\numberline {11.1}What was established}{42}{section.11.1}%
+\contentsline {section}{\numberline {11.2}The thesis, restated}{43}{section.11.2}%
+\contentsline {section}{\numberline {11.3}Future work}{43}{section.11.3}%
+\contentsline {chapter}{References}{45}{Item.26}%
+\contentsline {chapter}{\numberline {A}Glossary}{49}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Artifact and Reproducibility Description}{52}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Layout}{52}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Environment}{53}{section.B.2}%
+\contentsline {section}{\numberline {B.3}Reproduction paths}{53}{section.B.3}%
+\contentsline {chapter}{\numberline {C}Extended Result Tables}{55}{appendix.C}%
+\contentsline {section}{\numberline {C.1}Cross-sequence attribution consistency (excerpt)}{55}{section.C.1}%
+\contentsline {section}{\numberline {C.2}Instrumented vs.\ baseline trajectories (QoR excerpt)}{56}{section.C.2}%
+\contentsline {section}{\numberline {C.3}KITTI per-sequence odometry accuracy}{56}{section.C.3}%
+\contentsline {section}{\numberline {C.4}Measured stage map (NVTX, excerpt)}{56}{section.C.4}%

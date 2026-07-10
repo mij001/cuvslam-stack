@@ -1,0 +1,5 @@
+# calibration archetype: g4_chase (designed ground truth: G4-latency)
+[workload]
+cmd = "profiling/calibration/archetypes g4_chase 8"
+[qor]
+stdout_regex = "checksum=([0-9.eE+-]+)"

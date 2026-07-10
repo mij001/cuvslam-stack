@@ -1,0 +1,982 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.7.10)  10 JUL 2026 22:02
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**main.tex
+(./main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+(/usr/share/texmf-dist/tex/latex/base/report.cls
+Document Class: report 2025/01/22 v1.4n Standard LaTeX document class
+(/usr/share/texmf-dist/tex/latex/base/size12.clo
+File: size12.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count275
+\c@chapter=\count276
+\c@section=\count277
+\c@subsection=\count278
+\c@subsubsection=\count279
+\c@paragraph=\count280
+\c@subparagraph=\count281
+\c@figure=\count282
+\c@table=\count283
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen148
+)
+(/usr/share/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+)
+(/usr/share/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
+\inpenc@prehook=\toks17
+\inpenc@posthook=\toks18
+)
+(/usr/share/texmf-dist/tex/latex/stix2-type1/stix2.sty
+Package: stix2 2021/01/14 v2.0.2-latex STIX Two fonts support package
+
+(/usr/share/texmf-dist/tex/latex/base/textcomp.sty
+Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
+LaTeX Font Info:    Changing ? sub-encoding to TS1/0 on input line 75.
+)
+LaTeX Encoding Info:    Text command \textpertenthousand (encoding T1) is not d
+eclared on input line 53.
+LaTeX Encoding Info:    Redeclaring text command \textpertenthousand (encoding 
+?) on input line 54.
+Now handling font encoding LS1 ...
+... no UTF-8 mapping file for font encoding LS1
+Now handling font encoding LS2 ...
+... no UTF-8 mapping file for font encoding LS2
+LaTeX Font Info:    Redeclaring symbol font `letters' on input line 78.
+LaTeX Font Info:    Encoding `OML' has changed to `LS1' for symbol font
+(Font)              `letters' in the math version `normal' on input line 78.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
+(Font)                  OML/cmm/m/it --> LS1/stix2/m/it on input line 78.
+LaTeX Font Info:    Encoding `OML' has changed to `LS1' for symbol font
+(Font)              `letters' in the math version `bold' on input line 78.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  OML/cmm/b/it --> LS1/stix2/m/it on input line 78.
+LaTeX Font Info:    Redeclaring symbol font `operators' on input line 79.
+LaTeX Font Info:    Encoding `OT1' has changed to `LS1' for symbol font
+(Font)              `operators' in the math version `normal' on input line 79.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/cmr/m/n --> LS1/stix2/m/n on input line 79.
+LaTeX Font Info:    Encoding `OT1' has changed to `LS1' for symbol font
+(Font)              `operators' in the math version `bold' on input line 79.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/cmr/bx/n --> LS1/stix2/m/n on input line 79.
+\symbold-operators=\mathgroup4
+LaTeX Font Info:    Redeclaring symbol font `symbols' on input line 81.
+LaTeX Font Info:    Encoding `OMS' has changed to `LS1' for symbol font
+(Font)              `symbols' in the math version `normal' on input line 81.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
+(Font)                  OMS/cmsy/m/n --> LS1/stix2scr/m/n on input line 81.
+LaTeX Font Info:    Encoding `OMS' has changed to `LS1' for symbol font
+(Font)              `symbols' in the math version `bold' on input line 81.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  OMS/cmsy/b/n --> LS1/stix2scr/m/n on input line 81.
+\symsymbols2=\mathgroup5
+\symsymbols3=\mathgroup6
+\symsymbols4=\mathgroup7
+\symintegrals=\mathgroup8
+LaTeX Font Info:    Redeclaring symbol font `largesymbols' on input line 86.
+LaTeX Font Info:    Encoding `OMX' has changed to `LS2' for symbol font
+(Font)              `largesymbols' in the math version `normal' on input line 8
+6.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> LS2/stix2ex/m/n on input line 86.
+LaTeX Font Info:    Encoding `OMX' has changed to `LS2' for symbol font
+(Font)              `largesymbols' in the math version `bold' on input line 86.
+
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/cmex/m/n --> LS2/stix2ex/m/n on input line 86.
+\symarrows1=\mathgroup9
+\symarrows2=\mathgroup10
+\symarrows3=\mathgroup11
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  LS1/stix2/m/it --> LS1/stix2/b/it on input line 90.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  LS1/stix2/m/n --> LS1/stix2/b/n on input line 91.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  LS1/stix2scr/m/n --> LS1/stix2scr/b/n on input line 92.
+
+LaTeX Font Info:    Overwriting symbol font `symbols2' in version `bold'
+(Font)                  LS1/stix2frak/m/n --> LS1/stix2frak/b/n on input line 9
+3.
+LaTeX Font Info:    Overwriting symbol font `symbols3' in version `bold'
+(Font)                  LS1/stix2bb/m/n --> LS1/stix2bb/b/n on input line 94.
+LaTeX Font Info:    Overwriting symbol font `symbols4' in version `bold'
+(Font)                  LS1/stix2bb/m/it --> LS1/stix2bb/b/it on input line 95.
+
+LaTeX Font Info:    Overwriting symbol font `integrals' in version `bold'
+(Font)                  LS2/stix2cal/m/n --> LS2/stix2cal/b/n on input line 96.
+
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  LS2/stix2ex/m/n --> LS2/stix2ex/b/n on input line 97.
+LaTeX Font Info:    Overwriting symbol font `arrows1' in version `bold'
+(Font)                  LS1/stix2sf/m/n --> LS1/stix2sf/b/n on input line 98.
+LaTeX Font Info:    Overwriting symbol font `arrows2' in version `bold'
+(Font)                  LS1/stix2sf/m/it --> LS1/stix2sf/b/it on input line 99.
+
+LaTeX Font Info:    Overwriting symbol font `arrows3' in version `bold'
+(Font)                  LS2/stix2tt/m/n --> LS2/stix2tt/b/n on input line 100.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 101.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 107.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 109.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 110.
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 226.
+LaTeX Font Info:    Redeclaring math accent \grave on input line 697.
+LaTeX Font Info:    Redeclaring math accent \acute on input line 698.
+LaTeX Font Info:    Redeclaring math accent \hat on input line 699.
+LaTeX Font Info:    Redeclaring math accent \tilde on input line 700.
+LaTeX Font Info:    Redeclaring math accent \bar on input line 701.
+LaTeX Font Info:    Redeclaring math accent \breve on input line 702.
+LaTeX Font Info:    Redeclaring math accent \dot on input line 703.
+LaTeX Font Info:    Redeclaring math accent \ddot on input line 704.
+LaTeX Font Info:    Redeclaring math accent \mathring on input line 706.
+LaTeX Font Info:    Redeclaring math accent \check on input line 707.
+LaTeX Font Info:    Redeclaring math accent \vec on input line 715.
+LaTeX Font Info:    Redeclaring math accent \widehat on input line 727.
+LaTeX Font Info:    Redeclaring math accent \widetilde on input line 728.
+LaTeX Info: Redefining \vdots on input line 1517.
+LaTeX Info: Redefining \cdots on input line 1521.
+LaTeX Font Info:    Redeclaring math symbol \mathsterling on input line 1977.
+LaTeX Info: Redefining \not on input line 2141.
+)
+(/usr/share/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+
+(/usr/share/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks19
+)
+(/usr/share/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+
+(/usr/share/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+))
+\Gm@cnth=\count284
+\Gm@cntv=\count285
+\c@Gm@tempcnt=\count286
+\Gm@bindingoffset=\dimen149
+\Gm@wd@mp=\dimen150
+\Gm@odd@mp=\dimen151
+\Gm@even@mp=\dimen152
+\Gm@layoutwidth=\dimen153
+\Gm@layoutheight=\dimen154
+\Gm@layouthoffset=\dimen155
+\Gm@layoutvoffset=\dimen156
+\Gm@dimlist=\toks20
+)
+(/usr/share/texmf-dist/tex/latex/setspace/setspace.sty
+Package: setspace 2022/12/04 v6.7b set line spacing
+)
+(/usr/share/texmf-dist/tex/latex/microtype/microtype.sty
+Package: microtype 2026/03/01 v3.2d Micro-typographical refinements (RS)
+
+(/usr/share/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count287
+)
+\MT@toks=\toks21
+\MT@tempbox=\box53
+\MT@count=\count288
+LaTeX Info: Redefining \noprotrusionifhmode on input line 1084.
+LaTeX Info: Redefining \leftprotrusion on input line 1085.
+\MT@prot@toks=\toks22
+LaTeX Info: Redefining \rightprotrusion on input line 1104.
+LaTeX Info: Redefining \textls on input line 1449.
+\MT@outer@kern=\dimen157
+LaTeX Info: Redefining \microtypecontext on input line 2053.
+LaTeX Info: Redefining \textmicrotypecontext on input line 2070.
+\MT@listname@count=\count289
+
+(/usr/share/texmf-dist/tex/latex/microtype/microtype-pdftex.def
+File: microtype-pdftex.def 2026/03/01 v3.2d Definitions specific to pdftex (RS)
+
+LaTeX Info: Redefining \lsstyle on input line 944.
+LaTeX Info: Redefining \lslig on input line 944.
+\MT@outer@space=\skip51
+)
+Package microtype Info: Loading configuration file microtype.cfg.
+
+(/usr/share/texmf-dist/tex/latex/microtype/microtype.cfg
+File: microtype.cfg 2026/03/01 v3.2d microtype main configuration file (RS)
+)
+LaTeX Info: Redefining \microtypesetup on input line 3065.
+)
+(/usr/share/texmf-dist/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen158
+\lightrulewidth=\dimen159
+\cmidrulewidth=\dimen160
+\belowrulesep=\dimen161
+\belowbottomsep=\dimen162
+\aboverulesep=\dimen163
+\abovetopsep=\dimen164
+\cmidrulesep=\dimen165
+\cmidrulekern=\dimen166
+\defaultaddspace=\dimen167
+\@cmidla=\count290
+\@cmidlb=\count291
+\@aboverulesep=\dimen168
+\@belowrulesep=\dimen169
+\@thisruleclass=\count292
+\@lastruleclass=\count293
+\@thisrulewidth=\dimen170
+)
+(/usr/share/texmf-dist/tex/latex/tools/array.sty
+Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
+\col@sep=\dimen171
+\ar@mcellbox=\box54
+\extrarowheight=\dimen172
+\NC@list=\toks23
+\extratabsurround=\skip52
+\backup@length=\skip53
+\ar@cellbox=\box55
+)
+(/usr/share/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2025-10-13 v4.24 Multi-page Table package (DPC)
+\LTleft=\skip54
+\LTright=\skip55
+\LTpre=\skip56
+\LTpost=\skip57
+\LTchunksize=\count294
+\LTcapwidth=\dimen173
+\LT@head=\box56
+\LT@firsthead=\box57
+\LT@foot=\box58
+\LT@lastfoot=\box59
+\LT@gbox=\box60
+\LT@cols=\count295
+\LT@rows=\count296
+\c@LT@tables=\count297
+\c@LT@chunks=\count298
+\LT@p@ftn=\toks24
+)
+(/usr/share/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+
+(/usr/share/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen174
+\captionmargin=\dimen175
+\caption@leftmargin=\dimen176
+\caption@rightmargin=\dimen177
+\caption@width=\dimen178
+\caption@indent=\dimen179
+\caption@parindent=\dimen180
+\caption@hangindent=\dimen181
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count299
+\c@continuedfloat=\count300
+Package caption Info: longtable package is loaded.
+
+(/usr/share/texmf-dist/tex/latex/caption/ltcaption.sty
+Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
+))
+(/usr/share/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+
+(/usr/share/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+)
+(/usr/share/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+)
+(/usr/share/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
+
+\f@nch@headwidth=\skip58
+\f@nch@offset@elh=\skip59
+\f@nch@offset@erh=\skip60
+\f@nch@offset@olh=\skip61
+\f@nch@offset@orh=\skip62
+\f@nch@offset@elf=\skip63
+\f@nch@offset@erf=\skip64
+\f@nch@offset@olf=\skip65
+\f@nch@offset@orf=\skip66
+\f@nch@height=\skip67
+\f@nch@footalignment=\skip68
+\f@nch@widthL=\skip69
+\f@nch@widthC=\skip70
+\f@nch@widthR=\skip71
+\@temptokenb=\toks25
+)
+(/usr/share/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip72
+
+For additional information on amsmath, use the `?' option.
+(/usr/share/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+
+(/usr/share/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks26
+\ex@=\dimen182
+))
+(/usr/share/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen183
+)
+(/usr/share/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count301
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count302
+\leftroot@=\count303
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count304
+\DOTSCASE@=\count305
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+\Mathstrutbox@=\box61
+\strutbox@=\box62
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen184
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count306
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+\c@MaxMatrixCols=\count307
+\dotsspace@=\muskip17
+\c@parentequation=\count308
+\dspbrk@lvl=\count309
+\tag@help=\toks27
+\row@=\count310
+\column@=\count311
+\maxfields@=\count312
+\andhelp@=\toks28
+\eqnshift@=\dimen185
+\alignsep@=\dimen186
+\tagshift@=\dimen187
+\tagwidth@=\dimen188
+\totwidth@=\dimen189
+\lineht@=\dimen190
+\@envbody=\toks29
+\multlinegap=\skip73
+\multlinetaggap=\skip74
+\mathdisplay@stack=\toks30
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
+)
+(/usr/share/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip18
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+(/usr/share/texmf-dist/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2026-01-29 v7.01p Hypertext links for LaTeX
+
+(/usr/share/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+)
+(/usr/share/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)
+(/usr/share/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+
+(/usr/share/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+)
+(/usr/share/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/usr/share/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+))
+(/usr/share/texmf-dist/tex/latex/hycolor/hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(/usr/share/texmf-dist/tex/latex/hyperref/nameref.sty
+Package: nameref 2026-01-29 v2.58 Cross-referencing by name of section
+
+(/usr/share/texmf-dist/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(/usr/share/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+
+(/usr/share/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count313
+)
+(/usr/share/texmf-dist/tex/generic/stringenc/stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
+)
+\@linkdim=\dimen191
+\Hy@linkcounter=\count314
+\Hy@pagecounter=\count315
+
+(/usr/share/texmf-dist/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2026-01-29 v7.01p Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+)
+(/usr/share/texmf-dist/tex/generic/intcalc/intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count316
+
+(/usr/share/texmf-dist/tex/latex/hyperref/puenc.def
+File: puenc.def 2026-01-29 v7.01p Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Hyper figures OFF on input line 4201.
+Package hyperref Info: Link nesting OFF on input line 4206.
+Package hyperref Info: Hyper index ON on input line 4209.
+Package hyperref Info: Plain pages OFF on input line 4216.
+Package hyperref Info: Backreferencing OFF on input line 4221.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4468.
+\c@Hy@tempcnt=\count317
+LaTeX Info: Redefining \url on input line 4807.
+\XeTeXLinkMargin=\dimen192
+
+(/usr/share/texmf-dist/tex/generic/bitset/bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+
+(/usr/share/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count318
+\Field@Width=\dimen193
+\Fld@charsize=\dimen194
+Package hyperref Info: Hyper figures OFF on input line 6084.
+Package hyperref Info: Link nesting OFF on input line 6089.
+Package hyperref Info: Hyper index ON on input line 6092.
+Package hyperref Info: backreferencing OFF on input line 6099.
+Package hyperref Info: Link coloring OFF on input line 6104.
+Package hyperref Info: Link coloring with OCG OFF on input line 6109.
+Package hyperref Info: PDF/A mode OFF on input line 6114.
+\Hy@abspage=\count319
+\c@Item=\count320
+\c@Hfootnote=\count321
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+
+(/usr/share/texmf-dist/tex/latex/hyperref/hpdftex.def
+File: hpdftex.def 2026-01-29 v7.01p Hyperref driver for pdfTeX
+\Fld@listcount=\count322
+\c@bookmark@seq@number=\count323
+
+(/usr/share/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+
+(/usr/share/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+84.
+)
+\Hy@SectionHShift=\skip75
+)
+LaTeX Font Info:    Trying to load font information for T1+stix2 on input line 
+54.
+
+(/usr/share/texmf-dist/tex/latex/stix2-type1/t1stix2.fd
+File: t1stix2.fd 2018/04/02 v2.0.0-latex stix2 T1 font definitions
+)
+(/usr/share/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count324
+) (./main.aux)
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for LS1/stix2/m/n on input line 54.
+LaTeX Font Info:    Trying to load font information for LS1+stix2 on input line
+ 54.
+
+(/usr/share/texmf-dist/tex/latex/stix2-type1/ls1stix2.fd
+File: ls1stix2.fd 2018/04/02 v2.0.0-latex stix2 LS1 font definitions
+)
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for LS2/stix2/m/n on input line 54.
+LaTeX Font Info:    Trying to load font information for LS2+stix2 on input line
+ 54.
+
+(/usr/share/texmf-dist/tex/latex/stix2-type1/ls2stix2.fd
+File: ls2stix2.fd 2018/04/02 v2.0.0-latex stix2 LS2 font definitions
+)
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(72.26999pt, 452.9679pt, 72.26999pt)
+* v-part:(T,H,B)=(72.26999pt, 700.50687pt, 72.26999pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=452.9679pt
+* \textheight=700.50687pt
+* \oddsidemargin=0.0pt
+* \evensidemargin=0.0pt
+* \topmargin=-40.0pt
+* \headheight=15.0pt
+* \headsep=25.0pt
+* \topskip=12.0pt
+* \footskip=30.0pt
+* \marginparwidth=35.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.8pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+LaTeX Info: Redefining \microtypecontext on input line 54.
+Package microtype Info: Applying patch `item' on input line 54.
+Package microtype Info: Applying patch `toc' on input line 54.
+Package microtype Info: Applying patch `eqnum' on input line 54.
+Package microtype Info: Applying patch `footnote' on input line 54.
+Package microtype Info: Applying patch `verbatim' on input line 54.
+LaTeX Info: Redefining \microtypesetup on input line 54.
+Package microtype Info: Generating PDF output.
+Package microtype Info: Character protrusion enabled (level 2).
+Package microtype Info: Using default protrusion set `alltext'.
+Package microtype Info: Automatic font expansion enabled (level 2),
+(microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
+Package microtype Info: Using default expansion set `alltext-nott'.
+Package microtype Info: Patching command `\showhyphens'.
+Package microtype Info: No adjustment of tracking.
+Package microtype Info: No adjustment of interword spacing.
+Package microtype Info: No adjustment of character kerning.
+(/usr/share/texmf-dist/tex/latex/microtype/mt-ptm.cfg
+File: mt-ptm.cfg 2006/04/20 v1.7 microtype config. file: Times (RS)
+)
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: hyperref package is loaded.
+Package caption Info: End \AtBeginDocument code.
+
+(/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count325
+\scratchdimen=\dimen195
+\scratchbox=\box63
+\nofMPsegments=\count326
+\nofMParguments=\count327
+\everyMPshowfont=\toks31
+\MPscratchCnt=\count328
+\MPscratchDim=\dimen196
+\MPnumerator=\count329
+\makeMPintoPDFobject=\count330
+\everyMPtoPDFconversion=\toks32
+)
+LaTeX Info: Command `\dddot' is already robust on input line 54.
+LaTeX Info: Command `\ddddot' is already robust on input line 54.
+Package hyperref Info: Link coloring OFF on input line 54.
+ (./main.out) (./main.out)
+\@outlinefile=\write3
+\openout3 = `main.out'.
+
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `cmtt' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+ [1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fonts
+/enc/dvips/stix2-type1/stix2-t1.enc}{/usr/share/texmf-dist/fonts/enc/dvips/cm-s
+uper/cm-super-t1.enc}] (./chapters/abstract.tex
+Overfull \hbox (1.94846pt too wide) in paragraph at lines 1--11
+\T1/stix2/m/n/12 (-20) and energy spent shuttling bytes between memory and comp
+ute. Memory-centric hardware---
+ []
+
+LaTeX Font Info:    Trying to load font information for LS1+stix2scr on input l
+ine 25.
+(/usr/share/texmf-dist/tex/latex/stix2-type1/ls1stix2scr.fd
+File: ls1stix2scr.fd 2018/04/02 v2.0.0-latex stix2 script LS1 font definitions
+)
+LaTeX Font Info:    Trying to load font information for LS2+stix2ex on input li
+ne 25.
+
+(/usr/share/texmf-dist/tex/latex/stix2-type1/ls2stix2ex.fd
+File: ls2stix2ex.fd 2018/04/02 v2.0.0-latex stix2 extentions LS2 font definitio
+ns
+)
+LaTeX Font Info:    Trying to load font information for LS1+stix2frak on input 
+line 25.
+
+(/usr/share/texmf-dist/tex/latex/stix2-type1/ls1stix2frak.fd
+File: ls1stix2frak.fd 2018/04/02 v2.0.0-latex stix2 fraktur LS1 font definition
+s
+)
+LaTeX Font Info:    Trying to load font information for LS1+stix2bb on input li
+ne 25.
+
+(/usr/share/texmf-dist/tex/latex/stix2-type1/ls1stix2bb.fd
+File: ls1stix2bb.fd 2018/04/02 v2.0.0-latex stix2 blackboard LS1 font definitio
+ns
+)
+LaTeX Font Info:    Trying to load font information for LS2+stix2cal on input l
+ine 25.
+
+(/usr/share/texmf-dist/tex/latex/stix2-type1/ls2stix2cal.fd
+File: ls2stix2cal.fd 2018/04/02 v2.0.0-latex stix2 calligraphic LS2 font defini
+tions
+)
+LaTeX Font Info:    Trying to load font information for LS1+stix2sf on input li
+ne 25.
+
+(/usr/share/texmf-dist/tex/latex/stix2-type1/ls1stix2sf.fd
+File: ls1stix2sf.fd 2018/04/02 v2.0.0-latex stix2 sans-serif LS1 font definitio
+ns
+)
+LaTeX Font Info:    Trying to load font information for LS2+stix2tt on input li
+ne 25.
+
+(/usr/share/texmf-dist/tex/latex/stix2-type1/ls2stix2tt.fd
+File: ls2stix2tt.fd 2018/04/02 v2.0.0-latex stix2 typewriter LS2 font definitio
+ns
+)
+pdfTeX warning (ext4): destination with the same identifier (name{page.i}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.53 
+      [1
+
+{/usr/share/texmf-dist/fonts/enc/dvips/stix2-type1/stix2-mathrm.enc}])
+[2] (./main.toc [3
+
+] [4] [5])
+\tf@toc=\write4
+\openout4 = `main.toc'.
+
+ [6] (./main.lot)
+\tf@lot=\write5
+\openout5 = `main.lot'.
+
+ [7
+
+] (./chapters/abbreviations.tex
+ignored: Infinite glue shrinkage found in box being split
+[8
+
+]) [9] (./chapters/ch1_introduction.tex
+Chapter 1.
+[1
+
+
+] [2]
+Overfull \hbox (7.69333pt too wide) in paragraph at lines 109--119
+[]\T1/stix2/b/n/12 (-20) GPU-DAMOV, a method-ol-ogy \T1/stix2/m/n/12 (-20) (Cha
+p-ter []4[]). A component-by-component re-derivation
+ []
+
+[3]) (./chapters/ch2_background.tex [4] [5]
+Chapter 2.
+[6
+
+{/usr/share/texmf-dist/fonts/enc/dvips/stix2-type1/stix2-mathsf.enc}]
+[7] [8{/usr/share/texmf-dist/fonts/enc/dvips/stix2-type1/stix2-mathit.enc}]
+[9]
+
+LaTeX Warning: Reference `sec:attr-spaces' on page 10 undefined on input line 2
+25.
+
+) (./chapters/ch3_related.tex [10]
+Chapter 3.
+
+LaTeX Warning: Reference `sec:loc-cdf' on page 11 undefined on input line 38.
+
+[11
+
+] [12]) (./chapters/ch4_methodology.tex [13]
+Chapter 4.
+[14
+
+] [15] [16{/usr/share/texmf-dist/fonts/enc/dvips/stix2-type1/stix2-mathcal.enc}
+] [17] [18]
+Overfull \hbox (0.994pt too wide) in paragraph at lines 302--310
+\T1/stix2/m/n/12 (-20) traf-fic $\LS1/stix2sf/m/n/12 Ù$ \T1/stix2/m/n/12 (-20) 
+register-pressure/compiler fault (the traf-fic is scratch, not data); high sec-
+tors/request
+ []
+
+[19]
+LaTeX Font Info:    Trying to load font information for TS1+stix2 on input line
+ 338.
+ (/usr/share/texmf-dist/tex/latex/stix2-type1/ts1stix2.fd
+File: ts1stix2.fd 2018/04/02 v2.0.0-latex stix2 TS1 font definitions
+)
+Package microtype Info: Character `textflorin ' is missing
+(microtype)             in font `TS1/stix2/m/n/12'.
+(microtype)             Ignoring protrusion settings for this character.
+ [20{/usr/share/texmf-dist/fonts/enc/dvips/stix2-type1/stix2-ts1.enc}])
+(./chapters/ch5_validity.tex [21]
+Chapter 5.
+
+Overfull \hbox (19.22472pt too wide) in paragraph at lines 25--35
+\T1/stix2/m/n/12 (-20) port [[]]. Two facts carry the chap-ter. First, \T1/stix
+2/m/it/12 (-20) the modes used for the en-tire mem-ory characterization---
+ []
+
+
+Overfull \hbox (32.10751pt too wide) in paragraph at lines 42--55
+ [][] 
+ []
+
+[22
+
+] [23{/usr/share/texmf-dist/fonts/enc/dvips/stix2-type1/stix2-mathscr.enc}]) (.
+/chapters/ch6_characterization.tex [24] [25]
+Chapter 6.
+[26
+
+] [27]) (./chapters/ch7_locality.tex [28]
+Chapter 7.
+[29
+
+{/usr/share/texmf-dist/fonts/enc/dvips/stix2-type1/stix2-mathex.enc}]
+[30]) (./chapters/ch8_attribution.tex [31]
+Chapter 8.
+
+Overfull \hbox (50.44481pt too wide) in paragraph at lines 22--37
+\T1/stix2/m/n/12 (-20) lary (\T1/cmtt/m/n/12 images_raw\T1/stix2/m/n/12 (-20) ,
+ \T1/cmtt/m/n/12 pyramid_levels\T1/stix2/m/n/12 (-20) , \T1/cmtt/m/n/12 feature
+_tracks\T1/stix2/m/n/12 (-20) , \T1/cmtt/m/n/12 ba_linear_system\T1/stix2/m/n/1
+2 (-20) , \T1/cmtt/m/n/12 keyframe_descriptors\T1/stix2/m/n/12 (-20) ,
+ []
+
+[32
+
+] [33]
+LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <12> not available
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 128.
+
+Overfull \hbox (10.04665pt too wide) in paragraph at lines 127--130
+[]\T1/cmtt/m/n/12 sba::reduced_system_stage_2 \T1/stix2/m/n/12 (-20) (solver co
+re): \T1/stix2/b/n/12 (-20) 96.9% \T1/cmtt/m/n/12 ba_linear_system\T1/stix2/m/n
+/12 (-20) ---one named,
+ []
+
+[34]) (./chapters/ch9_synthesis.tex [35]
+Chapter 9.
+
+Underfull \hbox (badness 10000) in paragraph at lines 28--28
+\T1/stix2/b/n/12 (+20) end \T1/stix2/m/n/12 (+20) (im-ages,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 28--28
+\T1/stix2/m/n/12 (+20) pyra-mids, gra-di-
+ []
+
+
+Underfull \hbox (badness 1577) in paragraph at lines 29--31
+\T1/stix2/m/n/12 (+20) 41% of ker-nel time in PCIe
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 32--34
+[]|\T1/stix2/b/n/12 (+20) near-sensor SRAM / ISP\T1/stix2/m/n/12 (+20) :
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 35--35
+[]|\T1/stix2/b/n/12 (+20) Hot-persistent
+ []
+
+
+Underfull \hbox (badness 1314) in paragraph at lines 36--38
+\T1/stix2/m/n/12 (+20) one pre-sized 24.3MB struc-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 42--42
+[]|\T1/stix2/b/n/12 (+20) Cold-persistent
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 42--42
+\T1/stix2/b/n/12 (+20) back-end
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 42--42
+\T1/stix2/m/n/12 (+20) (keyframe
+ []
+
+
+Underfull \hbox (badness 5431) in paragraph at lines 43--47
+[]|\T1/stix2/m/n/12 (+20) GPU-resident state fixed at
+ []
+
+
+Underfull \hbox (badness 1163) in paragraph at lines 43--47
+\T1/stix2/m/n/12 (+20) host-side (708MB peak host
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 43--47
+\T1/stix2/m/n/12 (+20) room$\LS1/stix2sf/m/n/12 ™$\T1/stix2/m/n/12 (+20) street
+ with 10--33%
+ []
+
+
+Underfull \hbox (badness 1259) in paragraph at lines 43--47
+\T1/stix2/m/n/12 (+20) turnover per scan; 92.6% of
+ []
+
+
+Underfull \hbox (badness 5036) in paragraph at lines 48--51
+\T1/stix2/b/n/12 (+20) register-file/spill SRAM \T1/stix2/m/n/12 (+20) for
+ []
+
+[36
+
+] [37]
+Overfull \hbox (2.17831pt too wide) in paragraph at lines 106--117
+\T1/stix2/m/n/12 (-20) memory peaks at \T1/stix2/b/n/12 (-20) 708MB\T1/stix2/m/
+n/12 (-20) ---the keyframe/landmark store and its memory-mapped database---
+ []
+
+) (./chapters/ch10_threats.tex
+Overfull \hbox (4.15692pt too wide) in paragraph at lines 121--1
+\T1/stix2/m/n/12 (-20) one's ac-tion-able fault: the loop-closure scan's regist
+er-pressure spill (a com-pi-la-tion/occupancy
+ []
+
+[38]
+Chapter 10.
+[39
+
+]) (./chapters/ch11_conclusion.tex [40] [41]
+Chapter 11.
+[42
+
+] [43]) [44] (./main.bbl [45
+
+
+] [46] [47]) (./chapters/appA_glossary.tex
+[48]
+Appendix A.
+[49
+
+] [50]) (./chapters/appB_artifacts.tex [51]
+Appendix B.
+[52
+
+]) (./chapters/appC_tables.tex [53] [54]
+Appendix C.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[55
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 111--113
+[]|\T1/cmtt/m/n/10.95 cast_image_kernel_rgb\T1/stix2/m/n/10.95 (+20) , \T1/cmtt
+/m/n/10.95 gaussian_scaling\T1/stix2/m/n/10.95 (+20) ,
+ []
+
+
+Underfull \hbox (badness 4995) in paragraph at lines 113--116
+[]|\T1/cmtt/m/n/10.95 gftt_values\T1/stix2/m/n/10.95 (+20) , \T1/cmtt/m/n/10.95
+ accumulateGFTT\T1/stix2/m/n/10.95 (+20) , \T1/cmtt/m/n/10.95 downsample_gftt\T
+1/stix2/m/n/10.95 (+20) ,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 118--120
+[]|\T1/cmtt/m/n/10.95 sba::build_full_system_*\T1/stix2/m/n/10.95 (+20) ,
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+) [56] [57] (./main.aux)
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+ ***********
+
+
+LaTeX Warning: There were undefined references.
+
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: 05A853DCC3DC1C01C51E89BCEA974301;19186.
+ ) 
+Here is how much of TeX's memory you used:
+ 17879 strings out of 469515
+ 273822 string characters out of 5470807
+ 694172 words of memory out of 5000000
+ 45768 multiletter control sequences out of 15000+600000
+ 811981 words of font info for 279 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 75i,13n,79p,1001b,632s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texmf-dist/fonts/type1/public/stix2-type1/STIX2Math.pfb></usr/sha
+re/texmf-dist/fonts/type1/public/stix2-type1/STIX2Text-Bold.pfb></usr/share/tex
+mf-dist/fonts/type1/public/stix2-type1/STIX2Text-Italic.pfb></usr/share/texmf-d
+ist/fonts/type1/public/stix2-type1/STIX2Text-Regular.pfb></usr/share/texmf-dist
+/fonts/type1/public/cm-super/sftt1095.pfb></usr/share/texmf-dist/fonts/type1/pu
+blic/cm-super/sftt1200.pfb>
+Output written on main.pdf (67 pages, 913432 bytes).
+PDF statistics:
+ 1213 PDF objects out of 1440 (max. 8388607)
+ 1114 compressed objects within 12 object streams
+ 241 named destinations out of 1000 (max. 500000)
+ 38673 words of extra memory for PDF output out of 42996 (max. 10000000)
+

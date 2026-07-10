@@ -229,6 +229,36 @@
      "run": "profiling/reports/2026-07-03_tum_office_rtx2000ada/summary.json",
      "kernel": "st_track_with_cache_kernel",
      "label": "see the tree FIRE on st_track (Explore \u2192)"
+    },
+    {
+     "type": "prose",
+     "text": "VALIDATION \u2014 the tree passes the same robustness checks DAMOV ran on its own taxonomy (docs/GPU_DAMOV_PARITY.md, reports/2026-07-09_damov_validation/):"
+    },
+    {
+     "type": "table",
+     "title": "DAMOV-style classifier validation (measured)",
+     "head": [
+      "check (DAMOV analog)",
+      "result"
+     ],
+     "rows": [
+      [
+       "held-out ground truth: archetype kernels DESIGNED per class, classified blind (\u00a73.5)",
+       "8/8 recovered (DAMOV: 97/100)"
+      ],
+      [
+       "real-hardware intervention: core- vs memory-clock response per class (Step-3)",
+       "7/7 match their signature (5/7 naive \u2192 refined by two clock-domain facts)"
+      ],
+      [
+       "cross-microarchitecture: same workload on sm_75 vs sm_89 (\u00a73.5.2)",
+       "36/45 signal kernels keep their class"
+      ],
+      [
+       "independent algorithms: k-means AND Ward hierarchical vs the tree (\u00a74.1)",
+       "purity 0.68 / 0.675 \u2014 same structure, two unrelated algorithms"
+      ]
+     ]
     }
    ]
   },

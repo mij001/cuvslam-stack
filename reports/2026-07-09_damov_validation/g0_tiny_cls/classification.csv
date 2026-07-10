@@ -1,0 +1,2 @@
+kernel,stage,persistence,class,confidence,stability,pim_affinity,substrate,time_ms,lfmr_gpu,mpki_gpu,dram_sol_pct,sectors_per_req,occupancy_pct,ai_flop_per_byte,dram_bytes_per_launch,dominant_stall,rationale,source
+g0_tiny,other,unclassified,G3-l2-reuse,low,stable,weak,"weak, cache-friendly",0.007,0.259,7636.36,0.6,1.0,2.1,0.012,2688,long_scoreboard,memory-limited but LFMR 0.26 — the L2 is earning its keep; only n=3 profiled launches — small sample,2026-07-10_191100_seq_ncu_dellworkstation_sm89

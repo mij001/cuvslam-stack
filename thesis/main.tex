@@ -1,0 +1,133 @@
+% =========================================================================
+% GPU-DAMOV thesis — IEEE-style thesis (report class, IEEEtran citations)
+% Build:  pdflatex main && bibtex main && pdflatex main && pdflatex main
+% =========================================================================
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ---- fonts / layout (IEEE look: Times text + math) ----------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{stix2} % Times-compatible text+math (IEEE look)
+\usepackage[a4paper,margin=1in,headheight=15pt]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{microtype}
+
+% ---- tables / captions ---------------------------------------------------
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{xcolor}
+
+% ---- headers -------------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\leftmark}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\small\thepage}%
+  \renewcommand{\headrulewidth}{0pt}}
+
+% ---- math / misc ----------------------------------------------------------
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+% ---- convenience macros ---------------------------------------------------
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\stTrack}{\code{st\_track\_with\_cache}}
+\newcommand{\stBuild}{\code{st\_build\_cache}}
+\newcommand{\thesistitle}{Which Byte Belongs Where: A Data-Movement
+Characterization of a Production Visual-SLAM Workload for Memory-Centric
+Heterogeneous Architectures}
+\newcommand{\thesisauthor}{Mayura Inomal}   % <-- adjust to the official name
+\newcommand{\thesisdegree}{Bachelor of Engineering} % <-- adjust degree
+\newcommand{\thesisdept}{Department of Computer Engineering} % <-- adjust
+\newcommand{\thesisuniv}{[University Name]} % <-- adjust
+\newcommand{\thesisdate}{July 2026}
+
+% IEEEtran-style reference labels with the report class
+\bibliographystyle{IEEEtran}
+
+\begin{document}
+
+% =========================================================================
+% FRONT MATTER
+% =========================================================================
+\pagenumbering{roman}
+
+% ---- title page -----------------------------------------------------------
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+{\LARGE\bfseries \thesistitle\par}
+\vspace{2cm}
+{\large A thesis submitted in partial fulfillment of the requirements\\
+for the degree of\par}
+\vspace{0.4cm}
+{\large\bfseries \thesisdegree\par}
+\vspace{2cm}
+{\large by\par}
+\vspace{0.3cm}
+{\Large\bfseries \thesisauthor\par}
+\vspace{2cm}
+{\large \thesisdept\\ \thesisuniv\par}
+\vspace{1.2cm}
+{\large \thesisdate\par}
+\vfill
+{\small All measurements, analysis code, and result artifacts referenced in
+this thesis are archived in the accompanying repository
+(\code{github.com/mij001/cuvslam-stack}, MIT license); every table
+regenerates from committed data.\par}
+\end{titlepage}
+
+% ---- abstract ---------------------------------------------------------------
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\input{chapters/abstract}
+
+% ---- toc / lists ------------------------------------------------------------
+\tableofcontents
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+
+\chapter*{List of Abbreviations}
+\addcontentsline{toc}{chapter}{List of Abbreviations}
+\input{chapters/abbreviations}
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+% =========================================================================
+% CHAPTERS
+% =========================================================================
+\input{chapters/ch1_introduction}
+\input{chapters/ch2_background}
+\input{chapters/ch3_related}
+\input{chapters/ch4_methodology}
+\input{chapters/ch5_validity}
+\input{chapters/ch6_characterization}
+\input{chapters/ch7_locality}
+\input{chapters/ch8_attribution}
+\input{chapters/ch9_synthesis}
+\input{chapters/ch10_threats}
+\input{chapters/ch11_conclusion}
+
+% =========================================================================
+% REFERENCES
+% =========================================================================
+\cleardoublepage
+\addcontentsline{toc}{chapter}{References}
+\bibliography{refs}
+
+% =========================================================================
+% APPENDICES
+% =========================================================================
+\appendix
+\input{chapters/appA_glossary}
+\input{chapters/appB_artifacts}
+\input{chapters/appC_tables}
+
+\end{document}

@@ -1,0 +1,78 @@
+\chapter{Glossary}
+\label{app:glossary}
+
+\begin{description}
+\item[Arithmetic intensity (AI)] FLOPs performed per byte fetched from
+DRAM; the x-axis of the roofline. Low AI = memory-bound.
+\item[Attribution] Assigning each memory access to the named data structure
+(allocation) it falls within.
+\item[Bandwidth] Data volume movable per unit time (GB/s); contrast
+\emph{latency}.
+\item[Bank (DRAM)] A subdivision of a DRAM device; near-bank PiM places
+compute at each bank to harvest internal bandwidth.
+\item[Bundle adjustment (BA)] Joint nonlinear least-squares refinement of
+camera poses and 3-D landmarks; cuVSLAM's numerical core.
+\item[Cache (L1/L2)] Automatic on-chip copies of recently used data; L1 per
+SM, L2 chip-wide (25\,MB on the primary instrument).
+\item[Coalescing] Hardware merging of a warp's 32 lane addresses into few
+32-byte sectors; its failure mode (scatter) wastes up to 8$\times$
+bandwidth.
+\item[Cold-persistent] Data with session lifetime touched episodically
+(the keyframe database).
+\item[Compulsory miss] A first-touch cache miss no cache size can avoid;
+streaming data consists almost entirely of these.
+\item[CoV] Coefficient of variation (standard deviation $\div$ mean);
+run-to-run noise measure (0.14\% at locked clocks here).
+\item[DRAM speed-of-light (DRAM SoL)] Achieved DRAM bandwidth as a
+percentage of the measured peak; $\geq$50\% is treated as saturation.
+\item[Footprint] The number of distinct 32-byte sectors a launch touches,
+i.e.\ its exact working-set size.
+\item[G0--G7] The GPU bottleneck taxonomy (Table~\ref{tab:taxonomy}).
+\item[Ground truth] The externally measured true trajectory against which
+SLAM output is scored.
+\item[Hot-persistent] Resident data reused every frame (the BA linear
+system).
+\item[Jaccard overlap] $|A \cap B| / |A \cup B|$ between consecutive
+launches' footprints; measures working-set migration.
+\item[Kernel] One GPU function launched over a grid of threads.
+\item[Keyframe] A frame promoted into the long-term map; its descriptors
+enter the loop-closure database.
+\item[Lane] One of the 32 SIMT execution slots of a warp.
+\item[LFMR] Last-to-first miss ratio; on a two-level GPU hierarchy,
+$1 - \text{L2 hit rate}$. Near 1 = caches not helping.
+\item[Local memory] Per-thread DRAM-backed space used for register spills;
+coalesced by construction; \emph{not} program data.
+\item[Loop closure] Recognition of a previously visited place, triggering
+trajectory-wide drift correction via a database scan.
+\item[Memory wall] The compounding gap between compute throughput and
+memory speed; the thesis's founding observation.
+\item[MPKI] DRAM sector fetches per thousand warp instructions.
+\item[Occupancy] Resident warps as a fraction of the SM maximum; the GPU's
+latency-hiding budget.
+\item[Persistence] The lifetime/touch-pattern axis of a data structure:
+streaming, hot-persistent, or cold-persistent.
+\item[PiM / NDP] Processing-in-memory / near-data processing; compute
+placed at or near DRAM.
+\item[Reuse distance] Distinct sectors touched between successive accesses
+to the same sector; its CDF predicts hit rate for any cache size.
+\item[Roofline] $\min(\text{peak compute}, \text{AI} \times \text{peak
+bandwidth})$ performance bound; placement under the sloped segment =
+memory-bound.
+\item[Sector] The 32-byte granule of GPU DRAM/L2 access; four per 128-byte
+line.
+\item[Sectors per request] Average sectors fetched per warp memory
+request; $\sim$4 coalesced, $\rightarrow$32 scattered.
+\item[SM] Streaming multiprocessor; the GPU's core unit (22 on the primary
+instrument).
+\item[Spill (register)] Compiler-generated traffic to local memory when
+per-thread state exceeds the register budget.
+\item[Stall reason] Hardware-recorded cause of a warp's failure to issue
+(memory scoreboard, dependency wait, barrier, \ldots).
+\item[Streaming] Per-frame data consumed once; compulsory-miss dominated.
+\item[Substrate] A candidate execution home: GPU, CPU, DRAM-PiM,
+scatter-PiM, near-sensor, in/near-storage.
+\item[TaggedAllocator] This project's allocation-journaling
+instrumentation: pointer, size, call stack, and data-structure tag for
+every GPU allocation.
+\item[Warp] The fixed 32-thread SIMT execution bundle.
+\end{description}

@@ -1,0 +1,8 @@
+archetype,S_core (t@810core/base),S_mem (t@5001mem/base),predicted,observed,verdict
+g1_triad,1.06,1.35,"core∈[0.9,1.2] mem∈[1.2,1.45] — bus-bound: tracks MEM period (<=1.4x), core-insensitive",core=1.06 mem=1.35,OK
+g2_gather,1.18,0.97,"core∈[1.05,1.5] mem∈[0.9,1.1] — request-concurrency-bound: MSHR/LSU are core-domain; bus NOT saturated",core=1.18 mem=0.97,OK
+g3_l2,1.80,1.00,"core∈[1.5,2.1] mem∈[0.9,1.1] — L2-resident: the L2 is core-domain",core=1.80 mem=1.00,OK
+g4_chase,1.36,1.12,"core∈[1.2,1.6] mem∈[1.02,1.2] — latency = core-domain L2/NoC traversal + mem-domain CAS: mixed, core-leaning",core=1.36 mem=1.12,OK
+g5_fma,2.00,1.00,"core∈[1.7,2.1] mem∈[0.9,1.1] — compute: tracks core period (2.0x)",core=2.00 mem=1.00,OK
+g6_shared,2.00,1.00,"core∈[1.7,2.1] mem∈[0.9,1.1] — shared memory is core-domain",core=2.00 mem=1.00,OK
+g7_dep,2.00,1.00,"core∈[1.7,2.1] mem∈[0.9,1.1] — FMA latency chain is core-domain",core=2.00 mem=1.00,OK

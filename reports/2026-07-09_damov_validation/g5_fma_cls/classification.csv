@@ -1,0 +1,2 @@
+kernel,stage,persistence,class,confidence,stability,pim_affinity,substrate,time_ms,lfmr_gpu,mpki_gpu,dram_sol_pct,sectors_per_req,occupancy_pct,ai_flop_per_byte,dram_bytes_per_launch,dominant_stall,rationale,source
+g5_fma,other,unclassified,G5-compute,low,stable,none,host GPU,2.829,-0.888,0.0,0.0,4.0,71.8,1609162.971,4480,not_selected,"CompSoL 94% dominant, AI 1609163.0 FLOP/B; only n=3 profiled launches — small sample",2026-07-10_191054_seq_ncu_dellworkstation_sm89

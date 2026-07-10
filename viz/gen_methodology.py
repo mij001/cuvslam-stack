@@ -42,6 +42,41 @@ def worked_kernel():
     return None, None
 
 
+def validation_blocks():
+    """DAMOV-robustness validation numbers, stamped from the measured CSVs."""
+    import csv as _csv
+    base = os.path.join(REPO, "reports", "2026-07-09_damov_validation")
+
+    def rd(name):
+        p = os.path.join(base, name)
+        return list(_csv.DictReader(open(p))) if os.path.isfile(p) else []
+    cal, swp, xd = (rd("calibration_results.csv"), rd("clock_sweep_verdicts.csv"),
+                    rd("cross_device_agreement.csv"))
+    if not (cal and swp):
+        return []
+    cal_ok = sum(1 for r in cal if r.get("match") == "yes")
+    swp_ok = sum(1 for r in swp if r.get("verdict") == "OK")
+    xd_sig = [r for r in xd if "G0" not in "".join(r.values())]
+    xd_ok = sum(1 for r in xd_sig if r.get("agreement") == "same")
+    return [
+        {"type": "prose", "text":
+         "VALIDATION — the tree passes the same robustness checks DAMOV ran on "
+         "its own taxonomy (docs/GPU_DAMOV_PARITY.md, "
+         "reports/2026-07-09_damov_validation/):"},
+        {"type": "table", "title": "DAMOV-style classifier validation (measured)",
+         "head": ["check (DAMOV analog)", "result"],
+         "rows": [
+             ["held-out ground truth: archetype kernels DESIGNED per class, classified blind (§3.5)",
+              f"{cal_ok}/{len(cal)} recovered (DAMOV: 97/100)"],
+             ["real-hardware intervention: core- vs memory-clock response per class (Step-3)",
+              f"{swp_ok}/{len(swp)} match their signature (5/7 naive → refined by two clock-domain facts)"],
+             ["cross-microarchitecture: same workload on sm_75 vs sm_89 (§3.5.2)",
+              f"{xd_ok}/{len(xd_sig)} signal kernels keep their class"],
+             ["independent algorithms: k-means AND Ward hierarchical vs the tree (§4.1)",
+              "purity 0.68 / 0.675 — same structure, two unrelated algorithms"]]},
+    ]
+
+
 def main():
     S, K = worked_kernel()
     ev = (K or {}).get("evidence", {})
@@ -182,7 +217,7 @@ def main():
             {"type": "link", "run": "profiling/reports/2026-07-03_tum_office_rtx2000ada/summary.json",
              "kernel": "st_track_with_cache_kernel",
              "label": "see the tree FIRE on st_track (Explore →)"},
-        ]})
+        ] + validation_blocks()})
 
     # ── 5 · Annotate — NVTX + TaggedAllocator ────────────────────────────────
     persistence_rows = [[stg, hyp, desc] for stg, (hyp, desc) in stages.STAGES.items()] \

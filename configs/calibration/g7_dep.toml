@@ -1,0 +1,5 @@
+# calibration archetype: g7_dep (designed ground truth: G7-dependency)
+[workload]
+cmd = "profiling/calibration/archetypes g7_dep 8"
+[qor]
+stdout_regex = "checksum=([0-9.eE+-]+)"

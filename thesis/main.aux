@@ -1,0 +1,325 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\bibstyle{IEEEtran}
+\@writefile{toc}{\contentsline {chapter}{Abstract}{i}{chapter*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{List of Tables}{vii}{chapter*.3}\protected@file@percent }
+\citation{oliveira2021damov}
+\gdef \LT@i {\LT@entry 
+    {1}{105.65349pt}\LT@entry 
+    {1}{332.13744pt}}
+\@writefile{toc}{\contentsline {chapter}{List of Abbreviations}{viii}{chapter*.4}\protected@file@percent }
+\citation{cuvslam2025}
+\citation{wulf1995memorywall}
+\citation{mutlu2019pim}
+\citation{ghose2019pim}
+\citation{do2013smartssd}
+\citation{gu2016biscuit}
+\citation{gomezluna2021upmem}
+\citation{kwon2021hbmpim}
+\citation{lee2022aim}
+\@writefile{toc}{\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:intro}{{1}{1}{Introduction}{chapter.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1.1}Motivation: Physical AI meets the memory wall}{1}{section.1.1}\protected@file@percent }
+\citation{oliveira2021damov}
+\@writefile{toc}{\contentsline {section}{\numberline {1.2}Problem statement}{2}{section.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.3}Research questions}{2}{section.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.4}Contributions}{3}{section.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.5}Scope and non-goals}{4}{section.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.6}Thesis organization}{4}{section.1.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {2}Background}{6}{chapter.2}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:background}{{2}{6}{Background}{chapter.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}The GPU execution model}{6}{section.2.1}\protected@file@percent }
+\newlabel{sec:bg-gpu}{{2.1}{6}{The GPU execution model}{section.2.1}{}}
+\citation{wulf1995memorywall}
+\citation{williams2009roofline}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}The memory hierarchy and the five address spaces}{7}{section.2.2}\protected@file@percent }
+\newlabel{sec:bg-mem}{{2.2}{7}{The memory hierarchy and the five address spaces}{section.2.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.3}The memory wall}{7}{section.2.3}\protected@file@percent }
+\newlabel{sec:bg-wall}{{2.3}{7}{The memory wall}{section.2.3}{}}
+\citation{cadena2016slam}
+\citation{durrant2006slam}
+\citation{cuvslam2025}
+\citation{sturm2012tum}
+\citation{zhang2018tutorial}
+\citation{umeyama1991}
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}Visual SLAM and cuVSLAM}{8}{section.2.4}\protected@file@percent }
+\newlabel{sec:bg-slam}{{2.4}{8}{Visual SLAM and cuVSLAM}{section.2.4}{}}
+\citation{gomezluna2021upmem}
+\citation{kwon2021hbmpim}
+\citation{lee2022aim}
+\citation{ahn2015tesseract}
+\citation{ahn2015pei}
+\citation{do2013smartssd}
+\citation{gu2016biscuit}
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}Candidate substrates for memory-centric execution}{9}{section.2.5}\protected@file@percent }
+\newlabel{sec:bg-substrates}{{2.5}{9}{Candidate substrates for memory-centric execution}{section.2.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.6}The measurement instruments}{9}{section.2.6}\protected@file@percent }
+\newlabel{sec:bg-tools}{{2.6}{9}{The measurement instruments}{section.2.6}{}}
+\citation{villa2019nvbit}
+\citation{oliveira2021damov}
+\citation{cao2023gpudb}
+\citation{williams2009roofline}
+\citation{mattson1970stack}
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}Related Work}{11}{chapter.3}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:related}{{3}{11}{Related Work}{chapter.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Data-movement characterization methodologies}{11}{section.3.1}\protected@file@percent }
+\citation{mutlu2019pim}
+\citation{ghose2019pim}
+\citation{ahn2015tesseract}
+\citation{ahn2015pei}
+\citation{hsieh2016tom}
+\citation{boroumand2018google}
+\citation{gomezluna2021upmem}
+\citation{kwon2021hbmpim}
+\citation{lee2022aim}
+\citation{do2013smartssd}
+\citation{gu2016biscuit}
+\citation{cadena2016slam}
+\citation{cuvslam2025}
+\citation{murartal2017orbslam2}
+\citation{campos2021orbslam3}
+\citation{nardi2015slambench}
+\citation{sturm2012tum}
+\citation{zhang2018tutorial}
+\citation{umeyama1991}
+\citation{geiger2013kitti}
+\citation{burri2016euroc}
+\citation{sturm2012tum}
+\citation{schubert2018tumvi}
+\citation{handa2014iclnuim}
+\citation{villa2019nvbit}
+\citation{khairy2020accelsim}
+\citation{kandiah2021accelwattch}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Processing-in-memory and near-data systems}{12}{section.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}SLAM systems and their evaluation}{12}{section.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}GPU instrumentation}{12}{section.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.5}Positioning}{13}{section.3.5}\protected@file@percent }
+\citation{villa2019nvbit}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}GPU-DAMOV: Methodology and Experimental Setup}{14}{chapter.4}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:method}{{4}{14}{GPU-DAMOV: Methodology and Experimental Setup}{chapter.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}The six-step pipeline}{14}{section.4.1}\protected@file@percent }
+\newlabel{sec:met-pipeline}{{4.1}{14}{The six-step pipeline}{section.4.1}{}}
+\citation{geiger2013kitti}
+\citation{burri2016euroc}
+\citation{sturm2012tum}
+\citation{schubert2018tumvi}
+\citation{handa2014iclnuim}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Experimental setup}{15}{section.4.2}\protected@file@percent }
+\newlabel{sec:met-setup}{{4.2}{15}{Experimental setup}{section.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Hardware}{15}{subsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Locked clocks and measured ceilings}{15}{subsection.4.2.2}\protected@file@percent }
+\newlabel{sec:met-clocks}{{4.2.2}{15}{Locked clocks and measured ceilings}{subsection.4.2.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Workloads and datasets}{15}{subsection.4.2.3}\protected@file@percent }
+\newlabel{sec:met-datasets}{{4.2.3}{15}{Workloads and datasets}{subsection.4.2.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.4}Capture discipline}{16}{subsection.4.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Metrics}{16}{section.4.3}\protected@file@percent }
+\newlabel{sec:met-metrics}{{4.3}{16}{Metrics}{section.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}Speed-of-light utilizations}{16}{subsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}LFMR (GPU form)}{16}{subsection.4.3.2}\protected@file@percent }
+\newlabel{eq:lfmr}{{4.1}{16}{LFMR (GPU form)}{equation.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Memory intensity (MPKI)}{16}{subsection.4.3.3}\protected@file@percent }
+\newlabel{eq:mpki}{{4.2}{16}{Memory intensity (MPKI)}{equation.4.2}{}}
+\citation{williams2009roofline}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.4}Arithmetic intensity and the roofline}{17}{subsection.4.3.4}\protected@file@percent }
+\newlabel{sec:met-roofline}{{4.3.4}{17}{Arithmetic intensity and the roofline}{subsection.4.3.4}{}}
+\newlabel{eq:ai}{{4.3}{17}{Arithmetic intensity and the roofline}{equation.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.5}Occupancy and the stall taxonomy}{17}{subsection.4.3.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.6}Coalescing}{17}{subsection.4.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.7}Locality (trace-side)}{17}{subsection.4.3.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Classifier thresholds (values as frozen in \texttt  {analysis/classify.py}).}}{18}{table.caption.5}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:thresholds}{{4.1}{18}{Classifier thresholds (values as frozen in \code {analysis/classify.py})}{table.caption.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}The classifier and taxonomy}{18}{section.4.4}\protected@file@percent }
+\newlabel{sec:met-tree}{{4.4}{18}{The classifier and taxonomy}{section.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Thresholds}{18}{subsection.4.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}The ordered rules}{18}{subsection.4.4.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces The GPU bottleneck taxonomy and its default near-data affinity.}}{19}{table.caption.6}\protected@file@percent }
+\newlabel{tab:taxonomy}{{4.2}{19}{The GPU bottleneck taxonomy and its default near-data affinity}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.3}Sensitivity analysis}{19}{subsection.4.4.3}\protected@file@percent }
+\newlabel{sec:met-sensitivity}{{4.4.3}{19}{Sensitivity analysis}{subsection.4.4.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}From class to verdict: substrate and fault mapping}{19}{section.4.5}\protected@file@percent }
+\newlabel{sec:met-verdict}{{4.5}{19}{From class to verdict: substrate and fault mapping}{section.4.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces Substrate verdict mapping.}}{20}{table.caption.7}\protected@file@percent }
+\newlabel{tab:verdict}{{4.3}{20}{Substrate verdict mapping}{table.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}The placement model}{20}{section.4.6}\protected@file@percent }
+\newlabel{sec:met-model}{{4.6}{20}{The placement model}{section.4.6}{}}
+\newlabel{eq:placement}{{4.4}{20}{The placement model}{equation.4.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.7}DAMOV parity: the completeness argument}{20}{section.4.7}\protected@file@percent }
+\newlabel{sec:met-parity}{{4.7}{20}{DAMOV parity: the completeness argument}{section.4.7}{}}
+\citation{cuvslam2025}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Measurement Validity: Accuracy, Neutrality, and Noise}{22}{chapter.5}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:validity}{{5}{22}{Measurement Validity: Accuracy, Neutrality, and Noise}{chapter.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Accuracy validation: the 141-configuration matrix}{22}{section.5.1}\protected@file@percent }
+\newlabel{sec:val-accuracy}{{5.1}{22}{Accuracy validation: the 141-configuration matrix}{section.5.1}{}}
+\citation{umeyama1991}
+\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces Converged mode-average accuracy vs.\ the cuVSLAM technical report (RMSE APE in metres, odometry/SLAM). The characterization uses the stereo and RGB-D modes.}}{23}{table.caption.8}\protected@file@percent }
+\newlabel{tab:accuracy}{{5.1}{23}{Converged mode-average accuracy vs.\ the cuVSLAM technical report (RMSE APE in metres, odometry/SLAM). The characterization uses the stereo and RGB-D modes}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Discrepancies and their causes}{23}{subsection.5.1.1}\protected@file@percent }
+\newlabel{sec:val-discrepancies}{{5.1.1}{23}{Discrepancies and their causes}{subsection.5.1.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Profiling is accuracy-neutral}{23}{section.5.2}\protected@file@percent }
+\newlabel{sec:val-neutrality}{{5.2}{23}{Profiling is accuracy-neutral}{section.5.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Nondeterminism, characterized}{24}{section.5.3}\protected@file@percent }
+\newlabel{sec:val-nondeterminism}{{5.3}{24}{Nondeterminism, characterized}{section.5.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Summary of the trust chain}{24}{section.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Kernel-Level Characterization}{26}{chapter.6}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:characterization}{{6}{26}{Kernel-Level Characterization}{chapter.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}What the screen reveals}{26}{section.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Class stability across inputs}{26}{section.6.2}\protected@file@percent }
+\newlabel{sec:char-stability}{{6.2}{26}{Class stability across inputs}{section.6.2}{}}
+\citation{ward1963}
+\@writefile{toc}{\contentsline {section}{\numberline {6.3}The taxonomy is discovered, not asserted}{27}{section.6.3}\protected@file@percent }
+\newlabel{sec:char-clustering}{{6.3}{27}{The taxonomy is discovered, not asserted}{section.6.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.4}Cross-microarchitecture agreement}{27}{section.6.4}\protected@file@percent }
+\newlabel{sec:char-crossdev}{{6.4}{27}{Cross-microarchitecture agreement}{section.6.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.5}The calibration suite: classifying known truth}{27}{section.6.5}\protected@file@percent }
+\newlabel{sec:char-calibration}{{6.5}{27}{The calibration suite: classifying known truth}{section.6.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.6}Near-data affinity of the workload}{28}{section.6.6}\protected@file@percent }
+\newlabel{sec:char-affinity}{{6.6}{28}{Near-data affinity of the workload}{section.6.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.7}The system edge: host--device transfers}{28}{section.6.7}\protected@file@percent }
+\newlabel{sec:char-transfers}{{6.7}{28}{The system edge: host--device transfers}{section.6.7}{}}
+\citation{mattson1970stack}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Machine-Independent Locality Analysis}{29}{chapter.7}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:locality}{{7}{29}{Machine-Independent Locality Analysis}{chapter.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.1}Trace-side metrics}{29}{section.7.1}\protected@file@percent }
+\newlabel{sec:loc-metrics}{{7.1}{29}{Trace-side metrics}{section.7.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.2}The front-end is cache-immune streaming}{30}{section.7.2}\protected@file@percent }
+\newlabel{sec:loc-frontend}{{7.2}{30}{The front-end is cache-immune streaming}{section.7.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.3}The loop-closure scan: a self-correction on record}{30}{section.7.3}\protected@file@percent }
+\newlabel{sec:loc-correction}{{7.3}{30}{The loop-closure scan: a self-correction on record}{section.7.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7.1}{\ignorespaces The \texttt  {st\_track\_with\_cache}{} correction: blended-space analysis vs.\ space-filtered re-derivation (TUM room-scale / KITTI street-scale).}}{31}{table.caption.9}\protected@file@percent }
+\newlabel{tab:sttrack}{{7.1}{31}{The \stTrack {} correction: blended-space analysis vs.\^^Mspace-filtered re-derivation (TUM room-scale / KITTI street-scale)}{table.caption.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.4}Session-scale growth and migration}{31}{section.7.4}\protected@file@percent }
+\newlabel{sec:loc-growth}{{7.4}{31}{Session-scale growth and migration}{section.7.4}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {8}Data-Structure Attribution: Naming Every Byte}{32}{chapter.8}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:attribution}{{8}{32}{Data-Structure Attribution: Naming Every Byte}{chapter.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.1}The three-layer instrument}{32}{section.8.1}\protected@file@percent }
+\newlabel{sec:attr-design}{{8.1}{32}{The three-layer instrument}{section.8.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.2}Coverage: auditing the windows}{33}{section.8.2}\protected@file@percent }
+\newlabel{sec:attr-coverage}{{8.2}{33}{Coverage: auditing the windows}{section.8.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.3}The GPU memory budget is static}{33}{section.8.3}\protected@file@percent }
+\newlabel{sec:attr-static}{{8.3}{33}{The GPU memory budget is static}{section.8.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.4}Attribution results}{33}{section.8.4}\protected@file@percent }
+\newlabel{sec:attr-results}{{8.4}{33}{Attribution results}{section.8.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8.1}{\ignorespaces The static GPU allocation budget (full session; peak = total, nothing freed mid-run).}}{34}{table.caption.10}\protected@file@percent }
+\newlabel{tab:budget}{{8.1}{34}{The static GPU allocation budget (full session; peak = total, nothing freed mid-run)}{table.caption.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.5}The register-spill finding}{34}{section.8.5}\protected@file@percent }
+\newlabel{sec:attr-spill}{{8.5}{34}{The register-spill finding}{section.8.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.6}Bounded residuals}{35}{section.8.6}\protected@file@percent }
+\newlabel{sec:attr-residuals}{{8.6}{35}{Bounded residuals}{section.8.6}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {9}Synthesis: Substrate Verdicts and Measured Baselines}{36}{chapter.9}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:synthesis}{{9}{36}{Synthesis: Substrate Verdicts and Measured Baselines}{chapter.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.1}The three-way split}{36}{section.9.1}\protected@file@percent }
+\newlabel{sec:syn-split}{{9.1}{36}{The three-way split}{section.9.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.2}Verdict dynamics across workloads}{36}{section.9.2}\protected@file@percent }
+\newlabel{sec:syn-dynamics}{{9.2}{36}{Verdict dynamics across workloads}{section.9.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9.1}{\ignorespaces The three-way substrate split, with the measurement behind each claim.}}{37}{table.caption.11}\protected@file@percent }
+\newlabel{tab:split}{{9.1}{37}{The three-way substrate split, with the measurement behind each claim}{table.caption.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.3}The analytical placement bound}{37}{section.9.3}\protected@file@percent }
+\newlabel{sec:syn-model}{{9.3}{37}{The analytical placement bound}{section.9.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.4}The measured energy baseline}{37}{section.9.4}\protected@file@percent }
+\newlabel{sec:syn-energy}{{9.4}{37}{The measured energy baseline}{section.9.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.5}The host-side boundary}{38}{section.9.5}\protected@file@percent }
+\newlabel{sec:syn-host}{{9.5}{38}{The host-side boundary}{section.9.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.6}Faults named for the kernels that stay}{38}{section.9.6}\protected@file@percent }
+\newlabel{sec:syn-faults}{{9.6}{38}{Faults named for the kernels that stay}{section.9.6}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {10}Threats to Validity and Limitations}{39}{chapter.10}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:threats}{{10}{39}{Threats to Validity and Limitations}{chapter.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {10.1}Internal validity}{39}{section.10.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10.2}External validity}{40}{section.10.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10.3}Construct validity}{40}{section.10.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10.4}What is out of scope, and why}{40}{section.10.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {11}Conclusion and Future Work}{42}{chapter.11}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:conclusion}{{11}{42}{Conclusion and Future Work}{chapter.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {11.1}What was established}{42}{section.11.1}\protected@file@percent }
+\citation{khairy2020accelsim}
+\citation{kandiah2021accelwattch}
+\@writefile{toc}{\contentsline {section}{\numberline {11.2}The thesis, restated}{43}{section.11.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {11.3}Future work}{43}{section.11.3}\protected@file@percent }
+\newlabel{sec:roadmap}{{11.3}{43}{Future work}{section.11.3}{}}
+\bibdata{refs}
+\bibcite{oliveira2021damov}{1}
+\bibcite{cuvslam2025}{2}
+\bibcite{wulf1995memorywall}{3}
+\bibcite{mutlu2019pim}{4}
+\bibcite{ghose2019pim}{5}
+\bibcite{do2013smartssd}{6}
+\bibcite{gu2016biscuit}{7}
+\bibcite{gomezluna2021upmem}{8}
+\bibcite{kwon2021hbmpim}{9}
+\bibcite{lee2022aim}{10}
+\@writefile{toc}{\contentsline {chapter}{References}{45}{Item.26}\protected@file@percent }
+\bibcite{williams2009roofline}{11}
+\bibcite{cadena2016slam}{12}
+\bibcite{durrant2006slam}{13}
+\bibcite{sturm2012tum}{14}
+\bibcite{zhang2018tutorial}{15}
+\bibcite{umeyama1991}{16}
+\bibcite{ahn2015tesseract}{17}
+\bibcite{ahn2015pei}{18}
+\bibcite{villa2019nvbit}{19}
+\bibcite{cao2023gpudb}{20}
+\bibcite{mattson1970stack}{21}
+\bibcite{hsieh2016tom}{22}
+\bibcite{boroumand2018google}{23}
+\bibcite{murartal2017orbslam2}{24}
+\bibcite{campos2021orbslam3}{25}
+\bibcite{nardi2015slambench}{26}
+\bibcite{geiger2013kitti}{27}
+\bibcite{burri2016euroc}{28}
+\bibcite{schubert2018tumvi}{29}
+\bibcite{handa2014iclnuim}{30}
+\bibcite{khairy2020accelsim}{31}
+\bibcite{kandiah2021accelwattch}{32}
+\bibcite{ward1963}{33}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Glossary}{49}{appendix.A}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{app:glossary}{{A}{49}{Glossary}{appendix.A}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}Artifact and Reproducibility Description}{52}{appendix.B}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{app:artifacts}{{B}{52}{Artifact and Reproducibility Description}{appendix.B}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.1}Layout}{52}{section.B.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {B.2}Environment}{53}{section.B.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {B.3}Reproduction paths}{53}{section.B.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {C}Extended Result Tables}{55}{appendix.C}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{app:tables}{{C}{55}{Extended Result Tables}{appendix.C}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C.1}Cross-sequence attribution consistency (excerpt)}{55}{section.C.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {C.1}{\ignorespaces Attribution consistency across 27 sequences (excerpt).}}{55}{table.caption.13}\protected@file@percent }
+\newlabel{tab:attr-consistency}{{C.1}{55}{Attribution consistency across 27 sequences (excerpt)}{table.caption.13}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {C.2}{\ignorespaces Quality-of-results check: instrumented (TaggedAllocator) build vs.\ baseline build, same configurations (APE, m).}}{56}{table.caption.14}\protected@file@percent }
+\newlabel{tab:qor}{{C.2}{56}{Quality-of-results check: instrumented (TaggedAllocator) build vs.\^^Mbaseline build, same configurations (APE, m)}{table.caption.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C.2}Instrumented vs.\ baseline trajectories (QoR excerpt)}{56}{section.C.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {C.3}KITTI per-sequence odometry accuracy}{56}{section.C.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {C.3}{\ignorespaces KITTI stereo odometry, per sequence: absolute error and segment-relative drift (100--800\,m KITTI protocol).}}{56}{table.caption.15}\protected@file@percent }
+\newlabel{tab:kitti}{{C.3}{56}{KITTI stereo odometry, per sequence: absolute error and segment-relative drift (100--800\,m KITTI protocol)}{table.caption.15}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C.4}Measured stage map (NVTX, excerpt)}{56}{section.C.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {C.4}{\ignorespaces Kernel-to-stage mapping, measured from cuVSLAM's own NVTX ranges.}}{57}{table.caption.16}\protected@file@percent }
+\newlabel{tab:nvtx}{{C.4}{57}{Kernel-to-stage mapping, measured from cuVSLAM's own NVTX ranges}{table.caption.16}{}}
+\gdef \@abspage@last{67}

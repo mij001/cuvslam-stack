@@ -1,0 +1,5 @@
+# calibration archetype: g0_tiny (designed ground truth: screened-Step1)
+[workload]
+cmd = "profiling/calibration/archetypes g0_tiny 8"
+[qor]
+stdout_regex = "checksum=([0-9.eE+-]+)"

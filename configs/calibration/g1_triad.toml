@@ -1,0 +1,5 @@
+# calibration archetype: g1_triad (designed ground truth: G1-bandwidth)
+[workload]
+cmd = "profiling/calibration/archetypes g1_triad 8"
+[qor]
+stdout_regex = "checksum=([0-9.eE+-]+)"

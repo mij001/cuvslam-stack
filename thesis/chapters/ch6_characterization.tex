@@ -1,0 +1,133 @@
+\chapter{Kernel-Level Characterization}
+\label{ch:characterization}
+
+This chapter reports the classification of cuVSLAM's 49 GPU kernels across
+the 27-sequence corpus and then subjects that classification to four
+independent validations: input stability (\S\ref{sec:char-stability}),
+unsupervised recovery by two clustering algorithms
+(\S\ref{sec:char-clustering}), cross-microarchitecture agreement
+(\S\ref{sec:char-crossdev}), and a known-truth calibration suite
+(\S\ref{sec:char-calibration}). It closes with the system-edge measurement
+of host--device transfers (\S\ref{sec:char-transfers}).
+
+\section{What the screen reveals}
+
+The nsys timeline over full sequences shows the expected shape of a
+frame-synchronous perception pipeline: a small set of front-end kernels
+launched every frame (image cast, Gaussian pyramid scaling, gradient
+convolutions, Lucas--Kanade tracking, and the matcher pair) accounts for the
+bulk of launches ($\sim$80 per frame; $\sim$200{,}000 launches over a
+2{,}500-frame sequence), with the bundle-adjustment solver family
+(\code{sba::*}, plus cuSOLVER helper kernels) forming a second tier, and the
+SLAM-layer keyframe kernels (\stBuild{}, \stTrack{}) launching sparsely---per
+keyframe and per loop-closure scan respectively. The NVTX stage table
+(measured, not name-matched; \S\ref{sec:bg-tools}) confirms stage
+membership: \stTrack{} executes inside the loop-closure-and-optimization
+range, \stBuild{} inside keyframe ingestion---the measured anchor for every
+loop-closure claim that follows.
+
+\section{Class stability across inputs}
+\label{sec:char-stability}
+
+The classifier of \S\ref{sec:met-tree} was applied independently per
+sequence, then compared across the corpus. The headline: \textbf{91\% modal
+class consistency}---24 of 49 kernels receive the identical class in every
+one of the 27 sequences, and 42 of 49 agree in at least 80\% of them. The
+bottleneck class is, to first order, \emph{a property of the kernel, not of
+the input}.
+
+The residual flips are not noise; they are physics. They concentrate on
+kernels whose working set sits near the 25\,MB L2 capacity: on small indoor
+sequences the set fits (L2-reuse behaviour, G3), on street-scale sequences
+it spills (bandwidth behaviour, G1). The sensitivity analysis
+(\S\ref{sec:met-sensitivity}) flags exactly these kernels as borderline, and
+the substrate synthesis (Chapter~\ref{ch:synthesis}) treats their verdicts
+as workload-conditional---25 of 49 verdicts flip across workload scale, and
+the flip direction is always the physically expected one.
+
+\section{The taxonomy is discovered, not asserted}
+\label{sec:char-clustering}
+
+The decision tree assigns labels; whether the \emph{classes themselves} are
+real structure in the data is tested without labels. Pooling every kernel's
+feature vector (memory/compute/DRAM speed-of-light, LFMR, occupancy,
+sectors-per-request, and the two dominant stall shares) across sequences and
+running k-means over a sweep of cluster counts, the silhouette criterion
+selects \textbf{$k = 7$--$8$}---matching the seven populated classes plus
+the screened remainder---with cluster purity 0.68 and adjusted Rand index
+0.30 against the tree's labels. An entirely different algorithm---Ward
+hierarchical clustering~\cite{ward1963}, cut at $k{=}8$ over the pooled
+cloud---reproduces the same agreement: \textbf{ARI 0.31, purity 0.675}.
+Two unrelated algorithms, given no thresholds and no labels, find the same
+$\sim$8-way structure the tree encodes. The tree should be read as the
+\emph{labelling} of natural structure, and the clustering as its
+\emph{independent validation}---precisely DAMOV's own discipline, reproduced
+on GPU data.
+
+\section{Cross-microarchitecture agreement}
+\label{sec:char-crossdev}
+
+If the classes captured artifacts of one GPU, they would not survive a
+change of microarchitecture. The same workload (TUM office) was
+characterized independently on two deliberately different devices: the
+\code{sm\_89} workstation instrument and an \code{sm\_75} laptop part with a
+quarter the memory and a third the power budget. \textbf{36 of 45 signal
+kernels (80\%) receive the same class on both} (76.6\% including the
+launch-tax G0 tier). The honest caveat is stated with the number: the two
+devices differ in memory system as well as core generation, so some
+disagreements are physically real L2-capacity crossovers rather than
+classification error---making 80\% a conservative floor for the
+device-independence of the classification. This is the GPU analogue of
+DAMOV's core-type-independence check, under a harsher confound.
+
+\section{The calibration suite: classifying known truth}
+\label{sec:char-calibration}
+
+DAMOV validated frozen thresholds on held-out functions with known
+behaviour. The analogue here is a \emph{calibration suite}: eight archetype
+kernels written so that their ground-truth class is known by
+construction---a streaming triad (G1), a random gather (G2), an L2-resident
+sweep (G3), a coalesced pointer-chase (G4), an FMA polynomial (G5), a
+bank-conflicted shared-memory kernel (G6), a single-warp dependency chain
+(G7), and a sub-screen tiny kernel (G0)---compiled and pushed through the
+identical capture-and-classify pipeline, blind. The first pass classified
+five of eight as designed; analysis of the three misses showed each to be a
+defect in the \emph{archetype}, not the classifier: a per-lane-random
+pointer-chase is legitimately both scattered and latency-bound (G2+G4); a
+barrier-heavy shared-memory kernel legitimately presents as
+dependency-stalled rather than G6; and a sub-floor kernel is legitimately
+\emph{screened}, per the pipeline's own Step-1 semantics. Each archetype was
+corrected to embody a single class---\emph{with the classifier untouched
+throughout}---and the suite is retained in the artifact as a permanent
+regression harness: any future change to thresholds or metrics must
+re-classify known truth correctly before it can land.
+
+\section{Near-data affinity of the workload}
+\label{sec:char-affinity}
+
+Rolling the per-kernel classes up by measured GPU time: across the
+27-sequence campaign, \textbf{21\% of GPU time is in strong-affinity classes,
+40\% in conditional-affinity classes, and 28\% in no-affinity classes}
+(remainder sub-floor)---i.e.\ roughly \textbf{61\% of GPU time carries
+near-data affinity} under the taxonomy's default mapping, rising to
+$\sim$72\% time-weighted in the deep single-sequence studies where the
+loop-closure path is exercised densely. This is the quantity the placement
+model of Chapter~\ref{ch:synthesis} prices; it is reported here with its
+composition rather than as a headline slogan, because the conditional 40\%
+is exactly the portion whose verdict depends on the scatter-PiM-vs-layout-fix
+question that the locality and attribution chapters resolve.
+
+\section{The system edge: host--device transfers}
+\label{sec:char-transfers}
+
+Independent of any kernel's internals, the timeline measures the pipeline's
+boundary traffic: explicit host-to-device and device-to-host copies cost
+\textbf{41\% of total kernel time} on the RGB-D workload, and the
+per-frame sensor upload is \textbf{1.68\,MB/frame}---the camera image and
+depth crossing PCIe into GPU DRAM before any kernel touches them. This is
+the single most direct near-sensor argument in the thesis: it is traffic
+that exists only because the pixels are \emph{born} on the wrong side of the
+bus, and no on-GPU optimization can remove it. The host-side companion
+measurements (66\,MB of storage ingestion per run; 708\,MB peak host memory)
+appear in the synthesis chapter, where the boundary picture is assembled
+end-to-end.

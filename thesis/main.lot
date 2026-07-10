@@ -1,0 +1,25 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Classifier thresholds (values as frozen in \texttt {analysis/classify.py}).}}{18}{table.caption.5}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces The GPU bottleneck taxonomy and its default near-data affinity.}}{19}{table.caption.6}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Substrate verdict mapping.}}{20}{table.caption.7}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Converged mode-average accuracy vs.\ the cuVSLAM technical report (RMSE APE in metres, odometry/SLAM). The characterization uses the stereo and RGB-D modes.}}{23}{table.caption.8}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {7.1}{\ignorespaces The \texttt {st\_track\_with\_cache}{} correction: blended-space analysis vs.\ space-filtered re-derivation (TUM room-scale / KITTI street-scale).}}{31}{table.caption.9}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {8.1}{\ignorespaces The static GPU allocation budget (full session; peak = total, nothing freed mid-run).}}{34}{table.caption.10}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {9.1}{\ignorespaces The three-way substrate split, with the measurement behind each claim.}}{37}{table.caption.11}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {C.1}{\ignorespaces Attribution consistency across 27 sequences (excerpt).}}{55}{table.caption.13}%
+\contentsline {table}{\numberline {C.2}{\ignorespaces Quality-of-results check: instrumented (TaggedAllocator) build vs.\ baseline build, same configurations (APE, m).}}{56}{table.caption.14}%
+\contentsline {table}{\numberline {C.3}{\ignorespaces KITTI stereo odometry, per sequence: absolute error and segment-relative drift (100--800\,m KITTI protocol).}}{56}{table.caption.15}%
+\contentsline {table}{\numberline {C.4}{\ignorespaces Kernel-to-stage mapping, measured from cuVSLAM's own NVTX ranges.}}{57}{table.caption.16}%

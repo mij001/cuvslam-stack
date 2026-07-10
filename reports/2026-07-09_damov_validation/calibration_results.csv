@@ -1,0 +1,9 @@
+archetype,designed_class,classified_class,match,confidence,rationale
+g1_triad,G1-bandwidth,G1-bandwidth,yes,low,DRAM-SoL 93%; LFMR 0.67 (L2 not helping); only n=3 profiled launches — small sample
+g2_gather,G2-coalescing,G2-coalescing,yes,low,18 sectors/request (4 = coalesced); only n=3 profiled launches — small sample
+g3_l2,G3-l2-reuse,G3-l2-reuse,yes,low,memory-limited but LFMR 0.02 — the L2 is earning its keep; only n=3 profiled launches — small sample
+g4_chase,G4-latency,G4-latency,yes,low,long-scoreboard dominant at 4% occupancy; DRAM-SoL 0%; working set 49.1 MB/launch ≫ L2 25.2 MB; only n=3 profiled launches — small sample
+g5_fma,G5-compute,G5-compute,yes,low,CompSoL 94% dominant; AI 1609163.0 FLOP/B; only n=3 profiled launches — small sample
+g6_shared,G6-onchip,G6-onchip,yes,low,dominant stall short_scoreboard (5.4 warps) with DRAM unsaturated; only n=3 profiled launches — small sample
+g7_dep,G7-dependency,G7-dependency,yes,low,'wait' stall dominant at 2% occupancy; memory is not the wall (MemSoL 0%; DRAM-SoL 0%); only n=3 profiled launches — small sample
+g0_tiny,screened-Step1,screened(0.0070ms<0.05),yes,low,memory-limited but LFMR 0.26 — the L2 is earning its keep; only n=3 profiled launches — small sample

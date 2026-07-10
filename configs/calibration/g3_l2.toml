@@ -1,0 +1,5 @@
+# calibration archetype: g3_l2 (designed ground truth: G3-l2-reuse)
+[workload]
+cmd = "profiling/calibration/archetypes g3_l2 8"
+[qor]
+stdout_regex = "checksum=([0-9.eE+-]+)"

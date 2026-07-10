@@ -1,0 +1,2 @@
+kernel,stage,persistence,class,confidence,stability,pim_affinity,substrate,time_ms,lfmr_gpu,mpki_gpu,dram_sol_pct,sectors_per_req,occupancy_pct,ai_flop_per_byte,dram_bytes_per_launch,dominant_stall,rationale,source
+g6_shared,other,unclassified,G6-onchip,low,stable,none,host GPU,19.031,-3.935,0.17,0.2,0,65.7,3731.215,2.77769e+06,short_scoreboard,dominant stall short_scoreboard (5.4 warps) with DRAM unsaturated; only n=3 profiled launches — small sample,2026-07-10_191056_seq_ncu_dellworkstation_sm89

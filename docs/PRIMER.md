@@ -625,6 +625,22 @@ changed the answer / you got lucky on one run." Each is pre-empted:
 - **Locked-clock rigor (F1).** CoV 0.14%; ceilings measured; thresholds
   sensitivity-tested; cache cold/warm bracketed. No headline rests on a kernel
   with high variance.
+- **The classifier itself is validated, DAMOV-style.** Four checks mirroring
+  the original paper's own robustness section (`docs/GPU_DAMOV_PARITY.md`):
+  (1) *held-out ground truth* — eight small CUDA kernels each **designed by
+  construction** to be one class (a streaming triad is bandwidth-bound, a
+  register-resident polynomial is compute-bound, …) were classified blind with
+  the frozen thresholds: **8/8 recovered** (DAMOV's analogous check: 97/100);
+  (2) *real-hardware intervention* — locking the GPU's core clock and memory
+  clock independently and watching which one each kernel's runtime tracks:
+  **7/7 classes match their predicted response signature** (and the experiment
+  itself taught us two GPU facts: a scattered gather is bounded by memory-
+  request *concurrency*, not bus bandwidth, and load latency is mostly
+  core-clock-domain L2/interconnect traversal); (3) *cross-hardware* — the same
+  workload classified on two different GPUs keeps its class for **80%** of
+  signal kernels; (4) *two independent clustering algorithms* (k-means and
+  hierarchical) both reproduce the class structure. The taxonomy is not just
+  asserted — it survives the same tests its CPU ancestor set for itself.
 
 ---
 

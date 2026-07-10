@@ -1,0 +1,24 @@
+  $ /home/ndpvslam/ncu2025/nsight_compute-linux-x86_64-2025.2.1.3-archive/ncu --target-processes all --launch-skip 2 --launch-count 3 --clock-control none --cache-control all -o /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-10_191044_seq_ncu_dellworkstation_sm89/raw/kernels --force-overwrite --metrics gpu__time_duration.sum,sm__cycles_elapsed.avg.per_second,sm__throughput.avg.pct_of_peak_sustained_elapsed,gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed,dram__bytes_read.sum,dram__bytes_write.sum,dram__throughput.avg.pct_of_peak_sustained_elapsed,lts__t_sector_hit_rate.pct,l1tex__t_sector_hit_rate.pct,lts__t_requests_srcunit_tex_op_read.sum,smsp__inst_executed.sum,sm__warps_active.avg.pct_of_peak_sustained_active,launch__registers_per_thread,smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio,smsp__average_warps_issue_stalled_lg_throttle_per_issue_active.ratio,smsp__sass_thread_inst_executed_op_fadd_pred_on.sum,smsp__sass_thread_inst_executed_op_fmul_pred_on.sum,smsp__sass_thread_inst_executed_op_ffma_pred_on.sum,smsp__sass_thread_inst_executed_op_hadd_pred_on.sum,smsp__sass_thread_inst_executed_op_hmul_pred_on.sum,smsp__sass_thread_inst_executed_op_hfma_pred_on.sum,smsp__sass_thread_inst_executed_op_integer_pred_on.sum,l1tex__t_bytes.sum,lts__t_bytes.sum,l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_ld.ratio,l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_st.ratio,smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio,smsp__average_warps_issue_stalled_mio_throttle_per_issue_active.ratio,smsp__average_warps_issue_stalled_tex_throttle_per_issue_active.ratio,smsp__average_warps_issue_stalled_math_pipe_throttle_per_issue_active.ratio,smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio,smsp__average_warps_issue_stalled_wait_per_issue_active.ratio,smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio profiling/calibration/archetypes g2_gather 8
+==WARNING== Note: Running with unmodified GPU clocks. If not controlled otherwise, profiling results may be inconsistent.
+==PROF== Connected to process 104377 (/home/ndpvslam/Projects/cuvslam-stack/profiling/calibration/archetypes)
+==PROF== Profiling "g2_gather" - 0 (1/3): 0%....50%....100% - 12 passes
+==PROF== Profiling "g2_gather" - 1 (2/3): 0%....50%....100% - 12 passes
+==PROF== Profiling "g2_gather" - 2 (3/3): 0%....50%....100% - 12 passes
+launch=0 kernel_ms=49.484
+launch=1 kernel_ms=48.641
+launch=2 kernel_ms=955.963
+launch=3 kernel_ms=746.361
+launch=4 kernel_ms=746.904
+launch=5 kernel_ms=54.542
+launch=6 kernel_ms=48.524
+launch=7 kernel_ms=48.472
+mean_kernel_ms=337.361
+checksum=0.000000e+00
+==PROF== Disconnected from process 104377
+==PROF== Report: /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-10_191044_seq_ncu_dellworkstation_sm89/raw/kernels.ncu-rep
+[✓] /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-10_191044_seq_ncu_dellworkstation_sm89/raw/kernels.ncu-rep (89KB)
+  $ /home/ndpvslam/ncu2025/nsight_compute-linux-x86_64-2025.2.1.3-archive/ncu --import /home/ndpvslam/Projects/cuvslam-stack/profiling/results/2026-07-10_191044_seq_ncu_dellworkstation_sm89/raw/kernels.ncu-rep --csv --page raw
+[energy] 100.7 J  (mean 29.62 W, peak 38.3 W)
+[host-io] storage read 0.0 MB, mmap page-in 0.0 MB, peak host RSS 629.05 MB
+
+Results: profiling/results/2026-07-10_191044_seq_ncu_dellworkstation_sm89
