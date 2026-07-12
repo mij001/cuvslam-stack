@@ -10,6 +10,7 @@
   "basis": "theoretical"
  },
  "energy": null,
+ "host_io": null,
  "qor": null,
  "stages": [
   {
@@ -94,7 +95,8 @@
    },
    "roofline": {
     "ai": 1.3646,
-    "gflops": 3.40148
+    "gflops": 3.40148,
+    "optype": "fp32"
    }
   },
   {
@@ -141,7 +143,8 @@
    },
    "roofline": {
     "ai": 2.17968,
-    "gflops": 4.94613
+    "gflops": 4.94613,
+    "optype": "fp32"
    }
   },
   {
@@ -188,7 +191,8 @@
    },
    "roofline": {
     "ai": 0.990303,
-    "gflops": 8.17891
+    "gflops": 8.17891,
+    "optype": "fp32"
    }
   },
   {
@@ -235,7 +239,8 @@
    },
    "roofline": {
     "ai": 3.00747,
-    "gflops": 120.513
+    "gflops": 120.513,
+    "optype": "fp32"
    }
   },
   {
@@ -282,7 +287,8 @@
    },
    "roofline": {
     "ai": 9.10496,
-    "gflops": 380.53
+    "gflops": 380.53,
+    "optype": "fp32"
    }
   },
   {
@@ -329,7 +335,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -376,7 +383,8 @@
    },
    "roofline": {
     "ai": 3.42353,
-    "gflops": 140.775
+    "gflops": 140.775,
+    "optype": "fp32"
    }
   },
   {
@@ -423,7 +431,8 @@
    },
    "roofline": {
     "ai": 3.6574,
-    "gflops": 170.619
+    "gflops": 170.619,
+    "optype": "fp32"
    }
   },
   {
@@ -449,10 +458,10 @@
    },
    "time_ms": 2.344,
    "share_pct": 1.08,
-   "limiter": "G2-coalescing",
-   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
-   "pim_affinity": "conditional",
-   "rationale": "15 sectors/request (4 = coalesced)",
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.26 \u2014 the L2 absorbs even the 15 sect/req scatter [migrated: G2 DRAM-visibility guard, 2026-07-12 population]",
    "confidence": "medium",
    "stability": "stable",
    "persistence": "hot-persistent",
@@ -470,7 +479,8 @@
    },
    "roofline": {
     "ai": 0.923383,
-    "gflops": 6.36973
+    "gflops": 6.36973,
+    "optype": "fp32"
    }
   },
   {
@@ -517,7 +527,8 @@
    },
    "roofline": {
     "ai": 26.7775,
-    "gflops": 64.0325
+    "gflops": 64.0325,
+    "optype": "fp32"
    }
   },
   {
@@ -564,7 +575,8 @@
    },
    "roofline": {
     "ai": 8.66193,
-    "gflops": 139.084
+    "gflops": 139.084,
+    "optype": "fp32"
    }
   },
   {
@@ -611,7 +623,8 @@
    },
    "roofline": {
     "ai": 3.53638,
-    "gflops": 32.2302
+    "gflops": 32.2302,
+    "optype": "fp32"
    }
   },
   {
@@ -658,7 +671,8 @@
    },
    "roofline": {
     "ai": 0.0588431,
-    "gflops": 0.192671
+    "gflops": 0.192671,
+    "optype": "fp32"
    }
   },
   {
@@ -705,7 +719,8 @@
    },
    "roofline": {
     "ai": 1.2884,
-    "gflops": 8.39856
+    "gflops": 8.39856,
+    "optype": "fp32"
    }
   },
   {
@@ -752,7 +767,8 @@
    },
    "roofline": {
     "ai": 0.0655185,
-    "gflops": 0.169577
+    "gflops": 0.169577,
+    "optype": "fp32"
    }
   },
   {
@@ -799,7 +815,8 @@
    },
    "roofline": {
     "ai": 0.346213,
-    "gflops": 2.86432
+    "gflops": 2.86432,
+    "optype": "fp32"
    }
   },
   {
@@ -846,7 +863,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -893,7 +911,8 @@
    },
    "roofline": {
     "ai": 0.390985,
-    "gflops": 10.5862
+    "gflops": 10.5862,
+    "optype": "fp32"
    }
   },
   {
@@ -940,7 +959,8 @@
    },
    "roofline": {
     "ai": 1.30058,
-    "gflops": 30.3597
+    "gflops": 30.3597,
+    "optype": "fp32"
    }
   },
   {
@@ -966,11 +986,11 @@
    },
    "time_ms": 0.505,
    "share_pct": 0.23,
-   "limiter": "G2-coalescing",
-   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
-   "pim_affinity": "conditional",
-   "rationale": "25 sectors/request (4 = coalesced)",
-   "confidence": "high",
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.09 \u2014 the L2 absorbs even the 25 sect/req scatter [migrated: G2 DRAM-visibility guard, 2026-07-12 population]",
+   "confidence": "medium",
    "stability": "stable",
    "persistence": "hot-persistent",
    "evidence": {
@@ -987,7 +1007,8 @@
    },
    "roofline": {
     "ai": 6.26348,
-    "gflops": 76.8885
+    "gflops": 76.8885,
+    "optype": "fp32"
    }
   },
   {
@@ -1034,7 +1055,8 @@
    },
    "roofline": {
     "ai": 2.09837,
-    "gflops": 35.7632
+    "gflops": 35.7632,
+    "optype": "fp32"
    }
   },
   {
@@ -1081,7 +1103,8 @@
    },
    "roofline": {
     "ai": 16.0765,
-    "gflops": 1386.07
+    "gflops": 1386.07,
+    "optype": "fp32"
    }
   },
   {
@@ -1107,10 +1130,10 @@
    },
    "time_ms": 0.371,
    "share_pct": 0.17,
-   "limiter": "G2-coalescing",
-   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
-   "pim_affinity": "conditional",
-   "rationale": "24 sectors/request (4 = coalesced)",
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.01 \u2014 the L2 absorbs even the 24 sect/req scatter [migrated: G2 DRAM-visibility guard, 2026-07-12 population]",
    "confidence": "medium",
    "stability": "borderline:G0-nosignal\u2194G2-coalescing",
    "persistence": "hot-persistent",
@@ -1128,7 +1151,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1171,7 +1195,8 @@
    },
    "roofline": {
     "ai": 0.689862,
-    "gflops": 20.2448
+    "gflops": 20.2448,
+    "optype": "fp32"
    }
   },
   {
@@ -1214,7 +1239,8 @@
    },
    "roofline": {
     "ai": 0.462597,
-    "gflops": 16.1286
+    "gflops": 16.1286,
+    "optype": "fp32"
    }
   },
   {
@@ -1257,7 +1283,8 @@
    },
    "roofline": {
     "ai": 0.0581897,
-    "gflops": 0.176183
+    "gflops": 0.176183,
+    "optype": "fp32"
    }
   },
   {
@@ -1300,7 +1327,8 @@
    },
    "roofline": {
     "ai": 4.98549,
-    "gflops": 10.6696
+    "gflops": 10.6696,
+    "optype": "fp32"
    }
   },
   {
@@ -1343,7 +1371,8 @@
    },
    "roofline": {
     "ai": 0.301948,
-    "gflops": 0.457377
+    "gflops": 0.457377,
+    "optype": "fp32"
    }
   },
   {
@@ -1386,7 +1415,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1429,7 +1459,8 @@
    },
    "roofline": {
     "ai": 0.00107184,
-    "gflops": 0.00646552
+    "gflops": 0.00646552,
+    "optype": "fp32"
    }
   },
   {
@@ -1472,7 +1503,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1515,7 +1547,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1558,7 +1591,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1601,7 +1635,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1644,7 +1679,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1687,7 +1723,8 @@
    },
    "roofline": {
     "ai": 0.0554687,
-    "gflops": 0.575231
+    "gflops": 0.575231,
+    "optype": "fp32"
    }
   },
   {
@@ -1730,7 +1767,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1773,7 +1811,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1816,7 +1855,8 @@
    },
    "roofline": {
     "ai": 0.0807175,
-    "gflops": 0.16
+    "gflops": 0.16,
+    "optype": "fp32"
    }
   },
   {
@@ -1859,7 +1899,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1902,7 +1943,8 @@
    },
    "roofline": {
     "ai": 1.30762,
-    "gflops": 157.126
+    "gflops": 157.126,
+    "optype": "fp32"
    }
   },
   {
@@ -1945,7 +1987,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1988,7 +2031,8 @@
    },
    "roofline": {
     "ai": 0.113303,
-    "gflops": 9.5934
+    "gflops": 9.5934,
+    "optype": "fp32"
    }
   },
   {
@@ -2031,7 +2075,8 @@
    },
    "roofline": {
     "ai": 0.19718,
-    "gflops": 3.26096
+    "gflops": 3.26096,
+    "optype": "fp32"
    }
   },
   {
@@ -2074,7 +2119,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -2096,11 +2142,11 @@
    },
    "time_ms": 265.782,
    "share_pct": 0.0,
-   "limiter": "G2-coalescing",
-   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
+   "limiter": "G3-l2-reuse",
+   "substrate": "ISP/near-storage \u2014 per-visit set is L2-resident, but the cold-persistent union grows across the session (trace-evidenced)",
    "pim_affinity": "conditional",
-   "rationale": "19 sectors/request (4 = coalesced)",
-   "confidence": "high",
+   "rationale": "memory-limited but LFMR 0.09 \u2014 the L2 absorbs even the 19 sect/req scatter [migrated: G2 DRAM-visibility guard, 2026-07-12 population]",
+   "confidence": "medium",
    "stability": "stable",
    "persistence": "cold-persistent",
    "evidence": {
@@ -2136,11 +2182,11 @@
    },
    "time_ms": 4.412,
    "share_pct": 0.0,
-   "limiter": "G2-coalescing",
-   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
+   "limiter": "G3-l2-reuse",
+   "substrate": "ISP/near-storage \u2014 per-visit set is L2-resident, but the cold-persistent union grows across the session (trace-evidenced)",
    "pim_affinity": "conditional",
-   "rationale": "25 sectors/request (4 = coalesced)",
-   "confidence": "high",
+   "rationale": "memory-limited but LFMR 0.03 \u2014 the L2 absorbs even the 25 sect/req scatter [migrated: G2 DRAM-visibility guard, 2026-07-12 population]",
+   "confidence": "medium",
    "stability": "stable",
    "persistence": "cold-persistent",
    "evidence": {

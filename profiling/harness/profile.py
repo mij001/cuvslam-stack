@@ -328,7 +328,7 @@ def main(argv=None):
         json.dump(meta, open(os.path.join(run_dir, "metadata.json"), "w"), indent=2)
         cmd = [NSYS, "profile", f"--trace={args.nsys_traces}", f"--sample={args.nsys_sample}",
                "--output", out, "--force-overwrite=true", *workload]
-        rc = run_profiler(cmd, args.timeout, cwd=REPO_ROOT).returncode
+        rc = run_profiler(cmd, args.timeout, cwd=adapter.cwd()).returncode
         rep = out + ".nsys-rep"
         if os.path.isfile(rep):
             print(f"[✓] {rep} ({human(os.path.getsize(rep))})")
@@ -369,7 +369,7 @@ def main(argv=None):
         import gzip
         try:
             with gzip.open(rep, "wt") as gz:
-                proc = subprocess.Popen(workload, cwd=REPO_ROOT, env=env,
+                proc = subprocess.Popen(workload, cwd=adapter.cwd(), env=env,
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                         text=True)
                 for line in proc.stdout:
@@ -406,7 +406,7 @@ def main(argv=None):
         else:
             cmd += ["--metrics", ",".join(metrics)]
         cmd += workload
-        rc = run_profiler(cmd, args.timeout, cwd=REPO_ROOT).returncode
+        rc = run_profiler(cmd, args.timeout, cwd=adapter.cwd()).returncode
         rep = out + ".ncu-rep"
         if os.path.isfile(rep):
             print(f"[✓] {rep} ({human(os.path.getsize(rep))})")

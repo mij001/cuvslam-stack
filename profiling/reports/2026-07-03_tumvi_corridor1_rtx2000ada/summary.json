@@ -10,6 +10,7 @@
   "basis": "theoretical"
  },
  "energy": null,
+ "host_io": null,
  "qor": null,
  "stages": [
   {
@@ -94,7 +95,8 @@
    },
    "roofline": {
     "ai": 14.1249,
-    "gflops": 524.13
+    "gflops": 524.13,
+    "optype": "fp32"
    }
   },
   {
@@ -141,7 +143,8 @@
    },
    "roofline": {
     "ai": 1.04748,
-    "gflops": 1.18788
+    "gflops": 1.18788,
+    "optype": "fp32"
    }
   },
   {
@@ -188,7 +191,8 @@
    },
    "roofline": {
     "ai": 2.98841,
-    "gflops": 110.131
+    "gflops": 110.131,
+    "optype": "fp32"
    }
   },
   {
@@ -235,7 +239,8 @@
    },
    "roofline": {
     "ai": 22.4483,
-    "gflops": 92.117
+    "gflops": 92.117,
+    "optype": "fp32"
    }
   },
   {
@@ -282,7 +287,8 @@
    },
    "roofline": {
     "ai": 0.0586838,
-    "gflops": 0.190258
+    "gflops": 0.190258,
+    "optype": "fp32"
    }
   },
   {
@@ -329,7 +335,8 @@
    },
    "roofline": {
     "ai": 0.467942,
-    "gflops": 0.222209
+    "gflops": 0.222209,
+    "optype": "fp32"
    }
   },
   {
@@ -376,7 +383,8 @@
    },
    "roofline": {
     "ai": 1.25569,
-    "gflops": 8.1127
+    "gflops": 8.1127,
+    "optype": "fp32"
    }
   },
   {
@@ -423,7 +431,8 @@
    },
    "roofline": {
     "ai": 0.0653041,
-    "gflops": 0.167476
+    "gflops": 0.167476,
+    "optype": "fp32"
    }
   },
   {
@@ -470,7 +479,8 @@
    },
    "roofline": {
     "ai": 3.46543,
-    "gflops": 166.717
+    "gflops": 166.717,
+    "optype": "fp32"
    }
   },
   {
@@ -517,7 +527,8 @@
    },
    "roofline": {
     "ai": 0.316201,
-    "gflops": 0.474041
+    "gflops": 0.474041,
+    "optype": "fp32"
    }
   },
   {
@@ -564,7 +575,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -611,7 +623,8 @@
    },
    "roofline": {
     "ai": 0.424554,
-    "gflops": 0.852296
+    "gflops": 0.852296,
+    "optype": "fp32"
    }
   },
   {
@@ -658,7 +671,8 @@
    },
    "roofline": {
     "ai": 9.09372,
-    "gflops": 29.8922
+    "gflops": 29.8922,
+    "optype": "fp32"
    }
   },
   {
@@ -705,7 +719,8 @@
    },
    "roofline": {
     "ai": 15.9523,
-    "gflops": 1335.77
+    "gflops": 1335.77,
+    "optype": "fp32"
    }
   },
   {
@@ -752,7 +767,8 @@
    },
    "roofline": {
     "ai": 2.92906,
-    "gflops": 152.032
+    "gflops": 152.032,
+    "optype": "fp32"
    }
   },
   {
@@ -795,7 +811,8 @@
    },
    "roofline": {
     "ai": 0.0604385,
-    "gflops": 0.17246
+    "gflops": 0.17246,
+    "optype": "fp32"
    }
   },
   {
@@ -838,7 +855,8 @@
    },
    "roofline": {
     "ai": 4.9172,
-    "gflops": 10.4914
+    "gflops": 10.4914,
+    "optype": "fp32"
    }
   },
   {
@@ -881,7 +899,8 @@
    },
    "roofline": {
     "ai": 5.38881,
-    "gflops": 10.8937
+    "gflops": 10.8937,
+    "optype": "fp32"
    }
   },
   {
@@ -924,7 +943,8 @@
    },
    "roofline": {
     "ai": 0.307721,
-    "gflops": 0.456379
+    "gflops": 0.456379,
+    "optype": "fp32"
    }
   },
   {
@@ -971,7 +991,8 @@
    },
    "roofline": {
     "ai": 0.13755,
-    "gflops": 0.318729
+    "gflops": 0.318729,
+    "optype": "fp32"
    }
   },
   {
@@ -1018,7 +1039,8 @@
    },
    "roofline": {
     "ai": 0.48812,
-    "gflops": 1.04305
+    "gflops": 1.04305,
+    "optype": "fp32"
    }
   },
   {
@@ -1061,7 +1083,8 @@
    },
    "roofline": {
     "ai": 0.13601,
-    "gflops": 0.342764
+    "gflops": 0.342764,
+    "optype": "fp32"
    }
   },
   {
@@ -1108,7 +1131,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1151,7 +1175,8 @@
    },
    "roofline": {
     "ai": 0.00137341,
-    "gflops": 0.00589945
+    "gflops": 0.00589945,
+    "optype": "fp32"
    }
   },
   {
@@ -1194,7 +1219,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1241,7 +1267,8 @@
    },
    "roofline": {
     "ai": 0.932429,
-    "gflops": 2.34154
+    "gflops": 2.34154,
+    "optype": "fp32"
    }
   },
   {
@@ -1288,7 +1315,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1331,7 +1359,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1374,7 +1403,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1417,7 +1447,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1460,7 +1491,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1482,11 +1514,11 @@
    },
    "time_ms": 1.969,
    "share_pct": 0.77,
-   "limiter": "G2-coalescing",
-   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
-   "pim_affinity": "conditional",
-   "rationale": "11 sectors/request (4 = coalesced); only n=2 profiled launches \u2014 small sample",
-   "confidence": "low",
+   "limiter": "G3-l2-reuse",
+   "substrate": "weak, cache-friendly",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.34 \u2014 the L2 absorbs even the 11 sect/req scatter [migrated: G2 DRAM-visibility guard, 2026-07-12 population]",
+   "confidence": "medium",
    "stability": "stable",
    "persistence": "streaming",
    "evidence": {
@@ -1503,7 +1535,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1546,7 +1579,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1589,7 +1623,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1632,7 +1667,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1675,7 +1711,8 @@
    },
    "roofline": {
     "ai": 1.30678,
-    "gflops": 148.927
+    "gflops": 148.927,
+    "optype": "fp32"
    }
   },
   {
@@ -1718,7 +1755,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1761,7 +1799,8 @@
    },
    "roofline": {
     "ai": 0.0802139,
-    "gflops": 0.15625
+    "gflops": 0.15625,
+    "optype": "fp32"
    }
   },
   {
@@ -1804,7 +1843,8 @@
    },
    "roofline": {
     "ai": 0.00125815,
-    "gflops": 0.00913997
+    "gflops": 0.00913997,
+    "optype": "fp32"
    }
   },
   {
@@ -1847,7 +1887,8 @@
    },
    "roofline": {
     "ai": 0.115119,
-    "gflops": 9.45177
+    "gflops": 9.45177,
+    "optype": "fp32"
    }
   },
   {
@@ -1890,7 +1931,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {

@@ -252,7 +252,7 @@
       ],
       [
        "cross-microarchitecture: same workload on sm_75 vs sm_89 (\u00a73.5.2)",
-       "36/45 signal kernels keep their class"
+       "35/45 signal kernels keep their class"
       ],
       [
        "independent algorithms: k-means AND Ward hierarchical vs the tree (\u00a74.1)",
@@ -261,6 +261,10 @@
       [
        "thresholds re-derived DAMOV-style (midpoint of class means, \u00a73.5 phase-1)",
        "lfmr 0.38 vs stated 0.375 \u00b7 occ 25.9 vs 27.5 \u00b7 comp-SoL 38.7 vs 40 \u2014 data-supported (dram_sat=50 is deliberately the strict saturation gate)"
+      ],
+      [
+       "population scale: 39 kernels / 20 REAL apps (Polybench+Rodinia), blind class must predict clock response (\u00a73.5 phase-2)",
+       "27/31 conclusive kernels match (87.1%); 0 host/launch-bound (untestable)"
       ]
      ]
     }

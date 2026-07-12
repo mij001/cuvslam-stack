@@ -8,17 +8,17 @@ Midpoint-of-class-means (DAMOV's derivation) vs our stated `classify.THRESHOLDS`
 | threshold | derived | stated | low-side mean | high-side mean |
 |---|---|---|---|---|
 | dram_sat | 27.31 | 50.0 | 7.37 | 47.24 |
-| sect_scatter | 11.8 | 8.0 | 3.78 | 19.82 |
+| sect_scatter | 12.77 | 8.0 | 6.6 | 18.94 |
 | occ_low(_dep) | 25.92 | 27.5 | 10.28 | 41.57 |
-| lfmr band | 0.38 | 0.375 | 0.23 | 0.54 |
+| lfmr band | 0.37 | 0.375 | 0.2 | 0.54 |
 | sol_hi (comp) | 38.71 | 40.0 | 2.52 | 74.91 |
 -> `reports/2026-07-09_damov_validation/derived_thresholds.csv`
 
 ## §8.3 analog — cross-microarchitecture agreement
-Same workload (TUM office), two GPUs (sm_75 laptop vs sm_89 workstation): **36/47 kernels same class (76.6%)**; excluding launch-tax G0 kernels **36/45 (80.0%)**. The class is a property of the kernel's data movement, not the microarchitecture. -> `reports/2026-07-09_damov_validation/cross_device_agreement.csv`
+Same workload (TUM office), two GPUs (sm_75 laptop vs sm_89 workstation): **35/47 kernels same class (74.5%)**; excluding launch-tax G0 kernels **35/45 (77.8%)**. The class is a property of the kernel's data movement, not the microarchitecture. -> `reports/2026-07-09_damov_validation/cross_device_agreement.csv`
 
 ## §4.1 analog — independent algorithm (Ward hierarchical clustering)
-Pooled feature cloud (47+ kernels x 4 device reports, features: mem_sol, comp_sol, dram_sol, lfmr, occupancy, sectors_req, stall_long_sb, stall_wait), Ward dendrogram cut at k=8: **ARI 0.31, purity 0.675** vs the decision-tree labels (k-means gave purity 0.68 — two independent algorithms see the same structure). -> `reports/2026-07-09_damov_validation/hierarchical_agreement.csv`
+Pooled feature cloud (47+ kernels x 4 device reports, features: mem_sol, comp_sol, dram_sol, lfmr, occupancy, sectors_req, stall_long_sb, stall_wait), Ward dendrogram cut at k=8: **ARI 0.296, purity 0.68** vs the decision-tree labels (k-means gave purity 0.68 — two independent algorithms see the same structure). -> `reports/2026-07-09_damov_validation/hierarchical_agreement.csv`
 
 ## §3.5 analog — ground-truth calibration (designed kernels, classified blind)
 **8/8 archetypes recovered** with frozen thresholds:

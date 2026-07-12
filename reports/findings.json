@@ -5,7 +5,7 @@
    "step": "verdict",
    "title": "How much GPU time could move off the GPU",
    "statement": "Time-weighted substrate verdicts over every profiled kernel: this share of the GPU second lands on a PiM/ISP substrate rather than GPU-keep \u2014 the measured size of the offload opportunity, per workload.",
-   "number": 72.3,
+   "number": 70.6,
    "unit": "% of GPU time (avg across workloads)",
    "evidence": [
     {
@@ -21,7 +21,7 @@
    "step": "verdict",
    "title": "Verdicts that flip between workloads",
    "statement": "The same kernel can deserve a different substrate under a different dataset/feature toggle \u2014 the dynamic metrics (DRAM SoL, sectors/request, footprint) move enough to change the decision. These kernels need runtime or per-product placement; each flip is recorded with the metric that moved most.",
-   "number": 25,
+   "number": 22,
    "unit": "of 49 kernels flip",
    "evidence": [
     {
@@ -160,13 +160,27 @@
    "id": "VALIDATED",
    "step": "classify",
    "title": "The classifier passes DAMOV's own robustness checks",
-   "statement": "Four DAMOV-style validations, all measured: (1) held-out ground truth \u2014 8/8 archetype kernels DESIGNED to be each class are recovered blind with frozen thresholds (DAMOV: 97/100); (2) real-hardware intervention \u2014 7/7 classes match their clock-domain response signature (core- vs memory-clock sensitivity; the experiment refined two signatures and taught us G2-scatter is request-concurrency-bound, not bus-bound); (3) cross-microarchitecture \u2014 36/45 signal kernels keep their class from sm_75 to sm_89; (4) two independent clustering algorithms (k-means AND Ward hierarchical) reproduce the class structure at the same agreement.",
+   "statement": "Four DAMOV-style validations, all measured: (1) held-out ground truth \u2014 8/8 archetype kernels DESIGNED to be each class are recovered blind with frozen thresholds (DAMOV: 97/100); (2) real-hardware intervention \u2014 7/7 classes match their clock-domain response signature (core- vs memory-clock sensitivity; the experiment refined two signatures and taught us G2-scatter is request-concurrency-bound, not bus-bound); (3) cross-microarchitecture \u2014 35/45 signal kernels keep their class from sm_75 to sm_89; (4) two independent clustering algorithms (k-means AND Ward hierarchical) reproduce the class structure at the same agreement.",
    "number": "8/8 + 7/7",
    "unit": "blind archetype recovery + intervention-signature matches",
    "evidence": [
     {
      "type": "explore",
      "label": "docs/GPU_DAMOV_PARITY.md + reports/2026-07-09_damov_validation/"
+    }
+   ]
+  },
+  {
+   "id": "POPULATION",
+   "step": "classify",
+   "title": "The two-phase validation holds on a population of real, foreign codebases",
+   "statement": "39 kernels from 20 real applications (Polybench-GPU + Rodinia-CUDA \u2014 suites DAMOV's own CPU population drew from) were acquired, built, and pushed through the identical harness: blind classification with frozen thresholds, then a three-point clock-domain sweep per kernel. Of the kernels above the Step-1 screen: 27 match their class's response signature, 4 mismatch, 0 are bounded by neither clock domain (host/launch-bound \u2014 untestable by this intervention). DAMOV's equivalent (fingerprint + response trend on 100 held-out CPU functions) was 97%.",
+   "number": "87.1%",
+   "unit": "conclusive response-signature agreement (27/31; 0 inconclusive)",
+   "evidence": [
+    {
+     "type": "explore",
+     "label": "reports/2026-07-12_gpu_damov_population/ (population.csv, outliers.csv)"
     }
    ]
   },

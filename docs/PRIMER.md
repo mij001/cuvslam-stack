@@ -657,11 +657,19 @@ consequence.
   failures**. A kernel's bottleneck class is the *same* across sequences 91% of
   the (time-weighted) time (24/49 kernels unanimous). *Consequence:* the
   bottleneck is a property of the *kernel*, not of one lucky dataset.
-- **F3 — The taxonomy is discovered, not asserted.** k-means prefers k=7–8,
-  matching the hand-built classes. Roughly **60–72% of GPU time carries PiM
-  affinity** (≈21% strong + ≈40% conditional across the campaign; ~72% time-
-  weighted across the deep studies). *Consequence:* the offload opportunity is
-  large and independently validated.
+- **F3 — The taxonomy is discovered, not asserted — and validated four ways.**
+  k-means prefers k=7–8, matching the hand-built classes; a **ground-truth
+  calibration suite** (8 kernels *designed* to be each class) is recovered
+  blind **8/8**; every class's **clock-domain response** (does its runtime
+  track the core clock or the memory clock?) matches prediction **7/7**; and a
+  **population of 20 real foreign applications** (Polybench + Rodinia — the
+  same suites DAMOV's own CPU study drew from) passes the two-condition
+  held-out test at **87%** (DAMOV's CPU original: 97%), with all four misses
+  individually explained. About **70% of GPU time is offload-eligible**
+  (time-weighted across the deep studies), with the composition dominated by
+  the ISP/near-storage scan (see F6/F7). *Consequence:* the classes are real,
+  falsifiable properties of kernels — tested the same way the original DAMOV
+  tested its own.
 - **F4 — Data movement is already the bottleneck at the system edge.** Explicit
   CPU↔GPU copies cost **41%** of kernel time; the camera-to-GPU upload is **1.68
   MB per frame**. *Consequence:* a direct, measured near-sensor opportunity.
@@ -669,12 +677,16 @@ consequence.
   **flat from 64 KiB to 48 MiB** — no cache size helps; the misses are
   compulsory. *Consequence:* a bigger cache is the wrong fix; near-sensor
   consumption is the right one.
-- **F6 — The loop-closure scan is a scattered gather (two methods agree).** After
-  separating spill from data (§5.9), the loop-closure kernel `st_track`'s *global*
-  accesses are 23–30 sectors/warp, only 2–6% coalesced — a scattered gather,
-  matching the ncu counters. *Consequence:* a scatter-capable PiM (or a data-
-  layout fix) target; the classifier label G2 stands, confirmed by two
-  independent methods.
+- **F6 — The loop-closure scan: a scattered gather the L2 absorbs *per visit*.**
+  After separating spill from data (§5.9), `st_track`'s *global* accesses are
+  23–30 sectors/warp, only 2–6% coalesced — a scattered gather, confirmed by
+  two independent methods. The real-codebase population later sharpened this:
+  within one scan the L2 *absorbs* that scatter (LFMR 0.09 — the working set is
+  cache-resident per visit), so the honest single-window fingerprint is
+  G3/cache-resident, **not** G2/DRAM-scatter. What makes it an offload target
+  is F7's *growth*, not the within-window scatter. *Consequence:* the verdict
+  moved to the more defensible route — and the correction arc itself
+  (counters → trace → attribution → population) is on record.
 - **F7 — The scan's working set grows with the session.** `st_track`'s footprint
   grows 0.46 → 1.09 MB from room-scale to street-scale, and it migrates between
   scans. The union over a whole deployment — the entire keyframe database — is
@@ -818,7 +830,7 @@ agree after a self-correction on record.
 
 **Q: "Where's the speedup? You never show PiM being faster."**
 A: Correct, and deliberate. This is the *characterization* — it establishes
-candidacy and the offload opportunity (60–72% of GPU time) with an analytical
+candidacy and the offload opportunity (~70% of GPU time) with an analytical
 placement model. Demonstrating the actual speedup/energy delta needs an NDP
 simulator (Accel-Sim + AccelWattch); that is the follow-on architecture paper,
 and its config-generation groundwork is already built.

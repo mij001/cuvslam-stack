@@ -76,8 +76,29 @@ def validation_blocks():
               "purity 0.68 / 0.675 — same structure, two unrelated algorithms"],
              ["thresholds re-derived DAMOV-style (midpoint of class means, §3.5 phase-1)",
               "lfmr 0.38 vs stated 0.375 · occ 25.9 vs 27.5 · comp-SoL 38.7 vs 40 — "
-              "data-supported (dram_sat=50 is deliberately the strict saturation gate)"]]},
+              "data-supported (dram_sat=50 is deliberately the strict saturation gate)"],
+             *population_row()]},
     ]
+
+
+def population_row():
+    """Two-phase validation at population scale, when the campaign has run."""
+    p = os.path.join(REPO, "reports/2026-07-12_gpu_damov_population/population.csv")
+    if not os.path.isfile(p):
+        return []
+    import csv as _csv
+    rows = list(_csv.DictReader(open(p)))
+    live = [r for r in rows if r.get("screened") != "True"]
+    m = sum(1 for r in live if r.get("signature") == "match")
+    x = sum(1 for r in live if r.get("signature") == "mismatch")
+    i_ = sum(1 for r in live if r.get("signature") == "inconclusive")
+    apps = len({r["app"] for r in rows})
+    if not (m + x):
+        return []
+    return [[f"population scale: {len(rows)} kernels / {apps} REAL apps (Polybench+Rodinia), "
+             "blind class must predict clock response (§3.5 phase-2)",
+             f"{m}/{m + x} conclusive kernels match ({round(100 * m / (m + x), 1)}%); "
+             f"{i_} host/launch-bound (untestable)"]]
 
 
 def main():

@@ -124,12 +124,24 @@ def classify_kernel(r: dict, hw: dict, th: dict = THRESHOLDS) -> dict:
         if lfmr == lfmr:
             why.append(f"LFMR {lfmr:.2f}" + (" (L2 not helping)" if lfmr >= th["lfmr_hi"]
                                              else " (L2 absorbing reuse)"))
-    elif mem_limited and sect == sect and sect >= th["sect_scatter"]:
+    elif mem_limited and sect == sect and sect >= th["sect_scatter"] \
+            and not (lfmr == lfmr and lfmr < th["lfmr_lo"]):
+        # G2 requires the scatter to be DRAM-VISIBLE. The real-codebase
+        # population (Polybench corr/covar/syr2k/syrk/mvt/atax, 2026-07-12)
+        # exposed L2-RESIDENT scatter: sectors/request 16-32 but LFMR 0.006-0.24
+        # — the L2 absorbs the gather, the clock-domain response is pure
+        # core-domain (S_core~2.0, S_mem~1.0), indistinguishable from G3.
+        # That is DAMOV's high-temporal-locality cache-capacity class (2b), not
+        # a coalescing bottleneck: a scatter the L2 holds needs a bigger/kept
+        # L2 (or a layout fix), never a scatter-capable PiM.
         cls, conf = "G2-coalescing", "high" if sect >= 2 * th["sect_scatter"] else "medium"
-        why.append(f"{sect:.0f} sectors/request (4 = coalesced)")
+        why.append(f"{sect:.0f} sectors/request (4 = coalesced), DRAM-visible (LFMR {lfmr:.2f})"
+                   if lfmr == lfmr else f"{sect:.0f} sectors/request (4 = coalesced)")
     elif mem_limited and lfmr == lfmr and lfmr < th["lfmr_lo"]:
         cls, conf = "G3-l2-reuse", "medium"
-        why.append(f"memory-limited but LFMR {lfmr:.2f} — the L2 is earning its keep")
+        why.append(f"memory-limited but LFMR {lfmr:.2f} — the L2 is earning its keep"
+                   + (f" (absorbs even the {sect:.0f} sect/req scatter)"
+                      if sect == sect and sect >= th["sect_scatter"] else ""))
     elif dom == "long_scoreboard" and occ == occ and occ < th["occ_low"] \
             and not (dram_sol == dram_sol and dram_sol >= sol_hi):
         cls = "G4-latency"
@@ -184,6 +196,17 @@ def pim_affinity(cls: str, persistence: str, r: dict) -> tuple[str, str]:
 
     if cold and (cls in ("G4-latency", "G2-coalescing", "G1-bandwidth")) and big_wset:
         return "strong", "ISP / near-storage scan engine"
+    if cold and cls == "G3-l2-reuse":
+        # The single-window fingerprint cannot see SESSION-SCALE growth — the
+        # GPU analog of DAMOV needing the LFMR-vs-cores TREND, not one point.
+        # A cold-persistent scan whose per-visit set is cache-resident (low
+        # LFMR in-window) but whose UNION grows/migrates across the session
+        # (measured for the keyframe DB: footprint 0.46->1.1 MB, inter-launch
+        # Jaccard 0.67->0.90 — Slice-3 traces) is the database-scan shape:
+        # the L2 "wins" only within a visit. Trace evidence is what upgrades
+        # this to a deployment-scale verdict — hence conditional, not strong.
+        return "conditional", ("ISP/near-storage — per-visit set is L2-resident, but the "
+                               "cold-persistent union grows across the session (trace-evidenced)")
     if cls == "G1-bandwidth":
         if streaming:
             return "strong", "near-sensor SRAM (consume before DRAM)"

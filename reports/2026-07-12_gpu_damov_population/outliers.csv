@@ -1,0 +1,5 @@
+app,kernel,class,confidence,stability,dram_sol,lfmr,mpki,sect,occ,ai,t_base_ms,share_pct,s_core,s_mem,screened,signature
+pb_atax,atax_kernel2,G1-bandwidth,low,stable,20.5,0.474,108.2,4.0,96.6,3.935,1.528,26.04,1.362,1.101,False,mismatch
+pb_mvt,mvt_kernel2,G1-bandwidth,low,stable,20.5,0.474,108.13,4.0,96.6,3.939,1.531,26.07,1.359,1.103,False,mismatch
+rod_lud,lud_internal,G1-bandwidth,medium,borderline:G1-bandwidth↔G3-l2-reuse,53.5,0.325,108.77,4.0,83.1,4.462,89.31,91.66,1.69,1.088,False,mismatch
+rod_streamcluster,kernel_compute_cost,G1-bandwidth,high,stable,94.1,0.974,645.81,4.9,48.2,0.712,44.185,100.0,1.875,0.999,False,mismatch

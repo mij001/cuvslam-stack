@@ -37,18 +37,14 @@ add() {  # app workdir cmd...  -> smoke-test then manifest
     fi
 }
 
-# ── 1 · BabelStream ──────────────────────────────────────────────────────────
-if ! have "$W/BabelStream"; then
-    git clone -q --depth 1 https://github.com/UoB-HPC/BabelStream "$W/BabelStream"
-fi
-if ! have "$W/BabelStream/build/cuda-stream"; then
-    ( cd "$W/BabelStream" &&
-      cmake -Bbuild -H. -DMODEL=cuda -DCMAKE_CUDA_ARCHITECTURES=89 \
-            -DCMAKE_CUDA_HOST_COMPILER=$CCBIN -DCMAKE_BUILD_TYPE=Release >/dev/null 2>&1 &&
-      cmake --build build -j >/dev/null 2>&1 )
-fi
-have "$W/BabelStream/build/cuda-stream" && \
-    add babelstream "$W/BabelStream/build" ./cuda-stream -n 40 || note "[FAIL] babelstream build"
+# ── 1 · BabelStream — SKIPPED (documented decision) ─────────────────────────
+# Its CUDA model fought this stack three ways (custom CUDA_ARCH flag, explicit
+# CMAKE_CUDA_COMPILER requirement, then loop-style #error under direct nvcc
+# compile on CUDA 12.9 + g++-14). The population already carries pure-streaming
+# G1 anchors from foreign code (Polybench 2D/3D conv stencils, Rodinia
+# pathfinder/hotspot) and the g1_triad archetype IS the STREAM triad pattern —
+# BabelStream's marginal value was branding, not information. Revisit only if
+# a reviewer asks for it by name.
 
 # ── 2 · Polybench-GPU (15 single-kernel apps; overrides their sm_20 flags) ──
 if ! have "$W/polybenchGpu"; then

@@ -70,6 +70,10 @@ def verdict(row):
             return "ISP/near-storage", f"strong affinity, {pers} data (DB-scan shape)"
         return "PiM-near-bank", f"strong affinity, DRAM SoL {sol:.0f}%"
     if aff == "conditional":
+        if "isp" in sub or "storage" in sub:
+            # cold-persistent G3: per-visit set is L2-resident, session union
+            # grows (the trace-evidenced database-scan shape)
+            return "ISP/near-storage", "cold-persistent scan; session union outgrows any cache"
         if sec == sec and sec >= 12:
             return "PiM-scatter", f"{sec:.0f} sectors/request (4 = coalesced)"
         if "layout" in sub:

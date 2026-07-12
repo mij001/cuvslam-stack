@@ -10,6 +10,7 @@
   "basis": "theoretical"
  },
  "energy": null,
+ "host_io": null,
  "qor": null,
  "stages": [
   {
@@ -73,10 +74,10 @@
    },
    "time_ms": 34.122,
    "share_pct": 17.94,
-   "limiter": "G2-coalescing",
-   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
-   "pim_affinity": "conditional",
-   "rationale": "14 sectors/request (4 = coalesced)",
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.21 \u2014 the L2 absorbs even the 14 sect/req scatter [migrated: G2 DRAM-visibility guard, 2026-07-12 population]",
    "confidence": "medium",
    "stability": "stable",
    "persistence": "hot-persistent",
@@ -94,7 +95,8 @@
    },
    "roofline": {
     "ai": 1.20166,
-    "gflops": 9.04946
+    "gflops": 9.04946,
+    "optype": "fp32"
    }
   },
   {
@@ -141,7 +143,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -188,7 +191,8 @@
    },
    "roofline": {
     "ai": 8.51035,
-    "gflops": 318.798
+    "gflops": 318.798,
+    "optype": "fp32"
    }
   },
   {
@@ -235,7 +239,8 @@
    },
    "roofline": {
     "ai": 2.81279,
-    "gflops": 151.623
+    "gflops": 151.623,
+    "optype": "fp32"
    }
   },
   {
@@ -282,7 +287,8 @@
    },
    "roofline": {
     "ai": 2.37721,
-    "gflops": 34.9053
+    "gflops": 34.9053,
+    "optype": "fp32"
    }
   },
   {
@@ -329,7 +335,8 @@
    },
    "roofline": {
     "ai": 8.44822,
-    "gflops": 138.579
+    "gflops": 138.579,
+    "optype": "fp32"
    }
   },
   {
@@ -376,7 +383,8 @@
    },
    "roofline": {
     "ai": 3.64367,
-    "gflops": 268.312
+    "gflops": 268.312,
+    "optype": "fp32"
    }
   },
   {
@@ -423,7 +431,8 @@
    },
    "roofline": {
     "ai": 27.722,
-    "gflops": 74.9325
+    "gflops": 74.9325,
+    "optype": "fp32"
    }
   },
   {
@@ -470,7 +479,8 @@
    },
    "roofline": {
     "ai": 3.53244,
-    "gflops": 243.212
+    "gflops": 243.212,
+    "optype": "fp32"
    }
   },
   {
@@ -517,7 +527,8 @@
    },
    "roofline": {
     "ai": 0.0588729,
-    "gflops": 0.190811
+    "gflops": 0.190811,
+    "optype": "fp32"
    }
   },
   {
@@ -564,7 +575,8 @@
    },
    "roofline": {
     "ai": 1.28738,
-    "gflops": 8.41443
+    "gflops": 8.41443,
+    "optype": "fp32"
    }
   },
   {
@@ -590,11 +602,11 @@
    },
    "time_ms": 3.986,
    "share_pct": 2.1,
-   "limiter": "G2-coalescing",
-   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
-   "pim_affinity": "conditional",
-   "rationale": "27 sectors/request (4 = coalesced)",
-   "confidence": "high",
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.09 \u2014 the L2 absorbs even the 27 sect/req scatter [migrated: G2 DRAM-visibility guard, 2026-07-12 population]",
+   "confidence": "medium",
    "stability": "stable",
    "persistence": "hot-persistent",
    "evidence": {
@@ -611,7 +623,8 @@
    },
    "roofline": {
     "ai": 7.21737,
-    "gflops": 133.525
+    "gflops": 133.525,
+    "optype": "fp32"
    }
   },
   {
@@ -637,10 +650,10 @@
    },
    "time_ms": 3.848,
    "share_pct": 2.02,
-   "limiter": "G2-coalescing",
-   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
-   "pim_affinity": "conditional",
-   "rationale": "24 sectors/request (4 = coalesced)",
+   "limiter": "G3-l2-reuse",
+   "substrate": "bigger/persisted L2 wins; PiM would forfeit the reuse",
+   "pim_affinity": "weak",
+   "rationale": "memory-limited but LFMR 0.00 \u2014 the L2 absorbs even the 24 sect/req scatter [migrated: G2 DRAM-visibility guard, 2026-07-12 population]",
    "confidence": "medium",
    "stability": "borderline:G0-nosignal\u2194G2-coalescing",
    "persistence": "hot-persistent",
@@ -658,7 +671,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -705,7 +719,8 @@
    },
    "roofline": {
     "ai": 0.0655185,
-    "gflops": 0.168868
+    "gflops": 0.168868,
+    "optype": "fp32"
    }
   },
   {
@@ -752,7 +767,8 @@
    },
    "roofline": {
     "ai": 16.2242,
-    "gflops": 1435.68
+    "gflops": 1435.68,
+    "optype": "fp32"
    }
   },
   {
@@ -799,7 +815,8 @@
    },
    "roofline": {
     "ai": 0.473763,
-    "gflops": 11.4844
+    "gflops": 11.4844,
+    "optype": "fp32"
    }
   },
   {
@@ -846,7 +863,8 @@
    },
    "roofline": {
     "ai": 1.30344,
-    "gflops": 29.2298
+    "gflops": 29.2298,
+    "optype": "fp32"
    }
   },
   {
@@ -893,7 +911,8 @@
    },
    "roofline": {
     "ai": 0.318787,
-    "gflops": 3.56237
+    "gflops": 3.56237,
+    "optype": "fp32"
    }
   },
   {
@@ -940,7 +959,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -987,7 +1007,8 @@
    },
    "roofline": {
     "ai": 2.48697,
-    "gflops": 64.7387
+    "gflops": 64.7387,
+    "optype": "fp32"
    }
   },
   {
@@ -1034,7 +1055,8 @@
    },
    "roofline": {
     "ai": 9.88005,
-    "gflops": 461.858
+    "gflops": 461.858,
+    "optype": "fp32"
    }
   },
   {
@@ -1077,7 +1099,8 @@
    },
    "roofline": {
     "ai": 0.592232,
-    "gflops": 19.9961
+    "gflops": 19.9961,
+    "optype": "fp32"
    }
   },
   {
@@ -1120,7 +1143,8 @@
    },
    "roofline": {
     "ai": 0.464145,
-    "gflops": 17.1472
+    "gflops": 17.1472,
+    "optype": "fp32"
    }
   },
   {
@@ -1163,7 +1187,8 @@
    },
    "roofline": {
     "ai": 0.0229592,
-    "gflops": 0.161746
+    "gflops": 0.161746,
+    "optype": "fp32"
    }
   },
   {
@@ -1206,7 +1231,8 @@
    },
    "roofline": {
     "ai": 4.93513,
-    "gflops": 10.6357
+    "gflops": 10.6357,
+    "optype": "fp32"
    }
   },
   {
@@ -1249,7 +1275,8 @@
    },
    "roofline": {
     "ai": 0.304775,
-    "gflops": 0.461048
+    "gflops": 0.461048,
+    "optype": "fp32"
    }
   },
   {
@@ -1292,7 +1319,8 @@
    },
    "roofline": {
     "ai": 0.0561075,
-    "gflops": 0.612047
+    "gflops": 0.612047,
+    "optype": "fp32"
    }
   },
   {
@@ -1335,7 +1363,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1378,7 +1407,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1421,7 +1451,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1464,7 +1495,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1507,7 +1539,8 @@
    },
    "roofline": {
     "ai": 0.00494164,
-    "gflops": 0.00645915
+    "gflops": 0.00645915,
+    "optype": "fp32"
    }
   },
   {
@@ -1550,7 +1583,8 @@
    },
    "roofline": {
     "ai": 0.0807692,
-    "gflops": 0.15879
+    "gflops": 0.15879,
+    "optype": "fp32"
    }
   },
   {
@@ -1593,7 +1627,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1636,7 +1671,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1679,7 +1715,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1722,7 +1759,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1765,7 +1803,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1808,7 +1847,8 @@
    },
    "roofline": {
     "ai": 1.37685,
-    "gflops": 197.19
+    "gflops": 197.19,
+    "optype": "fp32"
    }
   },
   {
@@ -1851,7 +1891,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1894,7 +1935,8 @@
    },
    "roofline": {
     "ai": 0.112771,
-    "gflops": 11.5713
+    "gflops": 11.5713,
+    "optype": "fp32"
    }
   },
   {
@@ -1937,7 +1979,8 @@
    },
    "roofline": {
     "ai": 0.0,
-    "gflops": 0.0
+    "gflops": 0.0,
+    "optype": "fp32"
    }
   },
   {
@@ -1959,11 +2002,11 @@
    },
    "time_ms": 8.67,
    "share_pct": 0.0,
-   "limiter": "G2-coalescing",
-   "substrate": "scatter-capable PiM \u2014 or a data-layout fix first",
+   "limiter": "G3-l2-reuse",
+   "substrate": "ISP/near-storage \u2014 per-visit set is L2-resident, but the cold-persistent union grows across the session (trace-evidenced)",
    "pim_affinity": "conditional",
-   "rationale": "28 sectors/request (4 = coalesced)",
-   "confidence": "high",
+   "rationale": "memory-limited but LFMR 0.04 \u2014 the L2 absorbs even the 28 sect/req scatter [migrated: G2 DRAM-visibility guard, 2026-07-12 population]",
+   "confidence": "medium",
    "stability": "stable",
    "persistence": "cold-persistent",
    "evidence": {

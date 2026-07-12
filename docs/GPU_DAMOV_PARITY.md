@@ -82,15 +82,62 @@ core-vs-memory clock.
 ## 4 · Breadth and the suite contribution
 
 DAMOV's breadth was 144 applications → 345 functions; its artifact is the DAMOV
-benchmark suite. Our breadth axes: **49 kernels × 27 sequences × 4 datasets ×
-192 configuration mutations** (one production application, deliberately deep
-rather than wide — the thesis argues depth on a deployed Physical-AI workload),
-**plus** the calibration archetype suite (8 known-truth kernels, our
-suite-artifact analogue), **plus** the adapter framework that runs *any* GPU
-codebase (PyTorch, CUDA benchmarks, databases) through the identical pipeline —
-the mechanism by which breadth grows without new plumbing. External suites
-(Rodinia/Altis/BabelStream) drop in as command-adapter workloads when wider
-coverage is wanted; the archetypes already cover each class's pure form.
+benchmark suite. Our breadth axes:
+
+- **Depth**: 49 kernels × 27 sequences × 4 datasets × 192 configuration
+  mutations of one *production* application (deliberately deep on a deployed
+  Physical-AI workload).
+- **Width — the real-codebase population** (`profiling/population/`): 22 real
+  applications from foreign suites — 13 Polybench-GPU + 9 Rodinia-CUDA —
+  acquired, built (CUDA 12.9 / g++-14 / sm_89), and run through the *identical*
+  harness via the command adapter with zero special-casing. Suite choice is a
+  DAMOV-continuity argument: **Polybench and Rodinia are sources DAMOV's own
+  CPU population drew from**, so the same algorithm families are re-characterized
+  one ISA over. Per app: blind ncu classification at locked clocks + a
+  three-point clock sweep → phase-2 two-condition correctness at population
+  scale (results: `reports/2026-07-12_gpu_damov_population/`).
+- **Known-truth anchors**: the 8-archetype calibration suite (our suite-artifact
+  analogue).
+- **The growth mechanism**: the adapter framework — any GPU codebase (PyTorch,
+  CUDA, databases) drops in as a workload TOML; the population campaign is
+  itself just 22 such TOMLs.
+
+### 4b · The population result (2026-07-12, measured)
+
+**39 kernels / 20 real apps** (13 Polybench-GPU + 7 Rodinia-CUDA built on
+CUDA 12.9/g++-14/sm_89; BabelStream + CUDA samples failed to build, documented),
+each blind-classified with frozen thresholds and swept at the three clock
+points. Phase-2 two-condition correctness: **27/31 testable kernels (87.1%)**
+match their class's response signature (polybench 20/22; **rodinia, the
+closer-to-held-out suite: 7/9**). DAMOV: 97/100. All four misses are *named*:
+two low-confidence fallback-path G1s a hair under the mem band (S_mem 1.10 vs
+1.13), one kernel the ±25% sensitivity stress had **already flagged borderline**
+(lud_internal, G1↔G3), and one **phase mixture** (streamcluster: 94% DRAM-SoL in
+the ncu window, whole-run response core-bound — DAMOV's own limitation #2 at
+kernel granularity). Threshold re-derivation on the widened population moves at
+most 3.5 points (e.g. lfmr band 0.38→0.36) — the thresholds are stable under a
+2.4× population growth.
+
+**The population changed the taxonomy — twice, as the mandate intended:**
+
+1. **G2 DRAM-visibility guard.** Six Polybench kernels showed sectors/request
+   16–32 with LFMR 0.006–0.24 and a pure core-domain response (S_core≈2.0,
+   S_mem≈1.0): *L2-resident scatter*. The G2 rule now requires the scatter to
+   be DRAM-visible (`lfmr ≥ lfmr_lo`), else G3 — DAMOV's high-temporal-locality
+   cache-capacity family (2b). Regression: archetypes still 8/8; the committed
+   device tables were migrated in place (`analysis/migrate_g2_guard.py`,
+   18 rows — provenance preserved after a failed naive regeneration taught us
+   the tables merge multiple capture windows).
+2. **The persistence×growth trend axis.** The guard also re-fingerprinted the
+   loop-closure scan (st_track: within-window LFMR 0.087 — the L2 absorbs each
+   *visit*). The single-point fingerprint cannot see session-scale growth — the
+   exact reason DAMOV needed the LFMR-vs-cores *trend*. Our trend evidence is
+   the Slice-3 trace (footprint 0.46→1.1 MB, Jaccard 0.67→0.90, host-side DB
+   growth): `pim_affinity` now routes **cold-persistent G3 → ISP/near-storage
+   (conditional, trace-evidenced)**. The headline ISP verdict survives through
+   a *more defensible* route: fingerprint says cache-resident-per-visit,
+   persistence+growth says the union outgrows any cache. Offload-eligible time
+   re-lands at 70.6% with composition shifted from PiM-scatter toward ISP.
 
 ## 5 · Honest limitations (DAMOV §3.6 analogues)
 

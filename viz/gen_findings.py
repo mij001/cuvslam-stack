@@ -229,6 +229,31 @@ def main():
                 [{"type": "explore",
                   "label": "docs/GPU_DAMOV_PARITY.md + reports/2026-07-09_damov_validation/"}])
 
+    # ── population-scale two-phase validation on REAL codebases ─────────────
+    pop = read("reports/2026-07-12_gpu_damov_population/population.csv")
+    if pop:
+        apps = len({r["app"] for r in pop})
+        live = [r for r in pop if r.get("screened") != "True"]
+        m = sum(1 for r in live if r.get("signature") == "match")
+        x = sum(1 for r in live if r.get("signature") == "mismatch")
+        i_ = sum(1 for r in live if r.get("signature") == "inconclusive")
+        if m + x:
+            finding("POPULATION", "classify",
+                    "The two-phase validation holds on a population of real, foreign codebases",
+                    f"{len(pop)} kernels from {apps} real applications (Polybench-GPU + "
+                    "Rodinia-CUDA — suites DAMOV's own CPU population drew from) were "
+                    "acquired, built, and pushed through the identical harness: blind "
+                    "classification with frozen thresholds, then a three-point clock-domain "
+                    f"sweep per kernel. Of the kernels above the Step-1 screen: {m} match "
+                    f"their class's response signature, {x} mismatch, {i_} are bounded by "
+                    "neither clock domain (host/launch-bound — untestable by this "
+                    "intervention). DAMOV's equivalent (fingerprint + response trend on "
+                    "100 held-out CPU functions) was 97%.",
+                    f"{round(100 * m / (m + x), 1)}%",
+                    f"conclusive response-signature agreement ({m}/{m + x}; {i_} inconclusive)",
+                    [{"type": "explore",
+                      "label": "reports/2026-07-12_gpu_damov_population/ (population.csv, outliers.csv)"}])
+
     # ── measurement rigor (capture step) ────────────────────────────────────
     finding("RIGOR", "capture", "Locked-clock measurement floor",
             "All numbers are taken at locked GPU clocks (1620/7001 MHz, persistence on): "

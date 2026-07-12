@@ -66,8 +66,10 @@ while IFS=$'\t' read -r app dir cmd; do
     if [ -z "$rdir" ] || [ ! -s "$rdir/derived/ncu_metrics.csv" ]; then
         printf '%s\tncu-FAILED\t-\t-\n' "$app" >> "$INDEX"; continue
     fi
+    # NB: $OUT is absolute — pass it bare (a ../ prefix would silently re-root
+    # an absolute path under the repo, which is exactly the bug that ate run 1)
     ( cd profiling && ../cuvslam_venv/bin/python -m analysis.classify "../$rdir" \
-        --hw "../$HW" --out "../$OUT/cls/${app}" ) >> "$OUT/cls/${app}.profile.log" 2>&1
+        --hw "../$HW" --out "$OUT/cls/${app}" ) >> "$OUT/cls/${app}.profile.log" 2>&1
     if [ ! -s "$OUT/cls/${app}/classification.csv" ]; then
         printf '%s\tclassify-FAILED\t%s\t-\n' "$app" "$rdir" >> "$INDEX"; continue
     fi
