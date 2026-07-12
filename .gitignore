@@ -32,3 +32,10 @@ pim_placement_model.py
 
 # generated NDP sim configs (regenerate: profiling/sim/gen_ndp_config.py)
 profiling/sim/configs/
+
+# The thesis DOCUMENT (LaTeX source, submission archives, plagiarism scans)
+# lives on the `thesis` branch, not main — main is the software/dashboard repo.
+thesis_build/
+thesis_ieee.zip
+thesis.tar.gz
+docs/ZEROGPT_*
