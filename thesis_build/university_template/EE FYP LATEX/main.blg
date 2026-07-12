@@ -1,0 +1,15 @@
+[1] Config.pm:328> INFO - This is Biber 2.21
+[1] Config.pm:331> INFO - Logfile is 'main.blg'
+[216] biber:342> INFO - === Sun Jul 12, 2026, 04:09:30
+[257] Biber.pm:421> INFO - Reading 'main.bcf'
+[480] Biber.pm:1002> INFO - Found 33 citekeys in bib section 0
+[535] Biber.pm:4487> INFO - Processing section 0
+[566] Biber.pm:4678> INFO - Looking for bibtex file '3_footer/ref.bib' for section 0
+[571] bibtex.pm:1713> INFO - LaTeX decoding ...
+[660] bibtex.pm:1519> INFO - Found BibTeX data source '3_footer/ref.bib'
+[2445] UCollate.pm:68> INFO - Overriding locale 'en-AU' defaults 'variable = shifted' with 'variable = non-ignorable'
+[2445] UCollate.pm:68> INFO - Overriding locale 'en-AU' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[2445] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-AU'
+[2446] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-AU'
+[2524] bbl.pm:676> INFO - Writing 'main.bbl' with encoding 'UTF-8'
+[2577] bbl.pm:779> INFO - Output to main.bbl

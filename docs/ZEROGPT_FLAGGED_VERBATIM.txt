@@ -1,0 +1,86 @@
+FLAGGED PASSAGES — VERBATIM FROM THESIS SOURCE (for paraphrasing)
+==================================================================
+Each block below is copied directly from the .tex source (LaTeX markup
+included, so you can find it with a text search). File:line given. Edit or
+paraphrase the block, then send it back and say which one it is (by number)
+— I will insert the replacement at that exact location.
+
+
+[1] chapters/ch1_introduction.tex:3
+------------------------------------------------------------------
+\section{Motivation: Physical AI Meets the Memory Wall}
+
+
+[2] chapters/ch1_introduction.tex:5
+------------------------------------------------------------------
+A robot navigating the world must continuously, and in real time, answer two questions: \emph{Where am I?} and \emph{What does my surrounding look like?} The computational discipline that answers both from camera images is visual Simultaneous Localization and Mapping (SLAM). In production robotics, SLAM workloads typically run on GPUs. This thesis studies cuVSLAM~\cite{cuvslam2025}, NVIDIA's CUDA-accelerated visual SLAM library, which is shipped inside the Isaac robotics stack and deployed on real robots. By construction, this workload is representative of what is now called \emph{Physical AI}: machines that sense and act in the physical world under strict latency and energy constraints.
+
+
+[3] chapters/ch1_introduction.tex:7 (only the middle sentence was flagged, shown in context)
+------------------------------------------------------------------
+For such machines, the primary processor constraint is no longer arithmetic. Decades of technological advancement have made floating-point operations nearly free compared to the cost of \emph{moving the operands}: fetching a word from off-chip DRAM consumes orders of magnitude more energy than computation, and this gap widens with each generation. This phenomenon is known as the \emph{memory wall}~\cite{wulf1995memorywall}, the modern manifestation of the von Neumann bottleneck. For battery-powered robots, the consequence is direct: joules spent moving pixels and map entries are joules unavailable for flight time or actuation.
+
+
+[4] chapters/ch2_background.tex:8
+------------------------------------------------------------------
+A CPU optimizes the latency of a single instruction stream; a GPU is designed to maximize the throughput of tens of thousands. NVIDIA GPUs are programmed using CUDA: the programmer writes a \emph{kernel} a single function and launches it over a grid of thousands to millions of \emph{threads}, each processing a distinct data element. Threads are grouped in fixed bundles of 32, called \emph{warps}; the 32 \emph{lanes} of a warp execute the same instruction in lockstep on different data. Warps are grouped into thread blocks, and blocks are scheduled onto \emph{streaming multiprocessors} (SMs) the GPU's core unit. The primary instrument used in this thesis, an NVIDIA RTX~2000 Ada generation GPU (compute capability \code{sm\_89}), features 22~SMs, a 25\,MB shared L2 cache, and 16\,GB of GDDR6 DRAM.
+
+
+[5] chapters/ch2_background.tex:16
+------------------------------------------------------------------
+\emph{Occupancy} is the fraction of an SM's maximum concurrent warps that are resident. It is the GPU's latency-hiding mechanism: while one warp waits for memory, the scheduler issues another. High occupancy can hide DRAM \emph{latency} completely; however, nothing can hide a \emph{bandwidth} limitation. This asymmetry latency can be hidden, bandwidth cannot shapes the entire bottleneck taxonomy discussed in Chapter~\ref{ch:method}.
+
+
+[6] chapters/ch2_background.tex:89
+------------------------------------------------------------------
+cuVSLAM~\cite{cuvslam2025} is NVIDIA's production implementation: GPU-resident front-end and solvers; a host-side keyframe/landmark store backed by LMDB (a memory-mapped embedded database); and support for stereo, RGB-D (color plus depth), monocular, and inertial (IMU-fused) camera configurations, in odometry-only or full-SLAM modes, with both synchronous and asynchronous SLAM variants. This thesis treats cuVSLAM strictly as a measured artifact: its algorithms remain unmodified; instrumentation is additive and switchable, and Chapter~\ref{ch:validity} proves its output-neutrality.
+
+
+[7] chapters/ch2_background.tex:91
+------------------------------------------------------------------
+SLAM system accuracy is evaluated against \emph{ground truth} (the true trajectory from motion capture, GPS/INS, or an external tracker), using two standard metrics~\cite{sturm2012tum,zhang2018tutorial}: \emph{absolute pose/trajectory error} (APE/ATE) the RMS position difference after optimal alignment (SE(3) for metric-scale systems; Sim(3) when monocular scale is unconstrained~\cite{umeyama1991}) and \emph{relative pose/trajectory error} (RPE/RTE) drift over fixed-length segments, expressed as a percentage. The latter is scale-independent and thus comparable between kilometre-scale (KITTI) and room-scale (EuRoC, TUM) trajectories.
+
+
+[8] chapters/ch4_methodology.tex:52
+------------------------------------------------------------------
+The primary instrument is an NVIDIA RTX~2000 Ada GPU (\code{sm\_89}): 22~SMs, 100\,KB unified L1/shared per SM, 25\,MB L2, 16\,GB GDDR6. A second, deliberately different microarchitecture a GeForce MX450 (\code{sm\_75}, 2\,GB, 25\,W) is used only for cross-device validation (\S\ref{sec:char-crossdev}). The host workstation runs driver 575.64.05 with CUDA 12.9.1; profilers are Nsight Compute 2025.2.1.3 and Nsight Systems 2025.3.2; address tracing uses NVBit 1.8~\cite{villa2019nvbit}. This exact setup is documented in the artifact so the environment is reconstructible (Appendix~\ref{app:artifacts}).
+
+
+[9] chapters/ch4_methodology.tex:64
+------------------------------------------------------------------
+The corpus is 27 sequences across four ground-truth datasets: KITTI odometry 00--10 (automotive stereo, kilometre scale)~\cite{geiger2013kitti}; EuRoC MAV MH01--05, V101--103, V201--203 (drone stereo+IMU, room/hall scale)~\cite{burri2016euroc}; TUM RGB-D fr3 sequences, including \code{long\_office\_household} (handheld RGB-D)~\cite{sturm2012tum}; and TUM-VI (visual-inertial)~\cite{schubert2018tumvi}. The accuracy-validation matrix (Chapter~\ref{ch:validity}) also includes ICL-NUIM~\cite{handa2014iclnuim}. Sequences span indoor/outdoor, room/street-scale, loop-closing and loop-free (KITTI 01/04 as control). Pipeline modes include odometry-only and full SLAM; synchronous/asynchronous SLAM; GPU/CPU SLAM back-ends; stereo, RGB-D, monocular, and inertial sensors. In total, 141 accuracy configurations and 192 profiling variants are materialized via deterministic mutation, making the matrix byte-for-byte reproducible.
+
+
+[10] chapters/ch4_methodology.tex:90
+------------------------------------------------------------------
+DRAM 32-byte-sector fetches per thousand \emph{warp} instructions. (Warp-level denominator is $32\times$ smaller than thread-level; conflating them is a classic factor-of-32 error.)
+
+
+[11] chapters/ch5_validity.tex:1
+------------------------------------------------------------------
+\chapter{Measurement Validity: Accuracy, Neutrality, and Noise}
+
+
+[12] chapters/ch6_characterization.tex:13 (only the first two sentences were flagged, shown in context)
+------------------------------------------------------------------
+The classifier from \S\ref{sec:met-tree} was applied independently per sequence, then compared across the corpus. The headline: \textbf{91\% modal class consistency} 24 of 49 kernels receive the identical class in all 27 sequences, and 42 of 49 agree in at least 80\% of them. The bottleneck class is, to first order, \emph{a property of the kernel, not the input}.
+
+
+[13] chapters/appB_artifacts.tex:60-65
+------------------------------------------------------------------
+Primary instrument: NVIDIA RTX~2000 Ada (\code{sm\_89}), driver 575.64.05,
+CUDA 12.9.1, Nsight Compute 2025.2.1.3, Nsight Systems 2025.3.2, NVBit 1.8.
+This exact tool--driver pairing is load-bearing (binary instrumentation
+constrains the driver generation; the driver generation constrains profiler
+builds) and is verified by an environment doctor that checks each target
+machine and prints a one-line remediation for every incompatibility it
+
+
+==================================================================
+NOTE: blocks [4] and [8] each have a missing connector where the source
+reads "...\emph{kernel} a single function..." and "...microarchitecture
+a GeForce MX450..." — that gap looks like an em-dash was meant to sit
+there (e.g. "a kernel — a single function —") and was dropped rather than
+replaced during the earlier em-dash cleanup pass. Worth fixing when you
+paraphrase these two; flagging it here rather than silently fixing it
+myself since you're editing this pass by hand.

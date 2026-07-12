@@ -1,0 +1,14 @@
+\subsection{Future Work}
+\label{sec:roadmap}
+
+The project's phased roadmap continues beyond this document:
+
+\begin{enumerate}
+    \item \textbf{Complete the validation suite.} Execute the scripted clock-domain intervention (per-class predictions are stated ex ante: bandwidth classes track the memory clock, compute/on-chip/dependency classes the core clock) and incorporate its verdicts into the artifact.
+    \item \textbf{Name the last bytes.} The kernel-argument correlation layer (Layer 3) resolves the two named residual kernels carrying 83\% of unmapped traffic; its target list and join interface are already committed.
+    \item \textbf{Embedded-target re-derivation.} Re-run the regime on Jetson-class hardware (the harness already drives remote targets) to re-derive the codegen-dependent quantities above all the spill share and test the taxonomy's transfer to deployment-class hardware.
+    \item \textbf{The architecture study.} Feed the traces to Accel-Sim under the generated NDP configurations~\cite{khairy2020accelsim}, with AccelWattch~\cite{kandiah2021accelwattch} for per-class energy, reporting speedup and energy \emph{deltas} against this thesis's measured baselines per the standing rule, never absolutes. The conservative/moderate placement scenarios of \S\ref{sec:syn-model} become simulated designs; the 16--26-kernel offload sets are the experiment list.
+    \item \textbf{Breadth via adapters.} Run non-SLAM GPU workloads (DNN inference, GPU database operators) through the unchanged pipeline to test the methodology's generality claim the adapter interface ensures that breadth costs only execution time, not engineering.
+\end{enumerate}
+
+The characterization is complete; the design space it opens is measured, bounded, and for the first time for a production Physical-AI perception stack named, byte by byte.

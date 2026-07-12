@@ -1,0 +1,124 @@
+\chapter{Extended Result Tables}
+\label{app:tables}
+
+The tables below are excerpts of committed artifacts, reproduced for
+convenience; the full machine-readable versions live in the repository
+(Appendix~\ref{app:artifacts}).
+
+\section{Cross-sequence attribution consistency (excerpt)}
+
+Selected rows of the 49-kernel attribution-consistency table: each kernel's
+modal top global-space tag, the agreement across every sequence it appears
+in, and its median memory-space split (shared/spill/global).
+
+\begin{table}[h]
+\centering
+\caption{Attribution consistency across 27 sequences (excerpt).}
+\label{tab:attr-consistency}
+\small
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+kernel & modal global tag & agree & shared & spill & global \\
+\midrule
+\code{cast\_image\_kernel} & \code{images\_raw} & 100\% & 0\% & 0\% & 100\% \\
+\code{cast\_image\_kernel\_rgb} & \code{pyramid\_levels} & 100\% & 0\% & 0\% & 100\% \\
+\code{gaussian\_scaling\_kernel} & \code{images\_raw} & 100\% & 0\% & 0\% & 100\% \\
+\code{conv\_grad\_x\_kernel} & \code{pyramid\_levels} & 100\% & 92\% & 0\% & 8\% \\
+\code{conv\_grad\_y\_kernel} & \code{pyramid\_levels} & 100\% & 96\% & 0\% & 4\% \\
+\code{gftt\_values\_kernel} & \code{feature\_tracks} & 100\% & 98\% & 0\% & 2\% \\
+\code{non\_max\_suppression} & \code{feature\_tracks} & 100\% & 90\% & 0\% & 10\% \\
+\code{accumulateGFTT\_kernel} & \code{feat.\ sel.\ scratch} & 100\% & 89\% & 0\% & 11\% \\
+\code{sba::build\_full\_system\_1} & \code{ba\_linear\_system} & 100\% & 0\% & 0\% & 100\% \\
+\code{sba::calc\_jacobians} & \code{ba\_linear\_system} & 100\% & 4\% & 0\% & 96\% \\
+\code{sba::reduced\_system\_st.\,2} & \code{ba\_linear\_system} & 100\% & 4\% & 0\% & 96\% \\
+\stBuild{} & \code{keyframe\_descriptors} & 100\% & 0\% & 0\% & 100\% \\
+\stTrack{} & \code{keyframe\_descriptors} & 100\% & 0\% & 93\% & 7\% \\
+\code{cub::DeviceMergeSort*} & \code{feature\_tracks} & 100\% & 83--97\% & 0\% & 3--17\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Instrumented vs.\ baseline trajectories (QoR excerpt)}
+
+\begin{table}[h]
+\centering
+\caption{Quality-of-results check: instrumented (TaggedAllocator) build vs.\
+baseline build, same configurations (APE, m).}
+\label{tab:qor}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+configuration & baseline & instrumented & $\Delta$ \\
+\midrule
+EuRoC MH\_01 inertial SLAM & 0.689 & 0.689 & 0.0000 \\
+EuRoC V1\_01 stereo SLAM & 0.037 & 0.037 & 0.0000 \\
+EuRoC V2\_02 stereo odometry & 0.177 & 0.177 & 0.0000 \\
+KITTI 00 stereo odometry & 6.841 & 6.605 & $-$0.236\textsuperscript{a} \\
+KITTI 06 stereo SLAM & 2.312 & 2.277 & $-$0.035\textsuperscript{a} \\
+TUM long\_office RGB-D SLAM & 0.018 & 0.021 & $+$0.003 \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\raggedright\footnotesize \textsuperscript{a}\,Within the sequence's own
+plain-rerun scatter (\S\ref{sec:val-nondeterminism}); kitti00 is the
+canonical bimodal loop-closure case.
+\end{table}
+
+\section{KITTI per-sequence odometry accuracy}
+
+\begin{table}[h]
+\centering
+\caption{KITTI stereo odometry, per sequence: absolute error and
+segment-relative drift (100--800\,m KITTI protocol).}
+\label{tab:kitti}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+seq. & APE (m) & avgRTE (\%) & avgRE ($^\circ$) \\
+\midrule
+00 & 6.84 & 0.892 & 0.938 \\
+01 & 11.59 & 1.899 & 0.386 \\
+02 & 4.55 & 0.975 & 0.707 \\
+03 & 3.94 & 2.265 & 0.988 \\
+04 & 2.16 & 1.967 & 0.090 \\
+05 & 3.31 & 0.974 & 0.723 \\
+06 & 2.88 & 1.248 & 0.757 \\
+07 & 1.44 & 0.982 & 1.131 \\
+08 & 4.57 & 1.221 & 0.959 \\
+09 & 3.53 & 1.238 & 0.544 \\
+10 & 2.17 & 1.010 & 0.661 \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\raggedright\footnotesize At the 500\,m segment length the corpus-level
+translational drift is 0.82\%, against the 0.85\% published KITTI-protocol
+figure (\S\ref{sec:val-accuracy}). Sequence 01 (highway, sparse features)
+dominates the absolute-APE average; sequences 01 and 04 close no loops and
+serve as the loop-free control in the attribution campaign.
+\end{table}
+
+\section{Measured stage map (NVTX, excerpt)}
+
+\begin{table}[h]
+\centering
+\caption{Kernel-to-stage mapping, measured from cuVSLAM's own NVTX ranges.}
+\label{tab:nvtx}
+\small
+\begin{tabular}{@{}lp{0.55\textwidth}@{}}
+\toprule
+NVTX stage & kernels \\
+\midrule
+front-end, per frame & \code{cast\_image\_kernel\_rgb},
+\code{gaussian\_scaling}, \code{conv\_grad\_x/y}, \code{lk\_track} \\
+keyframe feature refresh & \code{gftt\_values}, \code{accumulateGFTT},
+\code{downsample\_gftt}, \code{non\_max\_suppression},
+\code{select\_features}, CUB keypoint sort \\
+visual-odometry solver & \code{matcher::*}, \code{cast\_depth},
+\code{sba::reduced\_system\_*}, cuSOLVER helpers \\
+windowed bundle adjustment & \code{sba::build\_full\_system\_*},
+\code{sba::calc\_jacobians}, \code{sba::evaluate\_cost} \\
+keyframe ingest & \stBuild{} \\
+loop closure \& optimization & \stTrack{} \\
+\bottomrule
+\end{tabular}
+\end{table}

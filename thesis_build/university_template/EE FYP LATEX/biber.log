@@ -1,0 +1,14 @@
+INFO - This is Biber 2.21
+INFO - Logfile is 'main.blg'
+INFO - Reading 'main.bcf'
+INFO - Found 33 citekeys in bib section 0
+INFO - Processing section 0
+INFO - Looking for bibtex file '3_footer/ref.bib' for section 0
+INFO - LaTeX decoding ...
+INFO - Found BibTeX data source '3_footer/ref.bib'
+INFO - Overriding locale 'en-AU' defaults 'variable = shifted' with 'variable = non-ignorable'
+INFO - Overriding locale 'en-AU' defaults 'normalization = NFD' with 'normalization = prenormalized'
+INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-AU'
+INFO - No sort tailoring available for locale 'en-AU'
+INFO - Writing 'main.bbl' with encoding 'UTF-8'
+INFO - Output to main.bbl

@@ -1,0 +1,100 @@
+\babel@toc {australian}{}\relax 
+\contentsline {section}{\numberline {1}Introduction}{12}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Motivation: Physical AI Faces the Memory Wall}{12}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Problem Statement}{13}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Research Questions}{14}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Contributions}{14}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Scope and Non-Goals}{16}{subsection.1.5}%
+\contentsline {subsection}{\numberline {1.6}Thesis Organization}{16}{subsection.1.6}%
+\contentsline {section}{\numberline {2}Literature Review}{17}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Background}{17}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}The GPU Execution Model}{17}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}The Memory Hierarchy and the Five Address Spaces}{18}{subsubsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.3}The Memory Wall}{19}{subsubsection.2.1.3}%
+\contentsline {subsubsection}{\numberline {2.1.4}Visual SLAM and cuVSLAM}{20}{subsubsection.2.1.4}%
+\contentsline {subsubsection}{\numberline {2.1.5}Candidate Substrates for Memory-Centric Execution}{21}{subsubsection.2.1.5}%
+\contentsline {subsubsection}{\numberline {2.1.6}The Measurement Instruments}{22}{subsubsection.2.1.6}%
+\contentsline {subsection}{\numberline {2.2}Related Work}{23}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Data-Movement Characterization Methodologies}{23}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Processing-in-Memory and Near-Data Systems}{24}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}SLAM Systems and Their Evaluation}{25}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.4}GPU Instrumentation}{25}{subsubsection.2.2.4}%
+\contentsline {subsubsection}{\numberline {2.2.5}Positioning}{25}{subsubsection.2.2.5}%
+\contentsline {section}{\numberline {3}Methodology}{27}{section.3}%
+\contentsline {subsection}{\numberline {3.1}The Six-Step Pipeline}{27}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Experimental Setup}{28}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Hardware}{28}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Locked Clocks and Measured Ceilings}{28}{subsubsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.3}Workloads and Datasets}{29}{subsubsection.3.2.3}%
+\contentsline {subsubsection}{\numberline {3.2.4}Capture Discipline}{29}{subsubsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.3}Metrics}{30}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Speed-of-Light Utilizations}{30}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}LFMR (GPU Form)}{30}{subsubsection.3.3.2}%
+\contentsline {subsubsection}{\numberline {3.3.3}Memory Intensity (MPKI)}{30}{subsubsection.3.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.4}Arithmetic Intensity and the Roofline}{30}{subsubsection.3.3.4}%
+\contentsline {subsubsection}{\numberline {3.3.5}Occupancy and the Stall Taxonomy}{31}{subsubsection.3.3.5}%
+\contentsline {subsubsection}{\numberline {3.3.6}Coalescing}{31}{subsubsection.3.3.6}%
+\contentsline {subsubsection}{\numberline {3.3.7}Locality (Trace-Side)}{31}{subsubsection.3.3.7}%
+\contentsline {subsection}{\numberline {3.4}The Classifier and Taxonomy}{32}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}Thresholds}{32}{subsubsection.3.4.1}%
+\contentsline {subsubsection}{\numberline {3.4.2}The Ordered Rules}{32}{subsubsection.3.4.2}%
+\contentsline {subsubsection}{\numberline {3.4.3}Sensitivity Analysis}{34}{subsubsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.5}From Class to Verdict: Substrate and Fault Mapping}{34}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}The Placement Model}{35}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}DAMOV Parity: The Completeness Argument}{35}{subsection.3.7}%
+\contentsline {section}{\numberline {4}Results}{37}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Measurement Validity: Accuracy, Neutrality, and Noise}{37}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}Accuracy Validation: The 141-Configuration Matrix}{37}{subsubsection.4.1.1}%
+\contentsline {paragraph}{\numberline {4.1.1.1}Discrepancies and Their Causes}{37}{paragraph.4.1.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}Profiling is Accuracy-Neutral}{38}{subsubsection.4.1.2}%
+\contentsline {subsubsection}{\numberline {4.1.3}Nondeterminism, Characterized}{39}{subsubsection.4.1.3}%
+\contentsline {subsubsection}{\numberline {4.1.4}Summary of the Trust Chain}{40}{subsubsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.2}Kernel-Level Characterization}{40}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}What the Screen Reveals}{40}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Class Stability Across Inputs}{41}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}The Taxonomy Is Discovered, Not Asserted}{41}{subsubsection.4.2.3}%
+\contentsline {subsubsection}{\numberline {4.2.4}Cross-Microarchitecture Agreement}{42}{subsubsection.4.2.4}%
+\contentsline {subsubsection}{\numberline {4.2.5}The Calibration Suite: Classifying Known Truth}{42}{subsubsection.4.2.5}%
+\contentsline {subsubsection}{\numberline {4.2.6}Near-Data Affinity of the Workload}{43}{subsubsection.4.2.6}%
+\contentsline {subsubsection}{\numberline {4.2.7}The System Edge: Host--Device Transfers}{43}{subsubsection.4.2.7}%
+\contentsline {subsection}{\numberline {4.3}Machine-Independent Locality Analysis}{44}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}Trace-Side Metrics}{44}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}The Front-End Is Cache-Immune Streaming}{45}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.3}The Loop-Closure Scan: A Self-Correction on Record}{46}{subsubsection.4.3.3}%
+\contentsline {subsubsection}{\numberline {4.3.4}Session-Scale Growth and Migration}{47}{subsubsection.4.3.4}%
+\contentsline {subsection}{\numberline {4.4}Data-Structure Attribution: Naming Every Byte}{48}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}The Three-Layer Instrument}{48}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}Coverage: Auditing the Windows}{49}{subsubsection.4.4.2}%
+\contentsline {subsubsection}{\numberline {4.4.3}The GPU Memory Budget Is Static}{49}{subsubsection.4.4.3}%
+\contentsline {subsubsection}{\numberline {4.4.4}Attribution Results}{49}{subsubsection.4.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.5}The Register-Spill Finding}{51}{subsubsection.4.4.5}%
+\contentsline {subsubsection}{\numberline {4.4.6}Bounded Residuals}{51}{subsubsection.4.4.6}%
+\contentsline {subsection}{\numberline {4.5}Synthesis: Substrate Verdicts and Measured Baselines}{52}{subsection.4.5}%
+\contentsline {subsubsection}{\numberline {4.5.1}The Three-Way Split}{52}{subsubsection.4.5.1}%
+\contentsline {subsubsection}{\numberline {4.5.2}Verdict Dynamics Across Workloads}{52}{subsubsection.4.5.2}%
+\contentsline {subsubsection}{\numberline {4.5.3}The Analytical Placement Bound}{53}{subsubsection.4.5.3}%
+\contentsline {subsubsection}{\numberline {4.5.4}The Measured Energy Baseline}{54}{subsubsection.4.5.4}%
+\contentsline {subsubsection}{\numberline {4.5.5}The Host-Side Boundary}{55}{subsubsection.4.5.5}%
+\contentsline {subsubsection}{\numberline {4.5.6}Faults Named for the Kernels That Stay}{55}{subsubsection.4.5.6}%
+\contentsline {section}{\numberline {5}Discussion}{56}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Internal Validity}{56}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}External Validity}{57}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Construct Validity}{57}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}What Is Out of Scope, and Why}{58}{subsection.5.4}%
+\contentsline {section}{\numberline {6}Conclusions}{59}{section.6}%
+\contentsline {subsection}{\numberline {6.1}What Was Established}{59}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}The Thesis, Restated}{60}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Recommendations and Future Work}{61}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Future Work}{61}{subsection.7.1}%
+\contentsline {section}{\numberline {8}References}{62}{section.8}%
+\contentsline {section}{\numberline {9}Appendices}{66}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Glossary}{66}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Artifact and Reproducibility Description}{68}{subsection.9.2}%
+\contentsline {subsubsection}{\numberline {9.2.1}Layout}{69}{subsubsection.9.2.1}%
+\contentsline {subsubsection}{\numberline {9.2.2}Environment}{70}{subsubsection.9.2.2}%
+\contentsline {subsubsection}{\numberline {9.2.3}Reproduction paths}{70}{subsubsection.9.2.3}%
+\contentsline {subsection}{\numberline {9.3}Extended Result Tables}{71}{subsection.9.3}%
+\contentsline {subsubsection}{\numberline {9.3.1}Cross-sequence attribution consistency (excerpt)}{71}{subsubsection.9.3.1}%
+\contentsline {subsubsection}{\numberline {9.3.2}Instrumented vs.\ baseline trajectories (QoR excerpt)}{71}{subsubsection.9.3.2}%
+\contentsline {subsubsection}{\numberline {9.3.3}KITTI per-sequence odometry accuracy}{71}{subsubsection.9.3.3}%
+\contentsline {subsubsection}{\numberline {9.3.4}Measured stage map (NVTX, excerpt)}{71}{subsubsection.9.3.4}%

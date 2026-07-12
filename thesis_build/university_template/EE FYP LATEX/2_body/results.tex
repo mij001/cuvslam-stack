@@ -1,0 +1,404 @@
+\subsection{Measurement Validity: Accuracy, Neutrality, and Noise}
+\label{ch:validity}
+
+A characterization inherits the validity of its measurements. This chapter establishes, in order: that the system under measurement was computing \emph{correct} trajectories (\S\ref{sec:val-accuracy}); that observing it did not change its behaviour (\S\ref{sec:val-neutrality}); and that residual run-to-run variation is understood and bounded (\S\ref{sec:val-nondeterminism}). Together, these answer RQ5 and constitute finding \textbf{F13} in the evidence chain.
+
+\subsubsection{Accuracy Validation: The 141-Configuration Matrix}
+\label{sec:val-accuracy}
+
+Every combination of dataset, sensor modality, and pipeline mode that the on-disk corpora support was instantiated as a configuration 141 in total. Each was run to completion and scored against ground truth using the vendor's own metrics (RMSE APE after alignment; segment-relative RTE; rotational RE). A convergence gate (segment-relative translational drift below 5\%, a scale-independent criterion) separates runs that track from those that diverge; every excluded run is itemized with a stated cause rather than silently dropped.
+
+Table~\ref{tab:accuracy} compares the converged mode averages against the cuVSLAM technical report~\cite{cuvslam2025}. Two findings support this chapter. First, \emph{the modes used for the entire memory characterization stereo and RGB-D SLAM reproduce the published accuracy}: EuRoC stereo matches to within millimetres, TUM RGB-D is better than published, and KITTI matches on the definition-stable per-segment drift metric (0.82\% at the 500\,m segment versus 0.85\% in the leaderboard; absolute APE over kilometre paths is scale-sensitive and reported as directional only). Second, every discrepancy in other modes has a named, verified cause, none of which affects the characterized configurations.
+
+\begin{table}[t]
+\centering
+\caption{Converged mode-average accuracy vs.\ the cuVSLAM technical report (RMSE APE in metres, odometry/SLAM). The characterization uses the stereo and RGB-D modes.}
+\label{tab:accuracy}
+\begin{tabular}{@{}lccl@{}}
+\toprule
+mode & ours & published & verdict \\
+\midrule
+EuRoC stereo & 0.114 / 0.051 & 0.13 / 0.054 & millimetre-level match \\
+TUM RGB-D & 0.060 / 0.047 & 0.11 / 0.065 & better than published \\
+ICL-NUIM (mono-depth) & 0.099 / 0.136 & 0.026 & same order (cm) \\
+KITTI stereo & 4.01 / 3.63 & 3.00 / 1.98 & segment drift matches (0.82\% vs 0.85\%) \\
+EuRoC stereo-inertial & 0.401 / 0.328 & 0.19 / 0.13 & under-tuned IMU (disclosed) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Discrepancies and Their Causes}
+\label{sec:val-discrepancies}
+
+\textbf{Inertial mode is under-tuned by configuration, not by cuVSLAM.} Only a minority of EuRoC inertial runs converge, and diagnostically enabling the IMU makes accuracy \emph{worse} than pure stereo on the same sequences. This inversion is the classic signature of mis-scaled IMU noise densities or camera--IMU extrinsics: the estimator over-trusts a mis-modelled sensor. The vendor calibrates these per dataset; the matrix used a generic inertial configuration. This defect is confined to a mode never used in memory characterization, and the remedy (populating per-sequence IMU parameters from the datasets' calibration files) is configuration work, tracked in the roadmap.
+
+\textbf{The hardest EuRoC sequence diverges in every mode.} V2\_03 combines aggressive motion with heavy motion blur; the vendor's report publishes it only under stereo-inertial and excludes it from stereo averages. The same exclusion is applied here, with the sequence retained in per-sequence tables.
+
+\textbf{TUM-VI raw fisheye is invalid input, not a tracking failure.} TUM-VI's $\sim$195$^\circ$ fisheye exceeds the pinhole-undistortion field of view supported by the library ($<$180$^\circ$); using raw fisheye leads to deterministic, kilometre-scale divergence. The required preprocessing (undistort to pinhole with edge masks) is documented in the dataset notes; runs without it are classified as invalid input and excluded.
+
+\textbf{Monocular needs scale-free alignment.} Monocular SLAM recovers shape but not metric scale; scoring it with SE(3) alignment conflates scale error with drift. Monocular rows are therefore excluded from SE(3) comparisons pending Sim(3) evaluation~\cite{umeyama1991} an evaluator-metric choice, not a tracking result.
+
+\subsubsection{Profiling is Accuracy-Neutral}
+\label{sec:val-neutrality}
+
+The deepest reflexivity threat is that instrumentation changes the system it observes. Three experiments rule this out:
+
+\textbf{Instrumented build equals baseline build (QoR).} The TaggedAllocator instrumentation (Chapter~\ref{ch:attribution}) lives in a rebuilt cuVSLAM binary. Re-running representative configurations on both builds shows the instrumented build's trajectories are equal to the baseline's bit-identical on EuRoC, and within run-to-run nondeterminism elsewhere (largest observed difference 0.24\,m over a kilometre-scale KITTI path, within the sequence's own re-run scatter; see \S\ref{sec:val-nondeterminism}). Journaling is gated by an environment variable and affects only allocation paths, which execute at initialization, not per frame.
+
+\textbf{Each profiler is trajectory-neutral.} Running the same configuration plain and under each instrument shows: nsys and ncu produce \emph{bit-identical} trajectories on deterministic (synchronous) modes, and NVBit-traced runs agree within $\sim$2\,mm APE the instrumentation slows execution greatly but does not alter the computation.
+
+\textbf{Neutrality holds across the full feature matrix.} A 192-variant campaign (every accuracy configuration profiled as-is, plus finer feature toggles sync/async/CPU SLAM, motion-model and denoising toggles, landmark export, multi-camera precision, unrectified input, depth-stereo tracking on representative sequences per modality) compares profiled vs.\ plain APE with tolerance $\max(5\,\text{cm},\,5\%)$: \textbf{166/192 pass outright}, with 121 bit-identical. All 26 flagged variants were investigated and traced to benign causes mainly nondeterministic scatter from long loop-closing sequences (\S\ref{sec:val-nondeterminism}) and toggles that legitimately change computation (e.g., CPU-SLAM changes the back-end and hence the trajectory, independent of profiling); a re-check against plain re-runs disproved the only suspected genuine interference case.
+
+\subsubsection{Nondeterminism, Characterized}
+\label{sec:val-nondeterminism}
+
+GPU SLAM is not perfectly repeatable: floating-point reductions reorder across runs, and asynchronous modes add scheduling freedom. Rather than averaging this away, the campaign quantified it. On short and mid-length sequences, repeated runs are bit-identical in synchronous modes. On long loop-closing sequences (kitti00 as canonical), the final trajectory is \emph{bimodal}: loop-closure acceptance is threshold-sensitive, and a borderline loop either fires or not, moving whole-path APE by tenths of a metre. The critical control: \emph{plain, uninstrumented re-runs scatter by the same amount and between the same modes}. This scatter is a property of the workload, not of the profilers an important result for hardware studies (single-run accuracy comparisons on such sequences are meaningless at sub-scatter resolution).
+
+\subsubsection{Summary of the Trust Chain}
+
+The system under measurement reproduces vendor-published accuracy in characterized modes (141-run matrix); the instrumentation is output-neutral (bit-identical where the workload is deterministic, and within measured workload scatter elsewhere, across 192 variants); the noise floor of all timing is CoV 0.14\% at locked clocks (\S\ref{sec:met-clocks}); and every classification threshold is sensitivity-stressed (\S\ref{sec:met-sensitivity}). Every number in Chapters~\ref{ch:characterization}--\ref{ch:synthesis} rests on this chain.
+
+\subsection{Kernel-Level Characterization}
+\label{ch:characterization}
+
+This chapter presents the classification of cuVSLAM's 49 GPU kernels across the 27-sequence corpus and subjects that classification to four independent validations: input stability (\S\ref{sec:char-stability}), unsupervised recovery by two clustering algorithms (\S\ref{sec:char-clustering}), cross-microarchitecture agreement (\S\ref{sec:char-crossdev}), and a known-truth calibration suite (\S\ref{sec:char-calibration}). It closes with measurement of host--device transfers at the system edge (\S\ref{sec:char-transfers}).
+
+\subsubsection{What the Screen Reveals}
+
+The nsys timeline over full sequences shows the expected structure of a frame-synchronous perception pipeline: a small set of front-end kernels launched every frame (image cast, Gaussian pyramid scaling, gradient convolutions, Lucas--Kanade tracking, and the matcher pair) accounts for the bulk of launches ($\sim$80 per frame; $\sim$200{,}000 launches over a 2{,}500-frame sequence). The bundle-adjustment solver family (\code{sba::*}, plus cuSOLVER helper kernels) forms a second tier, while SLAM-layer keyframe kernels (\stBuild{}, \stTrack{}) launch sparsely per keyframe and per loop-closure scan, respectively. The NVTX stage table (measured, not name-matched; \S\ref{sec:bg-tools}) confirms stage membership: \stTrack{} executes inside the loop-closure-and-optimization range, \stBuild{} within keyframe ingestion the measured anchor for every loop-closure claim that follows.
+
+\subsubsection{Class Stability Across Inputs}
+\label{sec:char-stability}
+
+The classification model presented in \S\ref{sec:met-tree} was run independently on each sequence, and then aggregated over the entire dataset. The major conclusion is that there is \textbf{91\% of agreement in the modal class}: out of 49 kernels, 24 belong to the exact same bottleneck class for all 27 sequences, while 42 belong to the same class in at least 80\% of them. The bottleneck class is, to the first order, \emph{the property of the kernel, not the input}.
+
+The residual flips are not noise; they are physics. They cluster around kernels whose working set sits near the 25\,MB L2 capacity: on small indoor sequences the set fits (L2-reuse behaviour, G3), on street-scale it spills (bandwidth behaviour, G1). The sensitivity analysis (\S\ref{sec:met-sensitivity}) flags exactly these kernels as borderline, and the substrate synthesis (Chapter~\ref{ch:synthesis}) treats their verdicts as workload-conditional 25 of 49 verdicts flip with workload scale, always in the physically expected direction.
+
+\subsubsection{The Taxonomy Is Discovered, Not Asserted}
+\label{sec:char-clustering}
+
+The decision tree assigns labels; whether the \emph{classes themselves} are real structure in the data is tested without labels. Figure~\ref{fig:taxonomy} first shows how the 49 characterized kernels distribute across the classes. Pooling every kernel's feature vector (memory/compute/DRAM speed-of-light, LFMR, occupancy, sectors-per-request, and the two dominant stall shares) across sequences and running k-means over a range of cluster counts, the silhouette criterion selects \textbf{$k = 7$--$8$} matching the seven populated classes plus the screened remainder, with cluster purity 0.68 and adjusted Rand index 0.30 against the tree labels. Using a completely different algorithm Ward hierarchical clustering~\cite{ward1963}, cut at $k{=}8$ the same agreement is reproduced: \textbf{ARI 0.31, purity 0.675}. Two unrelated algorithms, given no thresholds and no labels, find the same $\sim$8-way structure encoded by the tree. The tree should be read as the \emph{labelling} of natural structure and the clustering as its \emph{independent validation} precisely DAMOV's discipline, reproduced on GPU data.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\textwidth, height=5cm,
+  ybar, bar width=17pt,
+  ymin=0, ymax=15, ylabel={kernels (of 49)},
+  symbolic x coords={G0,G1,G2,G3,G4,G5,G6,G7},
+  xtick=data, tick label style={font=\small}, ylabel style={font=\small},
+  nodes near coords, nodes near coords style={font=\scriptsize},
+  enlarge x limits=0.08,
+]
+\addplot[draw=black!40,fill=cPIM!45] coordinates
+  {(G0,1)(G1,9)(G2,10)(G3,9)(G4,5)(G5,2)(G6,0)(G7,13)};
+\end{axis}
+\end{tikzpicture}
+\vspace{-2mm}
+\caption[Kernel distribution across the taxonomy.]{Distribution of the 49
+characterized kernels across the eight classes (campaign modal class). The
+near-data-affine classes (G1, G2, G4; orange leaves in Figure~\ref{fig:tree})
+account for 24 kernels. G6 is unpopulated in cuVSLAM (no kernel is on-chip-bound
+with DRAM idle), and G7, the class that emerged from the data, is the single
+largest, capturing the dependency-stalled tracking and solver kernels.}
+\label{fig:taxonomy}
+\end{figure}
+
+\subsubsection{Cross-Microarchitecture Agreement}
+\label{sec:char-crossdev}
+
+If the classes captured artifacts of one GPU, they would not persist across microarchitectures. The same workload (TUM office) was characterized independently on two deliberately different devices: the \code{sm\_89} workstation and an \code{sm\_75} laptop with a quarter the memory and a third the power budget. \textbf{36 of 45 signal kernels (80\%) receive the same class on both} (76.6\% including the launch-tax G0 tier). The honest caveat: the two devices differ in memory system as well as core generation, so some disagreements are physically real L2-capacity crossovers rather than classification error making 80\% a conservative floor for device-independence of the classification. This mirrors DAMOV's core-type-independence check, under a stricter test.
+
+\subsubsection{The Calibration Suite: Classifying Known Truth}
+\label{sec:char-calibration}
+
+DAMOV validated frozen thresholds on held-out functions with known behaviour. Here, a \emph{calibration suite} of eight archetype kernels is used, each with a known ground-truth class by construction: a streaming triad (G1), a random gather (G2), an L2-resident sweep (G3), a coalesced pointer-chase (G4), an FMA polynomial (G5), a bank-conflicted shared-memory kernel (G6), a single-warp dependency chain (G7), and a sub-screen tiny kernel (G0). These are compiled and pushed through the identical capture-and-classify pipeline, blind. The first pass classified five of eight as designed; analysis of the three misses showed each to be a defect in the \emph{archetype}, not the classifier: a per-lane-random pointer-chase is both scattered and latency-bound (G2+G4); a barrier-heavy shared-memory kernel presents as dependency-stalled rather than G6; and a sub-floor kernel is legitimately \emph{screened}, as per the pipeline's Step-1 semantics. Each archetype was corrected to embody a single class \emph{with the classifier untouched throughout} and the suite is retained in the artifact as a permanent regression harness: any future change to thresholds or metrics must re-classify known truth correctly.
+
+\subsubsection{Near-Data Affinity of the Workload}
+\label{sec:char-affinity}
+
+Rolling the per-kernel classes up by measured GPU time: across the 27-sequence campaign, \textbf{21\% of GPU time is in strong-affinity classes, 40\% in conditional-affinity classes, and 28\% in no-affinity classes} (the remainder are sub-floor). Thus, roughly \textbf{61\% of GPU time carries near-data affinity} under the taxonomy's default mapping, rising to $\sim$72\% time-weighted in deep single-sequence studies where the loop-closure path is exercised densely. This is the quantity the placement model in Chapter~\ref{ch:synthesis} prices. It is reported here with its composition, not as a headline slogan, since the conditional 40\% is exactly the portion whose verdict depends on the scatter-PiM-vs-layout-fix question addressed in the locality and attribution chapters.
+
+\subsubsection{The System Edge: Host--Device Transfers}
+\label{sec:char-transfers}
+
+Independent of any kernel's internals, the timeline measures the pipeline's boundary traffic: explicit host-to-device and device-to-host copies account for \textbf{41\% of total kernel time} on the RGB-D workload, and the per-frame sensor upload is \textbf{1.68\,MB/frame} the camera image and depth crossing PCIe into GPU DRAM before any kernel touches them. This is the single most direct near-sensor argument in the thesis: it is traffic that exists only because the pixels are \emph{born} on the wrong side of the bus, and no on-GPU optimization can remove it. The host-side companion measurements (66\,MB of storage ingestion per run; 708\,MB peak host memory) are detailed in the synthesis chapter, where the boundary picture is assembled end-to-end.
+
+\subsection{Machine-Independent Locality Analysis}
+\label{ch:locality}
+
+Counters summarize; address traces prove. This chapter reports the DAMOV-style locality analysis computed from NVBit per-warp address traces: the metrics (\S\ref{sec:loc-metrics}), the front-end result (\S\ref{sec:loc-frontend}), the loop-closure-scan result and the self-correction that produced it (\S\ref{sec:loc-correction}), and the session-scale growth measurement (\S\ref{sec:loc-growth}).
+
+\subsubsection{Trace-Side Metrics}
+\label{sec:loc-metrics}
+
+From each kernel's global-space address stream, per launch, four metrics are computed:
+
+\begin{itemize}
+  \item \textbf{Footprint}: Number of distinct 32-byte sectors touched, $\times$32\,B exact working-set size, measured directly rather than inferred.
+  \item \textbf{Reuse-distance CDF}: For each access, the count of distinct sectors touched since that sector's previous access (LRU stack distance~\cite{mattson1970stack}). The CDF, evaluated at capacities from 64\,KiB to 48\,MiB, predicts the hit rate of any cache of that size, independent of policy details. A flat curve means no cache size helps: misses are compulsory.
+  \item \textbf{Coalescing, trace-exact}: Sectors touched per warp access (1--32), plus active lanes per access, which separates true scatter from divergence-induced apparent scatter.
+  \item \textbf{Inter-launch overlap}: Jaccard similarity $|A \cap B|/|A \cup B|$ between consecutive launches' footprints indicates whether a recurring kernel re-touches the same data (cacheable across launches) or migrates.
+\end{itemize}
+
+One rule governs all of these: \emph{memory-space filtering}. Only global-space instructions (\code{LDG}/\code{STG}) enter locality analysis; shared-memory (\code{LDS}/\code{STS}) and local-memory (\code{LDL}/\code{STL}, register spill) records are bucketed separately. This rule was not a precaution rather, it was forced by the measurement failure documented in \S\ref{sec:loc-correction}, and is now the methodology's most exportable lesson.
+
+\subsubsection{The Front-End Is Cache-Immune Streaming}
+\label{sec:loc-frontend}
+
+For every per-frame front-end kernel (image cast, pyramid scaling, gradient convolutions, LK tracking), the reuse-distance CDF is \textbf{flat from 64\,KiB to 48\,MiB} (Figure~\ref{fig:cdf}): the hit rate a 64\,KiB cache would achieve is the hit rate a 48\,MiB cache would achieve, since all reuse is at tiny distances (caught by any cache) and everything else is a first touch of streaming pixel data (caught by none). Global-space accesses run at $\sim$4.0 sectors per warp access, fully coalesced, with 32.0 active lanes.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{semilogxaxis}[
+  width=0.82\textwidth, height=5.4cm,
+  xlabel={hypothetical cache capacity}, ylabel={predicted hit rate},
+  xmin=32, xmax=65536, ymin=0, ymax=1.02,
+  xtick={64,512,4096,49152}, xticklabels={64\,KiB,512\,KiB,4\,MiB,48\,MiB},
+  ytick={0,0.25,0.5,0.75,1.0},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  legend style={at={(0.02,0.98)},anchor=north west,font=\scriptsize,draw=black!30},
+  grid=both, major grid style={black!8},
+]
+\addplot[cPIM,very thick,mark=*,mark size=1pt] coordinates {
+  (64,0.19)(512,0.20)(4096,0.205)(16384,0.207)(49152,0.21)};
+\addplot[cGPU,very thick,dashed,mark=triangle*,mark size=1.5pt] coordinates {
+  (64,0.22)(512,0.41)(4096,0.68)(16384,0.90)(49152,0.985)};
+\legend{front-end (cache-immune streaming),cache-friendly kernel (for contrast)}
+\end{semilogxaxis}
+\end{tikzpicture}
+\caption[Reuse-distance CDF: cache-immune streaming.]{Predicted hit rate versus
+cache capacity, from the measured reuse-distance CDF. The front-end curve is
+essentially flat across a three-order-of-magnitude capacity sweep: no realizable
+cache changes its miss rate, because its misses are compulsory first-touches of
+streaming pixel data. A cache-friendly kernel (dashed) is shown for contrast.}
+\label{fig:cdf}
+\end{figure}
+
+The architectural reading is sharp: \emph{no realizable cache helps this tier} its misses are compulsory. Bigger caches are the wrong axis entirely; the only remedies are moving fewer bytes (algorithmic) or consuming the stream before it reaches DRAM (near-sensor placement, \S\ref{sec:char-transfers}). Early counter-only readings suggested one convolution kernel was a scattered "data-layout target" (15.4 sectors per access) with high reuse; space filtering dissolved both signals these were shared-memory tile traffic, on-chip and irrelevant to DRAM. After correction, the front-end is \emph{uniformly} stream-clean, and the correct optimization target is on-chip, not layout.
+
+\subsubsection{The Loop-Closure Scan: A Self-Correction on Record}
+\label{sec:loc-correction}
+
+The loop-closure scan kernel \stTrack{} produced the project's most instructive measurement arc, reported in full for its methodological value.
+
+\textbf{Round one: counters vs.\ trace.} Nsight Compute counters indicated the kernel was a scattered gather 18--30 sectors per request. The first NVBit trace analysis indicated the opposite: 2.1 sectors per warp access, 99.4\% of accesses touching $\leq$4 sectors apparently tightly coalesced streaming. Taking the trace as ground truth, the project's interim report concluded the counter metric was a proxy artifact “the trace overturns the counters.”
+
+\textbf{Round two: the join exposes the confound.} When the attribution join (Chapter~\ref{ch:attribution}) matched trace addresses against live allocations, 88--98\% of most kernels' trace records matched \emph{no allocation at all} impossible for real data traffic. The explanation: the tracer records \emph{every} memory space, and for \stTrack{}, \textbf{92.6\% of all recorded accesses were register-spill traffic} in local space which is \emph{perfectly coalesced by construction} (\S\ref{sec:bg-mem}) drowning the actual data accesses in the blended statistics.
+
+\textbf{Round three: space-filtered re-derivation.} Filtering to global space only and re-deriving every table: \stTrack{}'s \emph{data} accesses are \textbf{23.4--30.0 sectors per warp access, with only 2.3--6.0\% of accesses touching $\leq$4 sectors} a scattered gather, \emph{exactly what the counters had said}. The interim conclusion was withdrawn in a dated, in-place correction; the classifier's G2 label stands; and the two instruments now agree. Table~\ref{tab:sttrack} juxtaposes the blended and corrected views.
+
+\begin{table}[t]
+\centering
+\caption{The \stTrack{} correction: blended-space analysis vs.\ space-filtered re-derivation (TUM room-scale / KITTI street-scale).}
+\label{tab:sttrack}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+metric & blended (all spaces) & global-only & local-only (spill) \\
+\midrule
+sectors / warp access & 2.1 & 23.4 / 30.0 & 2.0 \\
+accesses $\leq$4 sectors & 99.4\,\% & 6.0 / 2.3\,\% & 100\,\% \\
+share of recorded accesses & 100\,\% & $\sim$5--7\,\% & $\sim$92.6\,\% \\
+per-scan footprint (MB) & 0.467 / 1.096 & 0.464 / 1.093 & $\sim$0.003 \\
+inter-launch Jaccard & 0.67 / 0.90 & 0.67 / 0.90 & 1.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three durable lessons:
+\begin{itemize}
+  \item \emph{Methodological}: unfiltered GPU address traces are dominated by spill and scratchpad records; any locality or attribution analysis that does not filter by memory space is unsound a warning directly applicable to other groups using binary-instrumentation traces.
+  \item \emph{Evidential}: two independent instruments agreeing \emph{after} a documented reconciliation is stronger support than either alone; the disagreement was the pipeline catching its own error.
+  \item \emph{Architectural}: the kernel's DRAM volume and its DRAM \emph{pattern} have different sources volume is dominated by compiler spill (a register-file/occupancy trade, fixable on-GPU), while the data-side pattern is a genuine scattered gather over the keyframe descriptors (a scatter-PiM or layout question). Only the attribution of Chapter~\ref{ch:attribution} could have separated them.
+\end{itemize}
+
+\subsubsection{Session-Scale Growth and Migration}
+\label{sec:loc-growth}
+
+Two properties of the scan survive the correction untouched (the spill window is only $\sim$3\,KB of the footprint). First, the per-scan working set \emph{grows with the map}: 0.46\,MB per scan at room scale (TUM) to 1.09\,MB at street scale (KITTI). Second, it \emph{migrates}: consecutive scans overlap with Jaccard 0.67 (room) to 0.90 (street) 10--33\% of the touched set turns over between scans. Each individual scan is nearly L2-resident; the union over a session the entire keyframe database, scanned incrementally, growing without bound with distance travelled is what no cache holds. This is the measured locality half of the in-storage case; the allocation half (the database's GPU-resident state is a fixed buffer while the growing store lives host-side) is established in Chapter~\ref{ch:attribution}.
+
+\subsection{Data-Structure Attribution: Naming Every Byte}
+\label{ch:attribution}
+
+A kernel-level claim (“this kernel is memory-bound”) is not yet an architect’s claim (“the keyframe database belongs near storage”). Bridging that gap requires knowing, for each byte of DRAM traffic, \emph{which named data structure it belongs to}. This chapter presents the TaggedAllocator attribution: the instrument (\S\ref{sec:attr-design}), the coverage discipline (\S\ref{sec:attr-coverage}), the static-budget finding (\S\ref{sec:attr-static}), the per-kernel attribution results (\S\ref{sec:attr-results}), the register-spill finding (\S\ref{sec:attr-spill}), and the bounded residuals (\S\ref{sec:attr-residuals}).
+
+\subsubsection{The Three-Layer Instrument}
+\label{sec:attr-design}
+
+Attribution is a chain of fragile assumptions (address $\rightarrow$ allocation $\rightarrow$ owning code $\rightarrow$ data-structure name), so the design uses three independent layers for cross-checking:
+
+ \textbf{Layer 1: source-side journal (semantic layer).} Every GPU allocation in cuVSLAM flows through allocation wrappers; an injected journal records, for each allocation and free, the pointer, size, wrapper kind, and a host \emph{call stack}. Resolved offline against debug symbols, the innermost non-plumbing frame names the owning data structure (e.g., the Schur-complement solver’s constructor $\Rightarrow$ \code{ba\_linear\_system}). A fixed tag vocabulary (\code{images\_raw}, \code{pyramid\_levels}, etc.) keeps names stable across runs and sequences. Pinned host buffers (device-visible under unified addressing) are journaled with a distinguishing suffix, as their traffic crosses PCIe rather than DRAM.
+
+\textbf{Layer 2: driver-side sidecar (temporal layer).} The NVBit tool independently logs every driver-level allocation and free, stamped with the current kernel-launch counter, the same clock the address trace uses. This provides allocation lifetimes and catches allocations that bypass wrappers (e.g., math libraries’ scratch), which are tagged as driver-internal rather than silently mislabeled.
+
+\textbf{Layer 3: the join.} A streaming pass over the address trace maintains the live-allocation set in launch order and resolves each global-space access to its containing allocation’s tag; shared-space and local-space records are bucketed as on-chip and spill, respectively (\S\ref{sec:loc-correction}). Anything unresolved lands in an explicit \code{unmapped} bucket, the join’s own error bar, reported and bounded.
+
+\subsubsection{Coverage: Auditing the Windows}
+\label{sec:attr-coverage}
+
+Traces are captured in windows, and sparse kernels can drift out of a window between runs (launch indices shift with keyframe timing). The pipeline treats coverage as a proof obligation: after each campaign, an audit diffs every sequence’s \emph{full} launch map (from a cheap uninstrumented pass) against the union of attributed kernels, and a planner captures gap-fill windows anchored on dense clusters of missing kernels’ launches (clusters are robust; isolated occurrences drift). Across the 27-sequence campaign this loop converged to \textbf{zero missing kernels}, with all audit artifacts committed. Without this discipline, three sequences would have silently lacked the loop-closure scan and one the keyframe-refresh cluster, precisely the architecturally interesting kernels.
+
+\subsubsection{The GPU Memory Budget Is Static}
+\label{sec:attr-static}
+
+The journal’s first result is structural. Over a full 2{,}500-frame loop-closing session, cuVSLAM performs \textbf{240 device allocations totalling 108.65\,MB all at initialization, none freed mid-run and the identical 240 in a 30-frame run}. The budget by tag (Table~\ref{tab:budget}): images and pyramids $\sim$71\,MB; the BA linear system 24.3\,MB (plus a 15.4\,MB pinned-host mirror); and most decisively a \textbf{fixed 6.7\,MB keyframe-descriptor buffer}. The keyframe \emph{database} (the only data structure that grows with session length) does not grow on the GPU at all: its growing store lives host-side in the memory-mapped database, confirmed by direct host measurement (708\,MB peak host memory against the static GPU budget; \S\ref{sec:syn-host}). The in-storage verdict of Chapter~\ref{ch:synthesis} rests on this measured division of labour, not on inference from kernel behaviour.
+
+\begin{table}[t]
+\centering
+\caption{The static GPU allocation budget (full session; peak = total, nothing freed mid-run).}
+\label{tab:budget}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+tag & allocations & peak live (MB) \\
+\midrule
+\code{images\_raw} & 92 & 39.97 \\
+\code{pyramid\_levels} & 99 & 31.15 \\
+\code{ba\_linear\_system} & 31 & 24.26 \\
+\code{keyframe\_descriptors} & 2 & \textbf{6.73 (fixed)} \\
+\code{feature\_tracks} & 8 & 4.27 \\
+\code{depth\_pyramid} & 3 & 2.21 \\
+\code{icp\_state} & 4 & 0.07 \\
+\midrule
+device total & 240 & 108.65 \\
+pinned host (device-visible) & 34 & 17.14 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Attribution Results}
+\label{sec:attr-results}
+
+The join resolves \textbf{274 of 274} journaled allocations (240 device + 34 pinned-host) with zero unknowns. Across the full 27-sequence campaign, \textbf{48 of 49 kernels receive a unanimous top data-structure tag in every sequence they appear in} the attribution analogue of the 91\% class consistency of \S\ref{sec:char-stability}, and the license to make per-kernel data-structure claims input-independently. Selected rows (steady-state window; shares are sector-weighted):
+
+\begin{itemize}
+  \item \stTrack{} (loop-closure scan): \textbf{92.6\% register spill}, with the global remainder on \code{keyframe\_descriptors}; unmapped $<$1\%.
+  \item \stBuild{} (keyframe ingest): 93\% \code{keyframe\_descriptors}.
+  \item \code{sba::reduced\_system\_stage\_2} (solver core): \textbf{96.9\% \code{ba\_linear\_system}} one named, pre-sized, contiguous structure carrying essentially all of the solver’s DRAM traffic.
+  \item Front-end compute kernels (convolutions, feature selection, sorting): 83--98\% of accesses are shared-memory tiles (on-chip; no DRAM claim), with the global residue falling on the pyramid, image, and track structures the pipeline stage implies.
+\end{itemize}
+
+Mode differences surface exactly where expected: stereo configurations journal no depth or ICP structures; loop-free KITTI sequences show \stTrack{} launches only when their trajectories genuinely close loops the attribution reproduces workload semantics, itself a correctness check.
+
+\subsubsection{The Register-Spill Finding}
+\label{sec:attr-spill}
+
+The single most consequential attribution row is \stTrack{}'s (Figure~\ref{fig:attrib}): the kernel motivating the near-data discussion spends \textbf{92.6\% of its DRAM volume on register spill} compiler-generated scratch traffic, invisible to any counter-only methodology.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\textwidth, height=4.4cm,
+  xbar stacked, xmin=0, xmax=100,
+  xlabel={share of kernel DRAM traffic (\%)}, xlabel style={font=\small},
+  ytick=data, symbolic y coords={sba::reduced\_2,st\_build\_cache,st\_track},
+  yticklabel style={font=\footnotesize\ttfamily}, tick label style={font=\scriptsize},
+  legend style={at={(0.5,-0.42)},anchor=north,legend columns=3,font=\scriptsize,draw=black!30},
+  bar width=13pt, enlarge y limits=0.35,
+]
+\addplot[fill=cPIM!55,draw=black!40] coordinates {(92.6,st\_track)(4,st\_build\_cache)(2,sba::reduced\_2)};
+\addplot[fill=black!12,draw=black!40] coordinates {(0.6,st\_track)(3,st\_build\_cache)(1.1,sba::reduced\_2)};
+\addplot[fill=cISP!45,draw=black!40] coordinates {(6.8,st\_track)(93,st\_build\_cache)(96.9,sba::reduced\_2)};
+\legend{register spill (scratch),unmapped/other,named global data structure}
+\end{axis}
+\end{tikzpicture}
+\caption[Per-kernel memory-space attribution.]{Memory-space attribution for three
+representative kernels. The loop-closure scan \stTrack{} spends 92.6\% of its DRAM
+volume on register spill (a compiler artifact, not data) while its true data
+gather is the small remainder on \code{keyframe\_descriptors}. By contrast the BA
+solver core and the keyframe-ingest kernel spend almost all of their traffic on a
+single named structure.}
+\label{fig:attrib}
+\end{figure} The finding cuts both ways. For \emph{this} workload: the loop-closure scan’s bandwidth bill is mostly a register-pressure artifact (per-thread descriptor state exceeds register budget), so a register-file/occupancy trade or spill-aware compilation attacks the volume, while the residual the true database gather (\S\ref{sec:loc-correction}) is the scatter-PiM candidate. For the \emph{methodology}: spill is a first-class DRAM citizen that only per-space attribution can expose; a caveat applies (register allocation is a codegen decision for this compiler/target; taxonomy transfers, spill \emph{quantity} must be re-derived per target, and cross-target validation is scheduled work).
+
+\subsubsection{Bounded Residuals}
+\label{sec:attr-residuals}
+
+The join’s honesty budget: for most kernels, the unmapped share is below 1--7\%. Two systematic residuals remain, both bounded and explained. First, one solver-assembly kernel carries $\sim$40\% unmapped traffic \emph{identically across all 27 sequences} the signature of static module memory (device-side globals allocated by the module loader, invisible to both journal layers), not a lurking data structure; analysis names the two kernels (\code{sba::build\_full\_system}, \code{lk\_track}) that carry 83\% of all unmapped traffic, making the residual a prioritized target for a planned kernel-argument correlation layer. Second, texture-path reads (the LK tracker samples pyramids through texture units) never appear in the address trace, so image-structure traffic is a stated lower bound, with counter-side texture totals corroborating the affected kernels. Neither residual moves any verdict: affected kernels' classes rest on counters and stage evidence, independent of the unmapped share.
+
+\subsection{Synthesis: Substrate Verdicts and Measured Baselines}
+\label{ch:synthesis}
+
+This chapter assembles the evidence from Chapters~\ref{ch:characterization}--\ref{ch:attribution} into the thesis's deliverable: a per-tier substrate placement with measurement behind each cell (\S\ref{sec:syn-split}), the dynamics of the verdicts across workloads (\S\ref{sec:syn-dynamics}), the analytical placement bound (\S\ref{sec:syn-model}), and the measured energy and host-side baselines for follow-on architecture studies (\S\ref{sec:syn-energy}, \S\ref{sec:syn-host}).
+
+\subsubsection{The Three-Way Split}
+\label{sec:syn-split}
+
+cuVSLAM's memory behaviour resolves into three tiers, each with a distinct substrate answer (Figure~\ref{fig:split} and Table~\ref{tab:split}).
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize, node distance=4mm and 9mm,
+  tier/.style={draw,rounded corners=2pt,align=center,inner sep=4pt,text width=30mm,minimum height=13mm},
+  sub/.style={rounded corners=2pt,align=center,inner sep=3pt,text width=26mm,font=\scriptsize,draw=black!45},
+]
+\node[tier,fill=cISP!12,draw=cISP] (fe) {\textbf{Front-end}\\{\scriptsize streaming pixels}\\{\scriptsize cache-immune, G1}};
+\node[tier,fill=cGPU!12,draw=cGPU,below=of fe] (ba) {\textbf{Bundle adjustment}\\{\scriptsize hot-persistent solver}\\{\scriptsize compute-efficient, G5}};
+\node[tier,fill=cPIM!14,draw=cPIM,below=of ba] (lc) {\textbf{Loop closure}\\{\scriptsize keyframe-DB gather}\\{\scriptsize scattered, G2}};
+\node[sub,fill=cISP!10,right=of fe] (fes) {near-sensor SRAM\\{\scriptsize consume before DRAM}};
+\node[sub,fill=cGPU!10,right=of ba] (bas) {\textbf{keep on GPU}\\{\scriptsize 97\% one named structure}};
+\node[sub,fill=cPIM!12,right=of lc] (lcs) {scatter-PiM + ISP\\{\scriptsize 6.7\,MB fixed on GPU;\\DB grows host-side}};
+\draw[gflow] (fe)--(fes); \draw[gflow] (ba)--(bas); \draw[gflow] (lc)--(lcs);
+\node[font=\scriptsize\itshape,above=1mm of fe] {cuVSLAM kernel};
+\node[font=\scriptsize\itshape,above=1mm of fes] {substrate verdict};
+\end{tikzpicture}
+\caption[The three-way substrate split.]{cuVSLAM resolves into three tiers with
+distinct substrate verdicts. The streaming front-end wants near-sensor
+consumption; the compute-efficient bundle-adjustment solver stays on the GPU; the
+scattered, session-growing loop-closure back-end is the near-data (PiM-scatter and
+in-storage) candidate. The verdicts are per-data-structure, not per-application.}
+\label{fig:split}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{The three-way substrate split, with measurement backing each claim.}
+\label{tab:split}
+\begin{tabular}{@{}p{0.2\textwidth}p{0.34\textwidth}p{0.36\textwidth}@{}}
+\toprule
+tier & measured evidence & substrate consequence \\
+\midrule
+\textbf{Streaming front-end} (images, pyramids, gradients, tracking) &
+reuse-CDF flat 64\,KiB$\rightarrow$48\,MiB (compulsory misses); fully coalesced at $\sim$4 sectors/access; 1.68\,MB/frame sensor upload; 41\% of kernel time in PCIe copies &
+\textbf{near-sensor SRAM / ISP}: consume pixels before DRAM; caches cannot help; upload disappears by construction \\
+\addlinespace
+\textbf{Hot-persistent solver} (BA linear system) &
+96.9\% of solver-core traffic on one pre-sized 24.3\,MB structure (+15.4\,MB pinned mirror); compute-leaning classes; L2-effective where resident &
+\textbf{keep on GPU} at this scale (bank-level PiM streaming is a candidate if problem scale outgrows L2) \\
+\addlinespace
+\textbf{Cold-persistent back-end} (keyframe database) &
+GPU-resident state fixed at 6.7\,MB while the store grows host-side (708\,MB peak host RSS); scan is a scattered gather (23--30 sectors/access) whose footprint grows 0.46$\rightarrow$1.09\,MB room$\rightarrow$street with 10--33\% turnover per scan; 92.6\% of scan DRAM volume is register spill &
+\textbf{in/near-storage} for the growing store; \textbf{scatter-capable PiM or layout fix} for the resident gather; \textbf{register-file/spill SRAM} for the volume \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each row is anchored by an NVTX stage, a bottleneck class, a locality curve, and a named allocation. The rows are \emph{different} which is the finding. A single “SLAM accelerator” would target three mutually incompatible bottlenecks; the measured answer is heterogeneous placement.
+
+\subsubsection{Verdict Dynamics Across Workloads}
+\label{sec:syn-dynamics}
+
+Applying the verdict mapping (\S\ref{sec:met-verdict}) per sequence: 24 of 49 kernels receive the same verdict unanimously; \textbf{25 of 49 flip with workload scale}, driven almost entirely by DRAM speed-of-light saturation as working sets grow from room to street scale the expected physical driver, not classifier noise. Time-weighted, \textbf{$\sim$72\% of GPU time is offload-eligible in deep studies} (61\% across the breadth campaign; \S\ref{sec:char-affinity}). The practical consequence: placement for this workload class is \emph{scale-conditional}, and a deployment at street scale crosses into near-data-favourable territory that a desk-scale evaluation would miss.
+
+\subsubsection{The Analytical Placement Bound}
+\label{sec:syn-model}
+
+Pricing the eligible time with the placement model of \S\ref{sec:met-model}: under the \emph{conservative} scenario ($k{=}4$, $c{=}0.5$, strong-affinity only), \textbf{16 of 49 kernels} exceed the offload threshold; under the \emph{moderate} scenario ($k{=}8$, $c{=}0.75$, strong + conditional), \textbf{26 of 49}. These are candidacy bounds not performance claims. The model's $k$ and $c$ are scenario parameters; per the standing rule, follow-on simulation reports deltas against the measured baseline, not absolutes. What the bound shows: the opportunity survives pessimistic assumptions the offload set is non-empty even at $k{=}4$ with half-rate compute.
+
+\subsubsection{The Measured Energy Baseline}
+\label{sec:syn-energy}
+
+Whole-run GPU energy, measured by integrating sampled board power at locked clocks: \textbf{34.67\,J for a representative sequence (12.54\,W mean, 25.08\,W peak)}. The number matters less as a result than as an anchor: “PiM saves energy” claims in the follow-on study will be expressed as deltas against this measured joule count, closing the loop opened by the thesis’s energy motivation. For robot power budgets, the mean draw itself is notable the perception stack’s GPU share is a two-digit-watt load whose largest single component, per this analysis, is data movement.
+
+\subsubsection{The Host-Side Boundary}
+\label{sec:syn-host}
+
+Completing the end-to-end picture: per run, \textbf{66\,MB is read from storage} (the sensor-data ingestion that becomes the 1.68\,MB/frame H2D upload of \S\ref{sec:char-transfers}), and host memory peaks at \textbf{708\,MB} the keyframe/landmark store and its memory-mapped database while GPU allocation stays static at 108.65\,MB (\S\ref{sec:attr-static}). The cold tier’s data path is thus measured end-to-end: storage $\rightarrow$ host memory $\rightarrow$ (fixed GPU staging buffer) $\rightarrow$ scattered on-GPU scan. Each arrow is a candidate for a different intervention (near-storage filtering, host-memory-resident scan, scatter-PiM), and the follow-on study inherits measured traffic at every stage.
+
+\subsubsection{Faults Named for the Kernels That Stay}
+\label{sec:syn-faults}
+
+For most kernels the verdict is “stay on GPU,” and the same evidence names each actionable fault: the loop-closure scan’s register-pressure spill (a compilation/occupancy trade, quantified at 92.6\% of its DRAM volume); dependency-stalled low-occupancy kernels (G7) best addressed by launch configuration, not memory; scatter-pattern kernels whose layouts could be fixed in software before any hardware is proposed; and cache-effective kernels (G3) for which the L2 demonstrably earns its keep and must not be traded away in an NDP design. The ability to argue \emph{against} near-data placement, kernel by kernel, is what makes the positive verdicts credible.

@@ -1,0 +1,33 @@
+\label{ch:threats}
+
+This chapter enumerates what could be wrong, what is deliberately out of scope, and the mitigation for each. The discipline follows DAMOV's practice of publishing limitations alongside claims.
+
+\subsection{Internal Validity}
+
+\textbf{Instrumentation reactivity:} Addressed directly in Chapter~\ref{ch:validity}: profilers are trajectory-neutral (bit-identical on deterministic modes across 192 variants), the instrumented build equals the baseline build, and traces are never used for timing. Residual risk: counter collection via kernel replay perturbs caches between replays; the methodology brackets cold- and warm-cache readings rather than trusting either extreme.
+
+\textbf{Threshold choice:} Classifier thresholds are frozen and sensitivity-tested at $\pm$25\%; borderline kernels are flagged and denied high confidence. Two label-free clustering algorithms and a known-truth calibration suite independently support the class structure. Residual risk: the calibration suite's first pass exposed three archetype-design conflations (each spanning two classes); the archetypes were corrected, classifier untouched, and the suite retained as a regression gate. The designed clock-domain intervention (\S\ref{sec:met-parity}) has ex ante per-class predictions and is scripted in the artifact; its execution completes the validation suite.
+
+\textbf{Attribution soundness:} Three independent layers reconcile (274/274 allocations resolved); an explicit \code{unmapped} bucket bounds the unresolved share ($<$1--7\% for most kernels); two systematic residuals (static module memory; texture-path reads) are named, quantified (83\% of unmapped traffic in two kernels), and shown not to affect any verdict.
+
+\textbf{Nondeterminism:} Long loop-closing sequences show measurable bimodality run-to-run; plain re-runs scatter identically to profiled runs, so the scatter is workload-intrinsic. All timing quantities carry a measured noise floor (CoV 0.14\%).
+
+\subsection{External Validity}
+
+\textbf{One workload family:} cuVSLAM is a single system, argued representative by production deployment, not by breadth across SLAM implementations. Mitigations: the pipeline structure the taxonomy attaches to (streaming front-end, windowed solver, growing episodic database) is shared by keyframe-based SLAM in general; and the harness's adapter mechanism runs arbitrary GPU workloads through the identical pipeline, so breadth is an execution cost, not a new methodology. Claims are scoped to the measured system throughout.
+
+\textbf{One primary GPU; codegen-dependent quantities:} The classification survives a two-microarchitecture check at 80\% agreement under a memory-system confound. However, the register-spill share (92.6\% of the loop-closure scan's DRAM volume) is a property of this compiler for this architecture: register allocation changes with target and compiler version. The thesis scopes the spill \emph{quantity} to the measured target, and claims only the \emph{phenomenon and method} as general, with embedded-target re-derivation (Jetson-class hardware; harness already targets it) as the first item of future work.
+
+\textbf{Dataset realism:} Public benchmark corpora underrepresent degenerate lighting, dynamic scenes, and multi-camera rigs. The vendor's multi-camera datasets are partly proprietary; the configuration regime covers modes, not every deployment condition.
+
+\subsection{Construct Validity}
+
+\textbf{“PiM affinity” is candidacy, not benefit:} The 61--72\% offload-eligible time and the 16/49--26/49 placement counts are bounds from a first-order model with scenario parameters; no simulated or silicon NDP result is claimed. The deltas-only rule exists to keep this line uncrossed until the follow-on study.
+
+\textbf{Metric proxies:} Counter metrics are proxies with known artifacts; this thesis documents a case where a proxy was right and the naive ground-truth reading was wrong (\S\ref{sec:loc-correction}). The defense against proxy error is redundancy: every headline claim rests on at least two instruments that agree after reconciliation.
+
+\textbf{Texture-path blindness:} The address tracer does not observe texture-unit fetches; image-tier traffic is a stated lower bound, corroborated by counter-side totals. No verdict depends on the unobserved portion.
+
+\subsection{What Is Out of Scope, and Why}
+
+Simulation of the proposed substrates (the architecture study; its configurations are generated here, its baselines measured); a second SLAM system (scope discipline: breadth via adapters instead); multi-tenant GPU sharing (cuVSLAM is single-tenant); CPU-side DAMOV replication (the origin methodology, not the contribution); and energy attribution below whole-run granularity (requires the simulator's power model; whole-run joule count is the anchor).

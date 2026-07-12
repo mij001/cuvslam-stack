@@ -1,0 +1,12 @@
+\babel@toc {australian}{}\relax 
+\contentsline {table}{\numberline {2}{\ignorespaces Classifier thresholds (values as frozen in \texttt {analysis/classify.py}).}}{32}{table.caption.10}%
+\contentsline {table}{\numberline {3}{\ignorespaces The GPU bottleneck taxonomy and its default near-data affinity.}}{34}{table.caption.12}%
+\contentsline {table}{\numberline {4}{\ignorespaces Substrate verdict mapping.}}{35}{table.caption.13}%
+\contentsline {table}{\numberline {5}{\ignorespaces Converged mode-average accuracy vs.\ the cuVSLAM technical report (RMSE APE in metres, odometry/SLAM). The characterization uses the stereo and RGB-D modes.}}{38}{table.caption.14}%
+\contentsline {table}{\numberline {6}{\ignorespaces The \texttt {st\_track\_with\_cache}{} correction: blended-space analysis vs.\ space-filtered re-derivation (TUM room-scale / KITTI street-scale).}}{47}{table.caption.17}%
+\contentsline {table}{\numberline {7}{\ignorespaces The static GPU allocation budget (full session; peak = total, nothing freed mid-run).}}{50}{table.caption.18}%
+\contentsline {table}{\numberline {8}{\ignorespaces The three-way substrate split, with measurement backing each claim.}}{54}{table.caption.21}%
+\contentsline {table}{\numberline {9}{\ignorespaces Attribution consistency across 27 sequences (excerpt).}}{71}{table.caption.22}%
+\contentsline {table}{\numberline {10}{\ignorespaces Quality-of-results check: instrumented (TaggedAllocator) build vs.\ baseline build, same configurations (APE, m).}}{72}{table.caption.23}%
+\contentsline {table}{\numberline {11}{\ignorespaces KITTI stereo odometry, per sequence: absolute error and segment-relative drift (100--800\,m KITTI protocol).}}{72}{table.caption.24}%
+\contentsline {table}{\numberline {12}{\ignorespaces Kernel-to-stage mapping, measured from cuVSLAM's own NVTX ranges.}}{73}{table.caption.25}%

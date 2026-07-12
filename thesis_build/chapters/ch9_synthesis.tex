@@ -1,0 +1,84 @@
+\chapter{Synthesis: Substrate Verdicts and Measured Baselines}
+\label{ch:synthesis}
+
+This chapter assembles the evidence from Chapters~\ref{ch:characterization}--\ref{ch:attribution} into the thesis's deliverable: a per-tier substrate placement with measurement behind each cell (\S\ref{sec:syn-split}), the dynamics of the verdicts across workloads (\S\ref{sec:syn-dynamics}), the analytical placement bound (\S\ref{sec:syn-model}), and the measured energy and host-side baselines for follow-on architecture studies (\S\ref{sec:syn-energy}, \S\ref{sec:syn-host}).
+
+\section{The Three-Way Split}
+\label{sec:syn-split}
+
+cuVSLAM's memory behaviour resolves into three tiers, each with a distinct substrate answer (Figure~\ref{fig:split} and Table~\ref{tab:split}).
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize, node distance=4mm and 9mm,
+  tier/.style={draw,rounded corners=2pt,align=center,inner sep=4pt,text width=30mm,minimum height=13mm},
+  sub/.style={rounded corners=2pt,align=center,inner sep=3pt,text width=26mm,font=\scriptsize,draw=black!45},
+]
+\node[tier,fill=cISP!12,draw=cISP] (fe) {\textbf{Front-end}\\{\scriptsize streaming pixels}\\{\scriptsize cache-immune, G1}};
+\node[tier,fill=cGPU!12,draw=cGPU,below=of fe] (ba) {\textbf{Bundle adjustment}\\{\scriptsize hot-persistent solver}\\{\scriptsize compute-efficient, G5}};
+\node[tier,fill=cPIM!14,draw=cPIM,below=of ba] (lc) {\textbf{Loop closure}\\{\scriptsize keyframe-DB gather}\\{\scriptsize scattered, G2}};
+\node[sub,fill=cISP!10,right=of fe] (fes) {near-sensor SRAM\\{\scriptsize consume before DRAM}};
+\node[sub,fill=cGPU!10,right=of ba] (bas) {\textbf{keep on GPU}\\{\scriptsize 97\% one named structure}};
+\node[sub,fill=cPIM!12,right=of lc] (lcs) {scatter-PiM + ISP\\{\scriptsize 6.7\,MB fixed on GPU;\\DB grows host-side}};
+\draw[gflow] (fe)--(fes); \draw[gflow] (ba)--(bas); \draw[gflow] (lc)--(lcs);
+\node[font=\scriptsize\itshape,above=1mm of fe] {cuVSLAM kernel};
+\node[font=\scriptsize\itshape,above=1mm of fes] {substrate verdict};
+\end{tikzpicture}
+\caption[The three-way substrate split.]{cuVSLAM resolves into three tiers with
+distinct substrate verdicts. The streaming front-end wants near-sensor
+consumption; the compute-efficient bundle-adjustment solver stays on the GPU; the
+scattered, session-growing loop-closure back-end is the near-data (PiM-scatter and
+in-storage) candidate. The verdicts are per-data-structure, not per-application.}
+\label{fig:split}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{The three-way substrate split, with measurement backing each claim.}
+\label{tab:split}
+\begin{tabular}{@{}p{0.2\textwidth}p{0.34\textwidth}p{0.36\textwidth}@{}}
+\toprule
+tier & measured evidence & substrate consequence \\
+\midrule
+\textbf{Streaming front-end} (images, pyramids, gradients, tracking) &
+reuse-CDF flat 64\,KiB$\rightarrow$48\,MiB (compulsory misses); fully coalesced at $\sim$4 sectors/access; 1.68\,MB/frame sensor upload; 41\% of kernel time in PCIe copies &
+\textbf{near-sensor SRAM / ISP}: consume pixels before DRAM; caches cannot help; upload disappears by construction \\
+\addlinespace
+\textbf{Hot-persistent solver} (BA linear system) &
+96.9\% of solver-core traffic on one pre-sized 24.3\,MB structure (+15.4\,MB pinned mirror); compute-leaning classes; L2-effective where resident &
+\textbf{keep on GPU} at this scale (bank-level PiM streaming is a candidate if problem scale outgrows L2) \\
+\addlinespace
+\textbf{Cold-persistent back-end} (keyframe database) &
+GPU-resident state fixed at 6.7\,MB while the store grows host-side (708\,MB peak host RSS); scan is a scattered gather (23--30 sectors/access) whose footprint grows 0.46$\rightarrow$1.09\,MB room$\rightarrow$street with 10--33\% turnover per scan; 92.6\% of scan DRAM volume is register spill &
+\textbf{in/near-storage} for the growing store; \textbf{scatter-capable PiM or layout fix} for the resident gather; \textbf{register-file/spill SRAM} for the volume \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each row is anchored by an NVTX stage, a bottleneck class, a locality curve, and a named allocation. The rows are \emph{different} which is the finding. A single “SLAM accelerator” would target three mutually incompatible bottlenecks; the measured answer is heterogeneous placement.
+
+\section{Verdict Dynamics Across Workloads}
+\label{sec:syn-dynamics}
+
+Applying the verdict mapping (\S\ref{sec:met-verdict}) per sequence: 24 of 49 kernels receive the same verdict unanimously; \textbf{25 of 49 flip with workload scale}, driven almost entirely by DRAM speed-of-light saturation as working sets grow from room to street scale the expected physical driver, not classifier noise. Time-weighted, \textbf{$\sim$72\% of GPU time is offload-eligible in deep studies} (61\% across the breadth campaign; \S\ref{sec:char-affinity}). The practical consequence: placement for this workload class is \emph{scale-conditional}, and a deployment at street scale crosses into near-data-favourable territory that a desk-scale evaluation would miss.
+
+\section{The Analytical Placement Bound}
+\label{sec:syn-model}
+
+Pricing the eligible time with the placement model of \S\ref{sec:met-model}: under the \emph{conservative} scenario ($k{=}4$, $c{=}0.5$, strong-affinity only), \textbf{16 of 49 kernels} exceed the offload threshold; under the \emph{moderate} scenario ($k{=}8$, $c{=}0.75$, strong + conditional), \textbf{26 of 49}. These are candidacy bounds not performance claims. The model's $k$ and $c$ are scenario parameters; per the standing rule, follow-on simulation reports deltas against the measured baseline, not absolutes. What the bound shows: the opportunity survives pessimistic assumptions the offload set is non-empty even at $k{=}4$ with half-rate compute.
+
+\section{The Measured Energy Baseline}
+\label{sec:syn-energy}
+
+Whole-run GPU energy, measured by integrating sampled board power at locked clocks: \textbf{34.67\,J for a representative sequence (12.54\,W mean, 25.08\,W peak)}. The number matters less as a result than as an anchor: “PiM saves energy” claims in the follow-on study will be expressed as deltas against this measured joule count, closing the loop opened by the thesis’s energy motivation. For robot power budgets, the mean draw itself is notable the perception stack’s GPU share is a two-digit-watt load whose largest single component, per this analysis, is data movement.
+
+\section{The Host-Side Boundary}
+\label{sec:syn-host}
+
+Completing the end-to-end picture: per run, \textbf{66\,MB is read from storage} (the sensor-data ingestion that becomes the 1.68\,MB/frame H2D upload of \S\ref{sec:char-transfers}), and host memory peaks at \textbf{708\,MB} the keyframe/landmark store and its memory-mapped database while GPU allocation stays static at 108.65\,MB (\S\ref{sec:attr-static}). The cold tier’s data path is thus measured end-to-end: storage $\rightarrow$ host memory $\rightarrow$ (fixed GPU staging buffer) $\rightarrow$ scattered on-GPU scan. Each arrow is a candidate for a different intervention (near-storage filtering, host-memory-resident scan, scatter-PiM), and the follow-on study inherits measured traffic at every stage.
+
+\section{Faults Named for the Kernels That Stay}
+\label{sec:syn-faults}
+
+For most kernels the verdict is “stay on GPU,” and the same evidence names each actionable fault: the loop-closure scan’s register-pressure spill (a compilation/occupancy trade, quantified at 92.6\% of its DRAM volume); dependency-stalled low-occupancy kernels (G7) best addressed by launch configuration, not memory; scatter-pattern kernels whose layouts could be fixed in software before any hardware is proposed; and cache-effective kernels (G3) for which the L2 demonstrably earns its keep and must not be traded away in an NDP design. The ability to argue \emph{against} near-data placement, kernel by kernel, is what makes the positive verdicts credible.

@@ -1,0 +1,657 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+(/usr/share/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(/usr/share/texmf-dist/tex/latex/base/size12.clo)) (./1_header/packages.tex
+(/usr/share/texmf-dist/tex/latex/base/inputenc.sty)
+(/usr/share/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/color.cfg)
+(/usr/share/texmf-dist/tex/latex/graphics-def/pdftex.def)
+(/usr/share/texmf-dist/tex/latex/graphics/mathcolor.ltx))
+(/usr/share/texmf-dist/tex/latex/xcolor/x11nam.def)
+(/usr/share/texmf-dist/tex/latex/graphics/dvipsnam.def)
+(/usr/share/texmf-dist/tex/latex/xcolor/svgnam.def)
+(/usr/share/texmf-dist/tex/latex/colortbl/colortbl.sty
+(/usr/share/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texmf-dist/tex/latex/adjustbox/adjustbox.sty
+(/usr/share/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+(/usr/share/texmf-dist/tex/generic/xkeyval/xkeyval.tex
+(/usr/share/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+(/usr/share/texmf-dist/tex/generic/xkeyval/keyval.tex))))
+(/usr/share/texmf-dist/tex/latex/adjustbox/adjcalc.sty)
+(/usr/share/texmf-dist/tex/latex/adjustbox/trimclip.sty
+(/usr/share/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/graphics.cfg)))
+(/usr/share/texmf-dist/tex/latex/collectbox/collectbox.sty)
+(/usr/share/texmf-dist/tex/latex/adjustbox/tc-pdftex.def))
+(/usr/share/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty)
+(/usr/share/texmf-dist/tex/latex/varwidth/varwidth.sty)
+==> First Aid for varwidth.sty applied!
+) (/usr/share/texmf-dist/tex/latex/tools/afterpage.sty)
+(/usr/share/texmf-dist/tex/latex/placeins/placeins.sty)
+(/usr/share/texmf-dist/tex/latex/pdfpages/pdfpages.sty
+(/usr/share/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texmf-dist/tex/latex/tools/calc.sty)
+(/usr/share/texmf-dist/tex/latex/eso-pic/eso-pic.sty)
+(/usr/share/texmf-dist/tex/latex/etoolbox/etoolbox.sty)
+(/usr/share/texmf-dist/tex/latex/pdfpages/pppdftex.def))
+(/usr/share/texmf-dist/tex/latex/algorithm2e/algorithm2e.sty
+(/usr/share/texmf-dist/tex/latex/tools/xspace.sty)
+(/usr/share/texmf-dist/tex/latex/relsize/relsize.sty))
+(/usr/share/texmf-dist/tex/latex/booktabs/booktabs.sty)
+(/usr/share/texmf-dist/tex/latex/tcolorbox/tcolorbox.sty
+(/usr/share/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty
+(/usr/share/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty
+(/usr/share/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty
+(/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def)
+(/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/pgf.revision.tex)))
+(/usr/share/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty
+(/usr/share/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty
+(/usr/share/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered.code.te
+x)) (/usr/share/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg)
+(/usr/share/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+(/usr/share/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.def)))
+(/usr/share/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code
+.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.te
+x) (/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics
+.code.tex) (/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfint.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.code.tex
+) (/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex)
+
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformations.code.t
+ex) (/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing.code.te
+x) (/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.code.tex)
+ (/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex)))
+(/usr/share/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex)
+(/usr/share/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65.sty)
+(/usr/share/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18.sty))
+(/usr/share/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.te
+x) (/usr/share/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+topaths.code.tex))) (/usr/share/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/share/texmf-dist/tex/latex/environ/environ.sty
+(/usr/share/texmf-dist/tex/latex/trimspaces/trimspaces.sty))
+(/usr/share/texmf-dist/tex/latex/tcolorbox/tcbraster.code.tex
+Library (tcolorbox): 'tcbraster.code.tex' version '6.9.0'
+) (/usr/share/texmf-dist/tex/latex/tcolorbox/tcbskins.code.tex
+Library (tcolorbox): 'tcbskins.code.tex' version '6.9.0'
+(/usr/share/texmf-dist/tex/latex/tikzfill/tikzfill.image.sty
+(/usr/share/texmf-dist/tex/latex/tikzfill/tikzfill-common.sty)
+(/usr/share/texmf-dist/tex/latex/tikzfill/tikzlibraryfill.image.code.tex))
+(/usr/share/texmf-dist/tex/latex/tcolorbox/tcbskinsjigsaw.code.tex
+Library (tcolorbox): 'tcbskinsjigsaw.code.tex' version '6.9.0'
+)) (/usr/share/texmf-dist/tex/latex/tcolorbox/tcbbreakable.code.tex
+Library (tcolorbox): 'tcbbreakable.code.tex' version '6.9.0'
+(/usr/share/texmf-dist/tex/latex/pdfcol/pdfcol.sty
+(/usr/share/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)
+(/usr/share/texmf-dist/tex/generic/infwarerr/infwarerr.sty)
+(/usr/share/texmf-dist/tex/generic/iftex/iftex.sty)))
+(/usr/share/texmf-dist/tex/latex/tcolorbox/tcbhooks.code.tex
+Library (tcolorbox): 'tcbhooks.code.tex' version '6.9.0'
+) (/usr/share/texmf-dist/tex/latex/tcolorbox/tcbtheorems.code.tex
+Library (tcolorbox): 'tcbtheorems.code.tex' version '6.9.0'
+(/usr/share/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/usr/share/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/share/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/usr/share/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/usr/share/texmf-dist/tex/latex/amsmath/amsopn.sty)))
+(/usr/share/texmf-dist/tex/latex/tcolorbox/tcbfitting.code.tex
+Library (tcolorbox): 'tcbfitting.code.tex' version '6.9.0'
+) (/usr/share/texmf-dist/tex/latex/tcolorbox/tcblistingsutf8.code.tex
+Library (tcolorbox): 'tcblistingsutf8.code.tex' version '6.9.0'
+(/usr/share/texmf-dist/tex/latex/tcolorbox/tcblistings.code.tex
+Library (tcolorbox): 'tcblistings.code.tex' version '6.9.0'
+(/usr/share/texmf-dist/tex/latex/listings/listings.sty
+(/usr/share/texmf-dist/tex/latex/listings/lstpatch.sty)
+(/usr/share/texmf-dist/tex/latex/listings/lstmisc.sty)
+(/usr/share/texmf-dist/tex/latex/listings/listings.cfg))
+==> First Aid for listings.sty no longer applied!
+    Expected:
+        2024/09/23 1.10c (Carsten Heinz)
+    but found:
+        2025/11/14 1.11b (Carsten Heinz)
+    so I'm assuming it got fixed.
+(/usr/share/texmf-dist/tex/latex/tcolorbox/tcblistingscore.code.tex
+Library (tcolorbox): 'tcblistingscore.code.tex' version '6.9.0'
+(/usr/share/texmf-dist/tex/latex/tcolorbox/tcbprocessing.code.tex
+Library (tcolorbox): 'tcbprocessing.code.tex' version '6.9.0'
+))) (/usr/share/texmf-dist/tex/latex/listingsutf8/listingsutf8.sty
+(/usr/share/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty)
+(/usr/share/texmf-dist/tex/generic/stringenc/stringenc.sty
+(/usr/share/texmf-dist/tex/generic/pdfescape/pdfescape.sty))))
+(/usr/share/texmf-dist/tex/latex/tcolorbox/tcbexternal.code.tex
+Library (tcolorbox): 'tcbexternal.code.tex' version '6.9.0'
+) (/usr/share/texmf-dist/tex/latex/tcolorbox/tcbmagazine.code.tex
+Library (tcolorbox): 'tcbmagazine.code.tex' version '6.9.0'
+) (/usr/share/texmf-dist/tex/latex/tcolorbox/tcbvignette.code.tex
+Library (tcolorbox): 'tcbvignette.code.tex' version '6.9.0'
+
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+fadings.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/libraries/pgflibraryfadings.code.tex)))
+(/usr/share/texmf-dist/tex/latex/tcolorbox/tcbposter.code.tex
+Library (tcolorbox): 'tcbposter.code.tex' version '6.9.0'
+)) (/usr/share/texmf-dist/tex/latex/fundus-calligra/calligra.sty)
+(/usr/share/texmf-dist/tex/latex/caption/caption.sty
+(/usr/share/texmf-dist/tex/latex/caption/caption3.sty))
+(/usr/share/texmf-dist/tex/latex/datetime/datetime.sty
+(/usr/share/texmf-dist/tex/latex/fmtcount/fmtcount.sty
+(/usr/share/texmf-dist/tex/latex/fmtcount/fcprefix.sty
+(/usr/share/texmf-dist/tex/latex/fmtcount/fcnumparser.sty)))
+(/usr/share/texmf-dist/tex/latex/datetime/datetime-defaults.sty))
+(/usr/share/texmf-dist/tex/latex/yafoot/dblfnote.sty)
+(/usr/share/texmf-dist/tex/latex/dirtytalk/dirtytalk.sty
+(/usr/share/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+(/usr/share/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)))
+(/usr/share/texmf-dist/tex/latex/doublestroke/dsfont.sty)
+(/usr/share/texmf-dist/tex/latex/etex-pkg/etex.sty
+
+Package etex Warning: Extended allocation already in use.
+(etex)                etex.sty code will not be used.
+(etex)                To force etex package to load, add
+(etex)                \RequirePackage{etex}
+(etex)                at the start of the document.
+
+) (/usr/share/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texmf-dist/tex/latex/base/fix-cm.sty
+(/usr/share/texmf-dist/tex/latex/base/ts1enc.def))
+(/usr/share/texmf-dist/tex/latex/base/fontenc.sty)
+(/usr/share/texmf-dist/tex/latex/base/textcomp.sty)
+(/usr/share/texmf-dist/tex/latex/gensymb/gensymb.sty)
+(/usr/share/texmf-dist/tex/latex/lipsum/lipsum.sty
+(/usr/share/texmf-dist/tex/latex/l3packages/l3keys2e/l3keys2e.sty
+(/usr/share/texmf-dist/tex/latex/l3kernel/expl3.sty
+(/usr/share/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)))
+(/usr/share/texmf-dist/tex/latex/lipsum/lipsum.ltd.tex))
+(/usr/share/texmf-dist/tex/latex/transparent/transparent.sty
+(/usr/share/texmf-dist/tex/latex/transparent/transparent-nometadata.sty
+(/usr/share/texmf-dist/tex/latex/auxhook/auxhook.sty
+
+Package auxhook Warning: Cannot patch \document,
+(auxhook)                using \AtBeginDocument instead.
+
+))) (/usr/share/texmf-dist/tex/latex/mdframed/mdframed.sty
+(/usr/share/texmf-dist/tex/latex/l3packages/xparse/xparse.sty)
+(/usr/share/texmf-dist/tex/latex/zref/zref-abspage.sty
+(/usr/share/texmf-dist/tex/latex/zref/zref-base.sty
+(/usr/share/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty)
+(/usr/share/texmf-dist/tex/generic/etexcmds/etexcmds.sty)))
+(/usr/share/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texmf-dist/tex/latex/mdframed/md-frame-1.mdf))
+(/usr/share/texmf-dist/tex/latex/mparhack/mparhack.sty)
+(/usr/share/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texmf-dist/tex/latex/multirow/multirow.sty)
+(/usr/share/texmf-dist/tex/latex/parskip/parskip.sty)
+(/usr/share/texmf-dist/tex/latex/graphics/lscape.sty)
+(/usr/share/texmf-dist/tex/latex/pdflscape/pdflscape.sty
+(/usr/share/texmf-dist/tex/latex/pdflscape/pdflscape-nometadata.sty))
+(/usr/share/texmf-dist/tex/latex/ragged2e/ragged2e.sty
+
+LaTeX Warning: Command \@arrayparboxrestore  has changed.
+               Check if current package is valid.
+
+(/usr/share/texmf-dist/tex/latex/footmisc/footmisc.sty))
+(/usr/share/texmf-dist/tex/latex/graphics/rotating.sty)
+(/usr/share/texmf-dist/tex/latex/setspace/setspace.sty)
+(/usr/share/texmf-dist/tex/latex/caption/subcaption.sty)
+(/usr/share/texmf-dist/tex/latex/threeparttable/threeparttable.sty)
+(/usr/share/texmf-dist/tex/generic/ulem/ulem.sty)
+(/usr/share/texmf-dist/tex/generic/soul/soul.sty
+(/usr/share/texmf-dist/tex/generic/soul/soul-ori.sty))
+(/usr/share/texmf-dist/tex/latex/appendix/appendix.sty)
+(/usr/share/texmf-dist/tex/generic/babel/babel.sty
+(/usr/share/texmf-dist/tex/generic/babel/txtbabel.def)
+(/usr/share/texmf-dist/tex/generic/babel/locale/en/babel-australian.tex)
+(/usr/share/texmf-dist/tex/generic/babel-english/australian.ldf
+(/usr/share/texmf-dist/tex/generic/babel-english/english.ldf)))
+(/usr/share/texmf-dist/tex/latex/csquotes/csquotes.sty
+(/usr/share/texmf-dist/tex/latex/csquotes/csquotes.def)
+(/usr/share/texmf-dist/tex/latex/csquotes/csquotes.cfg))
+(/usr/share/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texmf-dist/tex/generic/iftex/ifvtex.sty))
+(/usr/share/texmf-dist/tex/latex/lastpage/lastpage.sty
+(/usr/share/texmf-dist/tex/latex/lastpage/lastpage2e.sty
+(/usr/share/texmf-dist/tex/latex/lastpage/lastpagemodern.sty) 
+)) (/usr/share/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texmf-dist/tex/latex/hycolor/hycolor.sty)
+(/usr/share/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texmf-dist/tex/latex/refcount/refcount.sty)
+(/usr/share/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty))
+(/usr/share/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texmf-dist/tex/generic/intcalc/intcalc.sty)
+(/usr/share/texmf-dist/tex/latex/hyperref/puenc.def)
+(/usr/share/texmf-dist/tex/latex/url/url.sty)
+(/usr/share/texmf-dist/tex/generic/bitset/bitset.sty
+(/usr/share/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty)))
+(/usr/share/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/share/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+(/usr/share/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))
+(/usr/share/texmf-dist/tex/latex/cleveref/cleveref.sty)
+==> First Aid for cleveref.sty applied!
+(/usr/share/texmf-dist/tex/latex/mathtools/mathtools.sty
+(/usr/share/texmf-dist/tex/latex/mathtools/mhsetup.sty))
+(/usr/share/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(/usr/share/texmf-dist/tex/latex/todonotes/todonotes.sty
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+positioning.code.tex)) (/usr/share/texmf-dist/tex/latex/biblatex/biblatex.sty
+(/usr/share/texmf-dist/tex/latex/logreq/logreq.sty
+(/usr/share/texmf-dist/tex/latex/logreq/logreq.def))
+(/usr/share/texmf-dist/tex/latex/biblatex/blx-dm.def)
+(/usr/share/texmf-dist/tex/latex/biblatex/blx-compat.def)
+(/usr/share/texmf-dist/tex/latex/biblatex/biblatex.def)
+(/usr/share/texmf-dist/tex/latex/biblatex-ieee/ieee.bbx
+(/usr/share/texmf-dist/tex/latex/biblatex/bbx/numeric-comp.bbx
+(/usr/share/texmf-dist/tex/latex/biblatex/bbx/numeric.bbx
+(/usr/share/texmf-dist/tex/latex/biblatex/bbx/standard.bbx))))
+(/usr/share/texmf-dist/tex/latex/biblatex-ieee/ieee.cbx
+(/usr/share/texmf-dist/tex/latex/biblatex/cbx/numeric-verb.cbx))
+(/usr/share/texmf-dist/tex/latex/biblatex/biblatex.cfg)
+(/usr/share/texmf-dist/tex/latex/biblatex/blx-case-expl3.sty))
+(/usr/share/texmf-dist/tex/latex/glossaries/base/glossaries.sty
+(/usr/share/texmf-dist/tex/latex/mfirstuc/mfirstuc.sty)
+(/usr/share/texmf-dist/tex/latex/xfor/xfor.sty)
+(/usr/share/texmf-dist/tex/latex/tracklang/tracklang.sty
+(/usr/share/texmf-dist/tex/generic/tracklang/tracklang.tex))
+(/usr/share/texmf-dist/tex/latex/translator/translator.sty)
+(/usr/share/texmf-dist/tex/latex/glossaries-english/glossaries-english.ldf)
+(/usr/share/texmf-dist/tex/latex/datatool/datatool-base.sty
+(/usr/share/texmf-dist/tex/latex/datatool/datatool-l3fp.def)
+(/usr/share/texmf-dist/tex/latex/datatool/datatool-utf8.ldf)
+(/usr/share/texmf-dist/tex/latex/datatool-regions/datatool-AU.ldf)
+(/usr/share/texmf-dist/tex/latex/datatool-english/datatool-english.ldf
+(/usr/share/texmf-dist/tex/latex/datatool-english/datatool-english-utf8.ldf)))
+(/usr/share/texmf-dist/tex/latex/glossaries/styles/glossary-hypernav.sty)
+(/usr/share/texmf-dist/tex/latex/glossaries/styles/glossary-list.sty)
+(/usr/share/texmf-dist/tex/latex/glossaries/styles/glossary-long.sty
+(/usr/share/texmf-dist/tex/latex/tools/longtable.sty))
+(/usr/share/texmf-dist/tex/latex/glossaries/styles/glossary-super.sty
+(/usr/share/texmf-dist/tex/latex/supertabular/supertabular.sty))
+(/usr/share/texmf-dist/tex/latex/glossaries/styles/glossary-tree.sty))
+(./1_header/glossary.tex)) (./1_header/thesis_macros.tex
+(/usr/share/texmf-dist/tex/generic/pgf/libraries/pgflibraryarrows.meta.code.tex
+)
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+shapes.geometric.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/libraries/shapes/pgflibraryshapes.geomet
+ric.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+fit.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+backgrounds.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+calc.code.tex) (/usr/share/texmf-dist/tex/latex/pgfplots/pgfplots.sty
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplots.revision.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplots.code.tex
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplotscore.code.tex
+(/usr/share/texmf-dist/tex/generic/pgfplots/sys/pgfplotssysgeneric.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgfplots/libs/pgfplotslibrary.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/oldpgfcompatib/pgfplotsoldpgfsupp_l
+oader.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/libraries/pgflibraryfpu.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/oldpgfcompatib/pgfplotsoldpgfsupp_p
+gfutil-common-lists.tex))
+(/usr/share/texmf-dist/tex/generic/pgfplots/util/pgfplotsutil.code.tex
+(/usr/share/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsliststructure
+.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsliststructure
+ext.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsarray.code.te
+x)
+(/usr/share/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsmatrix.code.t
+ex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/numtable/pgfplotstableshared.code.t
+ex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsdeque.code.te
+x) (/usr/share/texmf-dist/tex/generic/pgfplots/util/pgfplotsbinary.code.tex
+(/usr/share/texmf-dist/tex/generic/pgfplots/util/pgfplotsbinary.data.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgfplots/util/pgfplotsutil.verb.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/libs/pgflibrarypgfplots.surfshading
+.code.tex
+(/usr/share/texmf-dist/tex/generic/pgfplots/sys/pgflibrarypgfplots.surfshading.
+pgfsys-pdftex.def)))
+(/usr/share/texmf-dist/tex/generic/pgfplots/util/pgfplotscolormap.code.tex
+(/usr/share/texmf-dist/tex/generic/pgfplots/util/pgfplotscolor.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplotsstackedplots.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplotsplothandlers.code.tex
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplotsmeshplothandler.code.tex
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplotsmeshplotimage.code.tex)))
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplots.scaling.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplotscoordprocessing.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplots.errorbars.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplots.markers.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplotsticks.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgfplots/pgfplots.paths.code.tex)
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+decorations.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/modules/pgfmoduledecorations.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+decorations.pathmorphing.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrarydecorati
+ons.pathmorphing.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+decorations.pathreplacing.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrarydecorati
+ons.pathreplacing.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgfplots/libs/tikzlibrarypgfplots.contourlua
+.code.tex))
+(/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
+plotmarks.code.tex
+(/usr/share/texmf-dist/tex/generic/pgf/libraries/pgflibraryplotmarks.code.tex))
+)
+(/usr/share/texmf-dist/tex/generic/pgfplots/libs/tikzlibrarypgfplots.groupplots
+.code.tex)) (./main.aux
+
+LaTeX Warning: Label `ch:threats' multiply defined.
+
+
+LaTeX Warning: Label `ch:threats@cref' multiply defined.
+
+
+LaTeX Warning: Label `ch:conclusion' multiply defined.
+
+
+LaTeX Warning: Label `ch:conclusion@cref' multiply defined.
+
+) (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+(/usr/share/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+(/usr/share/texmf-dist/tex/latex/caption/ltcaption.sty)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(./main.out) (./main.out)
+
+Package todonotes Warning: The length marginparwidth is less than 2cm and will 
+most likely cause issues with the appearance of inserted todonotes. The issue c
+an be solved by adding a line like \setlength {\marginparwidth }{2cm} prior to 
+loading the todonotes package. on input line 6.
+
+(/usr/share/texmf-dist/tex/latex/biblatex/lbx/australian.lbx
+(/usr/share/texmf-dist/tex/latex/biblatex/lbx/british.lbx)
+(/usr/share/texmf-dist/tex/latex/biblatex/lbx/english.lbx)) (./main.bbl)
+Package pgfplots notification 'compat/show suggested version=true': document ha
+s been generated with the most recent feature set (\pgfplotsset{compat=1.18}).
+
+(./1_header/title.tex [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/us
+r/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc} <./img/SJP.PNG>])
+(./1_header/acknowledgments.tex)
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.13 
+      [1] (./main.toc [2] [3] [4]) [5] (./main.lof) [6] (./main.lot
+Overfull \hbox (1.17166pt too wide) in paragraph at lines 11--11
+ [][] [][]\T1/cmr/m/n/12 KITTI stereo odom-e-try, per se-quence: ab-so-lute er-
+ror and segment- 
+) [7] (./1_header/abbreviations.tex [8]) [9] (./1_header/abstract.tex
+Overfull \hbox (30.0659pt too wide) in paragraph at lines 11--12
+[]\T1/cmr/bx/n/12 Trust and Val-i-da-tion: \T1/cmr/m/n/12 A novel allocation-jo
+urnaling in-stru-men-ta-tion (TaggedAl-
+[10]) [11] (./1_header/introduction.tex [12]
+Overfull \hbox (7.07664pt too wide) in paragraph at lines 13--14
+\T1/cmr/m/it/12 (GPU, CPU, DRAM-PiM, scatter-capable PiM, near-sensor, or in/ne
+ar-
+[13] [14]
+Overfull \hbox (4.73686pt too wide) in paragraph at lines 46--47
+\T1/cmr/m/n/12 cense). This in-cludes a single-file ex-per-i-ment run-ner, a co
+nfiguration-mutation
+[15]) [16] (./2_body/literature.tex [17]
+Overfull \hbox (10.0626pt too wide) in paragraph at lines 58--59
+[]\T1/cmr/m/n/12 The pro-gram's ac-tual data in DRAM ev-ery-thing al-lo-cated w
+ith \T1/cmtt/m/n/12 cudaMalloc\T1/cmr/m/n/12 .
+[18]
+Overfull \hbox (8.6615pt too wide) in paragraph at lines 62--63
+\T1/cmr/m/n/12 piler \T1/cmr/m/it/12 spills \T1/cmr/m/n/12 them here (\T1/cmtt/
+m/n/12 LDL\T1/cmr/m/n/12 /\T1/cmtt/m/n/12 STL\T1/cmr/m/n/12 ). Lo-cal ad-dresse
+s are in-ter-leaved across threads,
+[19] [20] [21{/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
+
+Overfull \hbox (8.35452pt too wide) in paragraph at lines 102--103
+[]\T1/cmr/bx/n/12 Scatter-capable PiM: \T1/cmr/m/n/12 Ir-reg-u-lar gather/scatt
+er op-er-a-tions de-feat both caches
+[22]
+
+LaTeX Warning: Reference `sec:attr-spaces' on page 23 undefined on input line 1
+19.
+
+[23]
+
+LaTeX Warning: Reference `sec:loc-cdf' on page 24 undefined on input line 128.
+
+[24]
+Overfull \hbox (19.58781pt too wide) in paragraph at lines 140--141
+\T1/cmr/m/n/12 which this the-sis's ad-dress trac-ing is built (with two ex-ten
+-sions: launch-window/kernel-
+) [25] [26] (./2_body/methods.tex
+Overfull \hbox (1.08719pt too wide) in paragraph at lines 21--21
+ []\T1/cmr/m/n/8 class$\OMS/cmsy/m/n/8 ^^B$\T1/cmr/m/n/8 persistence; 
+[27] [28] [29]
+Overfull \hbox (3.2507pt too wide) in paragraph at lines 136--137
+\T1/cmr/m/n/12 Occupancy is the achieved frac-tion of max-i-mum res-i-dent warp
+s; be-low 25%, latency-
+
+Overfull \hbox (5.74281pt too wide) in paragraph at lines 136--137
+\T1/cmtt/m/n/12 short_scoreboard \T1/cmr/m/n/12 (shared-memory), \T1/cmtt/m/n/1
+2 lg/mio/tex throttle \T1/cmr/m/n/12 (memory-pipe queues
+[30] [31]
+Overfull \hbox (8.7622pt too wide) in paragraph at lines 154--166
+ [][] 
+[32] [33]
+Overfull \hbox (16.97539pt too wide) in paragraph at lines 263--277
+ [][] 
+[34] [35]) [36] (./2_body/results.tex
+Overfull \hbox (5.79196pt too wide) in paragraph at lines 1--1
+[]\T1/cmr/bx/n/14.4 Measurement Va-lid-ity: Ac-cu-racy, Neu-tral-ity, and Noise
+ 
+
+Overfull \hbox (83.72543pt too wide) in paragraph at lines 17--28
+ [][] 
+[37] [38]
+Overfull \hbox (0.23152pt too wide) in paragraph at lines 50--51
+\T1/cmr/m/n/12 ery ac-cu-racy con-fig-u-ra-tion pro-filed as-is, plus finer fea
+-ture tog-gles sync/async/CPU
+
+Overfull \hbox (4.17427pt too wide) in paragraph at lines 50--51
+\T1/cmr/m/n/12 modal-ity) com-pares pro-filed vs. plain APE with tol-er-ance $[
+]\OT1/cmr/m/n/12 (5 []\OML/cmm/m/it/12 ;  \OT1/cmr/m/n/12 5%)$\T1/cmr/m/n/12 : 
+\T1/cmr/bx/n/12 166/192
+[39]
+Overfull \hbox (57.30843pt too wide) in paragraph at lines 68--69
+\T1/cmr/m/n/12 ble (mea-sured, not name-matched; Ÿ[]2.1.6[]) con-firms stage me
+m-ber-ship: \T1/cmtt/m/n/12 st_track_with_cache
+[40] [41] [42]
+Overfull \hbox (10.01376pt too wide) in paragraph at lines 121--122
+\T1/cmr/m/n/12 cam-paign, \T1/cmr/bx/n/12 21% of GPU time is in strong-affinity
+ classes, 40% in conditional-
+[43]
+Overfull \hbox (3.96672pt too wide) in paragraph at lines 139--140
+[]\T1/cmr/bx/n/12 Footprint\T1/cmr/m/n/12 : Num-ber of dis-tinct 32-byte sec-to
+rs touched, $\OMS/cmsy/m/n/12 ^^B$\T1/cmr/m/n/12 32B ex-act working-
+[44] [45]
+Overfull \hbox (6.97723pt too wide) in paragraph at lines 189--190
+\T1/cmr/m/n/12 ex-pla-na-tion: the tracer records \T1/cmr/m/it/12 ev-ery \T1/cm
+r/m/n/12 mem-ory space, and for \T1/cmtt/m/n/12 st_track_with_cache\T1/cmr/m/n/
+12 ,
+
+Overfull \hbox (2.26883pt too wide) in paragraph at lines 197--208
+ [][] 
+[46] [47] [48] [49]
+
+LaTeX Font Warning: Font shape `T1/cmtt/bx/n' in size <12> not available
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 278.
+
+[50] [51]
+Underfull \hbox (badness 2221) in paragraph at lines 365--365
+[]|\T1/cmr/m/n/12 reuse-CDF flat 
+
+Underfull \hbox (badness 1394) in paragraph at lines 368--368
+[]|\T1/cmr/bx/n/12 Hot- 
+
+Underfull \hbox (badness 1043) in paragraph at lines 372--372
+[]|\T1/cmr/bx/n/12 Cold- 
+[52] [53] [54]) [55] (./2_body/discussion.tex
+Overfull \hbox (2.12225pt too wide) in paragraph at lines 9--10
+[]\T1/cmr/bx/n/12 Threshold choice: \T1/cmr/m/n/12 Clas-si-fier thresh-olds are
+ frozen and sensitivity-tested at $\OMS/cmsy/m/n/12 ^^F$\T1/cmr/m/n/12 25%;
+[56] [57]) [58] (./2_body/conclusions.tex
+Overfull \hbox (10.49312pt too wide) in paragraph at lines 7--8
+\T1/cmr/m/n/12 the ref-er-ence data-movement method-ol-ogy for GPUs screen-ing,
+ machine-independent
+
+Overfull \hbox (9.4942pt too wide) in paragraph at lines 13--14
+\T1/cmr/m/n/12 ing front-end (near-sensor place-ment; no cache size helps, mea-
+sured); a hot-persistent
+[59]
+Overfull \hbox (4.33304pt too wide) in paragraph at lines 15--16
+\T1/cmr/m/n/12 ants); the noise floor is mea-sured (CoV 0.14%); and the project
+'s two self-corrections
+) [60] (./2_body/recommendations.tex) [61]
+Overfull \hbox (9.74237pt too wide) in paragraph at lines 66--66
+[]\T1/cmr/m/n/12 S. Ghose, A. Boroumand, J. S. Kim, J. Gómez-Luna and O. Mutlu,
+ `  Processing-
+[62]
+Overfull \hbox (0.37808pt too wide) in paragraph at lines 66--66
+\T1/cmr/m/n/12 overhead, locality-aware processing-in-memory ar-chi-tec-ture,' 
+in \T1/cmr/m/it/12 In-ter-na-tional
+[63]
+Overfull \hbox (0.88065pt too wide) in paragraph at lines 66--66
+[]\T1/cmr/m/n/12 L. Nardi et al., `  In-tro-duc-ing SLAM-Bench, a per-for-mance
+ and ac-cu-racy bench-
+
+Overfull \hbox (15.65248pt too wide) in paragraph at lines 66--66
+\T1/cmr/m/n/12 mark-ing method-ol-ogy for SLAM,' in \T1/cmr/m/it/12 IEEE In-ter
+-na-tional Con-fer-ence on Robotics
+[64] [65] (./3_footer/appendices.tex [66] [67]
+Overfull \hbox (3.23647pt too wide) in paragraph at lines 67--69
+[]\T1/cmr/m/n/12 Compiler-generated traf-fic to lo-cal mem-ory when per-thread 
+state
+[68]
+Overfull \hbox (10.65146pt too wide) in paragraph at lines 118--122
+\T1/cmr/m/n/12 en-able-ment patch against the cu-VS-LAM source tree, and the NV
+Bit \T1/cmtt/m/n/12 mem_trace
+
+Overfull \hbox (0.3861pt too wide) in paragraph at lines 118--122
+\T1/cmr/m/n/12 ex-ten-sions (launch-window and kernel-name gat-ing; the allocat
+ion-event side-
+
+Overfull \hbox (22.28734pt too wide) in paragraph at lines 122--130
+[]\T1/cmr/m/n/12 Dated, im-mutable re-sult di-rec-to-ries: the 27-sequence
+
+Overfull \hbox (12.2854pt too wide) in paragraph at lines 122--130
+\T1/cmr/m/n/12 char-ac-ter-i-za-tion cam-paign, the lo-cal-ity study and its sp
+ace-filtered re-derivation
+[69] [70]
+Overfull \hbox (9.66711pt too wide) in paragraph at lines 181--201
+ [][] 
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \hbox (badness 3460) in paragraph at lines 275--278
+[]|\T1/cmtt/m/n/10.95 gftt_values\T1/cmr/m/n/10.95 , \T1/cmtt/m/n/10.95 accumul
+ateGFTT\T1/cmr/m/n/10.95 , 
+
+Underfull \hbox (badness 10000) in paragraph at lines 278--280
+[]|\T1/cmtt/m/n/10.95 matcher::*\T1/cmr/m/n/10.95 , \T1/cmtt/m/n/10.95 cast_dep
+th\T1/cmr/m/n/10.95 , 
+
+Underfull \hbox (badness 5431) in paragraph at lines 280--282
+[]|\T1/cmtt/m/n/10.95 sba::build_full_system_*\T1/cmr/m/n/10.95 , 
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+) [71] [72] [73]
+
+Package glossaries Warning: No \printglossary or \printglossaries found. 
+(Remove \makeglossaries if you don't want any glossaries.) 
+This document will not have a glossary.
+
+
+enddocument/afterlastpage (AED): lastpage setting LastPage.
+(./main.aux
+
+Package mparhack Warning: Marginpars may have changed.
+(mparhack)                Rerun to get them right.
+
+)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+
+Package biblatex Warning: Please rerun LaTeX.
+
+ )
+(see the transcript file for additional information)</usr/share/texmf-dist/font
+s/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmmi12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mmi8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/
+share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></u
+sr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-
+dist/fonts/type1/public/cm-super/sfbx0800.pfb></usr/share/texmf-dist/fonts/type
+1/public/cm-super/sfbx1000.pfb></usr/share/texmf-dist/fonts/type1/public/cm-sup
+er/sfbx1200.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfcc1728.pfb
+></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm0700.pfb></usr/share/te
+xmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb></usr/share/texmf-dist/fonts/
+type1/public/cm-super/sfrm1000.pfb></usr/share/texmf-dist/fonts/type1/public/cm
+-super/sfrm1200.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfti0800
+.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb></usr/shar
+e/texmf-dist/fonts/type1/public/cm-super/sftt0800.pfb></usr/share/texmf-dist/fo
+nts/type1/public/cm-super/sftt1000.pfb></usr/share/texmf-dist/fonts/type1/publi
+c/cm-super/sftt1200.pfb>
+Output written on main.pdf (74 pages, 764547 bytes).
+Transcript written on main.log.

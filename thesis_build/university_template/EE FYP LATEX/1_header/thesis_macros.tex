@@ -1,0 +1,32 @@
+% thesis_macros.tex — additions needed to render the inserted thesis content.
+% Kept separate from packages.tex so the university-provided file stays exactly
+% as given. Two kinds of additions: (1) packages our figures/tables need that
+% packages.tex does not already load; (2) custom macros/colors/tikz styles our
+% chapters use, carried over unchanged from the original document.
+
+% ---- extra packages (figures + long tables) --------------------------------
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,backgrounds,calc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usepackage{longtable}
+
+% ---- palette (unchanged from the original thesis) --------------------------
+\definecolor{cGPU}{HTML}{455A64}
+\definecolor{cPIM}{HTML}{EF6C00}
+\definecolor{cISP}{HTML}{6A1B9A}
+\definecolor{cACC}{HTML}{1565C0}
+\definecolor{cOK}{HTML}{2E7D32}
+\definecolor{cLINE}{HTML}{C62828}
+\tikzset{
+  stage/.style={draw=cACC,fill=cACC!8,rounded corners=2pt,align=center,
+                inner sep=4pt,font=\small},
+  cls/.style={draw=black!55,rounded corners=2pt,align=center,inner sep=3pt,font=\footnotesize},
+  gflow/.style={-{Latex[length=2mm]},draw=black!60},
+}
+
+% ---- convenience macros (unchanged from the original thesis) --------------
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\stTrack}{\code{st\_track\_with\_cache}}
+\newcommand{\stBuild}{\code{st\_build\_cache}}

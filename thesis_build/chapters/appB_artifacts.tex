@@ -1,0 +1,82 @@
+\chapter{Artifact and Reproducibility Description}
+\label{app:artifacts}
+
+All software, configurations, and derived data of this thesis are archived
+in a single repository (\code{github.com/mij001/cuvslam-stack}, MIT
+license). The artifact is organized so that \emph{every table in this
+document regenerates from committed CSV data using only the Python standard
+library no GPU, no datasets, no vendor tools required}; capture (which
+does require the hardware) is separated from analysis by construction.
+
+\section{Layout}
+
+\begin{description}
+\item[\code{configs/}] The configuration regime: a small set of human-owned
+base TOML files plus a deterministic mutation pass that materializes the
+full experiment matrices (141 accuracy configurations, 192
+profiling-coverage variants). One TOML fully describes a run: dataset,
+camera rig, pipeline mode, feature toggles, and the ground-truth evaluation
+block.
+\item[\code{profiling/harness/}] The capture entry point: one command runs
+any configuration under nsys, ncu (curated metric set, bounded windows), or
+NVBit (windowed, kernel-filtered address traces), writing versioned result
+directories with full provenance (clock locks, driver/tool versions,
+command lines). A workload-\emph{adapter} interface makes the harness
+generic: cuVSLAM is one adapter; a command adapter runs arbitrary GPU
+programs through the identical pipeline.
+\item[\code{profiling/analysis/}] The stdlib-only analysis library:
+screening, classification (the decision tree of \S\ref{sec:met-tree}, with
+thresholds defined once and imported live into documentation), roofline,
+locality (reuse-distance CDFs with memory-space filtering), attribution
+(the journal-trace join), campaign synthesis, substrate verdicts, residual
+ranking, and the DAMOV-parity checks. The GPU-free test suite fabricates
+known inputs for every module.
+\item[\code{profiling/calibration/}] The known-truth archetype suite
+(\S\ref{sec:char-calibration}): eight kernels, one per class, with the
+blind-classification driver.
+\item[\code{profiling/validation/}] The clock-domain intervention scripts
+(\S\ref{sec:met-parity}) and the profiler-neutrality drivers.
+\item[\code{patches/}] The instrumentation as reviewable diffs: the
+TaggedAllocator + NVTX enablement patch against the cuVSLAM source tree,
+and the NVBit \code{mem\_trace} extensions (launch-window and kernel-name
+gating; the allocation-event sidecar).
+\item[\code{reports/}, \code{profiling/reports/}] Dated, immutable result
+directories: the 27-sequence characterization campaign, the locality study
+and its space-filtered re-derivation (both the superseded and corrected
+tables are retained, with the correction marked in place), the attribution
+campaign, the 141-run accuracy matrix, the 192-variant neutrality campaign,
+the substrate synthesis, the energy and host-I/O measurements, and the
+DAMOV-validation artifacts (cross-device agreement, hierarchical-clustering
+agreement).
+\item[\code{dashboard/}] The evidence explorer: an interactive application
+presenting every finding with its computed number, the per-run reasoning
+chain (time share $\rightarrow$ metrics vs.\ thresholds $\rightarrow$ the
+decision-tree rule that fired $\rightarrow$ verdict), and a methodology tab
+whose formulas and thresholds are stamped from the analysis source at build
+time so interface and code cannot disagree.
+\end{description}
+
+\section{Environment}
+
+Primary testing hardware: NVIDIA RTX~2000 Ada (\code{sm\_89}), driver
+575.64.05, CUDA 12.9.1, Nsight Compute 2025.2.1.3, Nsight Systems 2025.3.2,
+and NVBit 1.8. Maintaining this exact combination of software and driver
+versions is critical, since the binary instrumentation specifies the driver
+version, which, in its turn, determines the profiler versions. To ensure
+compatibility, an environment doctor checks the target system and suggests
+a one-line fix for any incompatibilities detected. GPU clocks are locked
+(1620/7001\,MHz) for every measurement; ceilings are re-measured per
+instrument.
+
+\section{Reproduction paths}
+
+\textbf{Analysis-only (no GPU):} clone; run the test suite; regenerate any
+table in this thesis from the committed CSVs via the corresponding
+\code{analysis} module. \textbf{Full capture:} configure a target with the
+environment doctor; run the regime's campaign drivers (all are resumable
+and idempotent re-running skips completed steps); the coverage audit
+then proves the captures complete before analysis will consume them.
+\textbf{Instrumented builds:} apply the committed patch to the cuVSLAM
+source tree and build with the pinned container recipe; the baseline and
+instrumented binaries are kept side by side, and the QoR check of
+\S\ref{sec:val-neutrality} re-verifies output equivalence on any rebuild.

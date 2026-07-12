@@ -1,0 +1,309 @@
+\label{ch:method}
+
+This chapter defines the method. Section~\ref{sec:met-pipeline} presents the pipeline; \S\ref{sec:met-setup} describes the instruments and workloads; \S\ref{sec:met-metrics} details every metric with its formula; \S\ref{sec:met-tree} introduces the classifier and taxonomy; \S\ref{sec:met-verdict} covers substrate-verdict and fault mapping; \S\ref{sec:met-model} explains the placement model; and \S\ref{sec:met-parity} provides the component-by-component parity argument that GPU-DAMOV is complete at DAMOV's granularity (RQ1).
+
+\subsection{The Six-Step Pipeline}
+\label{sec:met-pipeline}
+
+The method is a fixed pipeline (Figure~\ref{fig:pipeline}); each stage consumes
+the previous one's output, and the final stage emits a per-kernel substrate
+verdict.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[node distance=3.5mm and 6mm,
+  stage/.append style={text width=23mm}]
+\node[stage] (cap) {\textbf{Capture}\\ {\scriptsize nsys, ncu, NVBit; energy, host~I/O, accuracy}};
+\node[stage,right=of cap] (scr) {\textbf{Screen}\\ {\scriptsize GPU-time share; sub-floor to G0}};
+\node[stage,right=of scr] (cls) {\textbf{Classify}\\ {\scriptsize ordered tree G0--G7}};
+\node[stage,right=of cls] (att) {\textbf{Attribute}\\ {\scriptsize trace $\bowtie$ journal; name the structure}};
+\node[stage,below=7mm of att] (val) {\textbf{Validate}\\ {\scriptsize sensitivity, clustering, cross-device, calibration}};
+\node[stage,left=of val] (ver) {\textbf{Verdict}\\ {\scriptsize class$\times$persistence; substrate + fault}};
+\draw[gflow] (cap)--(scr); \draw[gflow] (scr)--(cls);
+\draw[gflow] (cls)--(att); \draw[gflow] (att)--(val);
+\draw[gflow] (val)--(ver);
+\node[font=\scriptsize,cGPU,left=1mm of ver,align=right,text width=14mm] {per-kernel\\output};
+\end{tikzpicture}
+\caption[The GPU-DAMOV six-step pipeline.]{The GPU-DAMOV pipeline. Capture is
+uninstrumented for timing; instrumented traces feed Attribute only. Every run
+also records energy, host I/O, and trajectory accuracy, so no measurement from a
+malfunctioning run enters the evidence base.}
+\label{fig:pipeline}
+\end{figure}
+
+\textbf{Capture} runs the workload under three profilers at locked clocks: nsys for timeline, ncu for counters (bounded launch windows, curated metric set), and NVBit for address traces (windowed). Each run records whole-run energy (GPU power sampled and integrated), host-side I/O (storage bytes read, memory-mapped page-ins, peak host RSS), and always, trajectory accuracy against ground truth ensuring no measurement from a malfunctioning run enters the evidence.
+
+\textbf{Screen} ranks kernels by GPU time share; kernels below the attention floor are screened out, not classified (they receive class G0).
+
+\textbf{Classify} passes each surviving kernel’s metrics through the ordered decision tree (\S\ref{sec:met-tree}).
+
+\textbf{Attribute} joins address traces with the allocation journal to name each kernel’s traffic (see Chapter~\ref{ch:attribution}).
+
+\textbf{Validate} stress-tests everything: threshold sensitivity, unsupervised clustering, cross-device agreement, a known-truth calibration suite, and profiler-neutrality checks (Chapters~\ref{ch:validity}--\ref{ch:characterization}).
+
+\textbf{Verdict} maps class $\times$ data-structure persistence $\times$ features to a substrate, with a named on-GPU fault when the verdict is ``stay.''
+
+\subsection{Experimental Setup}
+\label{sec:met-setup}
+
+\subsubsection{Hardware}
+
+Testing is done primarily using an NVIDIA RTX~2000 Ada (\code{sm\_89}): 22~SMs, 16\,GB GDDR6 memory, 25\,MB L2 cache, and 100\,KB L1/shared memory per SM. To ensure consistency of results across different devices, the second, different in architecture device, GeForce MX450 (\code{sm\_75}, 2\,GB, 25\,W), is used exclusively for cross-device validation (\S\ref{sec:char-crossdev}). The host machine is equipped with CUDA 12.9.1 and driver 575.64.05. The profiling is done using Nsight Compute 2025.2.1.3 and Nsight Systems 2025.3.2. NVBit 1.8~\cite{villa2019nvbit} is used for address tracing. To ensure reproducibility, this particular combination of hardware and software is carefully described in Appendix~\ref{app:artifacts}.
+
+\subsubsection{Locked Clocks and Measured Ceilings}
+\label{sec:met-clocks}
+
+GPU frequencies are locked at 1620\,MHz (graphics) and 7001\,MHz (memory) for all measurements, ensuring comparability. The effect is significant: the median run-to-run coefficient of variation (CoV = std.\ dev.\ $\div$ mean) of kernel time drops from \textbf{49.6\%} unlocked (thermally limited laptop), and 9.3\% warmed, to \textbf{0.14\%} locked. At 0.14\%, run-to-run noise is far below every reported effect size.
+
+Roofline ceilings are \emph{measured}, not quoted: at locked clocks, sustained DRAM bandwidth is $205.0 \pm 0.1$\,GB/s and FP32 throughput is $5445 \pm 3$\,GFLOP/s (see artifact). All roofline and DRAM speed-of-light percentages in this thesis use these measured ceilings.
+
+\subsubsection{Workloads and Datasets}
+\label{sec:met-datasets}
+
+The testing dataset consists of 27 different sequences coming from four known ground-truth datasets: kilometre-scale automotive stereo data from KITTI odometry (00--10)~\cite{geiger2013kitti}; room- and hall-scale drone stereo data with IMU from EuRoC MAV (MH01--05, V101--103, V201--203)~\cite{burri2016euroc}; handheld RGB-D captures from TUM RGB-D fr3~\cite{sturm2012tum}, including the \code{long\_office\_household} sequence; and the TUM-VI dataset for visual-inertial data~\cite{schubert2018tumvi}. Besides these, the ICL-NUIM dataset~\cite{handa2014iclnuim} is included for the accuracy-validation matrix (Chapter~\ref{ch:validity}). The sequences cover a wide spectrum of testing conditions: indoor and outdoor settings, tight rooms and streets, and paths with and without loop closures (KITTI 01 and 04 used as baseline for loop-free tests). The testing pipeline configurations include SLAM vs.\ odometry-only, asynchronous vs.\ synchronous mode, CPU vs.\ GPU backend, and different types of sensors (inertial, monocular, RGB-D, and stereo). Using deterministic mutations, exactly 141 accuracy configurations and 192 profiling variants were generated, covering the entire testing matrix bit-for-bit.
+
+\subsubsection{Capture Discipline}
+
+Three rules are enforced: (1)~\emph{Traces are never used for timing}: instrumented runs are 5--1000$\times$ slower; all timings are from uninstrumented, locked-clock runs. (2)~\emph{Windows must be audited}: windowed captures may miss sparsely-launched kernels; a coverage audit diffs each sequence's full launch map against the captured set, gap-filling until all kernels are present (\S\ref{sec:attr-coverage}). (3)~\emph{Extensive before intensive}: time, bytes, and instruction counts are summed over all launches before computing ratios; averaging per-launch ratios would overweight short launches.
+
+\subsection{Metrics}
+\label{sec:met-metrics}
+
+Each metric reduces hardware counters or trace records to a single interpretable feature per kernel.
+
+\subsubsection{Speed-of-Light Utilizations}
+Nsight Compute reports each subsystem's utilization as a percentage of its theoretical peak: \emph{memory SoL}, \emph{compute SoL}, and \emph{DRAM SoL}. DRAM SoL $\geq$ 50\% is bandwidth saturation; compute SoL much above memory SoL is compute-boundedness.
+
+\subsubsection{LFMR (GPU Form)}
+\begin{equation}
+\text{LFMR} \;=\; 1 - \text{(L2 hit rate)}.
+\label{eq:lfmr}
+\end{equation}
+On a two-level cache, LFMR $\approx$ fraction of L2 accesses that go to DRAM. LFMR $\approx 1$: L2 not helping (PiM-favourable). LFMR $\leq 0.35$: L2 absorbs reuse; near-data placement forfeits a working cache.
+
+\subsubsection{Memory Intensity (MPKI)}
+\begin{equation}
+\text{MPKI} \;=\; \frac{\text{DRAM bytes}/32}{\text{warp instructions}/1000}
+\label{eq:mpki}
+\end{equation}
+The number of DRAM 32-byte-sector fetches per thousand \emph{warp} instructions executed. (Note that the denominator for warp-level measurement is $32\times$ smaller than for thread-level; mixing them results in the classic off-by-a-factor-of-32 error.)
+
+\subsubsection{Arithmetic Intensity and the Roofline}
+\label{sec:met-roofline}
+\begin{equation}
+\text{AI} \;=\; \frac{\text{FLOPs}}{\text{DRAM bytes}},\qquad
+\text{FLOPs} = \text{adds} + \text{muls} + 2\times\text{FMAs}.
+\label{eq:ai}
+\end{equation}
+Attainable performance is $\min(P_{\text{peak}},\ \text{AI}\times B_{\text{peak}})$ using the \emph{measured} ceilings of \S\ref{sec:met-clocks}~\cite{williams2009roofline}. A kernel under the sloped segment is memory-bound; under the flat, compute-bound (Figure~\ref{fig:roofline}). The FLOP numerator selects the dominant operand (FP32 for cuVSLAM; FP16/INT for others), keeping the roofline meaningful across workloads.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{loglogaxis}[
+  width=0.86\textwidth, height=6.2cm,
+  xlabel={Arithmetic intensity (FLOP\,/\,DRAM byte)},
+  ylabel={GFLOP/s}, xmin=0.04, xmax=100, ymin=0.1, ymax=8000,
+  xtick={0.1,1,10,100}, ytick={1,10,100,1000},
+  legend style={at={(0.02,0.98)},anchor=north west,font=\scriptsize,draw=black!30},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=both, major grid style={black!8},
+]
+% measured ceilings: DRAM 205 GB/s slope, FP32 5445 GFLOP/s roof; ridge at 5445/205=26.6
+\addplot[cLINE,very thick,domain=0.04:26.6,samples=2]{205*x};
+\addplot[cLINE,very thick,domain=26.6:100,samples=2]{5445};
+\node[cLINE,font=\scriptsize,rotate=37] at (axis cs:0.4,120){DRAM roof 205\,GB/s};
+\node[cLINE,font=\scriptsize] at (axis cs:8,6600){compute peak 5445\,GFLOP/s};
+% real kernels (tum office): AI, GFLOP/s
+\addplot[only marks,mark=*,cPIM,mark size=1.6pt] coordinates {
+  (1.365,3.4)(2.180,4.9)(0.990,8.2)(0.923,6.4)(0.059,0.2)(1.288,8.4)};
+\addplot[only marks,mark=triangle*,cGPU,mark size=2pt] coordinates {
+  (3.007,120.5)(9.105,380.5)(3.424,140.8)(3.657,170.6)(26.777,64.0)(8.662,139.1)(3.536,32.2)};
+\legend{,,memory-bound kernels,compute-efficient kernels}
+\node[font=\scriptsize,anchor=west] at (axis cs:1.4,3.4){\code{photometric}};
+\node[font=\scriptsize,anchor=west] at (axis cs:9.6,380){\code{lk\_track}};
+\end{loglogaxis}
+\end{tikzpicture}
+\caption[Measured roofline of cuVSLAM kernels.]{Measured roofline (locked-clock
+ceilings) for representative TUM-office kernels. The dominant tracking kernels
+(\code{photometric}, \code{point\_to\_point}) sit deep under the sloped roof at
+low intensity (memory-wall territory) while the front-end convolutions and the
+BA reduction achieve a large fraction of the compute peak.}
+\label{fig:roofline}
+\end{figure}
+
+\subsubsection{Occupancy and the Stall Taxonomy}
+Occupancy is the achieved fraction of maximum resident warps; below 25\%, latency-hiding is starved. When a warp cannot issue, the hardware records why; the classifier uses the dominant reason: \code{long\_scoreboard} (waiting for DRAM/L2), \code{short\_scoreboard} (shared-memory), \code{lg/mio/tex throttle} (memory-pipe queues full), \code{wait} (dependency chains not memory), \code{barrier} (sync). The pair (stall, occupancy) distinguishes ``memory-latency-bound'' (G4) from ``dependency-bound'' (G7).
+
+\subsubsection{Coalescing}
+Sectors per request, from counters, with a trace-side check of sectors-per-warp-access from NVBit (\S\ref{sec:loc-metrics}); $\geq 8$ marks a scattered gather.
+
+\subsubsection{Locality (Trace-Side)}
+See \S\ref{sec:loc-metrics}: reuse-distance CDFs, footprints, and inter-launch overlap, computed from global-space addresses only.
+
+\subsection{The Classifier and Taxonomy}
+\label{sec:met-tree}
+
+\subsubsection{Thresholds}
+Classifier thresholds (Table~\ref{tab:thresholds}) are defined once in source and imported into all documentation and the dashboard, preventing drift. They are calibrated on the characterization corpus, then \emph{frozen}; robustness is established by $\pm 25\%$ sensitivity stress (\S\ref{sec:met-sensitivity}) and a known-truth calibration suite (\S\ref{sec:char-calibration}).
+
+\begin{table}[t]
+\centering
+\caption{Classifier thresholds (values as frozen in \code{analysis/classify.py}).}
+\label{tab:thresholds}
+\begin{tabular}{@{}llp{0.52\textwidth}@{}}
+\toprule
+threshold & value & meaning \\
+\midrule
+\code{sol\_hi} & 40\,\% & a speed-of-light value counted as ``high'' \\
+\code{sol\_ratio} & 1.5$\times$ & margin by which compute SoL must exceed memory SoL for compute-boundedness \\
+\code{dram\_sat} & 50\,\% & DRAM SoL treated as bandwidth saturation \\
+\code{lfmr\_hi} / \code{lfmr\_lo} & 0.40 / 0.35 & L2 ``not helping'' / ``earning its keep'' \\
+\code{sect\_scatter} & 8 & sectors/request marking a scattered gather \\
+\code{occ\_low} / \code{occ\_low\_dep} & 25\,\% / 30\,\% & occupancy below which latency (G4) / dependency (G7) stalls cannot be hidden \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{The Ordered Rules}
+The first matching rule assigns the class:
+\begin{enumerate}
+    \item \textbf{G5 compute-bound}: compute SoL $\geq$ 40\% and $\geq$ 1.5$\times$ memory SoL.
+    \item \textbf{G6 on-chip-bound}: a shared-memory/MIO stall dominates while DRAM is not saturated.
+    \item \textbf{G1 bandwidth-bound}: DRAM SoL $\geq$ 50\%.
+    \item \textbf{G2 coalescing-bound}: memory-limited and sectors/request $\geq$ 8.
+    \item \textbf{G3 L2-reuse-bound}: memory-limited and LFMR $<$ 0.35.
+    \item \textbf{G4 latency-bound}: a memory stall dominates at occupancy $<$ 25\% with DRAM unsaturated.
+    \item \textbf{G7 dependency-bound}: a dependency stall (\code{wait}, \code{barrier}, \ldots) dominates at low occupancy with neither memory nor compute high.
+    \item \textbf{G0 no-signal}: nothing dominant (tiny or launch-tax kernels; screened rather than architecturally interpreted).
+\end{enumerate}
+
+Class G7 was not part of the original hypothesis; it emerged from cuVSLAM kernels that stall on instruction dependencies at low occupancy with memory idle. The taxonomy grew a class in response to the data; by design, DAMOV's own classes were likewise derived. Figure~\ref{fig:tree} renders the same ordered rules as a tree: each internal node is one test, and the first satisfied branch fixes the class.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  every node/.style={font=\footnotesize},
+  test/.style={draw=cACC,fill=cACC!7,rounded corners=2pt,align=center,inner sep=3pt},
+  leaf/.style={draw=black!55,rounded corners=2pt,align=center,inner sep=3pt,font=\scriptsize},
+  yes/.style={-{Latex[length=1.6mm]},cOK,font=\scriptsize},
+  no/.style={-{Latex[length=1.6mm]},black!55,font=\scriptsize},
+  node distance=2.2mm and 3mm,
+]
+\node[test] (t5) {compSoL $\geq$40\%\\$\geq$1.5$\times$memSoL?};
+\node[leaf,right=14mm of t5,fill=cGPU!12] (g5) {\textbf{G5} compute};
+\node[test,below=of t5] (t6) {shared/MIO stall,\\DRAM unsat.?};
+\node[leaf,right=14mm of t6,fill=cGPU!12] (g6) {\textbf{G6} on-chip};
+\node[test,below=of t6] (t1) {DRAM SoL\\$\geq$50\%?};
+\node[leaf,right=14mm of t1,fill=cPIM!18] (g1) {\textbf{G1} bandwidth};
+\node[test,below=of t1] (t2) {mem-limited \&\\sect/req $\geq$8?};
+\node[leaf,right=14mm of t2,fill=cPIM!18] (g2) {\textbf{G2} coalescing};
+\node[test,below=of t2] (t3) {mem-limited \&\\LFMR $<$0.35?};
+\node[leaf,right=14mm of t3,fill=cGPU!12] (g3) {\textbf{G3} L2-reuse};
+\node[test,below=of t3] (t4) {mem-stall,\\occ $<$25\%?};
+\node[leaf,right=14mm of t4,fill=cPIM!18] (g4) {\textbf{G4} latency};
+\node[test,below=of t4] (t7) {dep-stall,\\low occ?};
+\node[leaf,right=14mm of t7,fill=cGPU!12] (g7) {\textbf{G7} dependency};
+\node[leaf,below=of t7,fill=black!6] (g0) {\textbf{G0} no-signal / screened};
+\draw[yes] (t5)--(g5) node[midway,above]{Y};
+\draw[yes] (t6)--(g6) node[midway,above]{Y};
+\draw[yes] (t1)--(g1) node[midway,above]{Y};
+\draw[yes] (t2)--(g2) node[midway,above]{Y};
+\draw[yes] (t3)--(g3) node[midway,above]{Y};
+\draw[yes] (t4)--(g4) node[midway,above]{Y};
+\draw[yes] (t7)--(g7) node[midway,above]{Y};
+\draw[no] (t5)--(t6) node[midway,left]{N};
+\draw[no] (t6)--(t1) node[midway,left]{N};
+\draw[no] (t1)--(t2) node[midway,left]{N};
+\draw[no] (t2)--(t3) node[midway,left]{N};
+\draw[no] (t3)--(t4) node[midway,left]{N};
+\draw[no] (t4)--(t7) node[midway,left]{N};
+\draw[no] (t7)--(g0) node[midway,left]{N};
+\end{tikzpicture}
+\caption[The ordered classification tree (G0--G7).]{The classifier as an ordered
+tree; the first satisfied test fixes the class. Orange leaves (G1, G2, G4) carry
+near-data affinity; grey leaves (G3, G5, G6, G7) stay on the GPU. Thresholds are
+those of Table~\ref{tab:thresholds}, frozen in source.}
+\label{fig:tree}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{The GPU bottleneck taxonomy and its default near-data affinity.}
+\label{tab:taxonomy}
+\begin{tabular}{@{}llp{0.35\textwidth}@{}}
+\toprule
+class & meaning & PiM affinity \\
+\midrule
+G0 & no dominant signal / sub-floor & n/a (candidate for CPU) \\
+G1 & DRAM bandwidth saturated & \textbf{strong} \\
+G2 & scattered access wastes bandwidth & \textbf{conditional} (scatter PiM or layout fix) \\
+G3 & L2 reuse effective & weak (keep the cache) \\
+G4 & memory-latency stalls, low occupancy & strong if cache-defeating \\
+G5 & compute-bound & none (keep on GPU) \\
+G6 & on-chip/shared-memory-bound & none \\
+G7 & dependency stalls, memory idle & none (fix occupancy first) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Sensitivity Analysis}
+\label{sec:met-sensitivity}
+Every kernel is re-classified with all thresholds scaled by $\pm 25\%$. Any kernel whose class changes under this perturbation is flagged as \emph{borderline} and does not carry high confidence into the verdict stage; every headline kernel in this thesis is threshold-stable. Observed flips concentrate where physics predicts: at the L2-capacity crossover, where a working set near 25\,MB moves between G1 and G3.
+
+\subsection{From Class to Verdict: Substrate and Fault Mapping}
+\label{sec:met-verdict}
+
+Class alone does not determine placement; it is joined with data-structure \emph{persistence} (see Chapter~\ref{ch:attribution}). Persistence takes three values, measured from the allocation journal and stage map: \emph{streaming} (per-frame data, consumed once), \emph{hot-persistent} (resident state reused every frame, e.g., the BA linear system), and \emph{cold-persistent} (session-lifetime state touched episodically, e.g., the keyframe database). Table~\ref{tab:verdict} gives the mapping.
+
+\begin{table}[t]
+\centering
+\caption{Substrate verdict mapping.}
+\label{tab:verdict}
+\begin{tabular}{@{}lll@{}}
+\toprule
+condition & affinity & substrate \\
+\midrule
+G1 $\wedge$ streaming & strong & near-sensor SRAM (consume before DRAM) \\
+G1 $\wedge$ otherwise & strong & DRAM-PiM (near-bank) \\
+G2 & conditional & scatter-capable PiM, or data-layout fix first \\
+G4 $\wedge$ cache-defeating & strong & near-memory compute \\
+cold-persistent $\wedge$ large & strong & in/near-storage (ISP) \\
+G3 & weak & GPU (a larger cache wins) \\
+G5 / G6 / G7 & none & GPU \\
+tiny (occ $<$ 8\%, $<$ 1\,ms) & none & CPU/host \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+When the verdict is ``stay on GPU,'' the same evidence names the fault: spill-dominated traffic $\Rightarrow$ register-pressure/compiler fault (the traffic is scratch, not data); high sectors/request $\Rightarrow$ data-layout fault; dependency stalls at low occupancy $\Rightarrow$ launch-configuration fault; a flat reuse CDF $\Rightarrow$ structurally cache-immune (no cache-size remedy exists). This dual output substrate candidacy \emph{or} a named fix makes the characterization actionable in both directions.
+
+\subsection{The Placement Model}
+\label{sec:met-model}
+
+To bound the payoff of offloading without a simulator, a first-order analytical model is used: for a kernel with GPU time $t$ and memory-bound fraction $m$, executed on a near-data substrate with internal-bandwidth advantage $k$ and relative compute throughput $c$,
+\begin{equation}
+t_{\text{pim}} \;=\; t\,\frac{1-m}{c} \;+\; t\,\frac{m}{k}.
+\label{eq:placement}
+\end{equation}
+A kernel is offloaded only if its affinity is admitted by the scenario and $t_{\text{pim}} < t$. Two scenarios bound the claim: \emph{conservative} ($k{=}4$, $c{=}0.5$, strong-affinity only) and \emph{moderate} ($k{=}8$, $c{=}0.75$, strong + conditional). An energy variant applies the same split to the measured energy baseline. A standing rule constrains all of this: model-derived and (future) simulator-derived numbers are reported only as \emph{deltas against the measured GPU baseline}, never as absolute performance claims.
+
+
+\subsection{DAMOV Parity: The Completeness Argument}
+\label{sec:met-parity}
+
+RQ1 asks whether every DAMOV component has a GPU analogue here. The correspondence, element by element, is as follows:
+
+\begin{itemize}
+    \item \emph{Step 1, screening.} \textbf{DAMOV:} VTune top-down, retaining functions with $>$30\% memory-bound share and $\geq$3\% of cycles. \textbf{Here:} nsys time-share plus the ncu SoL pair; sub-floor kernels are screened (G0), not classified.
+
+    \item \emph{Step 2, locality.} \textbf{DAMOV:} Architecture-independent spatial and temporal locality from CPU address streams, clustered. \textbf{Here:} NVBit per-warp traces $\rightarrow$ reuse-distance CDFs (temporal) and sectors-per-warp coalescing (the GPU's spatial analogue), with \emph{memory-space filtering} to prevent compiler scratch from polluting locality (\S\ref{sec:loc-correction}).
+
+    \item \emph{Step 3, intervention.} \textbf{DAMOV:} Simulated host / host+prefetch / NDP across a 1--256-core sweep, with classes defined by the response. \textbf{Here:} Two measured axes replace the unavailable core sweep (a GPU grid is compiled into the launch; SM count is fixed): (a) \emph{Clock-domain sweep} core and memory clocks are scaled independently (1620$\rightarrow$810\,MHz core = 0.5$\times$ compute; 7001$\rightarrow$5001 = 0.71$\times$ DRAM) yields falsifiable per-class predictions (G1/G2 track the memory clock, G3/G5/G6/G7 the core clock, G4 neither strongly); (b) \emph{Measured} reuse-distance hit-CDF directly answers the cache-capacity question for each kernel, from 64\,KiB to 48\,MiB, where DAMOV used aggregate sweeps. The third, simulated axis (NDP configurations for Accel-Sim) is generated from the verdicts and deferred to the follow-on study.
+
+    \item \emph{Classification.} \textbf{DAMOV:} Six classes from a threshold tree over temporal locality, LFMR trend, MPKI, and AI. \textbf{Here:} Eight classes (G0--G7) from the ordered tree of \S\ref{sec:met-tree}; the deviations (a coalescing class, a G4/G7 occupancy split, and no L3-contention class because L2 is the last level) are each necessitated by GPU-specific differences.
+
+    \item \emph{Robustness.} \textbf{DAMOV:} Frozen thresholds validated on 100 held-out functions (97\% correct); cache-size sweeps; an independent clustering algorithm. \textbf{Here:} $\pm$25\% sensitivity stress; a known-truth \emph{calibration suite} of eight archetype kernels, classified blind (\S\ref{sec:char-calibration}); cross-device agreement across two microarchitectures (\S\ref{sec:char-crossdev}); and \emph{two} independent clustering algorithms (k-means and Ward hierarchical) recovering the taxonomy (\S\ref{sec:char-clustering}).
+\end{itemize}
+
+Where DAMOV's breadth was 144 applications, this study is deliberately deep rather than wide one production application, 49 kernels, 27 sequences, 192 configuration variants with architectural breadth provided by the harness's adapter interface, capable of running arbitrary GPU workloads through the identical pipeline. The calibration archetypes serve as the suite-artifact analogue.

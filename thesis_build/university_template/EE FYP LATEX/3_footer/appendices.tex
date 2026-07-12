@@ -1,0 +1,286 @@
+\subsection{Glossary}
+\label{app:glossary}
+
+\begin{description}
+\item[Arithmetic intensity (AI)] FLOPs performed per byte fetched from
+DRAM; the x-axis of the roofline. Low AI = memory-bound.
+\item[Attribution] Assigning each memory access to the named data structure
+(allocation) it falls within.
+\item[Bandwidth] Data volume movable per unit time (GB/s); contrast
+\emph{latency}.
+\item[Bank (DRAM)] A subdivision of a DRAM device; near-bank PiM places
+compute at each bank to harvest internal bandwidth.
+\item[Bundle adjustment (BA)] Joint nonlinear least-squares refinement of
+camera poses and 3-D landmarks; cuVSLAM's numerical core.
+\item[Cache (L1/L2)] Automatic on-chip copies of recently used data; L1 per
+SM, L2 chip-wide (25\,MB on the primary instrument).
+\item[Coalescing] Hardware merging of a warp's 32 lane addresses into few
+32-byte sectors; its failure mode (scatter) wastes up to 8$\times$
+bandwidth.
+\item[Cold-persistent] Data with session lifetime touched episodically
+(the keyframe database).
+\item[Compulsory miss] A first-touch cache miss no cache size can avoid;
+streaming data consists almost entirely of these.
+\item[CoV] Coefficient of variation (standard deviation $\div$ mean);
+run-to-run noise measure (0.14\% at locked clocks here).
+\item[DRAM speed-of-light (DRAM SoL)] Achieved DRAM bandwidth as a
+percentage of the measured peak; $\geq$50\% is treated as saturation.
+\item[Footprint] The number of distinct 32-byte sectors a launch touches,
+i.e.\ its exact working-set size.
+\item[G0--G7] The GPU bottleneck taxonomy (Table~\ref{tab:taxonomy}).
+\item[Ground truth] The externally measured true trajectory against which
+SLAM output is scored.
+\item[Hot-persistent] Resident data reused every frame (the BA linear
+system).
+\item[Jaccard overlap] $|A \cap B| / |A \cup B|$ between consecutive
+launches' footprints; measures working-set migration.
+\item[Kernel] One GPU function launched over a grid of threads.
+\item[Keyframe] A frame promoted into the long-term map; its descriptors
+enter the loop-closure database.
+\item[Lane] One of the 32 SIMT execution slots of a warp.
+\item[LFMR] Last-to-first miss ratio; on a two-level GPU hierarchy,
+$1 - \text{L2 hit rate}$. Near 1 = caches not helping.
+\item[Local memory] Per-thread DRAM-backed space used for register spills;
+coalesced by construction; \emph{not} program data.
+\item[Loop closure] Recognition of a previously visited place, triggering
+trajectory-wide drift correction via a database scan.
+\item[Memory wall] The compounding gap between compute throughput and
+memory speed; the thesis's founding observation.
+\item[MPKI] DRAM sector fetches per thousand warp instructions.
+\item[Occupancy] Resident warps as a fraction of the SM maximum; the GPU's
+latency-hiding budget.
+\item[Persistence] The lifetime/touch-pattern axis of a data structure:
+streaming, hot-persistent, or cold-persistent.
+\item[PiM / NDP] Processing-in-memory / near-data processing; compute
+placed at or near DRAM.
+\item[Reuse distance] Distinct sectors touched between successive accesses
+to the same sector; its CDF predicts hit rate for any cache size.
+\item[Roofline] $\min(\text{peak compute}, \text{AI} \times \text{peak
+bandwidth})$ performance bound; placement under the sloped segment =
+memory-bound.
+\item[Sector] The 32-byte granule of GPU DRAM/L2 access; four per 128-byte
+line.
+\item[Sectors per request] Average sectors fetched per warp memory
+request; $\sim$4 coalesced, $\rightarrow$32 scattered.
+\item[SM] Streaming multiprocessor; the GPU's core unit (22 on the primary
+instrument).
+\item[Spill (register)] Compiler-generated traffic to local memory when
+per-thread state exceeds the register budget.
+\item[Stall reason] Hardware-recorded cause of a warp's failure to issue
+(memory scoreboard, dependency wait, barrier, \ldots).
+\item[Streaming] Per-frame data consumed once; compulsory-miss dominated.
+\item[Substrate] A candidate execution home: GPU, CPU, DRAM-PiM,
+scatter-PiM, near-sensor, in/near-storage.
+\item[TaggedAllocator] This project's allocation-journaling
+instrumentation: pointer, size, call stack, and data-structure tag for
+every GPU allocation.
+\item[Warp] The fixed 32-thread SIMT execution bundle.
+\end{description}
+
+\subsection{Artifact and Reproducibility Description}
+\label{app:artifacts}
+
+All software, configurations, and derived data of this thesis are archived
+in a single repository (\code{github.com/mij001/cuvslam-stack}, MIT
+license). The artifact is organized so that \emph{every table in this
+document regenerates from committed CSV data using only the Python standard
+library no GPU, no datasets, no vendor tools required}; capture (which
+does require the hardware) is separated from analysis by construction.
+
+\subsubsection{Layout}
+
+\begin{description}
+\item[\code{configs/}] The configuration regime: a small set of human-owned
+base TOML files plus a deterministic mutation pass that materializes the
+full experiment matrices (141 accuracy configurations, 192
+profiling-coverage variants). One TOML fully describes a run: dataset,
+camera rig, pipeline mode, feature toggles, and the ground-truth evaluation
+block.
+\item[\code{profiling/harness/}] The capture entry point: one command runs
+any configuration under nsys, ncu (curated metric set, bounded windows), or
+NVBit (windowed, kernel-filtered address traces), writing versioned result
+directories with full provenance (clock locks, driver/tool versions,
+command lines). A workload-\emph{adapter} interface makes the harness
+generic: cuVSLAM is one adapter; a command adapter runs arbitrary GPU
+programs through the identical pipeline.
+\item[\code{profiling/analysis/}] The stdlib-only analysis library:
+screening, classification (the decision tree of \S\ref{sec:met-tree}, with
+thresholds defined once and imported live into documentation), roofline,
+locality (reuse-distance CDFs with memory-space filtering), attribution
+(the journal-trace join), campaign synthesis, substrate verdicts, residual
+ranking, and the DAMOV-parity checks. The GPU-free test suite fabricates
+known inputs for every module.
+\item[\code{profiling/calibration/}] The known-truth archetype suite
+(\S\ref{sec:char-calibration}): eight kernels, one per class, with the
+blind-classification driver.
+\item[\code{profiling/validation/}] The clock-domain intervention scripts
+(\S\ref{sec:met-parity}) and the profiler-neutrality drivers.
+\item[\code{patches/}] The instrumentation as reviewable diffs: the
+TaggedAllocator + NVTX enablement patch against the cuVSLAM source tree,
+and the NVBit \code{mem\_trace} extensions (launch-window and kernel-name
+gating; the allocation-event sidecar).
+\item[\code{reports/}, \code{profiling/reports/}] Dated, immutable result
+directories: the 27-sequence characterization campaign, the locality study
+and its space-filtered re-derivation (both the superseded and corrected
+tables are retained, with the correction marked in place), the attribution
+campaign, the 141-run accuracy matrix, the 192-variant neutrality campaign,
+the substrate synthesis, the energy and host-I/O measurements, and the
+DAMOV-validation artifacts (cross-device agreement, hierarchical-clustering
+agreement).
+\item[\code{dashboard/}] The evidence explorer: an interactive application
+presenting every finding with its computed number, the per-run reasoning
+chain (time share $\rightarrow$ metrics vs.\ thresholds $\rightarrow$ the
+decision-tree rule that fired $\rightarrow$ verdict), and a methodology tab
+whose formulas and thresholds are stamped from the analysis source at build
+time so interface and code cannot disagree.
+\end{description}
+
+\subsubsection{Environment}
+
+Primary testing hardware: NVIDIA RTX~2000 Ada (\code{sm\_89}), driver
+575.64.05, CUDA 12.9.1, Nsight Compute 2025.2.1.3, Nsight Systems 2025.3.2,
+and NVBit 1.8. Maintaining this exact combination of software and driver
+versions is critical, since the binary instrumentation specifies the driver
+version, which, in its turn, determines the profiler versions. To ensure
+compatibility, an environment doctor checks the target system and suggests
+a one-line fix for any incompatibilities detected. GPU clocks are locked
+(1620/7001\,MHz) for every measurement; ceilings are re-measured per
+instrument.
+
+\subsubsection{Reproduction paths}
+
+\textbf{Analysis-only (no GPU):} clone; run the test suite; regenerate any
+table in this thesis from the committed CSVs via the corresponding
+\code{analysis} module. \textbf{Full capture:} configure a target with the
+environment doctor; run the regime's campaign drivers (all are resumable
+and idempotent re-running skips completed steps); the coverage audit
+then proves the captures complete before analysis will consume them.
+\textbf{Instrumented builds:} apply the committed patch to the cuVSLAM
+source tree and build with the pinned container recipe; the baseline and
+instrumented binaries are kept side by side, and the QoR check of
+\S\ref{sec:val-neutrality} re-verifies output equivalence on any rebuild.
+
+\subsection{Extended Result Tables}
+\label{app:tables}
+
+The tables below are excerpts of committed artifacts, reproduced for
+convenience; the full machine-readable versions live in the repository
+(Appendix~\ref{app:artifacts}).
+
+\subsubsection{Cross-sequence attribution consistency (excerpt)}
+
+Selected rows of the 49-kernel attribution-consistency table: each kernel's
+modal top global-space tag, the agreement across every sequence it appears
+in, and its median memory-space split (shared/spill/global).
+
+\begin{table}[h]
+\centering
+\caption{Attribution consistency across 27 sequences (excerpt).}
+\label{tab:attr-consistency}
+\small
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+kernel & modal global tag & agree & shared & spill & global \\
+\midrule
+\code{cast\_image\_kernel} & \code{images\_raw} & 100\% & 0\% & 0\% & 100\% \\
+\code{cast\_image\_kernel\_rgb} & \code{pyramid\_levels} & 100\% & 0\% & 0\% & 100\% \\
+\code{gaussian\_scaling\_kernel} & \code{images\_raw} & 100\% & 0\% & 0\% & 100\% \\
+\code{conv\_grad\_x\_kernel} & \code{pyramid\_levels} & 100\% & 92\% & 0\% & 8\% \\
+\code{conv\_grad\_y\_kernel} & \code{pyramid\_levels} & 100\% & 96\% & 0\% & 4\% \\
+\code{gftt\_values\_kernel} & \code{feature\_tracks} & 100\% & 98\% & 0\% & 2\% \\
+\code{non\_max\_suppression} & \code{feature\_tracks} & 100\% & 90\% & 0\% & 10\% \\
+\code{accumulateGFTT\_kernel} & \code{feat.\ sel.\ scratch} & 100\% & 89\% & 0\% & 11\% \\
+\code{sba::build\_full\_system\_1} & \code{ba\_linear\_system} & 100\% & 0\% & 0\% & 100\% \\
+\code{sba::calc\_jacobians} & \code{ba\_linear\_system} & 100\% & 4\% & 0\% & 96\% \\
+\code{sba::reduced\_system\_st.\,2} & \code{ba\_linear\_system} & 100\% & 4\% & 0\% & 96\% \\
+\stBuild{} & \code{keyframe\_descriptors} & 100\% & 0\% & 0\% & 100\% \\
+\stTrack{} & \code{keyframe\_descriptors} & 100\% & 0\% & 93\% & 7\% \\
+\code{cub::DeviceMergeSort*} & \code{feature\_tracks} & 100\% & 83--97\% & 0\% & 3--17\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Instrumented vs.\ baseline trajectories (QoR excerpt)}
+
+\begin{table}[h]
+\centering
+\caption{Quality-of-results check: instrumented (TaggedAllocator) build vs.\
+baseline build, same configurations (APE, m).}
+\label{tab:qor}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+configuration & baseline & instrumented & $\Delta$ \\
+\midrule
+EuRoC MH\_01 inertial SLAM & 0.689 & 0.689 & 0.0000 \\
+EuRoC V1\_01 stereo SLAM & 0.037 & 0.037 & 0.0000 \\
+EuRoC V2\_02 stereo odometry & 0.177 & 0.177 & 0.0000 \\
+KITTI 00 stereo odometry & 6.841 & 6.605 & $-$0.236\textsuperscript{a} \\
+KITTI 06 stereo SLAM & 2.312 & 2.277 & $-$0.035\textsuperscript{a} \\
+TUM long\_office RGB-D SLAM & 0.018 & 0.021 & $+$0.003 \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\raggedright\footnotesize \textsuperscript{a}\,Within the sequence's own
+plain-rerun scatter (\S\ref{sec:val-nondeterminism}); kitti00 is the
+canonical bimodal loop-closure case.
+\end{table}
+
+\subsubsection{KITTI per-sequence odometry accuracy}
+
+\begin{table}[h]
+\centering
+\caption{KITTI stereo odometry, per sequence: absolute error and
+segment-relative drift (100--800\,m KITTI protocol).}
+\label{tab:kitti}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+seq. & APE (m) & avgRTE (\%) & avgRE ($^\circ$) \\
+\midrule
+00 & 6.84 & 0.892 & 0.938 \\
+01 & 11.59 & 1.899 & 0.386 \\
+02 & 4.55 & 0.975 & 0.707 \\
+03 & 3.94 & 2.265 & 0.988 \\
+04 & 2.16 & 1.967 & 0.090 \\
+05 & 3.31 & 0.974 & 0.723 \\
+06 & 2.88 & 1.248 & 0.757 \\
+07 & 1.44 & 0.982 & 1.131 \\
+08 & 4.57 & 1.221 & 0.959 \\
+09 & 3.53 & 1.238 & 0.544 \\
+10 & 2.17 & 1.010 & 0.661 \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\raggedright\footnotesize At the 500\,m segment length the corpus-level
+translational drift is 0.82\%, against the 0.85\% published KITTI-protocol
+figure (\S\ref{sec:val-accuracy}). Sequence 01 (highway, sparse features)
+dominates the absolute-APE average; sequences 01 and 04 close no loops and
+serve as the loop-free control in the attribution campaign.
+\end{table}
+
+\subsubsection{Measured stage map (NVTX, excerpt)}
+
+\begin{table}[h]
+\centering
+\caption{Kernel-to-stage mapping, measured from cuVSLAM's own NVTX ranges.}
+\label{tab:nvtx}
+\small
+\begin{tabular}{@{}lp{0.55\textwidth}@{}}
+\toprule
+NVTX stage & kernels \\
+\midrule
+front-end, per frame & \code{cast\_image\_kernel\_rgb},
+\code{gaussian\_scaling}, \code{conv\_grad\_x/y}, \code{lk\_track} \\
+keyframe feature refresh & \code{gftt\_values}, \code{accumulateGFTT},
+\code{downsample\_gftt}, \code{non\_max\_suppression},
+\code{select\_features}, CUB keypoint sort \\
+visual-odometry solver & \code{matcher::*}, \code{cast\_depth},
+\code{sba::reduced\_system\_*}, cuSOLVER helpers \\
+windowed bundle adjustment & \code{sba::build\_full\_system\_*},
+\code{sba::calc\_jacobians}, \code{sba::evaluate\_cost} \\
+keyframe ingest & \stBuild{} \\
+loop closure \& optimization & \stTrack{} \\
+\bottomrule
+\end{tabular}
+\end{table}

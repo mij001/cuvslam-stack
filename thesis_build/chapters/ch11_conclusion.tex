@@ -1,0 +1,36 @@
+\chapter{Conclusion and Future Work}
+\label{ch:conclusion}
+
+\section{What Was Established}
+
+This thesis set out to determine, by measurement, where a production visual-SLAM workload's computation belongs on the emerging spectrum of memory-centric hardware. Its answers, in the order of the research questions:
+
+\textbf{RQ1: the methodology exists.} GPU-DAMOV re-derives every component of the reference data-movement methodology for GPUs screening, machine-independent locality, threshold classification, and the full robustness battery with three GPU-driven redesigns (two-level LFMR, occupancy-conditioned latency classes, a coalescing axis) and simulated interventions replaced by measured ones. The parity argument is componentwise and complete at DAMOV's granularity (\S\ref{sec:met-parity}).
+
+\textbf{RQ2: the classes are real and stable.} Eight bottleneck classes (G0--G7, one dependency-bound G7 forced into existence by the data) classify 49 kernels with 91\% cross-sequence consistency, survive $\pm$25\% threshold stress, are recovered by two label-free clustering algorithms (purity $\approx$0.68 both), agree 80\% across two GPU microarchitectures, and correctly classify a known-truth calibration suite after three archetype defects were fixed with the classifier untouched.
+
+\textbf{RQ3: every byte has a name.} The TaggedAllocator attribution resolves all 274 allocations and gives 48/49 kernels a unanimous data-structure tag across the corpus. The two decisive findings: the GPU memory budget is \emph{static} (the growing keyframe database lives host-side, GPU-resident state is a fixed 6.7\,MB), and 92.6\% of the loop-closure scan's DRAM volume is register-spill scratch a compiler artifact no counter-only study could have separated from data traffic.
+
+\textbf{RQ4: the placement.} The workload splits three ways: a cache-immune streaming front-end (near-sensor placement; no cache size helps, measured); a hot-persistent solver that should stay on the GPU at this scale; and a cold-persistent, session-growing database tier whose scan is a genuine scattered gather (in/near-storage plus scatter-capable PiM candidacy). Time-weighted, 61--72\% of GPU time carries near-data affinity; 16--26 of 49 kernels clear an analytical offload bar under conservative-to-moderate scenarios; and the baselines a follow-on study must beat are now measured: 34.67\,J whole-run energy, 1.68\,MB/frame sensor upload, 41\% of kernel time in boundary copies, 66\,MB storage ingestion, 708\,MB peak host memory.
+
+\textbf{RQ5: the measurements are trustworthy.} The characterized system reproduces its vendor's published accuracy (141-configuration matrix); profiling is output-neutral (bit-identical trajectories on deterministic modes across 192 variants); the noise floor is measured (CoV 0.14\%); and the project's two self-corrections most notably the reversal of an interim "coalesced streaming" conclusion once register-spill traffic was separated from data are documented in place, ending with independent instruments in agreement.
+
+\section{The Thesis, Restated}
+
+For Physical-AI perception workloads, the question "should we build PiM?" is ill-posed; the well-posed question is "\emph{which data structure}, touched by \emph{which kernel}, under \emph{which access pattern}, belongs on \emph{which substrate}?" and it is answerable today, on production software, with commodity instruments, to the granularity of a named allocation and with quantified confidence. Answered for cuVSLAM, it yields not one accelerator but a placement: sensor-side consumption for streams, the GPU for the solver, near-storage and scatter-capable near-memory engines for the map with measured evidence attached to every cell.
+
+\section{Future Work}
+\label{sec:roadmap}
+
+The project's phased roadmap continues beyond this document:
+
+\begin{enumerate}
+    \item \textbf{Complete the validation suite.} Execute the scripted clock-domain intervention (per-class predictions are stated ex ante: bandwidth classes track the memory clock, compute/on-chip/dependency classes the core clock) and incorporate its verdicts into the artifact.
+    \item \textbf{Name the last bytes.} The kernel-argument correlation layer (Layer 3) resolves the two named residual kernels carrying 83\% of unmapped traffic; its target list and join interface are already committed.
+    \item \textbf{Embedded-target re-derivation.} Re-run the regime on Jetson-class hardware (the harness already drives remote targets) to re-derive the codegen-dependent quantities above all the spill share and test the taxonomy's transfer to deployment-class hardware.
+    \item \textbf{The architecture study.} Feed the traces to Accel-Sim under the generated NDP configurations~\cite{khairy2020accelsim}, with AccelWattch~\cite{kandiah2021accelwattch} for per-class energy, reporting speedup and energy \emph{deltas} against this thesis's measured baselines per the standing rule, never absolutes. The conservative/moderate placement scenarios of \S\ref{sec:syn-model} become simulated designs; the 16--26-kernel offload sets are the experiment list.
+    \item \textbf{Breadth via adapters.} Run non-SLAM GPU workloads (DNN inference, GPU database operators) through the unchanged pipeline to test the methodology's generality claim the adapter interface ensures that breadth costs only execution time, not engineering.
+\end{enumerate}
+
+The characterization is complete; the design space it opens is measured, bounded, and for the first time for a production Physical-AI perception stack named, byte by byte.
+

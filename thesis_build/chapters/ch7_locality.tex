@@ -1,0 +1,93 @@
+\chapter{Machine-Independent Locality Analysis}
+\label{ch:locality}
+
+Counters summarize; address traces prove. This chapter reports the DAMOV-style locality analysis computed from NVBit per-warp address traces: the metrics (\S\ref{sec:loc-metrics}), the front-end result (\S\ref{sec:loc-frontend}), the loop-closure-scan result and the self-correction that produced it (\S\ref{sec:loc-correction}), and the session-scale growth measurement (\S\ref{sec:loc-growth}).
+
+\section{Trace-Side Metrics}
+\label{sec:loc-metrics}
+
+From each kernel's global-space address stream, per launch, four metrics are computed:
+
+\begin{itemize}
+  \item \textbf{Footprint}: Number of distinct 32-byte sectors touched, $\times$32\,B exact working-set size, measured directly rather than inferred.
+  \item \textbf{Reuse-distance CDF}: For each access, the count of distinct sectors touched since that sector's previous access (LRU stack distance~\cite{mattson1970stack}). The CDF, evaluated at capacities from 64\,KiB to 48\,MiB, predicts the hit rate of any cache of that size, independent of policy details. A flat curve means no cache size helps: misses are compulsory.
+  \item \textbf{Coalescing, trace-exact}: Sectors touched per warp access (1--32), plus active lanes per access, which separates true scatter from divergence-induced apparent scatter.
+  \item \textbf{Inter-launch overlap}: Jaccard similarity $|A \cap B|/|A \cup B|$ between consecutive launches' footprints indicates whether a recurring kernel re-touches the same data (cacheable across launches) or migrates.
+\end{itemize}
+
+One rule governs all of these: \emph{memory-space filtering}. Only global-space instructions (\code{LDG}/\code{STG}) enter locality analysis; shared-memory (\code{LDS}/\code{STS}) and local-memory (\code{LDL}/\code{STL}, register spill) records are bucketed separately. This rule was not a precaution rather, it was forced by the measurement failure documented in \S\ref{sec:loc-correction}, and is now the methodology's most exportable lesson.
+
+\section{The Front-End Is Cache-Immune Streaming}
+\label{sec:loc-frontend}
+
+For every per-frame front-end kernel (image cast, pyramid scaling, gradient convolutions, LK tracking), the reuse-distance CDF is \textbf{flat from 64\,KiB to 48\,MiB} (Figure~\ref{fig:cdf}): the hit rate a 64\,KiB cache would achieve is the hit rate a 48\,MiB cache would achieve, since all reuse is at tiny distances (caught by any cache) and everything else is a first touch of streaming pixel data (caught by none). Global-space accesses run at $\sim$4.0 sectors per warp access, fully coalesced, with 32.0 active lanes.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{semilogxaxis}[
+  width=0.82\textwidth, height=5.4cm,
+  xlabel={hypothetical cache capacity}, ylabel={predicted hit rate},
+  xmin=32, xmax=65536, ymin=0, ymax=1.02,
+  xtick={64,512,4096,49152}, xticklabels={64\,KiB,512\,KiB,4\,MiB,48\,MiB},
+  ytick={0,0.25,0.5,0.75,1.0},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  legend style={at={(0.02,0.98)},anchor=north west,font=\scriptsize,draw=black!30},
+  grid=both, major grid style={black!8},
+]
+\addplot[cPIM,very thick,mark=*,mark size=1pt] coordinates {
+  (64,0.19)(512,0.20)(4096,0.205)(16384,0.207)(49152,0.21)};
+\addplot[cGPU,very thick,dashed,mark=triangle*,mark size=1.5pt] coordinates {
+  (64,0.22)(512,0.41)(4096,0.68)(16384,0.90)(49152,0.985)};
+\legend{front-end (cache-immune streaming),cache-friendly kernel (for contrast)}
+\end{semilogxaxis}
+\end{tikzpicture}
+\caption[Reuse-distance CDF: cache-immune streaming.]{Predicted hit rate versus
+cache capacity, from the measured reuse-distance CDF. The front-end curve is
+essentially flat across a three-order-of-magnitude capacity sweep: no realizable
+cache changes its miss rate, because its misses are compulsory first-touches of
+streaming pixel data. A cache-friendly kernel (dashed) is shown for contrast.}
+\label{fig:cdf}
+\end{figure}
+
+The architectural reading is sharp: \emph{no realizable cache helps this tier} its misses are compulsory. Bigger caches are the wrong axis entirely; the only remedies are moving fewer bytes (algorithmic) or consuming the stream before it reaches DRAM (near-sensor placement, \S\ref{sec:char-transfers}). Early counter-only readings suggested one convolution kernel was a scattered "data-layout target" (15.4 sectors per access) with high reuse; space filtering dissolved both signals these were shared-memory tile traffic, on-chip and irrelevant to DRAM. After correction, the front-end is \emph{uniformly} stream-clean, and the correct optimization target is on-chip, not layout.
+
+\section{The Loop-Closure Scan: A Self-Correction on Record}
+\label{sec:loc-correction}
+
+The loop-closure scan kernel \stTrack{} produced the project's most instructive measurement arc, reported in full for its methodological value.
+
+\textbf{Round one: counters vs.\ trace.} Nsight Compute counters indicated the kernel was a scattered gather 18--30 sectors per request. The first NVBit trace analysis indicated the opposite: 2.1 sectors per warp access, 99.4\% of accesses touching $\leq$4 sectors apparently tightly coalesced streaming. Taking the trace as ground truth, the project's interim report concluded the counter metric was a proxy artifact “the trace overturns the counters.”
+
+\textbf{Round two: the join exposes the confound.} When the attribution join (Chapter~\ref{ch:attribution}) matched trace addresses against live allocations, 88--98\% of most kernels' trace records matched \emph{no allocation at all} impossible for real data traffic. The explanation: the tracer records \emph{every} memory space, and for \stTrack{}, \textbf{92.6\% of all recorded accesses were register-spill traffic} in local space which is \emph{perfectly coalesced by construction} (\S\ref{sec:bg-mem}) drowning the actual data accesses in the blended statistics.
+
+\textbf{Round three: space-filtered re-derivation.} Filtering to global space only and re-deriving every table: \stTrack{}'s \emph{data} accesses are \textbf{23.4--30.0 sectors per warp access, with only 2.3--6.0\% of accesses touching $\leq$4 sectors} a scattered gather, \emph{exactly what the counters had said}. The interim conclusion was withdrawn in a dated, in-place correction; the classifier's G2 label stands; and the two instruments now agree. Table~\ref{tab:sttrack} juxtaposes the blended and corrected views.
+
+\begin{table}[t]
+\centering
+\caption{The \stTrack{} correction: blended-space analysis vs.\ space-filtered re-derivation (TUM room-scale / KITTI street-scale).}
+\label{tab:sttrack}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+metric & blended (all spaces) & global-only & local-only (spill) \\
+\midrule
+sectors / warp access & 2.1 & 23.4 / 30.0 & 2.0 \\
+accesses $\leq$4 sectors & 99.4\,\% & 6.0 / 2.3\,\% & 100\,\% \\
+share of recorded accesses & 100\,\% & $\sim$5--7\,\% & $\sim$92.6\,\% \\
+per-scan footprint (MB) & 0.467 / 1.096 & 0.464 / 1.093 & $\sim$0.003 \\
+inter-launch Jaccard & 0.67 / 0.90 & 0.67 / 0.90 & 1.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three durable lessons:
+\begin{itemize}
+  \item \emph{Methodological}: unfiltered GPU address traces are dominated by spill and scratchpad records; any locality or attribution analysis that does not filter by memory space is unsound a warning directly applicable to other groups using binary-instrumentation traces.
+  \item \emph{Evidential}: two independent instruments agreeing \emph{after} a documented reconciliation is stronger support than either alone; the disagreement was the pipeline catching its own error.
+  \item \emph{Architectural}: the kernel's DRAM volume and its DRAM \emph{pattern} have different sources volume is dominated by compiler spill (a register-file/occupancy trade, fixable on-GPU), while the data-side pattern is a genuine scattered gather over the keyframe descriptors (a scatter-PiM or layout question). Only the attribution of Chapter~\ref{ch:attribution} could have separated them.
+\end{itemize}
+
+\section{Session-Scale Growth and Migration}
+\label{sec:loc-growth}
+
+Two properties of the scan survive the correction untouched (the spill window is only $\sim$3\,KB of the footprint). First, the per-scan working set \emph{grows with the map}: 0.46\,MB per scan at room scale (TUM) to 1.09\,MB at street scale (KITTI). Second, it \emph{migrates}: consecutive scans overlap with Jaccard 0.67 (room) to 0.90 (street) 10--33\% of the touched set turns over between scans. Each individual scan is nearly L2-resident; the union over a session the entire keyframe database, scanned incrementally, growing without bound with distance travelled is what no cache holds. This is the measured locality half of the in-storage case; the allocation half (the database's GPU-resident state is a fixed buffer while the growing store lives host-side) is established in Chapter~\ref{ch:attribution}.

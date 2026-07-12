@@ -1,0 +1,57 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+(/usr/share/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(/usr/share/texmf-dist/tex/latex/base/size12.clo)) (./1_header/packages.tex
+(/usr/share/texmf-dist/tex/latex/base/inputenc.sty)
+(/usr/share/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/color.cfg)
+(/usr/share/texmf-dist/tex/latex/graphics-def/pdftex.def)
+(/usr/share/texmf-dist/tex/latex/graphics/mathcolor.ltx))
+(/usr/share/texmf-dist/tex/latex/xcolor/x11nam.def)
+(/usr/share/texmf-dist/tex/latex/graphics/dvipsnam.def)
+(/usr/share/texmf-dist/tex/latex/xcolor/svgnam.def)
+(/usr/share/texmf-dist/tex/latex/colortbl/colortbl.sty
+(/usr/share/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texmf-dist/tex/latex/adjustbox/adjustbox.sty
+(/usr/share/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+(/usr/share/texmf-dist/tex/generic/xkeyval/xkeyval.tex
+(/usr/share/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+(/usr/share/texmf-dist/tex/generic/xkeyval/keyval.tex))))
+(/usr/share/texmf-dist/tex/latex/adjustbox/adjcalc.sty)
+(/usr/share/texmf-dist/tex/latex/adjustbox/trimclip.sty
+(/usr/share/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/graphics.cfg)))
+(/usr/share/texmf-dist/tex/latex/collectbox/collectbox.sty)
+(/usr/share/texmf-dist/tex/latex/adjustbox/tc-pdftex.def))
+(/usr/share/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty)
+(/usr/share/texmf-dist/tex/latex/varwidth/varwidth.sty)
+==> First Aid for varwidth.sty applied!
+) (/usr/share/texmf-dist/tex/latex/tools/afterpage.sty)
+(/usr/share/texmf-dist/tex/latex/placeins/placeins.sty)
+(/usr/share/texmf-dist/tex/latex/pdfpages/pdfpages.sty
+(/usr/share/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texmf-dist/tex/latex/tools/calc.sty)
+(/usr/share/texmf-dist/tex/latex/eso-pic/eso-pic.sty)
+(/usr/share/texmf-dist/tex/latex/etoolbox/etoolbox.sty)
+(/usr/share/texmf-dist/tex/latex/pdfpages/pppdftex.def))
+
+! LaTeX Error: File `algorithm2e.sty' not found.
+
+Type X to quit or <RETURN> to proceed,
+or enter new name. (Default extension: sty)
+
+Enter file name: 
+! Emergency stop.
+<read *> 
+         
+l.13 \usepackage
+                {array}^^M
+!  ==> Fatal error occurred, no output PDF file produced!
+Transcript written on main.log.

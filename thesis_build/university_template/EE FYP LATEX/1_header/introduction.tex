@@ -1,0 +1,56 @@
+
+\subsection{Motivation: Physical AI Faces the Memory Wall}
+
+Every robot navigating its surroundings requires instant answers to the two core questions: \emph{Where am I?} And \emph{What does my surroundings look like?} Visual SLAM is the computational domain tasked with answering both using a video stream from cameras. In commercial robotics, these visual SLAM operations are usually performed on GPUs. This thesis studies cuVSLAM~\cite{cuvslam2025}: a GPU-accelerated visual SLAM library running in the Isaac robotics stack on a physical robot. By definition, this type of workload falls into the category of so-called \emph{Physical AI}, systems which are capable of interacting with the real world and complying with latency and energy constraints.
+
+For this type of robot, the major constraint on processors is not arithmetic. With generations of hardware advancing, floating point calculations have become virtually costless compared to the huge amount of energy needed to read and write them from off-chip DRAM: a memory read operation consumes orders of magnitude more energy than computations do. This problem, called the \emph{memory wall}~\cite{wulf1995memorywall}, is the modern incarnation of the von Neumann bottleneck. For battery-operated robots, the implication is direct: joules spent reading and writing pixels and map entries are joules lost to either flight time or actuation.
+
+The architecture community's response has been the development of \emph{memory-centric} hardware. This includes processing-in-memory (PiM), which places compute engines at or inside DRAM devices~\cite{mutlu2019pim,ghose2019pim}; in-storage or near-storage processing, which executes queries where the data is stored~\cite{do2013smartssd,gu2016biscuit}; and near-sensor processing, which consumes pixel streams before they reach main memory. Commercial implementations exist for each of these approaches~\cite{gomezluna2021upmem,kwon2021hbmpim,lee2022aim}. However, there is still no principled method to determine, for a given production workload, \emph{which} computations belong on \emph{which} substrate. Answering this question requires precise measurement: a \emph{characterization} of exactly how the workload moves data.
+
+\subsection{Problem Statement}
+The problem addressed in this thesis can be summarized in a single sentence:
+\begin{quote}
+\emph{For each GPU kernel of a production visual-SLAM system, determine by measurement, at the granularity of named data structures, and with quantified confidence whether its bottleneck is data movement, which class of data movement, and, consequently, which hardware substrate (GPU, CPU, DRAM-PiM, scatter-capable PiM, near-sensor, or in/near-storage) is the appropriate home for it.}
+\end{quote}
+
+Three properties make this problem challenging, and each motivates a key contribution of this thesis:
+
+\begin{enumerate}
+\item \textbf{The reference methodology is CPU-centric.} The established data-movement characterization methodology, DAMOV~\cite{oliveira2021damov}, was developed for CPUs. GPUs violate its assumptions in specific ways: they have a two-level (not three-level) cache hierarchy; they hide memory latency with massive thread parallelism rather than stalling; and they exhibit a failure mode with no CPU analogue \emph{memory divergence}, where the 32 threads of a warp scatter their accesses, wasting up to $8\times$ the fetched bandwidth. A GPU characterization must adapt the methodology, not merely reuse it (see Chapter~\ref{ch:method}).
+\item \textbf{Kernel-level claims are not architect-level claims.} While a profiler can report that a kernel is memory-bound, an architect needs to know \emph{which data structure} the traffic is associated with such as an image, a solver matrix, or a growing keyframe database because the appropriate substrate depends on this distinction. Attributing every byte of DRAM traffic to a named allocation in a closed-source production binary requires purpose-built instrumentation (see Chapter~\ref{ch:attribution}).
+\item \textbf{Measurements must be proven trustworthy.} A critical reviewer will ask: Was the workload computing correctly? Did the instrumentation alter system behavior? Are the measurements stable across runs? Would the classification hold under different thresholds, clustering algorithms, or hardware? Each of these concerns is addressed with dedicated experiments in this thesis (see Chapters~\ref{ch:validity} and~\ref{ch:characterization}).\end{enumerate}
+
+\subsection{Research Questions}
+\begin{description}
+\item[RQ1:] Can DAMOV's data-movement methodology be re-derived for GPUs such that each of its components screening, machine independent locality analysis, bottleneck classification, and robustness validation has a measured GPU analogue? (See Chapter~\ref{ch:method}; validated in Chapters~\ref{ch:characterization}--\ref{ch:locality}.)
+
+\item[RQ2:] What are the memory-bottleneck classes of a production visual-SLAM workload, and are these properties intrinsic to the kernels or artifacts of particular inputs, thresholds, or hardware? (See Chapter~\ref{ch:characterization}.)
+
+\item[RQ3:] Which named data structures receive each kernel's DRAM traffic, and what fraction of that traffic is program data versus compiler-generated scratch? (See Chapter~\ref{ch:attribution}.)    
+
+\item[RQ4:] What is the resulting substrate placement for the workload's computation? What fraction of GPU time is offload-eligible, and what measured baselines (energy, host I/O) must a follow-on architecture study improve upon? (See Chapter~\ref{ch:synthesis}.)
+
+\item[RQ5:] Can the entire measurement apparatus be shown to be accuracy-neutral, that is, can it be demonstrated that the characterized system functions correctly, with outputs unchanged by observation? (See Chapter~\ref{ch:validity}.)\end{description}
+
+\subsection{Contributions}
+\begin{enumerate}
+
+\item \textbf{GPU-DAMOV, a new methodology} (Chapter~\ref{ch:method}). This is a component-by-component re-derivation of DAMOV for GPUs: LFMR is redefined for a two-level hierarchy; latency-boundedness is conditioned on occupancy; a coalescing axis is added; and DAMOV's simulated intervention experiment is replaced by two \emph{measured} interventions (a clock-domain sensitivity sweep and a direct reuse-distance cache-capacity curve), with a simulated third axis prepared as a generated configuration. The method’s endpoint extends beyond DAMOV: not merely ``memory-bound,'' but a per-kernel \emph{substrate verdict} plus, when the verdict is ``stay on GPU,'' a named architectural fault to address.
+
+\item \textbf{The first per-data-structure memory characterization of a production SLAM system} (Chapters~\ref{ch:characterization}--\ref{ch:synthesis}). The study covers 49 kernels $\times$ 27 sequences $\times$ 4 datasets $\times$ 192 configuration variants, producing an eight-class taxonomy (G0--G7) where class membership is 91\% consistent across sequences, independently recovered by two clustering algorithms, and 80\% reproducible across two GPU microarchitectures.    
+
+\item \textbf{TaggedAllocator attribution} (Chapter~\ref{ch:attribution}). This three-layer instrumentation source-level allocation journaling with call stacks, driver-level allocation lifetime capture, and a streaming join against binary-instrumentation address traces resolves all 274 allocations and gives 48 of 49 kernels a unanimous data-structure tag. It reveals a finding invisible to counters: 92.6\% of the loop-closure scan's DRAM volume is register-spill scratch, not data.   
+
+\item \textbf{A validated trust chain} (Chapter~\ref{ch:validity}). The thesis reproduces the vendor's published trajectory accuracy with a 141-configuration accuracy matrix; demonstrates profiling is accuracy-neutral (bit-identical trajectories on deterministic modes) in a 192-configuration campaign; measures run-to-run noise (CoV 0.14\% at locked clocks); and includes a $\pm$25\% threshold sensitivity analysis.
+
+\item \textbf{A reusable, workload-agnostic toolchain} (released under the MIT license). This includes a single-file experiment runner, a configuration-mutation regime, a three-profiler harness with adapters for arbitrary GPU workloads, a stdlib-only analysis library that regenerates every table from committed CSVs without a GPU, and an interactive evidence dashboard.
+
+\item \textbf{Two documented self-corrections} in which independent methods initially disagreed but were reconciled one reversing an earlier project-internal conclusion (see Chapter~\ref{ch:locality}) are presented as a feature of the methodology: the pipeline is designed to catch its own errors.
+
+\end{enumerate}
+
+\subsection{Scope and Non-Goals}
+This thesis is a \emph{characterization}, deliberately stopping at measured candidacy and an analytical placement bound. It does \emph{not} simulate a PiM or in-storage design and, therefore, reports no end-to-end speedup or energy delta for the proposed substrates; such work is reserved for the follow-on architecture study, for which this thesis generates simulator configurations and measures baselines (see Section~\ref{sec:roadmap}). The focus is on one workload family cuVSLAM chosen for its representativeness in production deployment rather than breadth across all SLAM implementations; the toolchain's adapter mechanism provides a path to broader applicability. Hardware evaluation uses one desktop-class GPU as the primary instrument, with a second microarchitecture used to validate classification across devices.
+
+\subsection{Thesis Organization}
+Chapter~\ref{ch:background} builds the technical background from first principles: the GPU execution model, the memory hierarchy and its five address spaces, SLAM and cuVSLAM, candidate substrates, and measurement instruments. Chapter~\ref{ch:related} situates the work among data-movement characterizations, PiM systems, and SLAM acceleration studies. Chapter~\ref{ch:method} presents GPU-DAMOV: metrics, decision tree, taxonomy, placement model, and experimental setup. Chapter~\ref{ch:validity} establishes trust: accuracy validation, profiler neutrality, and measurement rigor. Chapter~\ref{ch:characterization} reports the kernel-level characterization and its four-way validation. Chapter~\ref{ch:locality} details the machine-independent locality analysis and the first self-correction. Chapter~\ref{ch:attribution} presents the data-structure attribution and register-spill finding. Chapter~\ref{ch:synthesis} synthesizes the substrate verdicts, placement model, and measured energy and host-I/O baselines. Chapter~\ref{ch:threats} enumerates threats to validity. Chapter~\ref{ch:conclusion} concludes with a phased roadmap. Appendices provide a glossary, artifact/reproducibility description, and extended result tables.

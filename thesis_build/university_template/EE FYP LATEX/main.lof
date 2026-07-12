@@ -1,0 +1,9 @@
+\babel@toc {australian}{}\relax 
+\contentsline {figure}{\numberline {1}{\ignorespaces The GPU memory hierarchy.}}{19}{figure.caption.7}%
+\contentsline {figure}{\numberline {2}{\ignorespaces The GPU-DAMOV six-step pipeline.}}{27}{figure.caption.8}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Measured roofline of cuVSLAM kernels.}}{31}{figure.caption.9}%
+\contentsline {figure}{\numberline {4}{\ignorespaces The ordered classification tree (G0--G7).}}{33}{figure.caption.11}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Kernel distribution across the taxonomy.}}{42}{figure.caption.15}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Reuse-distance CDF: cache-immune streaming.}}{45}{figure.caption.16}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Per-kernel memory-space attribution.}}{51}{figure.caption.19}%
+\contentsline {figure}{\numberline {8}{\ignorespaces The three-way substrate split.}}{53}{figure.caption.20}%
