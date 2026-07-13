@@ -1,0 +1,4 @@
+combination (should be ~absent),count,of
+high MPKI (>30) with low LFMR (<lfmr_lo),47,232
+DRAM saturated (>=dram_sat) with low LFMR (<lfmr_lo),8,232
+scattered (sect>=2x thresh) while DRAM saturated AND L2 absorbing (lfmr<lo),2,232

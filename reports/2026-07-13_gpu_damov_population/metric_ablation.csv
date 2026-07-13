@@ -1,0 +1,5 @@
+feature set,n kernels,kmeans purity@k=8,silhouette
+BASE (current classifier inputs),307,0.717,0.278
+BASE + QSR + L2AMP (new static),307,0.635,0.304
+"BASE + response (S_core,S_mem)",293,0.747,0.291
+ALL,293,0.696,0.322

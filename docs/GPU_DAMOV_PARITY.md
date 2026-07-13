@@ -139,13 +139,51 @@ most 3.5 points (e.g. lfmr band 0.38→0.36) — the thresholds are stable under
    persistence+growth says the union outgrows any cache. Offload-eligible time
    re-lands at 70.6% with composition shifted from PiM-scatter toward ISP.
 
+### 4c · DAMOV-scale population + the NDP evaluator (2026-07-13, measured)
+
+The width axis was then scaled to DAMOV's own magnitude in one overnight
+harvest+campaign (`reports/2026-07-13_gpu_damov_population/`):
+
+- **312 kernels from 178 real applications** (the 22 above + **160 HeCBench
+  apps** built and smoke-tested from 248 attempted — DAMOV screened 345 apps to
+  144; we now match in kind and scale). Four locked clock points per app.
+  Class census in the wild: G1×123, G3×74, G5×44, G7×26, G4×17, G2×14, G6×9,
+  G0×5. Thresholds re-derived on this cloud stay stable (lfmr 0.36 vs 0.375).
+- **Metric discovery (the LFMR-moment, run as an experiment):** one-way
+  F-statistics across classes rank the NEW **L2-amplification**
+  (dram_bytes/L2_bytes) at **F=49.8 — above LFMR itself (25.0)** — and the
+  clock-response features S_mem/S_core (43.6/24.4) lift unsupervised class
+  recovery from purity 0.717 → **0.747**: the sweep response IS a metric,
+  as DAMOV's LFMR-vs-cores trend was. QSR (queue-stall ratio) fails honestly
+  (F=0.3) and is recorded as a negative result.
+- **The measurement-fitted NDP evaluator** (`analysis/ndp_eval.py`): per kernel,
+  the three primary clock points exactly determine t = a/f_core + b/f_mem + c;
+  the held-out 4th point (1005/5001 MHz, off both fitted axes) validates each
+  fit — **median held-out error 1.0%, 258/296 kernels pass the ≤10% trust
+  gate**. NDP transform sweep (k×BW, c_r×compute, +2% overhead) over the
+  trusted population reproduces DAMOV Fig-18b in kind: **G1 (n=89) gains
+  1.12–1.24× rising with k; G2/G3/G4 and the compute classes LOSE (0.5–0.6×)**
+  — pains and gains, per class, from silicon-fitted models.
+- **The cycle-level rung (Accel-Sim = the ZSim+Ramulator role, running):**
+  NVBit SASS traces of the 8 archetypes (driver 575, binary-version-89 patch
+  documented) simulated under baseline (SM86 base, 22 clusters) vs NDP
+  overlays. **Overlay v1 (clocks-only: DRAM×k, core×c_r) showed the request
+  path throttling away the entire bandwidth gain** — G1 *lost* 0.62× because
+  the L2/NoC stayed core-side: DAMOV case-study-1's "the interconnect becomes
+  the wall", reproduced at cycle level and kept on record
+  (`ndp_sim_results_v1_coreside_fabric.csv`). Overlay v2 moves the L2/ICNT
+  clocks onto the bank fabric (what near-bank compute physically means); the
+  three-rungs agreement table (taxonomy vs fitted model vs cycle-level sim)
+  is the capstone artifact (`THREE_RUNGS.md`).
+
 ## 5 · Honest limitations (DAMOV §3.6 analogues)
 
 DAMOV listed three; ours mirror them:
-1. *They:* same core count host/NDP, no area/thermal budget. *We:* the placement
-   model's k/c parameters are asserted scenarios (conservative/moderate), not a
-   physical PiM design — the Accel-Sim leg (gated) turns them into simulated
-   deltas.
+1. *They:* same core count host/NDP, no area/thermal budget. *We:* the k/c
+   scenarios are now BOTH analytically fitted (holdout-validated per kernel)
+   AND cycle-simulated (Accel-Sim overlays on real traces) — still not a
+   physical PiM design with area/thermal budgets; the overlay models clock
+   domains and cache geometry, not bank-local controllers.
 2. *They:* function-level analysis ignores inter-function data movement. *We:*
    kernel-level analysis; host↔device transfers ARE measured (41% of kernel
    time), but kernel-to-kernel reuse through L2 is not attributed.

@@ -1,0 +1,8 @@
+archetype,class,rung1 taxonomy,rung2 model cons,rung3 sim cons,rung2 model mod,rung3 sim mod,story
+g1_triad,G1,gain,2.37x,0.62x,3.61x,0.92x,model=gain sim=lose
+g2_gather,G2,gain (concurrency near banks),0.78x,0.68x,0.86x,1.02x,model=lose sim=flat
+g3_l2,G3,lose (loses its L2),0.55x,0.47x,0.78x,0.69x,AGREE
+g4_chase,G4,gain (latency shrinks near banks),0.87x,0.52x,1.14x,0.78x,model=gain sim=lose
+g5_fma,G5,lose (pays c_r),0.50x,0.51x,0.74x,0.76x,AGREE
+g6_shared,G6,"lose/flat (on-chip, pays c_r)",0.50x,0.50x,0.74x,0.75x,AGREE
+g7_dep,G7,"lose/flat (dep chain, pays c_r)",0.50x,0.50x,0.74x,0.75x,AGREE

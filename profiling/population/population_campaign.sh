@@ -34,6 +34,11 @@ INDEX="$OUT/population_index.tsv"
 [ -s "$INDEX" ] || printf 'app\tstatus\tresults_dir\tcls_csv\n' > "$INDEX"
 
 BASE_GFX=1620; BASE_MEM=7001; LOW_GFX=810; LOW_MEM=5001
+# 4th point, OFF both swept axes (1005/5001): held-out validation of the
+# per-kernel linear clock model t = a/f_core + b/f_mem + c that the first
+# three points determine exactly — the NDP evaluator's fit is only trusted
+# where this point is predicted well (see analysis/ndp_eval.py)
+HOLD_GFX=1005; HOLD_MEM=5001
 lock() { sudo -n nvidia-smi -lgc "$1,$1" >/dev/null; sudo -n nvidia-smi -lmc "$2,$2" >/dev/null; sleep 2; }
 trap 'lock $BASE_GFX $BASE_MEM' EXIT
 
@@ -73,10 +78,13 @@ while IFS=$'\t' read -r app dir cmd; do
     if [ ! -s "$OUT/cls/${app}/classification.csv" ]; then
         printf '%s\tclassify-FAILED\t%s\t-\n' "$app" "$rdir" >> "$INDEX"; continue
     fi
+    # raw counters travel home too — metric discovery mines them directly
+    cp "$rdir/derived/ncu_metrics.csv" "$OUT/cls/${app}/ncu_metrics.csv" 2>/dev/null
 
     # ── 2 · clock-point sweep: nsys kern_sum at 3 points ────────────────────
     ok=1
-    for point in "base:$BASE_GFX:$BASE_MEM" "lowcore:$LOW_GFX:$BASE_MEM" "lowmem:$BASE_GFX:$LOW_MEM"; do
+    for point in "base:$BASE_GFX:$BASE_MEM" "lowcore:$LOW_GFX:$BASE_MEM" \
+                 "lowmem:$BASE_GFX:$LOW_MEM" "holdout:$HOLD_GFX:$HOLD_MEM"; do
         IFS=: read -r tag gfx mem <<< "$point"
         lock "$gfx" "$mem"
         rep="$OUT/sweep/${app}_${tag}"

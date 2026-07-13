@@ -1,0 +1,5 @@
+threshold,derived (cuVSLAM only),derived (widened population),stated
+dram_sat,27.31,38.14,50.0
+sect_scatter,12.77,13.22,8.0
+occ_low(_dep),25.92,34.77,27.5
+lfmr band,0.37,0.36,0.375

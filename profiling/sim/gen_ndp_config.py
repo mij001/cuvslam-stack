@@ -68,12 +68,69 @@ def affinity(substrate):
     return "none"
 
 
+def emit_accelsim_overlays(base_cfg_path, outdir):
+    """Concretize the NDP knobs against a REAL Accel-Sim base gpgpusim.config:
+    parse its -gpgpu_clock_domains and -gpgpu_cache:dl2 lines and emit, per
+    scenario, an overlay config (later -config wins in accel-sim.out) with
+
+      DRAM clock x k      near-bank internal bandwidth (and ~1/k access time —
+                          both are what 'compute at the bank' buys)
+      core clock x c_r    the PiM compute ratio
+      L2 sets / 8         near-bank data is not L2-cached; shrinking the L2 to
+                          a token size models bypass without touching the
+                          tag/MSHR machinery
+
+    The baseline for DELTAS is the unmodified base config (standing rule 5:
+    simulated numbers are deltas, never absolutes)."""
+    text = open(base_cfg_path).read()
+    m_clk = re.search(r"(?m)^-gpgpu_clock_domains\s+([\d.:]+)", text)
+    m_dl2 = re.search(r"(?m)^-gpgpu_cache:dl2\s+(\S+)", text)
+    if not (m_clk and m_dl2):
+        raise SystemExit(f"{base_cfg_path}: missing clock_domains or cache:dl2")
+    core, icnt, l2c, dram = (float(x) for x in m_clk.group(1).split(":"))
+    dl2 = m_dl2.group(1)
+
+    written = []
+    for scen, p in SCENARIOS.items():
+        # dl2 like S:64:128:16,L:B:m:L:P,... -> divide the sets field by 8
+        # (floor 4) AND switch the set-index fn from IPOLY ('P') to linear
+        # ('L'): IPOLY asserts on non-{16,32,64} set counts (hashing.cc:88)
+        groups = dl2.split(",")
+        f0 = groups[0].split(":")
+        f0[1] = str(max(int(f0[1]) // 8, 4))
+        groups[0] = ":".join(f0)
+        if len(groups) > 1 and groups[1].endswith(":P"):
+            groups[1] = groups[1][:-2] + ":L"
+        dl2_ndp = ",".join(groups)
+        parts = f0
+        cfg = os.path.join(outdir, f"{scen}.accelsim.config")
+        with open(cfg, "w") as fh:
+            fh.write(
+                f"# Accel-Sim NDP overlay ({scen}) — appended after the base config\n"
+                f"# derived from {os.path.basename(base_cfg_path)}: DRAM clk x{p['k']:g}, "
+                f"core clk x{p['c']:g}, L2 sets/8.\n"
+                f"# ICNT + L2 clocks scale WITH the DRAM (near-bank compute sits on the\n"
+                f"# bank fabric — v1 kept them core-side and the first sims showed the\n"
+                f"# request path throttling away the entire bandwidth gain: the fabric,\n"
+                f"# not the DRAM, was the wall. That v1 result is kept on record.)\n"
+                f"-gpgpu_clock_domains {core * p['c']:.1f}:{icnt * p['k']:.1f}:"
+                f"{l2c * p['k']:.1f}:{dram * p['k']:.1f}\n"
+                f"-gpgpu_cache:dl2 {dl2_ndp}\n")
+        written.append(cfg)
+        print(f"[{scen}] accel-sim overlay: core {core:g}->{core * p['c']:g} MHz, "
+              f"dram {dram:g}->{dram * p['k']:g} MHz, dl2 sets {dl2.split(':')[1]}->{parts[1]}")
+    return written
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--hw", default="profiling/hw/dellworkstation_sm89.toml")
     ap.add_argument("--verdicts", default="reports/2026-07-07_substrate/substrate_verdicts.csv")
     ap.add_argument("--out", default="profiling/sim/configs")
+    ap.add_argument("--accelsim-base", default=None,
+                    help="path to a real gpgpusim.config (e.g. tested-cfgs/SM86_RTX3070/"
+                         "gpgpusim.config) — also emit concrete Accel-Sim overlays")
     args = ap.parse_args(argv)
 
     hw = open(os.path.join(REPO, args.hw)).read()
@@ -132,6 +189,11 @@ def main(argv=None):
         written.append(man)
         print(f"[{scen}] L2 {l2_bytes}->{ndp_l2} B, DRAM x{p['k']:g}, offloads "
               f"{n_off}/{len(by_kernel)} kernels -> {os.path.relpath(cfg, REPO)}")
+
+    if args.accelsim_base:
+        written += emit_accelsim_overlays(
+            args.accelsim_base if os.path.isabs(args.accelsim_base)
+            else os.path.join(REPO, args.accelsim_base), outdir)
 
     print(f"\n[✓] {len(written)} NDP config/manifest files -> {os.path.relpath(outdir, REPO)}")
     print("    next (Phase 3, gated): run_accelsim.sh applies base+overlay over the "

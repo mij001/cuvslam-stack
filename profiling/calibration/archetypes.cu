@@ -126,10 +126,20 @@ int main(int argc, char** argv) {
     int dev = 0; cudaDeviceProp prop; CHECK(cudaGetDeviceProperties(&prop, dev));
     const int sms = prop.multiProcessorCount;
 
+    // SIM_SCALE=N shrinks every working set / iteration count by N — for
+    // cycle-level simulation (Accel-Sim traces every instruction; the
+    // hardware-profiling sizes would produce multi-GB traces and week-long
+    // sims). The CLASS of each archetype is size-invariant by construction:
+    // g1 still streams far beyond any cache at scale 64, g4 still chases
+    // dependent far-apart pointers, etc.
+    size_t scale = 1;
+    if (const char* s = getenv("SIM_SCALE")) scale = (size_t)atol(s) > 0 ? atol(s) : 1;
+
     // Sizes: big streams ≫ L2 (so G1/G2 defeat caches); g3 array fits in L2/3.
-    const size_t N_BIG  = 96ull << 20;                       // 96M floats = 384 MB
-    const size_t N_L2   = (size_t)(prop.l2CacheSize / 3) / sizeof(float);
-    const size_t N_CHASE = 64ull << 20;                      // 64M nodes = 256 MB
+    const size_t N_BIG  = (96ull << 20) / scale;             // 96M floats = 384 MB
+    const size_t N_L2   = (size_t)(prop.l2CacheSize / 3) / sizeof(float) / (scale > 1 ? 2 : 1);
+    const size_t N_CHASE = (64ull << 20) / scale;            // 64M nodes = 256 MB
+    const int ITER_DIV = (int)(scale > 1 ? scale : 1);
 
     float *a = nullptr, *b = nullptr, *c = nullptr;
     unsigned *idx = nullptr, *nxt = nullptr, *uout = nullptr;
@@ -173,15 +183,15 @@ int main(int argc, char** argv) {
         } else if (!strcmp(which, "g2_gather")) {
             g2_gather<<<sms * 8, 256>>>(a, idx, c, N_BIG);
         } else if (!strcmp(which, "g3_l2")) {
-            g3_l2<<<sms * 8, 256>>>(a, c, N_L2, 64);
+            g3_l2<<<sms * 8, 256>>>(a, c, N_L2, 64 / ITER_DIV + 1);
         } else if (!strcmp(which, "g4_chase")) {
-            g4_chase<<<2, 64>>>(nxt, uout, 200000);           // 128 threads total: occupancy ~0
+            g4_chase<<<2, 64>>>(nxt, uout, 200000 / ITER_DIV);           // 128 threads total: occupancy ~0
         } else if (!strcmp(which, "g5_fma")) {
-            g5_fma<<<sms * 8, 256>>>(c, (size_t)sms * 8 * 256, 40000);
+            g5_fma<<<sms * 8, 256>>>(c, (size_t)sms * 8 * 256, 40000 / ITER_DIV);
         } else if (!strcmp(which, "g6_shared")) {
-            g6_shared<<<sms * 4, 1024>>>(c, 20000);
+            g6_shared<<<sms * 4, 1024>>>(c, 20000 / ITER_DIV);
         } else if (!strcmp(which, "g7_dep")) {
-            g7_dep<<<sms, 32>>>(c, 2000000);                  // 1 warp/SM, pure dep chain
+            g7_dep<<<sms, 32>>>(c, 2000000 / ITER_DIV);                  // 1 warp/SM, pure dep chain
         } else if (!strcmp(which, "g0_tiny")) {
             g0_tiny<<<1, 32>>>(c);
         } else { fprintf(stderr, "unknown archetype %s\n", which); return 2; }
